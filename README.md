@@ -31,7 +31,31 @@
 [www.youtransactor.com](https://www.youtransactor.com)
 
 ## UCubeAPI : Payment
+------
+#### Payment request
+* This API start a payment by activating available readers in the device. (NFC, SMC, MSR)
+* It take in input a UCubePayRequest and give in output a UCubePayResponse.
+* The payment params that the user should specify are :
+	[ ] Amount
+	[ ] Currency  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
+	[ ] Transaction type // PURCHASE /  WITHDRAWAL  / REFUND /  PURCHASE_CASHBACK / MANUAL_CASH / INQUIRY
+	[ ] Card wait timeout
+	[ ] Application selection Task // Instance of class which implements IApplicationSelectionTask, if null SDK will use the default ApplicationSelectionTask.
+	[ ] Authorization task // Instance of class that implements  IAuthorizationTask.
+	[ ] RiskManagement task // Instance of class that implements  IRiskManagementTask.
 
+
+			UCubePayRequest paymentRequest = new UCubePayRequest.Builder(
+				1.0, 
+				UCubePayRequest.CURRENCY_EUR,
+				TransactionType.PURCHASE, 
+				UCubePayRequest.DEFAULT_CARD_WAIT_TIMEOUT,
+				new AuthorizationTask(this), 
+				new RiskManagementTask(this)
+			) .build();
+
+			UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE)
+------
 ## UCubeAPI : Update + send Logs
 
 ## RPC : Call command
