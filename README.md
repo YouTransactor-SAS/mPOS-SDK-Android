@@ -16,18 +16,17 @@
 * User should call this API before start using any other API of SDK. 
 
 	
-
-		'try {
+		’’’
+		try {
 			UCubeAPI.init(getApplicationContext(), activity, YTMPOSProduct.uCube_touch);
-
 		} catch (BleNotSupportException e) {
 	  		e.printStackTrace();
 		} catch (BluetoothNotSupportException e) {
  	  		e.printStackTrace();
-		}'
+		}
+		’’’
 
 
-		&nbsp;
 ------
 [www.youtransactor.com](https://www.youtransactor.com)
 
