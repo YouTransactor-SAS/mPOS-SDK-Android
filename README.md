@@ -55,6 +55,40 @@
 			) .build();
 
 			UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE)
+
+
+
+#### Example of Application selection task
+
+		public class MyApplicationSelectionTask implements IApplicationSelectionTask {
+
+  			private List<EMVApplicationDescriptor> applicationList;
+  			private List<EMVApplicationDescriptor> candidateList;
+  			private PaymentContext context;
+
+			@Override
+			public void setAvailableApplication(List<EMVApplicationDescriptor> applicationList) {   this.applicationList = applicationList; }
+
+			@Override
+			public List<EMVApplicationDescriptor> getSelection() { return candidateList;  }
+
+			@Override
+			public PaymentContext getContext() {  return context;  }
+
+			@Override
+			public void setContext(PaymentContext paymentContext) {  this.context = paymentContext; }
+			 
+			@Override
+			public void execute(ITaskMonitor monitor) {
+			    candidateList = new ArrayList<>();
+
+			    // todo
+
+			    monitor.handleEvent(TaskEvent.SUCCESS);
+  			}
+		}
+
+
 ------
 ## UCubeAPI : Update + send Logs
 
