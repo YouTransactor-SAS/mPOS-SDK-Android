@@ -16,15 +16,15 @@
 * User should call this API before start using any other API of SDK. 
 
 	
-		’’’
-		try {
-			UCubeAPI.init(getApplicationContext(), activity, YTMPOSProduct.uCube_touch);
-		} catch (BleNotSupportException e) {
-	  		e.printStackTrace();
-		} catch (BluetoothNotSupportException e) {
- 	  		e.printStackTrace();
-		}
-		’’’
+		
+	try {
+		UCubeAPI.init(getApplicationContext(), activity, YTMPOSProduct.uCube_touch);
+	} catch (BleNotSupportException e) {
+		e.printStackTrace();
+	} catch (BluetoothNotSupportException e) {
+ 		e.printStackTrace();
+	}
+		
 
 
 ------
