@@ -181,6 +181,31 @@ Several response fields are available when the callback activity is called.
 
 - [ ] TxCode : int
 
+- [ ] TxInfo : Transaction info object containing informaation about this transaction. It contains the following information:
+	* ProductInfomation : ProductInfo
+	* AppVersion : String
+	* TxDate : Date
+	* TxAmount : double
+	* TxCurrency : Currency
+	* TxType : TransactionType
+	* EntryMode : e.g. CHIP
+	* NumberOfInstallments : int
+	* CardType : e.g. MASTERCARD
+	* Last for digits of the card : String
+	* SelectedApplication : EMVApplicationDescriptor
+
+
+
+#### Handle Payment result
+
+		@Override
+		protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+   			super.onActivityResult(requestCode, resultCode, data);
+
+   			if( requestCode == PAYMENT_REQUEST_CODE)
+   			// TODO parse response
+		}
+
 ------
 ## UCubeAPI : Update + send Logs
 
