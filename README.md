@@ -163,23 +163,23 @@ The content of this tags will be returned in the response as UCubePayResponse.re
 
 Several response fields are available when the callback activity is called. 
 
-	- [ ] TxStatus : Possible Values :
-		* DEFAULT_INIT
-		* NFC_MPOS_ERROR
-		* CARD_WAIT_FAILED
-		* CANCELLED
-		* STARTED
-		* CARD_REMOVED
-		* CHIP_REQUIRED
-		* UNSUPPORTED_CARD
-		* TRY_OTHER_INTERFACE
-		* REFUSED_CARD
-		* ERROR
-		* AUTHORIZED
-		* APPROVED
-		* DECLINED
-		
-	- [ ] TxCode : int
+- [ ] TxStatus : Possible Values :
+	* DEFAULT_INIT
+	* NFC_MPOS_ERROR
+	* CARD_WAIT_FAILED
+	* CANCELLED
+	* STARTED
+	* CARD_REMOVED
+	* CHIP_REQUIRED
+	* UNSUPPORTED_CARD
+	* TRY_OTHER_INTERFACE
+	* REFUSED_CARD
+	* ERROR
+	* AUTHORIZED
+	* APPROVED
+	* DECLINED
+
+- [ ] TxCode : int
 
 ------
 ## UCubeAPI : Update + send Logs
