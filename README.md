@@ -1,7 +1,11 @@
 # uCube mPOS SDK Android
 
 ## General Architecture
+------
 
+![General Architecture](/Document/Cptr_Architecture.JPEG "General Architecture")
+
+------
 ## Transaction Flow : SMC
 
 ## Transaction Flow : NFC
