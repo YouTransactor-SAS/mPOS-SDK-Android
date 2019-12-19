@@ -89,6 +89,73 @@
 		}
 
 
+
+#### Example of Risk Managament task
+
+		public class MyRiskManagementTask implements IRiskManagementTask {
+
+  			private ITaskMonitor monitor;
+  			private PaymentContext paymentContext;
+  			private byte[] tvr;
+
+  			@Override
+  			public byte[] getTVR() {  return tvr; }
+
+  			@Override
+  			public PaymentContext getContext() {  return paymentContext; }
+
+  			@Override
+  			public void setContext(PaymentContext context) {  this.paymentContext = context; }
+
+  			@Override
+  			public void execute(ITaskMonitor monitor) {
+     			this.monitor = monitor;
+    
+        			// todo
+
+     			monitor.handleEvent(TaskEvent.SUCCESS);
+  			}
+		}
+
+
+
+#### Example of Authorization task
+
+		public class MyAuthorizationTask implements IAuthorizationTask {
+
+  			private byte[] authResponse;
+  			private ITaskMonitor monitor;
+  			private PaymentContext paymentContext;
+
+  			@Override
+  			public byte[] getAuthorizationResponse() {   return authResponse;  }
+
+  			@Override
+  			public PaymentContext getContext() {   return paymentContext; }
+
+ 			@Override
+  			public void setContext(PaymentContext context) { this.paymentContext = context;  }
+
+  			@Override
+  			public void execute(ITaskMonitor monitor) {
+     			this.monitor = monitor;
+     			
+      			//TODO
+  			}
+		}
+
+
+
+#### Additional info :
+
+The UCubePayRequest has an optional attribute that can be used to add list of tags.
+The content of this tags will be returned in the response as UCubePayResponse.requestedTags attribute : byte[ ].
+
+		UCubePayRequest paymentRequest = new UCubePayRequest.Builder(...)
+		.setRequestTags(tags)
+		.build();
+
+		UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE);
 ------
 ## UCubeAPI : Update + send Logs
 
