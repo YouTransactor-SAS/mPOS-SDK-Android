@@ -206,7 +206,54 @@ Several response fields are available when the callback activity is called.
    			// TODO parse response
 		}
 
+
 ------
+
 ## UCubeAPI : Update + send Logs
+------
+
+* The update API registers the device in YT MDM then it retrive the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
+* It takes ForceUpdate : boolean as a param. If this param true the API will update the svpp even if it has the same version as the configured one.
+		
+		UCubeAPI.update(forceUpdate);
+
+
+
+* uCube SDK manage a logback that save all RPC exchanges and differents user actions.
+* User of SDK can send logs to be interpreted by the support team using this API : 
+		
+		UCubeAPI.sendLogs();
+
+
+------
 
 ## RPC : Call command
+------
+
+* This library allows user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
+* User may want to call some RPC, it depends of implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
+* This is an example of DisplayMessageWithoutKI command call : 
+
+		DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
+
+		displayMessageCommand.setCentered(centred);
+		displayMessageCommand.setYPosition(yPosition);
+		displayMessageCommand.setFont(font);
+
+		displayMessageCommand.execute(new ITaskMonitor() {
+
+  			@Override
+  			public void handleEvent(TaskEvent event, Object... params) {
+     			switch (event) {
+     				case FAILED:
+     				//TODO
+        			break;
+
+     			case SUCCESS:
+    				//TODO
+        			break;
+     			}
+  			}
+		});
+
+------
