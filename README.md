@@ -3,7 +3,7 @@
 ## General Architecture
 ------
 
-![General Architecture](/Document/Cptr_Architecture.JPEG "General Architecture")
+![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
 
 ------
 ## Transaction Flow : SMC
