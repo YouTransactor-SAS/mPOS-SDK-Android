@@ -76,8 +76,8 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 ![Cptr_Payment](https://user-images.githubusercontent.com/59020462/71241849-e3675080-230c-11ea-91ac-996a36382556.jpeg)
 
 #### Payment request
-* This API start a payment by activating available readers in the device. (NFC, SMC, MSR)
-* It take in input a UCubePayRequest and give in output a UCubePayResponse.
+* This API start payment by activating available readers in the device. (NFC, SMC, MSR)
+* It takes in input a UCubePayRequest and gives in output a UCubePayResponse.
 * The payment params that the user should specify are :
 	- [ ] **Amount**
 	- [ ] **Currency**  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
@@ -188,8 +188,8 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 
 #### Additional info :
 
-The UCubePayRequest has an optional attribute that can be used to add list of tags.
-The content of this tags will be returned in the response as UCubePayResponse.requestedTags attribute : byte[ ].
+The UCubePayRequest has an optional attribute that can be used to add a list of tags.
+The content of these tags will be returned in the response as UCubePayResponse.requestedTags attribute: byte[ ].
 
 		UCubePayRequest paymentRequest = new UCubePayRequest.Builder(...)
 		.setRequestTags(tags)
@@ -252,8 +252,8 @@ Several response fields are available when the callback activity is called.
 ### 4. UCubeAPI : Update 
 
 
-* The update API registers the device in YT MDM then it retrive the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
-* It takes ForceUpdate : boolean as a param. If this param true the API will update the svpp even if it has the same version as the configured one.
+* The update API registers the device in YT MDM then it retrieves the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
+* It takes ForceUpdate: boolean as a param. If this param true the API will update the svpp even if it has the same version as the configured one.
 		
 		UCubeAPI.update(forceUpdate);
 
@@ -261,8 +261,8 @@ Several response fields are available when the callback activity is called.
 ### 5. UCubeAPI : Send Logs
 
 
-* uCube SDK manage a logback that save all RPC exchanges and differents user actions.
-* User of SDK can send logs to be interpreted by the support team using this API : 
+* uCube SDK manages a log back that save all RPC exchanges and differents users actions.
+* User of SDK can send logs to be interpreted by the support team using this API: 
 		
 		UCubeAPI.sendLogs();
 
@@ -272,9 +272,9 @@ Several response fields are available when the callback activity is called.
 ### 6. RPC : Call command
 
 
-* This library allows user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
-* User may want to call some RPC, it depends of implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
-* This is an example of DisplayMessageWithoutKI command call : 
+* This library allows the user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
+* User may want to call some RPC, it depends on implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
+* This is an example of DisplayMessageWithoutKI command call: 
 
 		DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
 
