@@ -41,6 +41,7 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 
 ## UCubeAPI : Initialization
 
+
 * This API initializes the sdk by initializing differents modules; RPC, Payment, MDM…
 * It takes in input the YTMPOSProduct that user of SDK choose to use.
 * It can throws two type of exception : BleNotSupportException and BluetoothNotSupportException.
@@ -63,6 +64,9 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 
 
 ## UCubeAPI : Payment
+
+
+![Cptr_Payment](https://user-images.githubusercontent.com/59020462/71241849-e3675080-230c-11ea-91ac-996a36382556.jpeg)
 
 #### Payment request
 * This API start a payment by activating available readers in the device. (NFC, SMC, MSR)
