@@ -7,7 +7,11 @@
 
 ------
 ## Transaction Flow : SMC
+------
 
+![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
+
+------
 ## Transaction Flow : NFC
 
 ## UCubeAPI : Initialization
