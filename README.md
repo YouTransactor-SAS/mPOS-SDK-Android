@@ -9,8 +9,8 @@ For more information about YouTransactor developer products, please refer to our
 
 To embed the package that you need in your application, you have to be sure of certain things in your settings.
 1. Received YouTransactor card terminal : uCube, uCubeTouch
-2. Your SDK Version must be at 21 to works properly.
-3. The TargetSDKversion 28 or later.
+2. Your `minSDKVersion` must be at 21 to works properly.
+3. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
 4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation
 
 
@@ -44,11 +44,11 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 ## UCubeAPI : Initialization
 
 
-* This API initializes the sdk by initializing differents modules; RPC, Payment, MDM…
-* It takes in input the YTMPOSProduct that user of SDK choose to use.
-* It can throws two type of exception : BleNotSupportException and BluetoothNotSupportException.
-* BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t supports BLE.
-* BluetoothNotSupportException : mean that the used smartphone don’t support Bluetooth. 
+* This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…
+* It takes in input the YTMPOSProduct that user of SDK chooses to use.
+* It can throw two types of exception: BleNotSupportException and BluetoothNotSupportException.
+* BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t support BLE.
+* BluetoothNotSupportException : mean that the used smartphone doesn’t support Bluetooth. 
 * User should call this API before start using any other API of SDK. 
 
 	
