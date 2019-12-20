@@ -5,16 +5,39 @@ This repository provides a step by step documentation that will allow you to int
 
 For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
 
+
+## Context
+
+### 1. General Architecture
+
+
+![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
+
+
+### 2. Transaction Flow : Contact
+
+
+![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
+
+
+### 3. Transaction Flow : Contactless
+
+
+![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
+
+
 ## Prerequisites
 
 To embed the package that you need in your application, you have to be sure of certain things in your settings.
 1. Received YouTransactor card terminal : uCube, uCubeTouch
-2. Your `minSDKVersion` must be at 21 to works properly.
+2. The `minSDKVersion` must be at 21 to works properly.
 3. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
 4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation
 
+## II. Integrate the uCube mPOS SDK Android
+* You can use the sample app provided in this repository as a reference
 
-## Dependency
+### 1. Dependency
 
 Our SDK is in the format “aar” in the library. So if you want to access to it here is what you must do.
 You will need to get into your app-level Build.Gradle to add this dependency:
@@ -22,26 +45,8 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 		implementation files('libs/ucube_lib.aar')
 
 
-## General Architecture
 
-
-![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
-
-
-## Transaction Flow : Contact
-
-
-![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
-
-
-## Transaction Flow : Contactless
-
-
-![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
-
-
-
-## UCubeAPI : Initialization
+### 2. UCubeAPI : Initialization
 
 
 * This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…
@@ -65,7 +70,7 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 
 
 
-## UCubeAPI : Payment
+### 3. UCubeAPI : Payment
 
 
 ![Cptr_Payment](https://user-images.githubusercontent.com/59020462/71241849-e3675080-230c-11ea-91ac-996a36382556.jpeg)
@@ -83,16 +88,13 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 	- [ ] **RiskManagement task** // Instance of class that implements  IRiskManagementTask.
 
 
-			UCubePayRequest paymentRequest = new UCubePayRequest.Builder(
-				1.0, 
-				UCubePayRequest.CURRENCY_EUR,
-				TransactionType.PURCHASE, 
-				UCubePayRequest.DEFAULT_CARD_WAIT_TIMEOUT,
-				new AuthorizationTask(this), 
-				new RiskManagementTask(this)
-			) .build();
-
-			UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE)
+				UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
+					.setAmount(1.0)
+					.setCurrency(UCubePaymentRequest.CURRENCY_EUR)
+					.setAuthorizationTask(new MyAuthorizationTask())
+					.setRiskManagementTask(new MyRiskManagementTask())
+					.build();
+				UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE)
 
 
 
@@ -247,7 +249,7 @@ Several response fields are available when the callback activity is called.
 
 
 
-## UCubeAPI : Update + send Logs
+### 4. UCubeAPI : Update 
 
 
 * The update API registers the device in YT MDM then it retrive the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
@@ -255,6 +257,8 @@ Several response fields are available when the callback activity is called.
 		
 		UCubeAPI.update(forceUpdate);
 
+
+### 5. UCubeAPI : Send Logs
 
 
 * uCube SDK manage a logback that save all RPC exchanges and differents user actions.
@@ -265,7 +269,7 @@ Several response fields are available when the callback activity is called.
 
 
 
-## RPC : Call command
+### 6. RPC : Call command
 
 
 * This library allows user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
