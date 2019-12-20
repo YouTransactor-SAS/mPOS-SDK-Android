@@ -1,4 +1,5 @@
 # uCube mPOS SDK Android
+![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71242112-8029ee00-230d-11ea-83e3-b317b7620e0f.jpeg)
 
 This repository provides a step by step documentation that will allow you to integrate our uCube library for Android SDK to develop your proper application. To do it just follows the instruction.
 For more information about SumUp developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
