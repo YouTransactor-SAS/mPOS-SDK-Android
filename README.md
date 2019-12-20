@@ -1,26 +1,46 @@
 # uCube mPOS SDK Android
 
+This repository provides a step by step documentation that will allow you to integrate our uCube library for Android SDK to develop your proper application. To do it just follows the instruction.
+For more information about SumUp developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
+
+## Prerequisites
+
+To embed the package that you need in your application, you have to be sure of certain things in your settings.
+1. Received YouTransactor card terminal : uCube, uCubeTouch
+2. Your SDK Version must be at 21 to works properly.
+3. The TargetSDKversion 28 or later.
+4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation
+
+
+## Dependency
+
+Our SDK is in the format “aar” in the library. So if you want to access to it here is what you must do.
+You will need to get into your app-level Build.Gradle to add this dependency:
+
+		implementation files('libs/ucube_lib.aar')
+
+
 ## General Architecture
-------
+
 
 ![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
 
-------
+
 ## Transaction Flow : SMC
-------
+
 
 ![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
 
-------
+
 ## Transaction Flow : NFC
-------
+
 
 ![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
 
 
-------
+
 ## UCubeAPI : Initialization
-------
+
 * This API initializes the sdk by initializing differents modules; RPC, Payment, MDM…
 * It takes in input the YTMPOSProduct that user of SDK choose to use.
 * It can throws two type of exception : BleNotSupportException and BluetoothNotSupportException.
@@ -40,11 +60,10 @@
 		
 
 
-------
-[www.youtransactor.com](https://www.youtransactor.com)
+
 
 ## UCubeAPI : Payment
-------
+
 #### Payment request
 * This API start a payment by activating available readers in the device. (NFC, SMC, MSR)
 * It take in input a UCubePayRequest and give in output a UCubePayResponse.
@@ -220,10 +239,10 @@ Several response fields are available when the callback activity is called.
 		}
 
 
-------
+
 
 ## UCubeAPI : Update + send Logs
-------
+
 
 * The update API registers the device in YT MDM then it retrive the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
 * It takes ForceUpdate : boolean as a param. If this param true the API will update the svpp even if it has the same version as the configured one.
@@ -238,10 +257,10 @@ Several response fields are available when the callback activity is called.
 		UCubeAPI.sendLogs();
 
 
-------
+
 
 ## RPC : Call command
-------
+
 
 * This library allows user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
 * User may want to call some RPC, it depends of implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
@@ -269,4 +288,4 @@ Several response fields are available when the callback activity is called.
   			}
 		});
 
-------
+
