@@ -28,13 +28,13 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 ![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
 
 
-## Transaction Flow : SMC
+## Transaction Flow : Contact
 
 
 ![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
 
 
-## Transaction Flow : NFC
+## Transaction Flow : Contactless
 
 
 ![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
