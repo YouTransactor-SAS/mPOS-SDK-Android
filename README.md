@@ -13,7 +13,12 @@
 
 ------
 ## Transaction Flow : NFC
+------
 
+![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
+
+
+------
 ## UCubeAPI : Initialization
 ------
 * This API initializes the sdk by initializing differents modules; RPC, Payment, MDM…
