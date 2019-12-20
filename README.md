@@ -6,7 +6,7 @@ This repository provides a step by step documentation that will allow you to int
 For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
 
 
-## Context
+## I. Context
 
 ### 1. General Architecture
 
