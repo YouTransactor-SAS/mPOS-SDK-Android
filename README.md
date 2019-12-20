@@ -69,12 +69,12 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 * It take in input a UCubePayRequest and give in output a UCubePayResponse.
 * The payment params that the user should specify are :
 	- [ ] Amount
-	- [ ] Currency  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
-	- [ ] Transaction type // PURCHASE /  WITHDRAWAL  / REFUND /  PURCHASE_CASHBACK / MANUAL_CASH / INQUIRY
+	- [ ] Currency  **// CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label)** 
+	- [ ] Transaction type **// PURCHASE /  WITHDRAWAL  / REFUND /  PURCHASE_CASHBACK / MANUAL_CASH / INQUIRY**
 	- [ ] Card wait timeout
-	- [ ] Application selection Task // Instance of class which implements IApplicationSelectionTask, if null SDK will use the default ApplicationSelectionTask.
-	- [ ] Authorization task // Instance of class that implements  IAuthorizationTask.
-	- [ ] RiskManagement task // Instance of class that implements  IRiskManagementTask.
+	- [ ] Application selection Task **// Instance of class which implements IApplicationSelectionTask, if null SDK will use the default ApplicationSelectionTask.**
+	- [ ] Authorization task **// Instance of class that implements  IAuthorizationTask.**
+	- [ ] RiskManagement task **// Instance of class that implements  IRiskManagementTask.**
 
 
 			UCubePayRequest paymentRequest = new UCubePayRequest.Builder(
