@@ -7,46 +7,139 @@ For more information about YouTransactor developer products, please refer to our
 
 
 ## I. Context
+### 1 General overview 
+YouTransactor mPOS products are : 
+* uCube (with different models)
+* uCube Touch
+
+The uCube Touch is a new version of the uCube. There are some hardware differences, which are: 
+* The uCube use the classical Bluetooth and the uCube Touch use the BLE 
+* The uCube provide a magstripe reader but not the uCube Touch
+
+The uCubeLib support these two product. There is a setup () API implemented by the uCubeLib which takes a YTMPOSProduct. It initializes the SDK to connect one of this two products. In this document “uCube” is used as a name for this two products.
+
+#### 1.1 uCube
+The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
+
+//TODO  add image
+
+#### 1.2 uCube Touch
+The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
+
+//TODO add image
+
+#### 1.3 Mobile Device
+The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the uCube / uCube Touch to the rest of the system.
+
+The mobile device application consists of 2 modules:
+* Business module
+	* Application that meets the business needs of the end customer. This is for example a cashier    	    application in the case of a restaurant, or a control application in the case of transports.
+* "uCubeLib" Module
+	* Manages the Bluetooth connection with the uCube / uCube Touch
+	* Drives the transaction between the uCube and the payment card.
+	* Responsible for uCube software updates
+
+The business module on the mobile device is developed by the integrator. It uses the user interfaces of the mobile device to fulfill the business needs of the customer. A sample application is provided to the integrator, under the SDK.
+
+The uCubeLib module is developed by YouTransactor. It is delivered to the integrator as a library, and compiled with the business module to generate the payment application.
+
+The purpose of this document is to describe the services provided by the uCubeLib module to the business module.
+
+#### 1.4 The Management System
+The management system is administered by YouTransactor and offers the following services:
+* Management of the uCube fleet
+* Deployment of software updates
+* Deployment of payment parameters
+* Other services
+
+The management system does not require integration with the business module, so its operation is not developed in this documentation.
+
+### 2 uCube management
+#### 2.1 Setup 
+##### 2.1.1 Initial configuration 
+To be functional, in the scope of PCI PTS requirement, and SRED key shall be loaded securely in the device. This key is loaded locally by YouTransactor tools. The initial SALT is injected in the same way.
+
+##### 2.1.2 Bleutooth pairing
+Before using the payment function, the uCube must be paired with the mobile device via Bluetooth.
+
+This pairing can be done by a "connect" method of the uCubeLib module. It will scan all available devices and will display a system pop-up prompting the user to select the device to use.
+
+The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if it is disabled. And if the YTMPOSProduct chosen, when setup was called, was the uCube Touch, a Location permission will be requested.
+
+//TODO ADD IMG
+
+#### 2.2 Switching uCube On/Off
+The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the business module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
+
+The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method. When connection established, the SDK check if the device is state, if it is power off, it turns it 
+
+#### 2.3 Firmware update
+During the life of the uCube, the uCube firmware could be updated (for bug fix, etc..). The “checkUpdate” method make a compare between current versions of firmware and configuration with These defined in TMS server. If the is a difference or a force update parameter is set to true, it returns the update list. The method “update” used to apply the updates, it takes as input the list of updates to be applied, it can be the output of “checkUpdate” method or a sub list of that. It downloads the binaries of each update in input list and install them all. 
+
+#### 2.4 Send logs
+uCubeLib provide a “LogManager” Class used to print logs in logcat at runtime, save these logs in files. And it needed, send these files to TMS server. Logs can be enabled or disabled. The “sendLogs” method is used to send a zip file that contain all saved logs files. 
+
+## II. Technical Overview
 
 ### 1. General Architecture
 
+This section describes the general uCube MPOS Android SDK architecture. The SDK provide: 
+
+* Connexion module used to scan Bluetooth devices and pair then connect uCube (classical Bluetooth and BLE supported) 
+* MDM module that implements all TMS Web services to manage uCube updates and debug.
+* RPC module that implements all SVPP commands. This RPC APIs used to drive the SVPP for processing transactions or to update it.
+* Payment module implements magstripe, contact and contactless transaction services. It uses the RPC module to call RPC commands during the transaction.
+* UCubeAPI is the public interface exposed to the integrator it implements several APIs to mainly setup the connection with uCube, do a payment, check and start a uCube update, send logs to TMS server.
+
+The Integrator is able to use the UCubeAPI interface and call RPC commands. 
 
 ![Cptr_Architecture](https://user-images.githubusercontent.com/59020462/71239040-d8f58880-2305-11ea-97d3-9441e2b7e0d3.jpeg)
 
-
 ### 2. Transaction Flow : Contact
-
 
 ![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
 
 
 ### 3. Transaction Flow : Contactless
 
-
 ![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
 
-
-## Prerequisites
+### 4. Prerequisites
 
 To embed the package that you need in your application, you have to be sure of certain things in your settings.
 1. Received YouTransactor card terminal : uCube, uCubeTouch
 2. The `minSDKVersion` must be at 21 to works properly.
 3. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
-4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation
+4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
-## II. Integrate the uCube mPOS SDK Android
-* You can use the sample app provided in this repository as a reference
-
-### 1. Dependency
+### 5. Dependency
 
 Our SDK is in the format “aar” in the library. So if you want to access to it here is what you must do.
 You will need to get into your app-level Build.Gradle to add this dependency:
 
 		implementation files('libs/ucube_lib.aar')
 
+### 6. UCubeAPI
+The APIs provided by UCubeAPI modules are:
+
+* initManagers (@Nonnull Context context)
+* setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
+* YTMPOSProduct getYTMPOSProduct()
+* connect (@Nonnull Activity activity, @NonNull UCubeInitListener uCubeInitListener)
+* UCubeInfo getUCubeInfo()
+* deletePairedUCube()
+* pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
+* checkUpdate(@NonNull Activity activity, boolean updateSameVersion, boolean doNotCheckVersion, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
+* update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
+* sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
+* close()
 
 
-### 2. UCubeAPI : Initialization
+## II. Integrate the uCube mPOS SDK Android
+* You can use the sample app provided in this repository as a reference
+
+### 2. UCubeAPI : initManagers (...)
+* This API initializes the SDK. It should be called in the begining, before calling any other API. 
 
 
 * This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…
@@ -55,7 +148,6 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 * BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t support BLE.
 * BluetoothNotSupportException : mean that the used smartphone doesn’t support Bluetooth. 
 * User should call this API before start using any other API of SDK. 
-
 	
 		
 		try {
