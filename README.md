@@ -122,246 +122,362 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 ### 6. UCubeAPI
 The APIs provided by UCubeAPI modules are:
 
-* initManagers (@Nonnull Context context)
-* setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
-* YTMPOSProduct getYTMPOSProduct()
-* connect (@Nonnull Activity activity, @NonNull UCubeInitListener uCubeInitListener)
-* UCubeInfo getUCubeInfo()
-* deletePairedUCube()
-* pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
-* checkUpdate(@NonNull Activity activity, boolean updateSameVersion, boolean doNotCheckVersion, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
-* update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
-* sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
-* close()
+	initManagers (@Nonnull Context context)
+		
+	setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
+		
+	YTMPOSProduct getYTMPOSProduct()
+		
+	connect (@Nonnull Activity activity, @NonNull UCubeInitListener uCubeInitListener)
+		
+	UCubeInfo getUCubeInfo()
+	
+	deletePairedUCube()
+	
+	pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
+	
+	checkUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
 
+	update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
 
-## II. Integrate the uCube mPOS SDK Android
+	sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
+	
+	close()
+
 * You can use the sample app provided in this repository as a reference
 
-### 2. UCubeAPI : initManagers (...)
-* This API initializes the SDK. It should be called in the begining, before calling any other API. 
+#### initManagers (...)
+* This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…. It should be called in the begining, before calling any other API. 
 
+		@Override
+		protected void onCreate(Bundle savedInstanceState) {
+		   super.onCreate(savedInstanceState);
+		   setContentView(R.layout.activity_main);
+		   UCubeAPI.initManagers(getApplicationContext());
+		...
 
-* This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…
+#### setup (...)
 * It takes in input the YTMPOSProduct that user of SDK chooses to use.
 * It can throw two types of exception: BleNotSupportException and BluetoothNotSupportException.
 * BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t support BLE.
-* BluetoothNotSupportException : mean that the used smartphone doesn’t support Bluetooth. 
-* User should call this API before start using any other API of SDK. 
+* BluetoothNotSupportException : mean that the used smartphone doesn’t support Bluetooth.  
+* It can throws an Exception if the `initManagers` API not already called.
 	
-		
 		try {
-			UCubeAPI.init(getApplicationContext(), activity, YTMPOSProduct.uCube_touch);
-		} catch (BleNotSupportException e) {
-	  		e.printStackTrace();
-		} catch (BluetoothNotSupportException e) {
- 	  		e.printStackTrace();
+		   UCubeAPI.setup(getApplicationContext(), this, YTMPOSProduct.uCube, new UCubeAPIListener() {
+		       @Override
+		       public void onProgress(UCubeAPIState uCubeAPIState) {
+		//TODO 
+		       }
+		       @Override
+		       public void onFinish(boolean status) {
+				 //TODO
+		       }
+		   });
+		} catch (Exception e) {
+		  e.printStackTrace();
 		}
+		...
+
+#### getYTMPOSProduct ()
+* This API returns the configured YTMPOSProduct if setup already called otherwise it returns null
+* It can throw an Exception if the “initManagers” method not already called.
+
+		try {
+		   ytmposProduct  = UCubeAPI.getYTMPOSProduct();
+		   if (ytmposProduct != null) {
+		       switch (ytmposProduct) {
+			   case uCube:
+				//TODO
+			       break;
+			   case uCube_touch:
+				//TODO
+			       break;
+		       }
+		   }
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
+		...
+
+#### Connect (...)
+* This API connect the paired uCube if there is already one otherwise it does a Bluetooth scan and the user should select one device. it connects it and save it. It registers the device in the MDM and get the MDM-CLIENT certificate of the device. To be used for the double-authentication when calling others MDM WS.
+* It can throw an Exception if the “initManagers” method not already called.
+
+		try {
+		   UCubeAPI.connect(this, new UCubeConnectListener() {
+		       @Override
+		       public void onProgress(UCubeAPIState uCubeAPIState) {
+		//TODO
+		       }
+		       @Override
+		       public void onFinish(boolean status, UCubeInfo uCubeInfo) {
+		//TODO
+		       }
+		   });
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
+		….
 		
 
 
 
+#### getUCubeInfo ()
+* This API returns an UCubeInfo which contains all paired uCube informations if there is already a paired one otherwise it returns null.
+* It can throw an Exception if the “initManagers” method not already called.
 
-### 3. UCubeAPI : Payment
+		UCubeInfo deviceInfos = null;
+		try {
+		   deviceInfos = UCubeAPI.getUCubeInfo();
+		   //TODO
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
+		….
 
+#### deletePairedUCube ()
+* This API delete the current paired uCube if there is a saved one.
+* It can throw an Exception if the “initManagers” method not already called.
 
-![Cptr_Payment](https://user-images.githubusercontent.com/59020462/71241849-e3675080-230c-11ea-91ac-996a36382556.jpeg)
+		try {
+		   UCubeAPI.deletePairedUCube();
+		} catch (Exception e) {
+		   e.printStackTrace();
+		   return;
+		}
+		….
 
-#### Payment request
-* This API start payment by activating available readers in the device. (NFC, SMC, MSR)
-* It takes in input a UCubePayRequest and gives in output a UCubePayResponse.
-* The payment params that the user should specify are :
-	- [ ] **Amount**
-	- [ ] **Currency**  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
-	- [ ] **Transaction type** // PURCHASE /  WITHDRAWAL  / REFUND /  PURCHASE_CASHBACK / MANUAL_CASH / INQUIRY
-	- [ ] **Card wait timeout**
-	- [ ] **Application selection Task** // Instance of class which implements IApplicationSelectionTask, if null SDK will use the default ApplicationSelectionTask.
-	- [ ] **Authorization task** // Instance of class that implements  IAuthorizationTask.
-	- [ ] **RiskManagement task** // Instance of class that implements  IRiskManagementTask.
+#### Pay (...)
+* This API activate all available reader in device and call Payment service and it depends from which reader is used to read card the specific service is called.
+* This API takes in input a UCubePaymentRequest and gives in output a UCubePaymentResponse. 
+* It makes a payment using the defined context in UCubePaymentRequest.
+* During the payment this context will change and progress. At the end of the payment this context will be part of the UCubePaymentResponse + others attributes like payment state.
+* It can throw an Exception if the “initManagers” method not already called.
 
+##### UCubePaymentRequest
 
-				UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
-					.setAmount(1.0)
-					.setCurrency(UCubePaymentRequest.CURRENCY_EUR)
-					.setAuthorizationTask(new MyAuthorizationTask())
-					.setRiskManagementTask(new MyRiskManagementTask())
-					.build();
-				UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE)
+		UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
+		       .setAmount(amount)  // if amount not specified uCube will propose to enter the amount before start tx
+		       .setCurrency(currency)  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
+		       .setForceOnlinePin(true)
+		       .setAuthorizationTask(new AuthorizationTask(this))  // Instance of class that implements  IAuthorizationTask.
+		       .setRiskManagementTask(new RiskManagementTask(this))  // Instance of class that implements  IRiskManagementTask.
+		       .setCardWaitTimeout(timeout) // in second exemple 30 means 30 seconds of timeout to wait card
+		       .setTransactionType(trxType) // PURCHASE /  WITHDRAWAL  / REFUND /  PURCHASE_CASHBACK / MANUAL_CASH / INQUIRY
+		       .setSystemFailureInfo(true)
+		       .setSystemFailureInfo2(false)
+		       .setPreferredLanguageList(Collections.singletonList("en"))
+		       .setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
+		       .setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
+		       .setRequestedPlainTagList(Constants.TAG_MSR_BIN)
+		       .build();
 
+##### AuthorizationTask
+		public class AuthorizationTask implements IAuthorizationTask {
+		  private byte[] authResponse;
+		  private PaymentContext paymentContext;
+		  @Override
+		  public byte[] getAuthorizationResponse() {  return authResponse; }
+		  @Override
+		  public PaymentContext getContext() { return paymentContext;}
+		  @Override
+		  public void setContext(PaymentContext context) { this.paymentContext = context; }
+		  @Override
+		  public void execute(ITaskMonitor monitor) {
+		   ...
+		  }
+		...
 
+##### RiskManagementTask
 
-#### Example of Application selection task
-
-		public class MyApplicationSelectionTask implements IApplicationSelectionTask {
-
-  			private List<EMVApplicationDescriptor> applicationList;
-  			private List<EMVApplicationDescriptor> candidateList;
-  			private PaymentContext context;
-
-			@Override
-			public void setAvailableApplication(List<EMVApplicationDescriptor> applicationList) {   this.applicationList = applicationList; }
-
-			@Override
-			public List<EMVApplicationDescriptor> getSelection() { return candidateList;  }
-
-			@Override
-			public PaymentContext getContext() {  return context;  }
-
-			@Override
-			public void setContext(PaymentContext paymentContext) {  this.context = paymentContext; }
-			 
-			@Override
-			public void execute(ITaskMonitor monitor) {
-			    candidateList = new ArrayList<>();
-
-			    // todo
-
-			    monitor.handleEvent(TaskEvent.SUCCESS);
-  			}
+		public class RiskManagementTask implements IRiskManagementTask {
+		  private PaymentContext paymentContext;
+		  private byte[] tvr;
+		  @Override
+		  public byte[] getTVR() { return tvr; }
+		  @Override
+		  public PaymentContext getContext() {  return paymentContext; }
+		  @Override
+		  public void setContext(PaymentContext context) { this.paymentContext = context; }
+		  @Override
+		  public void execute(ITaskMonitor monitor) {
+		   ...
+		  }
+		...
 		}
 
 
+##### Call API 
+		try {
+		 UCubeAPI.pay(this, paymentRequest, new UCubePaymentListener() {
+		   @Override
+		   public void onStart(byte[] ksn) {
+		       Log.d(TAG, "KSN : " + Arrays.toString(ksn));
+		       //TODO Send KSN to the acquirer server
+		   }
+		   @Override
+		   public void onFinish(boolean status, UCubePaymentResponse uCubePaymentResponse) {
+		if (status && uCubePaymentResponse != null) {
+			   Log.d(TAG, "Payment status : " + uCubePaymentResponse.paymentState);
+			   Log.d(TAG, "ucube name: " + uCubePaymentResponse.uCube.ucubeName);
+			   Log.d(TAG, "ucube address: " + uCubePaymentResponse.uCube.ucubeAddress);
+			   Log.d(TAG, "ucube part number: " + uCubePaymentResponse.uCube.ucubePartNumber);
+			   Log.d(TAG, "card label: " + uCubePaymentResponse.cardLabel);
+			   Log.d(TAG, "amount: " + uCubePaymentResponse.paymentContext.getAmount());
+			   Log.d(TAG, "currency: " + uCubePaymentResponse.paymentContext.getCurrency().getLabel());
+			   Log.d(TAG, "tx date: " + uCubePaymentResponse.paymentContext.getTransactionDate());
+			   Log.d(TAG, "tx type: " + uCubePaymentResponse.paymentContext.getTransactionType().getLabel());
+			   if (uCubePaymentResponse.paymentContext.getSelectedApplication() != null) {
+			       Log.d(TAG, "app ID: " + uCubePaymentResponse.paymentContext.getSelectedApplication().getLabel());
+			       Log.d(TAG, "app version: " + uCubePaymentResponse.paymentContext.getApplicationVersion());
+			   }
+			   Log.d(TAG, "system failure log1: " + bytesToHex(uCubePaymentResponse.paymentContext.getSystemFailureInfo()));
+			   Log.d(TAG, "system failure log2: " + bytesToHex(uCubePaymentResponse.paymentContext.getSystemFailureInfo2()));
+			   if (uCubePaymentResponse.paymentContext.getPlainTagTLV() != null)
+			       for (Integer tag : uCubePaymentResponse.paymentContext.getPlainTagTLV().keySet())
+					 Log.d(TAG, "Plain Tag : " + tag + " : " + bytesToHex(uCubePaymentResponse.paymentContext.getPlainTagTLV().get(tag)));
+			   if (uCubePaymentResponse.paymentContext.getSecuredTagBlock() != null)
+			       Log.d(TAG, "secure tag block: " + bytesToHex(uCubePaymentResponse.paymentContext.getSecuredTagBlock()));
+		 }
+			 }
+		});
+		} catch (Exception e) {   e.printStackTrace(); }
 
-#### Example of Risk Managament task
+##### Response 
+* Several response fields are available when the call back activity is called.
+	* paymentContext 
+	* uCube
+	* cardLabel 
 
-		public class MyRiskManagementTask implements IRiskManagementTask {
+###### PaymentContext 
+		private PaymentState paymentStatus;
+		private EMVApplicationDescriptor selectedApplication;
+		private boolean allowFallback;
+		private int retryBeforeFallback = 3;
+		private double amount = -1;
+		private Currency currency;
+		private TransactionType transactionType;
+		private int applicationVersion;
+		private List<String> preferredLanguageList;
+		private byte[] uCubeInfos;
+		private byte[] ksn;
+		private byte activatedReader;
+		private boolean forceOnlinePIN;
+		private boolean forceAuthorization;
+		private byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
+		private int[] requestedPlainTagList;
+		private int[] requestedSecuredTagList;
+		private int[] requestedAuthorizationTagList;
+		private byte[] securedTagBlock;
+		private byte[] onlinePinBlock;
+		private Map<Integer, byte[]> plainTagTLV;
+		private byte[] authorizationResponse;
+		private byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+		private Date transactionDate;
+		private byte[] NFCOutcome;
+		private byte[] transactionData;
+		private byte[] systemFailureInfo;
+		private byte[] systemFailureInfo2;
 
-  			private ITaskMonitor monitor;
-  			private PaymentContext paymentContext;
-  			private byte[] tvr;
-
-  			@Override
-  			public byte[] getTVR() {  return tvr; }
-
-  			@Override
-  			public PaymentContext getContext() {  return paymentContext; }
-
-  			@Override
-  			public void setContext(PaymentContext context) {  this.paymentContext = context; }
-
-  			@Override
-  			public void execute(ITaskMonitor monitor) {
-     			this.monitor = monitor;
-    
-        			// todo
-
-     			monitor.handleEvent(TaskEvent.SUCCESS);
-  			}
+###### uCube
+		public class UCube {
+		   public String ucubeName;
+		   public String ucubeAddress;
+		   public String ucubePartNumber;
+		   public String ucubeSerialNumber;
 		}
-
-
-
-#### Example of Authorization task
-
-		public class MyAuthorizationTask implements IAuthorizationTask {
-
-  			private byte[] authResponse;
-  			private ITaskMonitor monitor;
-  			private PaymentContext paymentContext;
-
-  			@Override
-  			public byte[] getAuthorizationResponse() {   return authResponse;  }
-
-  			@Override
-  			public PaymentContext getContext() {   return paymentContext; }
-
- 			@Override
-  			public void setContext(PaymentContext context) { this.paymentContext = context;  }
-
-  			@Override
-  			public void execute(ITaskMonitor monitor) {
-     			this.monitor = monitor;
-
-      			//TODO
-  			}
-		}
-
-
-
-#### Additional info :
-
-The UCubePayRequest has an optional attribute that can be used to add a list of tags.
-The content of these tags will be returned in the response as UCubePayResponse.requestedTags attribute: byte[ ].
-
-		UCubePayRequest paymentRequest = new UCubePayRequest.Builder(...)
-		.setRequestTags(tags)
-		.build();
-
-		UCubeAPI.pay(activity, paymentRequest,  PAYMENT_REQUEST_CODE);
-
-
-
-#### Payment response
-
-Several response fields are available when the callback activity is called. 
-
-- [ ] TxStatus : Possible Values :
-	* DEFAULT_INIT
-	* NFC_MPOS_ERROR
-	* CARD_WAIT_FAILED
-	* CANCELLED
-	* STARTED
-	* CARD_REMOVED
-	* CHIP_REQUIRED
-	* UNSUPPORTED_CARD
-	* TRY_OTHER_INTERFACE
-	* REFUSED_CARD
-	* ERROR
-	* AUTHORIZED
-	* APPROVED
-	* DECLINED
-
-- [ ] TxCode : int
-
-- [ ] TxInfo : Transaction info object containing informaation about this transaction. It contains the following information:
-	* ProductInfomation : ProductInfo
-	* AppVersion : String
-	* TxDate : Date
-	* TxAmount : double
-	* TxCurrency : Currency
-	* TxType : TransactionType
-	* EntryMode : e.g. CHIP
-	* NumberOfInstallments : int
-	* CardType : e.g. MASTERCARD
-	* Last for digits of the card : String
-	* SelectedApplication : EMVApplicationDescriptor
-
-
-
-#### Handle Payment result
-
-		@Override
-		protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-   			super.onActivityResult(requestCode, resultCode, data);
-
-   			if( requestCode == PAYMENT_REQUEST_CODE)
-   			// TODO parse response
-		}
-
-
-
-
-### 4. UCubeAPI : Update 
-
-
-* The update API registers the device in YT MDM then it retrieves the current svpp version and check if it is different from configured version or not. If it is different an update process is executed.
-* It takes ForceUpdate: boolean as a param. If this param true the API will update the svpp even if it has the same version as the configured one.
 		
-		UCubeAPI.update(forceUpdate);
+###### PaymentState 
+		DEFAULT_INIT,
+		GET_PN_ERROR,
+		GET_MPOS_STATE_ERROR,
+		TRANSACTION_MODE_ERROR,
+		RISK_MANAGEMENT_TASK_NULL_ERROR,
+		AUTHORIZATION_TASK_NULL_ERROR,
+		DEVICE_TYPE_ERROR,
+		NFC_MPOS_ERROR,
+		CARD_WAIT_FAILED,
+		CANCELLED,
+		STARTED,
+		ENTER_SECURE_SESSION,
+		CARD_REMOVED,
+		CHIP_REQUIRED,
+		UNSUPPORTED_CARD,
+		TRY_OTHER_INTERFACE,
+		REFUSED_CARD,
+		ERROR,
+		AUTHORIZE,
+		APPROVED,
+		DECLINED
+
+#### checkUpdate  (...)
+* This API retrieve the information’s device then the device’s configuration on TMS server. It does a compare, and return a table of required Binary Updates. A binary update can be mandatory or not.
+
+* This API takes those parameters: 
+	* ForceUpdate: if true, update the same version will be accept
+	* checkOnlyFirmwareVersion: if true, check updates of only firmware(s)
+
+* It can throws an Exception if the initManagers() API not already called.
+
+		try {
+			 UCubeAPI.checkUpdate(MainActivity.this,  forceUpdate, checkOnlyFirmwareVersion,
+			   new UCubeCheckUpdateListener() {
+			       @Override
+			       public void onProgress(UCubeAPIState state) { }
+			       @Override
+			       public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {  	//TODO
+		}
+			});
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
 
 
-### 5. UCubeAPI : Send Logs
+#### update (...)
+* This API takes the list of Binary updates to be downloaded and installed.
+* It downloads the binary Then it installs them sequentially
+* After the install of SVPP firmware the device will reboot. 
+* The install of the same version is not accepted by the SVPP.
+* The downgrade is not accepted by the SVPP. 
+* The forceUpdate of the same version is only accepted with the SVPP firmware is in Security OFF (only available for dev)
+* It can throws an Exception if the initManagers() API not already called.
 
+		try {
+		   UCubeAPI.update(activity, updateList,
+		new UCubeAPIListener() {
+			       @Override
+			       public void onProgress(UCubeAPIState state) {
+			       }
+			       @Override
+			       public void onFinish(boolean status) {
+			       }
+			});
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
 
-* uCube SDK manages a log back that save all RPC exchanges and differents users actions.
-* User of SDK can send logs to be interpreted by the support team using this API: 
-		
-		UCubeAPI.sendLogs();
+#### sendLog ()
+* uCube SDK manage a logcat that save all RPC exchanges and different user actions. 
+* User of SDK can send this logs to be interpreted by the YouTransactor support team.
+* It can throw an Exception if the “initManagers” method not already called.
 
+		try {
+		   UCubeAPI.sendLogs(MainActivity.this, new UCubeAPIListener() {
+		       @Override
+		       public void onProgress(UCubeAPIState uCubeAPIState) { }
+		       @Override
+		       public void onFinish(boolean status) {  }
+		   });
+		} catch (Exception e) {
+		   e.printStackTrace();
+		}
 
+#### close ()
+* This API is used to stop all managers and close connection with uCube.
+* It can be called in the onDestroy () method of activity.
 
-
-### 6. RPC : Call command
+### 7. RPC : Call command
 
 
 * This library allows the user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
