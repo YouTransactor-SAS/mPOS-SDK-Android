@@ -1,4 +1,5 @@
 # uCube mPOS SDK Android
+
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
 This repository provides a step by step documentation that will allow you to integrate our uCube library for Android SDK to develop your proper application. To do it just follows the instruction.
@@ -7,6 +8,7 @@ For more information about YouTransactor developer products, please refer to our
 
 
 ## I. General overview 
+
 ### 1. Introduction
 
 YouTransactor mPOS products are : 
@@ -71,7 +73,7 @@ The management system does not require integration with the business module, so 
 
 To be functional, in the scope of PCI PTS requirement, and SRED key shall be loaded securely in the device. This key is loaded locally by YouTransactor tools. The initial SALT is injected in the same way.
 
-###### Bleutooth pairing
+##### Bleutooth pairing
 
 Before using the payment function, the uCube must be paired with the mobile device via Bluetooth.
 
@@ -84,14 +86,17 @@ The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if
 </p>
 
 #### 2.2 Switching uCube On/Off
+
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the business module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
 The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method. When connection established, the SDK check if the device is state, if it is power off, it turns it 
 
 #### 2.3 Firmware update
+
 During the life of the uCube, the uCube firmware could be updated (for bug fix, etc..). The “checkUpdate” method make a compare between current versions of firmware and configuration with These defined in TMS server. If the is a difference or a force update parameter is set to true, it returns the update list. The method “update” used to apply the updates, it takes as input the list of updates to be applied, it can be the output of “checkUpdate” method or a sub list of that. It downloads the binaries of each update in input list and install them all. 
 
 #### 2.4 Send logs
+
 uCubeLib provide a “LogManager” Class used to print logs in logcat at runtime, save these logs in files. And it needed, send these files to TMS server. Logs can be enabled or disabled. The “sendLogs” method is used to send a zip file that contain all saved logs files. 
 
 ## II. Technical Overview
@@ -134,6 +139,7 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 		implementation files('libs/ucube_lib.aar')
 
 ### 6. UCubeAPI
+
 The APIs provided by UCubeAPI modules are:
 
 ```java
@@ -163,6 +169,7 @@ The APIs provided by UCubeAPI modules are:
 * You can use the sample app provided in this repository as a reference
 
 #### initManagers (...)
+
 * This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…. It should be called in the begining, before calling any other API. 
 
 ```java
@@ -175,6 +182,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### setup (...)
+
 * It takes in input the YTMPOSProduct that user of SDK chooses to use.
 * It can throw two types of exception: BleNotSupportException and BluetoothNotSupportException.
 * BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t support BLE.
@@ -200,6 +208,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### getYTMPOSProduct ()
+
 * This API returns the configured YTMPOSProduct if setup already called otherwise it returns null
 * It can throw an Exception if the “initManagers” method not already called.
 
@@ -223,6 +232,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### Connect (...)
+
 * This API connect the paired uCube if there is already one otherwise it does a Bluetooth scan and the user should select one device. it connects it and save it. It registers the device in the MDM and get the MDM-CLIENT certificate of the device. To be used for the double-authentication when calling others MDM WS.
 * It can throw an Exception if the “initManagers” method not already called.
 
@@ -245,6 +255,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### getUCubeInfo ()
+
 * This API returns an UCubeInfo which contains all paired uCube informations if there is already a paired one otherwise it returns null.
 * It can throw an Exception if the “initManagers” method not already called.
 
@@ -260,6 +271,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### deletePairedUCube ()
+
 * This API delete the current paired uCube if there is a saved one.
 * It can throw an Exception if the “initManagers” method not already called.
 
@@ -274,6 +286,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### Pay (...)
+
 * This API activate all available reader in device and call Payment service and it depends from which reader is used to read card the specific service is called.
 * This API takes in input a UCubePaymentRequest and gives in output a UCubePaymentResponse. 
 * It makes a payment using the defined context in UCubePaymentRequest.
@@ -380,6 +393,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 ##### Response 
+
 * Several response fields are available when the call back activity is called.
 	* paymentContext 
 	* uCube
@@ -455,6 +469,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### checkUpdate  (...)
+
 * This API retrieve the information’s device then the device’s configuration on TMS server. It does a compare, and return a table of required Binary Updates. A binary update can be mandatory or not.
 
 * This API takes those parameters: 
@@ -479,6 +494,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### update (...)
+
 * This API takes the list of Binary updates to be downloaded and installed.
 * It downloads the binary Then it installs them sequentially
 * After the install of SVPP firmware the device will reboot. 
@@ -504,6 +520,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### sendLog ()
+
 * uCube SDK manage a logcat that save all RPC exchanges and different user actions. 
 * User of SDK can send this logs to be interpreted by the YouTransactor support team.
 * It can throw an Exception if the “initManagers” method not already called.
@@ -522,6 +539,7 @@ The APIs provided by UCubeAPI modules are:
 ```
 
 #### close ()
+
 * This API is used to stop all managers and close connection with uCube.
 * It can be called in the onDestroy () method of activity.
 
