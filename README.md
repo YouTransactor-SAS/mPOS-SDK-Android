@@ -6,8 +6,9 @@ This repository provides a step by step documentation that will allow you to int
 For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
 
 
-## I. Context
-### 1 General overview 
+## I. General overview 
+### 1. Introduction
+
 YouTransactor mPOS products are : 
 * uCube (with different models)
 * uCube Touch
@@ -19,6 +20,7 @@ The uCube Touch is a new version of the uCube. There are some hardware differenc
 The uCubeLib support these two product. There is a setup () API implemented by the uCubeLib which takes a YTMPOSProduct. It initializes the SDK to connect one of this two products. In this document “uCube” is used as a name for this two products.
 
 #### 1.1 uCube
+
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
 <p align="center">
@@ -26,6 +28,7 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
 </p>
 
 #### 1.2 uCube Touch
+
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
 <p align="center">
@@ -33,6 +36,7 @@ The uCube Touch is a lightweight and compact payment dongle. It can turn a table
 </p>
 
 #### 1.3 Mobile Device
+
 The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the uCube / uCube Touch to the rest of the system.
 
 The mobile device application consists of 2 modules:
@@ -50,6 +54,7 @@ The uCubeLib module is developed by YouTransactor. It is delivered to the integr
 The purpose of this document is to describe the services provided by the uCubeLib module to the business module.
 
 #### 1.4 The Management System
+
 The management system is administered by YouTransactor and offers the following services:
 * Management of the uCube fleet
 * Deployment of software updates
@@ -58,12 +63,16 @@ The management system is administered by YouTransactor and offers the following 
 
 The management system does not require integration with the business module, so its operation is not developed in this documentation.
 
-### 2 uCube management
+### 2. uCube management
+
 #### 2.1 Setup 
-##### 2.1.1 Initial configuration 
+
+##### Initial configuration 
+
 To be functional, in the scope of PCI PTS requirement, and SRED key shall be loaded securely in the device. This key is loaded locally by YouTransactor tools. The initial SALT is injected in the same way.
 
-##### 2.1.2 Bleutooth pairing
+###### Bleutooth pairing
+
 Before using the payment function, the uCube must be paired with the mobile device via Bluetooth.
 
 This pairing can be done by a "connect" method of the uCubeLib module. It will scan all available devices and will display a system pop-up prompting the user to select the device to use.
@@ -516,8 +525,7 @@ The APIs provided by UCubeAPI modules are:
 * This API is used to stop all managers and close connection with uCube.
 * It can be called in the onDestroy () method of activity.
 
-### 7. RPC : Call command
-
+### 7. RPC
 
 * This library allows the user to call differents RPC e.g. DisplayMessageWithoutKI, GetInfo, etc.
 * User may want to call some RPC, it depends on implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
