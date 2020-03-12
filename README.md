@@ -21,7 +21,7 @@ The uCubeLib support these two product. There is a setup () API implemented by t
 #### 1.1 uCube
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
-//TODO  add image
+![Cptr_uCube](https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png)
 
 #### 1.2 uCube Touch
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
