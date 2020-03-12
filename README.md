@@ -22,14 +22,14 @@ The uCubeLib support these two product. There is a setup () API implemented by t
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
 <p align="center">
-  <img width="350" height="300" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
+  <img width="250" height="250" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
 </p>
 
 #### 1.2 uCube Touch
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
 <p align="center">
-  <img width="350" height="300" src="https://user-images.githubusercontent.com/59020462/76528701-842f5d00-6471-11ea-9a56-579e172a57ac.png">
+  <img width="250" height="250" src="https://user-images.githubusercontent.com/59020462/76528701-842f5d00-6471-11ea-9a56-579e172a57ac.png">
 </p>
 
 #### 1.3 Mobile Device
@@ -71,7 +71,7 @@ This pairing can be done by a "connect" method of the uCubeLib module. It will s
 The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if it is disabled. And if the YTMPOSProduct chosen, when setup was called, was the uCube Touch, a Location permission will be requested.
 
 <p align="center">
-  <img width="250" height="500" src="https://user-images.githubusercontent.com/59020462/76528865-c5277180-6471-11ea-82e6-69320ed62dde.jpg">
+  <img width="370" height="600" src="https://user-images.githubusercontent.com/59020462/76528865-c5277180-6471-11ea-82e6-69320ed62dde.jpg">
 </p>
 
 #### 2.2 Switching uCube On/Off
