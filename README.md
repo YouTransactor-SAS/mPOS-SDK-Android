@@ -122,6 +122,7 @@ You will need to get into your app-level Build.Gradle to add this dependency:
 ### 6. UCubeAPI
 The APIs provided by UCubeAPI modules are:
 
+```java
 	initManagers (@Nonnull Context context)
 		
 	setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
@@ -143,6 +144,7 @@ The APIs provided by UCubeAPI modules are:
 	sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
 	
 	close()
+```
 
 * You can use the sample app provided in this repository as a reference
 
