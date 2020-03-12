@@ -1,0 +1,73 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+	package
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:11-44
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:1:1-19:12
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.BLUETOOTH
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:4:5-67
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:4:22-65
+uses-permission#android.permission.BLUETOOTH_ADMIN
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:5:5-73
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:5:22-71
+uses-permission#android.permission.INTERNET
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:6:5-66
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:6:22-64
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:7:5-78
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:7:22-76
+application
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:9:5-17:19
+	android:supportsRtl
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:12:9-35
+	android:label
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:11:9-41
+	android:allowBackup
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:10:9-35
+activity#com.youTransactor.uCube.bluetooth.ble.BleConnexionActivity
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:15:9-130
+	android:theme
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:15:70-128
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:15:19-69
+activity#com.youTransactor.uCube.bluetooth.bt.BtConnexionActivity
+ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:16:9-128
+	android:theme
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:16:68-126
+	android:name
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml:16:19-67
+uses-sdk
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		ADDED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml
+		INJECTED from /home/dhadjsalah/Documents/YT/ucube/public_repo_git_ucubeLib_sample/trunk/libApp/src/main/AndroidManifest.xml

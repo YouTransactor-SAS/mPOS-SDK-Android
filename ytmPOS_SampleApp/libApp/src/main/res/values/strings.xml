@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">uCubeLib</string>
+
+    <string name="connexion_progress">Connexion in progress…</string>
+    <string name="error_to_connect_device">Error to connect uCube</string>
+
+    <string name="name">Name</string>
+    <string name="mac_address">MAC Address</string>
+    <string name="scan">Scan</string>
+    <string name="no_paired_ucube">No paired uCube</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="close">Close</string>
+
+    <string name="permission_msg">This app needs location permission to work without any problems.</string>
+    <string name="permission_yes_label">Yes, Grant permission</string>
+    <string name="permission_no_label">No, Close</string>
+
+    <string name="permission_open_settings_msg">You have denied some permissions. Allow all permission at [Setting] > [Permissions]</string>
+    <string name="permission_go_settings">Go to settings</string>
+
+    <string name="enable_bt_msg">This app needs Bluetooth to work without any problems.</string>
+    <string name="enable_bt_yes_label">Yes, Enable Bluetooth</string>
+    <string name="enable_bt_no_label">No, Close</string>
+
+</resources>

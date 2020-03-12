@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">mPOS SDK Sample App </string>
+
+    <string name="versionName">V %s</string>
+    <string name="ble_not_supported">BLE is not supported</string>
+    <string name="bluetooth_not_supported">Bluetooth is not supported.</string>
+    <string name="init">Init</string>
+    <string name="pay">Pay</string>
+    <string name="checkUpdate">check update</string>
+    <string name="update">update</string>
+    <string name="send_log">Send Log</string>
+    <string name="close">close</string>
+    <string name="ucube_touch">uCube Touch</string>
+    <string name="ucube">uCube</string>
+    <string name="settings">Settings</string>
+    <string name="reset">reset</string>
+    <string name="progress">%s progress…</string>
+    <string name="pair_ucube">Pair/Connect uCube</string>
+    <string name="delete_paired_ucube">Delete Paired uCube</string>
+    <string name="ok">OK</string>
+    <string name="mandatory">(Mandatory)</string>
+
+    <!-- ERRORS -->
+    <string name="error_setup">Error setup!</string>
+
+    <!--setup -->
+    <string name="setup_progress">Setup progress…</string>
+
+    <!--SEND LOG message -->
+    <string name="send_log_progress">Send Log progress…</string>
+    <string name="send_log_failed">Send Logs failed</string>
+    <string name="send_log_success">Send Logs success</string>
+
+    <!--connect message-->
+    <string name="connect_progress">Connect progress…</string>
+    <string name="connect_failed">Connect failed</string>
+    <string name="connect_success">Connect success</string>
+
+    <!-- check update message -->
+    <string name="check_update_progress">Check update progress…</string>
+    <string name="check_update_failed">Check update failed</string>
+    <string name="check_update_success">Check update success</string>
+    <string name="ucube_up_to_date">"uCube is up to date"</string>
+    <string name="list_update_dialog_title">Binaries to update</string>
+
+    <!--update message -->
+    <string name="update_progress">Update progress…</string>
+    <string name="update_failed">Update failed</string>
+    <string name="update_success">Update success</string>
+
+    <!-- ucube info -->
+    <string name="ucube_model">Model: %s</string>
+    <string name="ucube_name">Name: %s</string>
+    <string name="ucube_address">Address: %s</string>
+    <string name="ucube_serial_num">Serial Number: %s</string>
+    <string name="ucube_part_number">Part Number: %s</string>
+    <string name="ucube_firmware_version">SVPP version: %s</string>
+    <string name="ucube_firmware_st_version">Firmware ST version: %s</string>
+    <string name="ucube_icc_config">ICC config: %s</string>
+    <string name="ucube_nfc_config">NFC config: %s</string>
+    <string name="nfc_not_supported">NFC NOT SUPPORTED</string>
+
+    <!--Payment -->
+    <string name="card_wait_timeout">Card wait timeout</string>
+    <string name="_30">30</string>
+    <string name="s">(s)</string>
+    <string name="date">Date</string>
+    <string name="type">Type</string>
+    <string name="enter_amount_on_ucube">Enter amount on uCube</string>
+    <string name="amount">Amount</string>
+    <string name="use_single_entry_point">Use single entry point</string>
+    <string name="mag_stripe">Mag stripe</string>
+    <string name="chip">Chip</string>
+    <string name="nfc">NFC</string>
+    <string name="force_online_pin">Force online PIN</string>
+    <string name="start_payment">Start payment</string>
+    <string name="_00_00">00.00</string>
+    <string name="_1_00">1.00</string>
+    <string name="payment_progress_with_amount">Make payment of %.2f %s</string>
+    <string name="payment_progress_without_amount">Make payment in %s</string>
+    <string name="payment_failed">Payment failed!</string>
+    <string name="display">Display</string>
+
+    <!--RPC DISPLAY -->
+    <string name="display_msg">Display message</string>
+    <string name="display_msg_failure">Message display failure</string>
+    <string name="display_msg_success">Message displayed successfully</string>
+</resources>

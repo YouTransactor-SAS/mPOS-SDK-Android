@@ -1,0 +1,152 @@
+apply plugin: 'com.android.library'
+
+android {
+    signingConfigs {
+        release
+    }
+
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 2
+        versionName "2.0.0"
+    }
+
+    buildTypes {
+        //dev
+        debug {
+            versionNameSuffix ".debug"
+            debuggable true
+            jniDebuggable true
+
+            // if file.properties contain secrete values so we add file.properties
+            // to the .gitignore and at continuous integration we pass it as a build parameter
+            buildConfigField 'java.util.Hashtable<String, Object>', "PropertyPairs", makePropertyHashTable("dev.properties")
+        }
+
+        //test
+        internal {
+            initWith debug
+            useProguard true
+            proguardFiles 'proguard-rules.pro'
+            versionNameSuffix ".Test"
+            signingConfig signingConfigs.release
+        }
+
+        //prod
+        release {
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            useProguard true
+            proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            // if file.properties contain secrete values so we add file.properties
+            // to the .gitignore and at continuous integration we pass it as a build parameter
+            buildConfigField 'java.util.Hashtable<String, Object>', "PropertyPairs", makePropertyHashTable("prod.properties")
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+    lintOptions{
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+}
+
+def makePropertyHashTable(filename) {
+    def properties = new Properties()
+    try {
+        properties.load(new FileInputStream(file(filename)))
+    } catch (FileNotFoundException ignored) {
+        properties = null
+        System.out.println('erro to load properties!')
+    }
+
+    def prefix = 'new java.util.Hashtable<String, Object>(){{ '
+    def suffix = '}}'
+    def value = ''
+    if (properties != null) {
+        for (prop in properties) {
+            value += String.format('put("%s",%s); ', prop.key, prop.value)
+        }
+    }
+
+    return String.format('%s%s%s', prefix, value, suffix)
+}
+
+
+def Properties props = new Properties()
+def propFile = rootProject.file('keystore.properties')
+if (propFile.canRead()) {
+    props.load(new FileInputStream(propFile))
+
+    if (props != null && props.containsKey('STORE_FILE')
+            && props.containsKey('STORE_PASSWORD')
+            && props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+    } else {
+        println 'signing.properties found but some entries are missing'
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    println 'signing.properties not found'
+    android.buildTypes.release.signingConfig = null
+}
+
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.apache.commons:commons-io:1.3.2'
+    implementation 'commons-codec:commons-codec:20041127.091804'
+    implementation 'androidx.annotation:annotation:1.1.0'
+
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'com.github.tony19:logback-android:1.3.0-2'
+
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
+
+/*    implementation 'com.google.firebase:firebase-analytics:17.2.1'   // Recommended
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'  // Firebase Crashlitycs*/
+
+    implementation "com.polidea.rxandroidble2:rxandroidble:1.10.2"
+    implementation "com.jakewharton.rx2:replaying-share:2.1.1"
+    implementation 'com.google.guava:guava:24.1-jre'
+
+    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+}
+
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('build/outputs/jar/')
+    include('classes.jar')
+    rename ('classes.jar', 'libApp.jar')
+}
+
+task clearJar(type: Delete) {
+    delete 'build/outputs/jar/libApp.jar'
+}
+
+makeJar.dependsOn(clearJar, build)

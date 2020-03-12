@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.jakewharton.rxrelay2:rxrelay:2.1.0@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jakewharton.rxrelay2/rxrelay/2.1.0/3ffaa9448e47b95ceae656de7bf678e1c1295ebd/rxrelay-2.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jakewharton.rxrelay2/rxrelay/2.1.0/68cd46d03cfc129bba931c1ebb5ea05fc4041b10/rxrelay-2.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
