@@ -399,50 +399,6 @@ The APIs provided by UCubeAPI modules are:
 	* uCube
 	* cardLabel 
 
-###### PaymentContext
-
-```java
-		PaymentState paymentStatus;
-		EMVApplicationDescriptor selectedApplication;
-		boolean allowFallback;
-		int retryBeforeFallback;
-		double amount;
-		Currency currency;
-		TransactionType transactionType;
-		int applicationVersion;
-		List<String> preferredLanguageList;
-		byte[] uCubeInfos;
-		byte[] ksn;
-		byte activatedReader;
-		boolean forceOnlinePIN;
-		boolean forceAuthorization;
-		byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
-		int[] requestedPlainTagList;
-		int[] requestedSecuredTagList;
-		int[] requestedAuthorizationTagList;
-		byte[] securedTagBlock;
-		byte[] onlinePinBlock;
-		Map<Integer, byte[]> plainTagTLV;
-		byte[] authorizationResponse;
-		byte[] tvr = new byte[] {0, 0, 0, 0, 0};
-		Date transactionDate;
-		byte[] NFCOutcome;
-		byte[] transactionData;
-		byte[] systemFailureInfo;
-		byte[] systemFailureInfo2;
-```
-
-###### uCube
-
-```java
-		public class UCube {
-		   public String ucubeName;
-		   public String ucubeAddress;
-		   public String ucubePartNumber;
-		   public String ucubeSerialNumber;
-		}
-```
-
 ###### PaymentState
 ```java
 		DEFAULT_INIT,
