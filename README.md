@@ -29,7 +29,7 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
 <p align="center">
-  <img width="250" height="250" src="https://user-images.githubusercontent.com/59020462/76528701-842f5d00-6471-11ea-9a56-579e172a57ac.png">
+  <img width="300" height="350" src="https://user-images.githubusercontent.com/59020462/76528701-842f5d00-6471-11ea-9a56-579e172a57ac.png">
 </p>
 
 #### 1.3 Mobile Device
