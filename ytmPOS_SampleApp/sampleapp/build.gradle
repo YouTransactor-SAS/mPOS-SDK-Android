@@ -110,9 +110,9 @@ dependencies {
     implementation "com.jakewharton.rx2:replaying-share:2.1.1"
     implementation 'com.google.guava:guava:24.1-jre'
 
-    implementation project(':libApp')
     implementation('com.crashlytics.sdk.android:crashlytics:2.5.7@aar') {
         transitive = true;
     }
-    // implementation files('libs/ucube_lib.aar')
+
+    implementation files('libs/libApp.aar')
 }
