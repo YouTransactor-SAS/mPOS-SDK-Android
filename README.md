@@ -151,12 +151,14 @@ The APIs provided by UCubeAPI modules are:
 #### initManagers (...)
 * This API initializes the SDK by initializing differents modules; RPC, Payment, MDM…. It should be called in the begining, before calling any other API. 
 
+```java
 		@Override
 		protected void onCreate(Bundle savedInstanceState) {
 		   super.onCreate(savedInstanceState);
 		   setContentView(R.layout.activity_main);
 		   UCubeAPI.initManagers(getApplicationContext());
 		...
+```
 
 #### setup (...)
 * It takes in input the YTMPOSProduct that user of SDK chooses to use.
@@ -164,7 +166,8 @@ The APIs provided by UCubeAPI modules are:
 * BleNotSupportException : mean that the YTMPOSProduct specified was the uCube_Touch and the used smartphone don’t support BLE.
 * BluetoothNotSupportException : mean that the used smartphone doesn’t support Bluetooth.  
 * It can throws an Exception if the `initManagers` API not already called.
-	
+
+```java
 		try {
 		   UCubeAPI.setup(getApplicationContext(), this, YTMPOSProduct.uCube, new UCubeAPIListener() {
 		       @Override
@@ -180,11 +183,13 @@ The APIs provided by UCubeAPI modules are:
 		  e.printStackTrace();
 		}
 		...
+```
 
 #### getYTMPOSProduct ()
 * This API returns the configured YTMPOSProduct if setup already called otherwise it returns null
 * It can throw an Exception if the “initManagers” method not already called.
 
+```java
 		try {
 		   ytmposProduct  = UCubeAPI.getYTMPOSProduct();
 		   if (ytmposProduct != null) {
@@ -201,11 +206,13 @@ The APIs provided by UCubeAPI modules are:
 		   e.printStackTrace();
 		}
 		...
+```
 
 #### Connect (...)
 * This API connect the paired uCube if there is already one otherwise it does a Bluetooth scan and the user should select one device. it connects it and save it. It registers the device in the MDM and get the MDM-CLIENT certificate of the device. To be used for the double-authentication when calling others MDM WS.
 * It can throw an Exception if the “initManagers” method not already called.
 
+```java
 		try {
 		   UCubeAPI.connect(this, new UCubeConnectListener() {
 		       @Override
@@ -221,14 +228,13 @@ The APIs provided by UCubeAPI modules are:
 		   e.printStackTrace();
 		}
 		….
-		
-
-
+```
 
 #### getUCubeInfo ()
 * This API returns an UCubeInfo which contains all paired uCube informations if there is already a paired one otherwise it returns null.
 * It can throw an Exception if the “initManagers” method not already called.
 
+```java
 		UCubeInfo deviceInfos = null;
 		try {
 		   deviceInfos = UCubeAPI.getUCubeInfo();
@@ -237,11 +243,13 @@ The APIs provided by UCubeAPI modules are:
 		   e.printStackTrace();
 		}
 		….
+```
 
 #### deletePairedUCube ()
 * This API delete the current paired uCube if there is a saved one.
 * It can throw an Exception if the “initManagers” method not already called.
 
+```java
 		try {
 		   UCubeAPI.deletePairedUCube();
 		} catch (Exception e) {
@@ -249,6 +257,7 @@ The APIs provided by UCubeAPI modules are:
 		   return;
 		}
 		….
+```
 
 #### Pay (...)
 * This API activate all available reader in device and call Payment service and it depends from which reader is used to read card the specific service is called.
@@ -259,6 +268,7 @@ The APIs provided by UCubeAPI modules are:
 
 ##### UCubePaymentRequest
 
+```java
 		UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
 		       .setAmount(amount)  // if amount not specified uCube will propose to enter the amount before start tx
 		       .setCurrency(currency)  // CURRENCY_EUR or CURRENCY_USD or new Currency(iso_code, exponent, label) 
@@ -274,8 +284,11 @@ The APIs provided by UCubeAPI modules are:
 		       .setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
 		       .setRequestedPlainTagList(Constants.TAG_MSR_BIN)
 		       .build();
+```
 
 ##### AuthorizationTask
+
+```java
 		public class AuthorizationTask implements IAuthorizationTask {
 		  private byte[] authResponse;
 		  private PaymentContext paymentContext;
@@ -290,9 +303,11 @@ The APIs provided by UCubeAPI modules are:
 		   ...
 		  }
 		...
+```
 
 ##### RiskManagementTask
 
+```java
 		public class RiskManagementTask implements IRiskManagementTask {
 		  private PaymentContext paymentContext;
 		  private byte[] tvr;
@@ -308,9 +323,11 @@ The APIs provided by UCubeAPI modules are:
 		  }
 		...
 		}
+```
 
+##### Call API
 
-##### Call API 
+```java
 		try {
 		 UCubeAPI.pay(this, paymentRequest, new UCubePaymentListener() {
 		   @Override
@@ -346,51 +363,60 @@ The APIs provided by UCubeAPI modules are:
 		});
 		} catch (Exception e) {   e.printStackTrace(); }
 
+```
+
 ##### Response 
 * Several response fields are available when the call back activity is called.
 	* paymentContext 
 	* uCube
 	* cardLabel 
 
-###### PaymentContext 
-		private PaymentState paymentStatus;
-		private EMVApplicationDescriptor selectedApplication;
-		private boolean allowFallback;
-		private int retryBeforeFallback = 3;
-		private double amount = -1;
-		private Currency currency;
-		private TransactionType transactionType;
-		private int applicationVersion;
-		private List<String> preferredLanguageList;
-		private byte[] uCubeInfos;
-		private byte[] ksn;
-		private byte activatedReader;
-		private boolean forceOnlinePIN;
-		private boolean forceAuthorization;
-		private byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
-		private int[] requestedPlainTagList;
-		private int[] requestedSecuredTagList;
-		private int[] requestedAuthorizationTagList;
-		private byte[] securedTagBlock;
-		private byte[] onlinePinBlock;
-		private Map<Integer, byte[]> plainTagTLV;
-		private byte[] authorizationResponse;
-		private byte[] tvr = new byte[] {0, 0, 0, 0, 0};
-		private Date transactionDate;
-		private byte[] NFCOutcome;
-		private byte[] transactionData;
-		private byte[] systemFailureInfo;
-		private byte[] systemFailureInfo2;
+###### PaymentContext
+
+```java
+		PaymentState paymentStatus;
+		EMVApplicationDescriptor selectedApplication;
+		boolean allowFallback;
+		int retryBeforeFallback;
+		double amount;
+		Currency currency;
+		TransactionType transactionType;
+		int applicationVersion;
+		List<String> preferredLanguageList;
+		byte[] uCubeInfos;
+		byte[] ksn;
+		byte activatedReader;
+		boolean forceOnlinePIN;
+		boolean forceAuthorization;
+		byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
+		int[] requestedPlainTagList;
+		int[] requestedSecuredTagList;
+		int[] requestedAuthorizationTagList;
+		byte[] securedTagBlock;
+		byte[] onlinePinBlock;
+		Map<Integer, byte[]> plainTagTLV;
+		byte[] authorizationResponse;
+		byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+		Date transactionDate;
+		byte[] NFCOutcome;
+		byte[] transactionData;
+		byte[] systemFailureInfo;
+		byte[] systemFailureInfo2;
+```
 
 ###### uCube
+
+```java
 		public class UCube {
 		   public String ucubeName;
 		   public String ucubeAddress;
 		   public String ucubePartNumber;
 		   public String ucubeSerialNumber;
 		}
-		
-###### PaymentState 
+```
+
+###### PaymentState
+```java
 		DEFAULT_INIT,
 		GET_PN_ERROR,
 		GET_MPOS_STATE_ERROR,
@@ -412,6 +438,7 @@ The APIs provided by UCubeAPI modules are:
 		AUTHORIZE,
 		APPROVED,
 		DECLINED
+```
 
 #### checkUpdate  (...)
 * This API retrieve the information’s device then the device’s configuration on TMS server. It does a compare, and return a table of required Binary Updates. A binary update can be mandatory or not.
@@ -422,6 +449,7 @@ The APIs provided by UCubeAPI modules are:
 
 * It can throws an Exception if the initManagers() API not already called.
 
+```java
 		try {
 			 UCubeAPI.checkUpdate(MainActivity.this,  forceUpdate, checkOnlyFirmwareVersion,
 			   new UCubeCheckUpdateListener() {
@@ -434,7 +462,7 @@ The APIs provided by UCubeAPI modules are:
 		} catch (Exception e) {
 		   e.printStackTrace();
 		}
-
+```
 
 #### update (...)
 * This API takes the list of Binary updates to be downloaded and installed.
@@ -445,6 +473,7 @@ The APIs provided by UCubeAPI modules are:
 * The forceUpdate of the same version is only accepted with the SVPP firmware is in Security OFF (only available for dev)
 * It can throws an Exception if the initManagers() API not already called.
 
+```java
 		try {
 		   UCubeAPI.update(activity, updateList,
 		new UCubeAPIListener() {
@@ -458,12 +487,14 @@ The APIs provided by UCubeAPI modules are:
 		} catch (Exception e) {
 		   e.printStackTrace();
 		}
+```
 
 #### sendLog ()
 * uCube SDK manage a logcat that save all RPC exchanges and different user actions. 
 * User of SDK can send this logs to be interpreted by the YouTransactor support team.
 * It can throw an Exception if the “initManagers” method not already called.
 
+```java
 		try {
 		   UCubeAPI.sendLogs(MainActivity.this, new UCubeAPIListener() {
 		       @Override
@@ -474,6 +505,7 @@ The APIs provided by UCubeAPI modules are:
 		} catch (Exception e) {
 		   e.printStackTrace();
 		}
+```
 
 #### close ()
 * This API is used to stop all managers and close connection with uCube.
@@ -486,6 +518,7 @@ The APIs provided by UCubeAPI modules are:
 * User may want to call some RPC, it depends on implementation of one of the tasks “Application Selection Task”, “Risk Management Task” or “Authorization Task”.
 * This is an example of DisplayMessageWithoutKI command call: 
 
+```java
 		DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
 
 		displayMessageCommand.setCentered(centred);
@@ -507,6 +540,6 @@ The APIs provided by UCubeAPI modules are:
      			}
   			}
 		});
-
+```
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
