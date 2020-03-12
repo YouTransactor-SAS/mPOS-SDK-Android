@@ -66,7 +66,7 @@ This pairing can be done by a "connect" method of the uCubeLib module. It will s
 
 The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if it is disabled. And if the YTMPOSProduct chosen, when setup was called, was the uCube Touch, a Location permission will be requested.
 
-//TODO ADD IMG
+![bt_pairing](https://user-images.githubusercontent.com/59020462/76528865-c5277180-6471-11ea-82e6-69320ed62dde.jpg)
 
 #### 2.2 Switching uCube On/Off
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the business module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
