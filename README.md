@@ -21,7 +21,7 @@ The uCube Touch is a new version of the uCube. There are some hardware differenc
 
 The uCubeLib support these two product. There is a setup () API implemented by the uCubeLib which takes a YTMPOSProduct. It initializes the SDK to connect one of this two products. In this document “uCube” is used as a name for this two products.
 
-#### 1.1 uCube
+#### 2. uCube
 
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
@@ -29,7 +29,7 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
   <img width="300" height="350" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
 </p>
 
-#### 1.2 uCube Touch
+#### 3. uCube Touch
 
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
@@ -37,7 +37,7 @@ The uCube Touch is a lightweight and compact payment dongle. It can turn a table
   <img width="300" height="300" src="https://user-images.githubusercontent.com/59020462/76528701-842f5d00-6471-11ea-9a56-579e172a57ac.png">
 </p>
 
-#### 1.3 Mobile Device
+#### 4. Mobile Device
 
 The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the uCube / uCube Touch to the rest of the system.
 
@@ -55,7 +55,7 @@ The uCubeLib module is developed by YouTransactor. It is delivered to the integr
 
 The purpose of this document is to describe the services provided by the uCubeLib module to the business module.
 
-#### 1.4 The Management System
+#### 5. The Management System
 
 The management system is administered by YouTransactor and offers the following services:
 * Management of the uCube fleet
@@ -65,9 +65,9 @@ The management system is administered by YouTransactor and offers the following 
 
 The management system does not require integration with the business module, so its operation is not developed in this documentation.
 
-### 2. uCube management
+### 6. uCube management
 
-#### 2.1 Setup 
+#### 6.1 Setup 
 
 ##### Initial configuration 
 
@@ -85,17 +85,17 @@ The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if
   <img width="370" height="600" src="https://user-images.githubusercontent.com/59020462/76528865-c5277180-6471-11ea-82e6-69320ed62dde.jpg">
 </p>
 
-#### 2.2 Switching uCube On/Off
+#### 6.2 Switching uCube On/Off
 
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the business module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
 The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method. When connection established, the SDK check if the device is state, if it is power off, it turns it 
 
-#### 2.3 Firmware update
+#### 6.3 Firmware update
 
 During the life of the uCube, the uCube firmware could be updated (for bug fix, etc..). The “checkUpdate” method make a compare between current versions of firmware and configuration with These defined in TMS server. If the is a difference or a force update parameter is set to true, it returns the update list. The method “update” used to apply the updates, it takes as input the list of updates to be applied, it can be the output of “checkUpdate” method or a sub list of that. It downloads the binaries of each update in input list and install them all. 
 
-#### 2.4 Send logs
+#### 6.4 Send logs
 
 uCubeLib provide a “LogManager” Class used to print logs in logcat at runtime, save these logs in files. And it needed, send these files to TMS server. Logs can be enabled or disabled. The “sendLogs” method is used to send a zip file that contain all saved logs files. 
 
