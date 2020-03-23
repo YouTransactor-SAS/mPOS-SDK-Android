@@ -9,12 +9,12 @@
  */
 package com.youtransactor.sampleapp;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -23,23 +23,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.youTransactor.uCube.api.UCubeCheckUpdateListener;
-import com.youTransactor.uCube.api.UCubeInfo;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeAPIListener;
 import com.youTransactor.uCube.api.UCubeAPIState;
+import com.youTransactor.uCube.api.UCubeCheckUpdateListener;
 import com.youTransactor.uCube.api.UCubeConnectListener;
-
+import com.youTransactor.uCube.api.UCubeInfo;
+import com.youTransactor.uCube.api.YTMPOSProduct;
 import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.service.BinaryUpdate;
+import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
+import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ToggleButton pairingTb;
-    private Button payBtn, checkUpdateBtn, sendLogBtn, displayBtn;
+    private Button payBtn, getInfoBtn, checkUpdateBtn, sendLogBtn, displayBtn;
 
     private LinearLayout ucubeInfoSection;
     private TextView ucubeModelTv, ucubeNameTv, ucubeAddressTv, ucubeSerialNumTv, ucubePartNumTv,
@@ -47,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
             nfcNotSupportedTv;
 
     private UCubeInfo uCubeInfo;
+
+    boolean checkOnlyFirmwareVersion = false;
+    boolean forceUpdate = false;
 
     private enum Action {
         init,
@@ -87,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         pairingTb = findViewById(R.id.pairingTb);
 
         payBtn = findViewById(R.id.payBtn);
+        getInfoBtn = findViewById(R.id.getInfoBtn);
         checkUpdateBtn = findViewById(R.id.checkUpdateBtn);
         sendLogBtn = findViewById(R.id.sendLogBtn);
         displayBtn = findViewById(R.id.displayBtn);
@@ -113,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
 
         payBtn.setOnClickListener(v -> payment());
 
+        getInfoBtn.setOnClickListener(v -> getInfo());
+
         checkUpdateBtn.setOnClickListener(v -> checkUpdate());
 
         sendLogBtn.setOnClickListener(v -> sendLogs());
@@ -129,17 +143,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     deviceInfos = UCubeAPI.getUCubeInfo();
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ignore) {
                 }
 
-                if(deviceInfos != null) {
+                if (deviceInfos != null) {
                     uCubeInfo = deviceInfos;
 
                     pairingTb.setChecked(false);
 
                     updateUI(Action.pairUCube);
-                }else {
+                } else {
 
                     pairingTb.setChecked(true);
 
@@ -155,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
                 payBtn.setEnabled(false);
                 checkUpdateBtn.setEnabled(false);
                 sendLogBtn.setEnabled(false);
+                getInfoBtn.setEnabled(false);
+                displayBtn.setEnabled(false);
 
                 displayUCubeInfo(null);
                 break;
@@ -164,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
                 payBtn.setEnabled(true);
                 checkUpdateBtn.setEnabled(true);
                 sendLogBtn.setEnabled(true);
+                getInfoBtn.setEnabled(true);
+                displayBtn.setEnabled(true);
 
                 displayUCubeInfo(uCubeInfo);
                 break;
@@ -187,17 +204,22 @@ public class MainActivity extends AppCompatActivity {
         ucubeFirmwareVersionTv.setText(getString(R.string.ucube_firmware_version, uCubeInfo.firmwareVersion));
         ucubeIICConfigTv.setText(getString(R.string.ucube_icc_config, uCubeInfo.iccConfig));
 
-        if (uCubeInfo.supportNFC) {
-            ucubeFirmwareSTVersionTv.setVisibility(View.VISIBLE);
+        if (uCubeInfo.ytmposProduct == YTMPOSProduct.uCube_touch) {
+            ucubeFirmwareSTVersionTv.setVisibility(View.GONE);
             ucubeNFCConfigTv.setVisibility(View.VISIBLE);
-            nfcNotSupportedTv.setVisibility(View.INVISIBLE);
-
-            ucubeFirmwareSTVersionTv.setText(getString(R.string.ucube_firmware_st_version, uCubeInfo.firmwareSTVersion));
             ucubeNFCConfigTv.setText(getString(R.string.ucube_nfc_config, uCubeInfo.nfcConfig));
         } else {
-            ucubeFirmwareSTVersionTv.setVisibility(View.INVISIBLE);
-            ucubeNFCConfigTv.setVisibility(View.INVISIBLE);
-            nfcNotSupportedTv.setVisibility(View.VISIBLE);
+            if (uCubeInfo.supportNFC) {
+                ucubeFirmwareSTVersionTv.setVisibility(View.VISIBLE);
+                ucubeNFCConfigTv.setVisibility(View.VISIBLE);
+                nfcNotSupportedTv.setVisibility(View.GONE);
+                ucubeFirmwareSTVersionTv.setText(getString(R.string.ucube_firmware_st_version, uCubeInfo.firmwareSTVersion));
+                ucubeNFCConfigTv.setText(getString(R.string.ucube_nfc_config, uCubeInfo.nfcConfig));
+            } else {
+                ucubeFirmwareSTVersionTv.setVisibility(View.GONE);
+                ucubeNFCConfigTv.setVisibility(View.GONE);
+                nfcNotSupportedTv.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -253,80 +275,77 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkUpdate() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.check_update_progress), false);
 
-        boolean checkOnlyFirmwareVersion = false;
-        boolean forceUpdate = false;
 
-        try {
-            UCubeAPI.checkUpdate(
-                    this,
-                    forceUpdate,
-                    checkOnlyFirmwareVersion,
-                    new UCubeCheckUpdateListener() {
-                        @Override
-                        public void onProgress(UCubeAPIState state) {
-                            progressDlg.setMessage(getString(R.string.progress, state.name()));
-                        }
+        UIUtils.showOptionDialog(this, "Force Update ? (Install same version)",
+                "Yes", "No", (dialog, which) -> {
+                    switch (which) {
+                        case DialogInterface.BUTTON_POSITIVE:
+                            forceUpdate = true;
+                            break;
 
-                        @Override
-                        public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {
-                            progressDlg.dismiss();
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            forceUpdate = false;
+                            break;
+                    }
 
-                            if (status) {
-                                if (updateList.size() == 0) {
-                                    Toast.makeText(MainActivity.this,
-                                            getString(R.string.ucube_up_to_date), Toast.LENGTH_SHORT).show();
-                                } else {
+                    UIUtils.showOptionDialog(MainActivity.this,
+                            "Check Only Firmware version ?",
+                            "Yes", "No", (dialog1, which1) -> {
+                                switch (which1) {
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        checkOnlyFirmwareVersion = true;
+                                        break;
 
-                                    CheckUpdateResultDialog dlg = new CheckUpdateResultDialog();
-                                    dlg.init(MainActivity.this, updateList, (dialog, which) -> update(updateList));
-                                    dlg.show(MainActivity.this.getSupportFragmentManager(), CheckUpdateResultDialog.class.getSimpleName());
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        checkOnlyFirmwareVersion = false;
+                                        break;
                                 }
-                            } else {
-                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
-                            }
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
 
-            progressDlg.dismiss();
+                                final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.check_update_progress), false);
 
-            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
-        }
-    }
+                                try {
+                                    UCubeAPI.checkUpdate(
+                                            this,
+                                            forceUpdate,
+                                            checkOnlyFirmwareVersion,
+                                            new UCubeCheckUpdateListener() {
+                                                @Override
+                                                public void onProgress(UCubeAPIState state) {
+                                                    progressDlg.setMessage(getString(R.string.progress, state.name()));
+                                                }
 
-    private void update(List<BinaryUpdate> updateList) {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.update_progress), false);
+                                                @Override
+                                                public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {
+                                                    progressDlg.dismiss();
 
-        try {
-            UCubeAPI.update(
-                    this,
-                    updateList,
-                    new UCubeAPIListener() {
-                        @Override
-                        public void onProgress(UCubeAPIState state) {
-                            progressDlg.setMessage(getString(R.string.update_progress));
-                        }
+                                                    if (status) {
+                                                        if (updateList.size() == 0) {
+                                                            Toast.makeText(MainActivity.this,
+                                                                    getString(R.string.ucube_up_to_date), Toast.LENGTH_SHORT).show();
+                                                        } else {
 
-                        @Override
-                        public void onFinish(boolean status) {
-                            progressDlg.dismiss();
+                                                            CheckUpdateResultDialog dlg = new CheckUpdateResultDialog();
+                                                            dlg.init(MainActivity.this, updateList, (dialog, which) -> showBinUpdateListDialog(updateList));
+                                                            dlg.show(MainActivity.this.getSupportFragmentManager(), CheckUpdateResultDialog.class.getSimpleName());
+                                                        }
+                                                    } else {
+                                                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
+                                                    }
+                                                }
+                                            });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
 
-                            Toast.makeText(getApplicationContext(),
-                                    status ? getString(R.string.update_success) : getString(R.string.update_failed),
-                                    Toast.LENGTH_LONG
-                            ).show();
+                                    progressDlg.dismiss();
 
-                            updateUI(Action.init);
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
+                                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
+                                }
 
-            progressDlg.dismiss();
-        }
+                            });
+                });
+
+
     }
 
     private void sendLogs() {
@@ -396,4 +415,125 @@ public class MainActivity extends AppCompatActivity {
             progressDlg.dismiss();
         }))).start();
     }
+
+    private void getInfo() {
+        final int[] uCubeInfoTagList = {
+                Constants.TAG_ATMEL_SERIAL,
+                Constants.TAG_TERMINAL_PN,
+                Constants.TAG_TERMINAL_SN,
+                Constants.TAG_FIRMWARE_VERSION,
+                Constants.TAG_EMV_ICC_CONFIG_VERSION,
+                Constants.TAG_EMV_NFC_CONFIG_VERSION,
+                Constants.TAG_TERMINAL_STATE,
+                Constants.TAG_BATTERY_STATE,
+                Constants.TAG_POWER_OFF_TIMEOUT,
+                Constants.TAG_NFC_INFOS,
+                Constants.TAG_EMVL1_CLESS_LIB_VERSION,
+                Constants.TAG_USB_CAPABILITY,
+                Constants.TAG_OS_VERSION,
+                Constants.TAG_MPOS_MODULE_STATE,
+                Constants.TAG_TST_LOOPBACK_VERSION,
+                Constants.TAG_AGNOS_LIB_VERSION,
+                Constants.TAG_ACE_LAYER_VERSION,
+                Constants.TAG_GPI_VERSION,
+                Constants.TAG_EMVL3_VERSION,
+                Constants.TAG_PAYMENT_APP_CLESS_VERSION,
+                Constants.TAG_PCI_PED_VERSION,
+                Constants.TAG_PCI_PED_CHECKSUM,
+                Constants.TAG_EMV_L1_CHECKSUM,
+                Constants.TAG_BOOT_LOADER_CHECKSUM,
+                Constants.TAG_EMV_L2_CHECKSUM,
+        };
+
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
+
+        new Thread(() -> new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> runOnUiThread(() -> {
+            switch (event) {
+                case FAILED:
+                    progressDlg.dismiss();
+                    UIUtils.showMessageDialog(this, getString(R.string.get_info_failed));
+                    return;
+
+                case SUCCESS:
+                    progressDlg.dismiss();
+                    DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params[0]).getResponseData());
+
+                    FragmentManager fm = MainActivity.this.getSupportFragmentManager();
+                    FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos);
+                    Dialog.show(fm, "GET_INFO");
+
+                    break;
+            }
+
+        }))).start();
+
+    }
+
+    private void showBinUpdateListDialog(final List<BinaryUpdate> updateList) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Select update");
+
+        boolean[] selectedItems = new boolean[updateList.size()];
+        String[] items = new String[updateList.size()];
+
+        for (int i = 0; i < updateList.size(); i++) {
+            selectedItems[i] = true;
+            items[i] = updateList.get(i).getCfg().getLabel();
+        }
+
+        builder.setMultiChoiceItems(items, selectedItems, null);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        builder.setPositiveButton("Ok", (dialog, which) -> {
+            final SparseBooleanArray selectedItems1 = ((AlertDialog) dialog).getListView().getCheckedItemPositions();
+
+            dialog.dismiss();
+
+            UIUtils.showProgress(this, "Start update", false);
+
+            new Thread(() -> {
+                List<BinaryUpdate> selectedUpdateList = new ArrayList<>(selectedItems1.size());
+
+                for (int i = 0; i < selectedItems1.size(); i++) {
+                    if (selectedItems1.get(i)) {
+                        selectedUpdateList.add(updateList.get(i));
+                    }
+                }
+
+                try {
+                    UCubeAPI.update(
+                            this,
+                            selectedUpdateList,
+                            new UCubeAPIListener() {
+                                @Override
+                                public void onProgress(UCubeAPIState state) {
+                                    UIUtils.setProgressMessage(getString(R.string.update_progress));
+                                }
+
+                                @Override
+                                public void onFinish(boolean status) {
+                                    UIUtils.hideProgressDialog();
+
+                                    Toast.makeText(getApplicationContext(),
+                                            status ? getString(R.string.update_success) : getString(R.string.update_failed),
+                                            Toast.LENGTH_LONG
+                                    ).show();
+
+                                    updateUI(Action.init);
+                                }
+                            });
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    UIUtils.hideProgressDialog();
+                }
+
+            }).start();
+        });
+
+        builder.create().show();
+    }
+
 }

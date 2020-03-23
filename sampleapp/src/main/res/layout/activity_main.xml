@@ -14,123 +14,142 @@
         android:layout_height="wrap_content">
 
 
-    <LinearLayout
-        android:id="@+id/ucube_info_section"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="start"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/ucube_model"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_serial_num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_part_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_firmware_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_firmware_st_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_icc_config"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/ucube_nfc_config"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/nfc_not_supported"
+        <LinearLayout
+            android:id="@+id/ucube_info_section"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/red"
-            android:text="@string/nfc_not_supported"
-            android:visibility="gone"/>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/margin"
+            android:gravity="start"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/ucube_model"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <ToggleButton
-        android:id="@+id/pairingTb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:textOn="@string/pair_ucube"
-        android:textOff="@string/delete_paired_ucube"
-        android:gravity="center"/>
+            <TextView
+                android:id="@+id/ucube_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <View
-        android:id="@+id/separation"
-        android:layout_margin="@dimen/margin"
-        android:background="#FF000000"
-        android:layout_width="match_parent"
-        android:layout_height="1dp" />
+            <TextView
+                android:id="@+id/ucube_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/payBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/pay" />
+            <TextView
+                android:id="@+id/ucube_serial_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:id="@+id/management_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
+            <TextView
+                android:id="@+id/ucube_part_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ucube_firmware_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ucube_firmware_st_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ucube_icc_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ucube_nfc_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/nfc_not_supported"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:text="@string/nfc_not_supported"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <ToggleButton
+            android:id="@+id/pairingTb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:textOn="@string/pair_ucube"
+            android:textOff="@string/delete_paired_ucube"
+            android:gravity="center"/>
+
+        <View
+            android:id="@+id/separation"
+            android:layout_margin="@dimen/margin"
+            android:background="#FF000000"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
 
         <Button
-            android:id="@+id/checkUpdateBtn"
-            android:layout_width="0dp"
+            android:id="@+id/payBtn"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/checkUpdate" />
+            android:text="@string/pay" />
 
-        <Button
-            android:id="@+id/sendLogBtn"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/management_section"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/send_log" />
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/displayBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/display" />
+            <Button
+                android:id="@+id/getInfoBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/get_info" />
+
+            <Button
+                android:id="@+id/checkUpdateBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/checkUpdate" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/sendLogBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/send_log" />
+            <Button
+                android:id="@+id/displayBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/display" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -143,8 +162,8 @@
         android:layout_marginBottom="0dp">
 
         <ImageView
-            android:layout_width="250dp"
-            android:layout_height="70dp"
+            android:layout_width="180dp"
+            android:layout_height="35dp"
             android:src="@drawable/ic_yt_logo" />
 
         <TextView

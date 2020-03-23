@@ -11,32 +11,23 @@ package com.youtransactor.sampleapp;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.UCubeAPIListener;
-import com.youTransactor.uCube.api.UCubeAPIState;
 import com.youTransactor.uCube.mdm.service.BinaryUpdate;
 
 import java.util.List;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 
 public class CheckUpdateResultDialog extends DialogFragment {
