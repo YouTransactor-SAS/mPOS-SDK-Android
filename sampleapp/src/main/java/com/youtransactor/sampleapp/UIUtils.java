@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, YouTransactor. All Rights Reserved.
+ * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
  * <p/>
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
@@ -18,9 +18,6 @@ import android.widget.EditText;
 
 import java.util.Objects;
 
-/**
- * Created by gbillard on 4/4/16.
- */
 public class UIUtils {
 
 	private static ProgressDialog progressDialog;

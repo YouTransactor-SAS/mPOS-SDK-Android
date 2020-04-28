@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2020, YouTransactor. All Rights Reserved.
- *
+ * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+ * <p/>
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -65,32 +65,32 @@ public class AuthorizationTask implements IAuthorizationTask {
 	private void end(int choice) {
 		if (paymentContext.getActivatedReader() == Constants.NFC_READER) {
 			switch (choice) {
-			case 0:
-				this.authResponse = new byte[] {0x30, 0x30};
-				break;
+				case 0:
+					this.authResponse = new byte[] {0x30, 0x30};
+					break;
 
-			case 1:
-				this.authResponse = new byte[] {0x35, 0x31};
-				break;
+				case 1:
+					this.authResponse = new byte[] {0x35, 0x31};
+					break;
 
-			case 2:
-				this.authResponse = new byte[] {0x50, 0x50};
-				break;
+				case 2:
+					this.authResponse = new byte[] {0x50, 0x50};
+					break;
 			}
 
 		} else {
 			switch (choice) {
-			case 0:
-				this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x30, 0x30};
-				break;
+				case 0:
+					this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x30, 0x30};
+					break;
 
-			case 1:
-				this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x30, 0x35};
-				break;
+				case 1:
+					this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x30, 0x35};
+					break;
 
-			case 2:
-				this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x39, 0x38};
-				break;
+				case 2:
+					this.authResponse = new byte[] {(byte) 0x8A, 0x02, 0x39, 0x38};
+					break;
 			}
 		}
 

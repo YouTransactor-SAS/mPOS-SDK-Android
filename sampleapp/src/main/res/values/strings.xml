@@ -1,10 +1,20 @@
 <resources>
+    <!--
+  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+  <p/>
+  Use of this product is contingent on the existence of an executed license
+  agreement between YouTransactor or one of its sublicensee, and your
+  organization, which specifies this software's terms of use. This software
+  is here defined as YouTransactor Intellectual Property for the purposes
+  of determining terms of use as defined within the license agreement.
+-->
     <string name="app_name">mPOS SDK Sample App </string>
 
     <string name="versionName">V %s</string>
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="bluetooth_not_supported">Bluetooth is not supported.</string>
     <string name="init">Init</string>
+    <string name="bank_param_download">Bank Parameters Downloads</string>
     <string name="pay">Pay</string>
     <string name="checkUpdate">check update</string>
     <string name="update">update</string>
@@ -15,16 +25,39 @@
     <string name="settings">Settings</string>
     <string name="reset">reset</string>
     <string name="progress">%s progress…</string>
-    <string name="pair_ucube">Pair uCube</string>
-    <string name="delete_paired_ucube">Delete Paired uCube</string>
+    <string name="scan">Scan</string>
+    <string name="delete_selected_ucube">Delete selected uCube</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
     <string name="ok">OK</string>
     <string name="mandatory">(Mandatory)</string>
+    <string name="cancel">Cancel</string>
+
+
+    <string name="title_scan_devices">uCube Touch Devices Discovery</string>
+    <string name="title_list_devices">uCube Paired Devices</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+
+    <!-- menu -->
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
 
     <!-- ERRORS -->
     <string name="error_setup">Error setup!</string>
 
+    <!--Bluetooth -->
+    <string name="enable_bt_msg">This app needs Bluetooth to work without any problems.</string>
+    <string name="enable_bt_yes_label">Yes, Enable Bluetooth</string>
+    <string name="enable_bt_no_label">No, Close</string>
+
     <!--setup -->
     <string name="setup_progress">Setup progress…</string>
+
+    <!--BANK PARAM DOWNLOADS message -->
+    <string name="bank_param_donwloads_progress">Bank parameter downloads progress %d / %d </string>
+    <string name="bank_param_donwloads_service_progress">Bank parameter downloads progress %s </string>
+    <string name="bank_param_donwloads_failed">Bank parameter downloads failed</string>
+    <string name="bank_param_donwloads_success">Bank parameter downloads success</string>
 
     <!--SEND LOG message -->
     <string name="send_log_progress">Send Log progress…</string>
@@ -35,6 +68,16 @@
     <string name="connect_progress">Connect progress…</string>
     <string name="connect_failed">Connect failed</string>
     <string name="connect_success">Connect success</string>
+
+    <!-- disconnect message-->
+    <string name="disconnect_progress">Disconnect progress…</string>
+    <string name="disconnect_failed">Disconnect failed</string>
+    <string name="disconnect_success">Disconnect success</string>
+
+    <!-- delete selected ucube -->
+    <string name="delete_ucube_progress">Delete ucube progress…</string>
+    <string name="delete_ucube_failed">Delete ucube failed</string>
+    <string name="delete_ucube_success">Delete ucube success</string>
 
     <!-- check update message -->
     <string name="check_update_progress">Check update progress…</string>
@@ -80,6 +123,10 @@
     <string name="payment_progress_without_amount">Make payment in %s</string>
     <string name="payment_failed">Payment failed!</string>
     <string name="display">Display</string>
+    <string name="contact_only">Contact Only</string>
+
+    <string name="force_authorisation">Force Authorisation</string>
+
 
     <!--RPC DISPLAY -->
     <string name="display_msg">Display message</string>
@@ -110,4 +157,6 @@
     <string name="SVPP_version">SVPP version : </string>
     <string name="get_info_progress">Get Info Failed</string>
     <string name="get_info_failed">Get Info Failed</string>
+    <string name="refresh">Refresh</string>
+    <string name="model">Model</string>
 </resources>

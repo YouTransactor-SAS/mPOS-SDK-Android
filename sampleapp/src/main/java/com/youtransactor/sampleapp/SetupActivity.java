@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2020, YouTransactor. All Rights Reserved.
- *
+ * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+ * <p/>
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.UCubeAPIListener;
+import com.youTransactor.uCube.api.listener.UCubeAPIListener;
 import com.youTransactor.uCube.api.UCubeAPIState;
 import com.youTransactor.uCube.api.YTMPOSProduct;
 

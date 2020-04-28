@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+  <p/>
+  Use of this product is contingent on the existence of an executed license
+  agreement between YouTransactor or one of its sublicensee, and your
+  organization, which specifies this software's terms of use. This software
+  is here defined as YouTransactor Intellectual Property for the purposes
+  of determining terms of use as defined within the license agreement.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_scan"
+          android:checkable="false"
+          android:orderInCategory="1"
+          app:showAsAction="ifRoom"
+          android:title="@string/menu_scan" />
+    <item android:id="@+id/menu_stop"
+          android:title="@string/menu_stop"
+          android:orderInCategory="101"
+          app:showAsAction="ifRoom|withText"/>
+</menu>

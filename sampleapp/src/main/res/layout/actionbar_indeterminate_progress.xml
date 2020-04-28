@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
   <p/>
@@ -8,12 +7,11 @@
   is here defined as YouTransactor Intellectual Property for the purposes
   of determining terms of use as defined within the license agreement.
 -->
-<resources>
-    <color name="colorPrimary">#FFFFFF</color>
-    <color name="colorPrimaryDark">#024F8D</color>
-    <color name="colorAccent">#1B80D8</color>
-
-
-    <color name="grey_300">#DADADA</color>
-    <color name="red">#D32F2F</color>
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_height="wrap_content"
+             android:layout_width="56dp"
+             android:minWidth="56dp">
+    <ProgressBar android:layout_width="32dp"
+                 android:layout_height="32dp"
+                 android:layout_gravity="center"/>
+</FrameLayout>

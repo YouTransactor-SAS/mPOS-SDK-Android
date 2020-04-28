@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+  <p/>
+  Use of this product is contingent on the existence of an executed license
+  agreement between YouTransactor or one of its sublicensee, and your
+  organization, which specifies this software's terms of use. This software
+  is here defined as YouTransactor Intellectual Property for the purposes
+  of determining terms of use as defined within the license agreement.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -67,6 +76,28 @@
         android:layout_margin="@dimen/margin"
         android:text="@string/enter_amount_on_ucube"
         android:id="@+id/amountSrcBtn"/>
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/contact_only"
+        android:id="@+id/contactOnlyBtn"/>
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/force_authorisation"
+        android:id="@+id/forceAuthorisationBtn"/>
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/use_single_entry_point"
+        android:id="@+id/useSingleEntryPointBtn"/>
+
 
     <LinearLayout
         android:orientation="horizontal"

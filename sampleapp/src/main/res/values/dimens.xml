@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
+  <p/>
+  Use of this product is contingent on the existence of an executed license
+  agreement between YouTransactor or one of its sublicensee, and your
+  organization, which specifies this software's terms of use. This software
+  is here defined as YouTransactor Intellectual Property for the purposes
+  of determining terms of use as defined within the license agreement.
+-->
 <resources>
-
-    <dimen name="margin">10dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="margin">5dp</dimen>
 </resources>
