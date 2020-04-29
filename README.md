@@ -113,7 +113,7 @@ This section describes the general uCube MPOS Android SDK architecture. The SDK 
 
 The Integrator is able to use the UCubeAPI interface and call RPC commands. 
 
-![Capture general_archi](https://user-images.githubusercontent.com/59020462/76530265-c48fda80-6473-11ea-8852-8cc2e0328896.png)
+![Capture general_archi](https://user-images.githubusercontent.com/59020462/80593040-bf392000-8a20-11ea-8fa8-155eb42b6f1f.png)
 
 ### 2. Transaction Flow : Contact
 
@@ -144,26 +144,23 @@ The APIs provided by UCubeAPI modules are:
 
 ```java
 	initManagers (@Nonnull Context context)
-		
 	setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
-		
 	YTMPOSProduct getYTMPOSProduct()
-		
-	connect (@Nonnull Activity activity, @NonNull UCubeInitListener uCubeInitListener)
-		
+	scanUCubeDevices(@NonNull Activity activity, @NonNull UCubeAPIScanListener uCubeAPIScanListener)
+	stopScan()
+	connect (@Nonnull Activity activity, @NonNull UCubeDevice uCubeDevice, @NonNull UCubeConnectListener uCubeInitListener)
+	isConnected()
+	disconnect(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
+	deleteSelectedUCube(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
+	getSelectedUCubeDevice()
 	UCubeInfo getUCubeInfo()
-	
-	deletePairedUCube()
-	
 	pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
-	
 	checkUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
-
 	update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
-
 	sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
-	
+	sendBankParamToDevice (@NonNull Activity activity, @NonNull IPrepareBankParametersTask prepareBankParametersTask, @Nonnull UCubeAPISettingUpListener uCubeSettingUpListener)
 	close()
+
 ```
 
 * You can use the sample app provided in this repository as a reference
