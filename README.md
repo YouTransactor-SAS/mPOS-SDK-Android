@@ -274,7 +274,7 @@ The APIs provided by UCubeAPI modules are:
 	...
 ```
 
-#### Connect (...)
+#### connect (...)
 
 * This API connect the paired uCube if there is already one otherwise it does a Bluetooth scan and the user should select one device. it connects it and save it. It registers the device in the MDM and get the MDM-CLIENT certificate of the device. To be used for the double-authentication when calling others MDM WS.
 * It can throw an Exception if the “initManagers” method not already called.
@@ -359,7 +359,7 @@ The APIs provided by UCubeAPI modules are:
 	...
 ```
 
-#### GetSelectedUCubeDevice()
+#### getSelectedUCubeDevice()
 
 * This API returns an UCubeDevice which contains bluetooth information of selected device. 
 * It can throw an Exception if the “initManagers” method not already called.
@@ -413,7 +413,7 @@ The APIs provided by UCubeAPI modules are:
 	...
 ```
 
-#### Pay (...)
+#### pay (...)
 
 * This API activate all available reader in device and call Payment service and it depends from which reader is used to read card the specific service is called.
 * This API takes in input a UCubePaymentRequest and gives in output a UCubePaymentResponse. 
