@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp.task;
+package com.youtransactor.sampleapp.payment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,8 +15,8 @@ import android.app.AlertDialog;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
-import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 
 import org.apache.commons.lang3.StringUtils;

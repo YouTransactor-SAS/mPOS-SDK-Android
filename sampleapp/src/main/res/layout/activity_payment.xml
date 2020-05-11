@@ -67,13 +67,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/force_online_pin"
-        android:id="@+id/forceOnlinePINBtn"/>
-
-    <Switch
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
         android:text="@string/enter_amount_on_ucube"
         android:id="@+id/amountSrcBtn"/>
 
@@ -83,6 +76,14 @@
         android:layout_margin="@dimen/margin"
         android:text="@string/contact_only"
         android:id="@+id/contactOnlyBtn"/>
+
+
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/use_single_entry_point"
+        android:id="@+id/useSingleEntryPointBtn"/>
 
     <Switch
         android:layout_width="match_parent"
@@ -95,9 +96,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/use_single_entry_point"
-        android:id="@+id/useSingleEntryPointBtn"/>
+        android:text="@string/force_online_pin"
+        android:id="@+id/forceOnlinePINBtn"/>
 
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/display_result_on_ucube"
+        android:id="@+id/displayResultOnUCubeBtn"/>
 
     <LinearLayout
         android:orientation="horizontal"

@@ -16,9 +16,9 @@
     <string name="init">Init</string>
     <string name="bank_param_download">Bank Parameters Downloads</string>
     <string name="pay">Pay</string>
-    <string name="checkUpdate">check update</string>
+    <string name="mdm_checkUpdate">MDM check update</string>
     <string name="update">update</string>
-    <string name="send_log">Send Log</string>
+    <string name="mdm_send_log">MDM Send Log</string>
     <string name="close">close</string>
     <string name="ucube_touch">uCube Touch</string>
     <string name="ucube">uCube</string>
@@ -53,12 +53,6 @@
     <!--setup -->
     <string name="setup_progress">Setup progress…</string>
 
-    <!--BANK PARAM DOWNLOADS message -->
-    <string name="bank_param_donwloads_progress">Bank parameter downloads progress %d / %d </string>
-    <string name="bank_param_donwloads_service_progress">Bank parameter downloads progress %s </string>
-    <string name="bank_param_donwloads_failed">Bank parameter downloads failed</string>
-    <string name="bank_param_donwloads_success">Bank parameter downloads success</string>
-
     <!--SEND LOG message -->
     <string name="send_log_progress">Send Log progress…</string>
     <string name="send_log_failed">Send Logs failed</string>
@@ -78,6 +72,16 @@
     <string name="delete_ucube_progress">Delete ucube progress…</string>
     <string name="delete_ucube_failed">Delete ucube failed</string>
     <string name="delete_ucube_success">Delete ucube success</string>
+
+    <!-- register message -->
+    <string name="register_progress">Register progress</string>
+    <string name="register_success">Register success</string>
+    <string name="register_failed">Register Failed</string>
+
+    <!-- get config message -->
+    <string name="get_config_progress">Get config progress</string>
+    <string name="get_config_success">Get config success</string>
+    <string name="get_config_failed">Get config Failed</string>
 
     <!-- check update message -->
     <string name="check_update_progress">Check update progress…</string>
@@ -124,6 +128,7 @@
     <string name="payment_failed">Payment failed!</string>
     <string name="display">Display</string>
     <string name="contact_only">Contact Only</string>
+    <string name="display_result_on_ucube">Display result on uCube</string>
 
     <string name="force_authorisation">Force Authorisation</string>
 
@@ -159,4 +164,6 @@
     <string name="get_info_failed">Get Info Failed</string>
     <string name="refresh">Refresh</string>
     <string name="model">Model</string>
+    <string name="mdm_register">MDM Register</string>
+    <string name="mdm_config">MDM Config</string>
 </resources>

@@ -24,7 +24,7 @@ public class UIUtils {
 
 	private UIUtils() {}
 
-	static AlertDialog showOptionDialog(Context context, String text,
+	public static AlertDialog showOptionDialog(Context context, String text,
 										String yesLabel, String noLabel,
 										final DialogInterface.OnClickListener listener) {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
@@ -55,19 +55,19 @@ public class UIUtils {
 		return dialog;
 	}
 
-	static ProgressDialog showProgressDialog(Context context) {
+	public static ProgressDialog showProgressDialog(Context context) {
 		return showProgress(context, null);
 	}
 
-	static ProgressDialog showProgress(Context context, String message) {
+	public static ProgressDialog showProgress(Context context, String message) {
 		return showProgress(context, message, false);
 	}
 
-	static ProgressDialog showProgress(Context context, String message, boolean cancellable) {
+	public static ProgressDialog showProgress(Context context, String message, boolean cancellable) {
 		return showProgress(context, message, cancellable, null);
 	}
 
-	static ProgressDialog showProgress(Context context, String message, boolean cancellable, DialogInterface.OnCancelListener onCancel) {
+	public static ProgressDialog showProgress(Context context, String message, boolean cancellable, DialogInterface.OnCancelListener onCancel) {
 		ProgressDialog dlg = new ProgressDialog(context);
 
 		dlg.setMessage(message);
@@ -86,19 +86,19 @@ public class UIUtils {
 		return dlg;
 	}
 
-	static void setProgressMessage(String msg) {
+	public static void setProgressMessage(String msg) {
 		if (progressDialog != null) {
 			progressDialog.setMessage(msg);
 		}
 	}
 
-	static void hideProgressDialog() {
+	public static void hideProgressDialog() {
 		if (progressDialog != null) {
 			progressDialog.dismiss();
 		}
 	}
 
-	static void showMessageDialog(final Context context, String msg) {
+	public static void showMessageDialog(final Context context, String msg) {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
 
 		dialogBuilder.setMessage(msg);
@@ -112,7 +112,7 @@ public class UIUtils {
 
 	}
 
-	static void showUserInputDialog(final Context context, String prompt, final DialogInterface.OnClickListener okListener) {
+	public static void showUserInputDialog(final Context context, String prompt, final DialogInterface.OnClickListener okListener) {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
 
 		final EditText userInput = new EditText(context);

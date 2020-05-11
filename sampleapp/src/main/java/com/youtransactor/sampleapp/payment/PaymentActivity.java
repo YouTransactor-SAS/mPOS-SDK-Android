@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.payment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -16,22 +16,23 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.youTransactor.uCube.TLV;
+import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.listener.UCubePaymentListener;
-import com.youTransactor.uCube.api.UCubePaymentResponse;
+import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
+import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
+import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
-import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.rpc.Constants;
-
-import com.youtransactor.sampleapp.adapter.CurrencyAdapter;
-import com.youtransactor.sampleapp.adapter.TransactionTypeAdapter;
-import com.youtransactor.sampleapp.task.AuthorizationTask;
-import com.youtransactor.sampleapp.task.RiskManagementTask;
+import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.UIUtils;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -56,6 +57,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch useSingleEntryPointBtn;
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
+    private Switch displayResultSwitch;
     private TextView trxResultFld;
 
     @Override
@@ -80,6 +82,7 @@ public class PaymentActivity extends AppCompatActivity {
         contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
         useSingleEntryPointBtn = findViewById(R.id.useSingleEntryPointBtn);
+        displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
 
         amountFld.setText(getString(R.string._1_00));
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
@@ -113,6 +116,8 @@ public class PaymentActivity extends AppCompatActivity {
         boolean enterAmountOnuCube = amountSrcSwitch.isChecked();
 
         boolean contactOnly = contactOnlySwitch.isChecked();
+
+        boolean displayResultOnUCube = displayResultSwitch.isChecked();
 
         double amount = -1;
 
@@ -166,19 +171,20 @@ public class PaymentActivity extends AppCompatActivity {
             altMsgBundle.putString("GLOBAL_font_id", "00");
         }
 
-        UIUtils.showProgress(this,  msg);
-
+        UIUtils.showProgress(this, msg);
 
         List<CardReaderType> readerList = new ArrayList<>();
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.MSR);
 
-        if(!contactOnly)
+        if (!contactOnly)
             readerList.add(CardReaderType.NFC);
 
         UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
                 .setAmount(amount)
                 .setCurrency(currency)
+                // .setTransactionDate(new Date())
+                .setDisplayResult(displayResultOnUCube)
                 .setUseSingleEntryPoint(useSingleEntryPoint)
                 .setReaderList(readerList)
                 .setForceOnlinePin(forceOnlinePin)
@@ -187,7 +193,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setTransactionType(trxType)
-                .setSystemFailureInfo(true)
+                // .setSystemFailureInfo(true)
                 .setSystemFailureInfo2(true)
                 .setMsgBundle(msgBundle)
                 .setAltMsgBundle(altMsgBundle)
@@ -199,52 +205,97 @@ public class PaymentActivity extends AppCompatActivity {
 
 
         try {
-            UCubeAPI.pay(this, paymentRequest, new UCubePaymentListener() {
+            UCubeAPI.pay(this, paymentRequest,
+                    new UCubeLibPaymentServiceListener() {
+
                 @Override
-                public void onStart(byte[] ksn) {
+                public void onProgress(PaymentState state, PaymentContext context) {
 
-                    Log.d(TAG, "KSN : " + Arrays.toString(ksn));
+                    Toast.makeText(PaymentActivity.this, state.name(), Toast.LENGTH_SHORT).show();
+                    /*
+                        // COMMON STATES
+                        CANCEL_ALL,
+                        GET_INFO,
+                        WAIT_CARD, //Contact only state
+                        ENTER_SECURE_SESSION,
+                        KSN_AVAILABLE,
 
-                    //TODO Send KSN to the acquirer server
+                        // SMC STATES
+                        SMC_BUILD_CANDIDATE_LIST,
+                        SMC_SELECT_APPLICATION,
+                        SMC_USER_SELECT_APPLICATION,
+                        SMC_INIT_TRANSACTION,
+                        SMC_RISK_MANAGEMENT,
+                        SMC_PROCESS_TRANSACTION,
+                        SMC_FINALIZE_TRANSACTION,
+                        SMC_REMOVE_CARD,
+
+                        // MSR STATES
+                        MSR_GET_SECURED_TAGS,
+                        MSR_GET_PLAIN_TAGS,
+                        MSR_ONLINE_PIN,
+
+                        // SingleEntryPoint / NFC STATES
+                        START_NFC_TRANSACTION,
+                        NFC_GET_SECURED_TAGS,
+                        NFC_GET_PLAIN_TAGS,
+                        COMPLETE_NFC_TRANSACTION,
+
+                        // COMMON STATES
+                        AUTHORIZATION,
+                        EXIT_SECURE_SESSION,
+                        DISPLAY_RESULT,
+                        GET_L1_LOG,
+                        GET_L2_LOG,
+                    */
+                    if (state == PaymentState.KSN_AVAILABLE) {
+                        Log.d(TAG, "KSN : " + Arrays.toString(context.getSredKsn()));
+                        return;
+                    }
+
+                    if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
+                        Log.d(TAG, "init data : " + Arrays.toString(context.getTransactionInitData()));
+                    }
                 }
 
                 @Override
-                public void onFinish(boolean status, UCubePaymentResponse uCubePaymentResponse) {
+                public void onFinish(boolean status, PaymentContext context) {
+
                     UIUtils.hideProgressDialog();
 
-                    Log.d(TAG, "payment status - " + status);
+                    if (status && context != null) {
+                        Log.d(TAG, "Payment status : " + context.getPaymentStatus());
 
-                    if (status && uCubePaymentResponse != null) {
-                        Log.d(TAG, "Payment state : " + uCubePaymentResponse.paymentContext.getPaymentStatus());
+                        trxResultFld.setText(context.getPaymentStatus().name());
 
-                        trxResultFld.setText(uCubePaymentResponse.paymentContext.getPaymentStatus().name());
+                        /* uCube info */
+                        byte[] ucubeFirmware = TLV.parse(context.getuCubeInfos()).get(Constants.TAG_FIRMWARE_VERSION);
+                        if(ucubeFirmware != null)
+                            Log.d(TAG, "ucube firmware version: " + Tools.parseVersion(ucubeFirmware));
 
-                        Log.d(TAG, "ucube name: " + uCubePaymentResponse.uCube.ucubeName);
-                        Log.d(TAG, "ucube address: " + uCubePaymentResponse.uCube.ucubeAddress);
-                        Log.d(TAG, "ucube part number: " + uCubePaymentResponse.uCube.ucubePartNumber);
-                        Log.d(TAG, "ucube serial number: " + uCubePaymentResponse.uCube.ucubeSerialNumber);
+                        Log.d(TAG, "Used Interface: " + CardReaderType.getLabel(context.getActivatedReader()));
 
-                        Log.d(TAG, "card label: " + uCubePaymentResponse.cardLabel);
+                        Log.d(TAG, "amount: " + context.getAmount());
+                        Log.d(TAG, "currency: " + context.getCurrency().getLabel());
+                        Log.d(TAG, "tx date: " + context.getTransactionDate());
+                        Log.d(TAG, "tx type: " + context.getTransactionType().getLabel());
 
-                        Log.d(TAG, "amount: " + uCubePaymentResponse.paymentContext.getAmount());
-                        Log.d(TAG, "currency: " + uCubePaymentResponse.paymentContext.getCurrency().getLabel());
-                        Log.d(TAG, "tx date: " + uCubePaymentResponse.paymentContext.getTransactionDate());
-                        Log.d(TAG, "tx type: " + uCubePaymentResponse.paymentContext.getTransactionType().getLabel());
-
-                        if (uCubePaymentResponse.paymentContext.getSelectedApplication() != null) {
-                            Log.d(TAG, "app ID: " + uCubePaymentResponse.paymentContext.getSelectedApplication().getLabel());
-                            Log.d(TAG, "app version: " + uCubePaymentResponse.paymentContext.getApplicationVersion());
+                        if (context.getSelectedApplication() != null) {
+                            Log.d(TAG, "app ID: " + context.getSelectedApplication().getLabel());
+                            Log.d(TAG, "app version: " + context.getApplicationVersion());
                         }
 
-                        Log.d(TAG, "system failure log1: " + bytesToHex(uCubePaymentResponse.paymentContext.getSystemFailureInfo()));
-                        Log.d(TAG, "system failure log2: " + bytesToHex(uCubePaymentResponse.paymentContext.getSystemFailureInfo2()));
+                        Log.d(TAG, "system failure log1: " + bytesToHex(context.getSystemFailureInfo()));
+                        Log.d(TAG, "system failure log2: " + bytesToHex(context.getSystemFailureInfo2()));
 
-                        if (uCubePaymentResponse.paymentContext.getPlainTagTLV() != null)
-                            for (Integer tag : uCubePaymentResponse.paymentContext.getPlainTagTLV().keySet())
-                                Log.d(TAG, "Plain Tag : " + tag + " : " + bytesToHex(uCubePaymentResponse.paymentContext.getPlainTagTLV().get(tag)));
+                        if (context.getPlainTagTLV() != null) {
 
-                        if (uCubePaymentResponse.paymentContext.getSecuredTagBlock() != null)
-                            Log.d(TAG, "secure tag block: " + bytesToHex(uCubePaymentResponse.paymentContext.getSecuredTagBlock()));
+                            for (Integer tag :context.getPlainTagTLV().keySet())
+                            Log.d(TAG, "Plain Tag : " + tag + " : " + bytesToHex(context.getPlainTagTLV().get(tag)));
+
+                        }
+                        if (context.getSecuredTagBlock() != null)
+                            Log.d(TAG, "secure tag block: " + bytesToHex(context.getSecuredTagBlock()));
 
                     } else {
                         UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));

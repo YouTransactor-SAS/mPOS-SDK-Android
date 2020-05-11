@@ -9,11 +9,11 @@
  */
 package com.youtransactor.sampleapp;
 
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -21,9 +21,6 @@ import androidx.core.content.ContextCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.listener.UCubeAPIListener;
-import com.youTransactor.uCube.api.UCubeAPIState;
-import com.youTransactor.uCube.api.YTMPOSProduct;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -32,124 +29,86 @@ public class SetupActivity extends AppCompatActivity {
     private CardView uCubeCardView;
     private CardView uCubeTouchCardView;
 
+    private SharedPreferences sharedPreferences;
+
+    private static final String SHAREDPREF_NAME = "setup";
+    public static final String YT_PRODUCT = "ytProduct";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Fabric.with(this, new Crashlytics());
-        setContentView(R.layout.activity_setup);
 
-        UCubeAPI.initManagers(getApplicationContext());
+        //Setup logger : if null lib will use it own logger
+        UCubeAPI.setupLogger(this.getApplicationContext(), null);
+
+        setContentView(R.layout.activity_setup);
 
         uCubeCardView = findViewById(R.id.ucube_card_view);
         uCubeTouchCardView = findViewById(R.id.ucube_touch_card_view);
 
+        sharedPreferences = getSharedPreferences(SHAREDPREF_NAME, Context.MODE_PRIVATE);
 
         String versionName = BuildConfig.VERSION_NAME;
         TextView versionNametv = findViewById(R.id.version_name);
         versionNametv.setText(getString(R.string.versionName, versionName));
 
-        YTMPOSProduct ytmposProduct;
+        if(getYtProduct() == null) {
+            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+        } else {
 
-        try {
-            ytmposProduct  = UCubeAPI.getYTMPOSProduct();
+            switch (getYtProduct()) {
+                case uCube:
+                    uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+                    uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+                    break;
 
-            if (ytmposProduct != null) {
-
-                switch (ytmposProduct) {
-                    case uCube:
-                        uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-                        uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this,android.R.color.darker_gray));
-                        break;
-
-                    case uCube_touch:
-                        uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-                        uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-                        break;
-                }
-
-            } else {
-                uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-                uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                case uCubeTouch:
+                    uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+                    uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+                    break;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
 
         uCubeCardView.setOnClickListener(v -> {
-            final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_progress), false);
 
-            try {
-                UCubeAPI.setup(getApplicationContext(), this, YTMPOSProduct.uCube, new UCubeAPIListener() {
-                    @Override
-                    public void onProgress(UCubeAPIState uCubeAPIState) {
-                    }
+            setYTProduct(YTProduct.uCube);
 
-                    @Override
-                    public void onFinish(boolean status) {
-                        progressDlg.dismiss();
+            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
 
-                        if(status) {
-                            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-                            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-
-                            Intent btCnxActivityIntent = new Intent(SetupActivity.this, MainActivity.class);
-                            startActivity(btCnxActivityIntent);
-                        } else {
-                            Toast.makeText(SetupActivity.this, getString(R.string.error_setup), Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                progressDlg.dismiss();
-
-                Toast.makeText(SetupActivity.this, getString(R.string.error_setup), Toast.LENGTH_LONG).show();
-            }
+            Intent intent = new Intent(SetupActivity.this, MainActivity.class);
+            intent.putExtra(YT_PRODUCT, YTProduct.uCube.name());
+            startActivity(intent);
 
         });
 
         uCubeTouchCardView.setOnClickListener(v -> {
-            final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_progress), false);
 
-            try {
-                UCubeAPI.setup(getApplicationContext(), this, YTMPOSProduct.uCube_touch, new UCubeAPIListener() {
-                    @Override
-                    public void onProgress(UCubeAPIState uCubeAPIState) {
-                    }
+            setYTProduct(YTProduct.uCubeTouch);
 
-                    @Override
-                    public void onFinish(boolean status) {
-                        progressDlg.dismiss();
+            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray));
 
-                        if(status) {
-                            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-                            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-
-                            Intent btCnxActivityIntent = new Intent(SetupActivity.this, MainActivity.class);
-                            startActivity(btCnxActivityIntent);
-                        } else {
-                            Toast.makeText(SetupActivity.this, getString(R.string.error_setup), Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                progressDlg.dismiss();
-
-                Toast.makeText(SetupActivity.this, getString(R.string.error_setup), Toast.LENGTH_LONG).show();
-            }
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(YT_PRODUCT, YTProduct.uCubeTouch.name());
+            startActivity(intent);
         });
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    private void setYTProduct(YTProduct ytProduct) {
+        sharedPreferences.edit().putString(YT_PRODUCT, ytProduct.name()).apply();
+    }
 
-        UCubeAPI.close();
+    private YTProduct getYtProduct() {
+        String ytProductName = sharedPreferences.getString(YT_PRODUCT, null);
+        if(ytProductName == null)
+            return null;
+
+       return YTProduct.valueOf(ytProductName);
     }
 }

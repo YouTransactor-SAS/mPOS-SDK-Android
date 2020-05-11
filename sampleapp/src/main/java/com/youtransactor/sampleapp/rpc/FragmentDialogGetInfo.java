@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.rpc;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
 import com.youTransactor.uCube.rpc.DeviceInfos;
+import com.youtransactor.sampleapp.R;
 
 import java.util.Objects;
 

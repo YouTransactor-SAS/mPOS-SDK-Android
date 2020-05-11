@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp.adapter;
+package com.youtransactor.sampleapp.connexion;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.youTransactor.uCube.bluetooth.UCubeDevice;
+import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youtransactor.sampleapp.R;
 
 import java.util.List;

@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.mdm;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -26,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.youTransactor.uCube.mdm.service.BinaryUpdate;
+import com.youtransactor.sampleapp.R;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class CheckUpdateResultDialog extends DialogFragment {
 	private Activity activity;
 	private DialogInterface.OnClickListener onClickPositiveButton;
 
-	void init(@NonNull Activity activity, List<BinaryUpdate> updateList, DialogInterface.OnClickListener onClickPositiveButton) {
+	public void init(@NonNull Activity activity, List<BinaryUpdate> updateList, DialogInterface.OnClickListener onClickPositiveButton) {
 		this.updateList = updateList;
 		this.activity = activity;
 		this.onClickPositiveButton = onClickPositiveButton;

@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.connexion;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -26,10 +26,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.listener.UCubeAPIScanListener;
-import com.youTransactor.uCube.bluetooth.UCubeDevice;
-import com.youtransactor.sampleapp.adapter.uCubePairedListAdapter;
+import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
+import com.youTransactor.uCube.connexion.UCubeDevice;
+import com.youtransactor.sampleapp.MainActivity;
+import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.UIUtils;
 
 import java.util.List;
 
@@ -102,41 +103,20 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        try {
-            UCubeAPI.scanUCubeDevices(this, new UCubeAPIScanListener() {
-                @Override
-                public void onError() {
+        List<UCubeDevice> devices = ((BtClassicConnexionManager) MainActivity.connexionManager).getPairedUCubes();
+        adapter = new uCubePairedListAdapter(ListPairedUCubeActivity.this, devices, view -> {
+            final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
+            final UCubeDevice selectedDevice = adapter.getItemAtPosition(childAdapterPosition);
 
-                }
+            final Intent intent = new Intent();
+            intent.putExtra(MainActivity.DEVICE_NAME, selectedDevice.getName());
+            intent.putExtra(MainActivity.DEVICE_ADDRESS, selectedDevice.getAddress());
 
-                @Override
-                public void onDeviceDiscovered(UCubeDevice UCubeDevice) {
+            setResult(MainActivity.SCAN_REQUEST, intent);
+            finish();
+        });
 
-                }
-
-                @Override
-                public void onScanComplete(List<UCubeDevice> discoveredUCubeDevices) {
-                    adapter = new uCubePairedListAdapter(ListPairedUCubeActivity.this, discoveredUCubeDevices, view -> {
-                        final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
-                        final UCubeDevice selectedDevice = adapter.getItemAtPosition(childAdapterPosition);
-
-                        final Intent intent = new Intent(ListPairedUCubeActivity.this, MainActivity.class);
-                        intent.putExtra(MainActivity.EXTRAS_DEVICE_NAME, selectedDevice.getName());
-                        intent.putExtra(MainActivity.EXTRAS_DEVICE_ADDRESS, selectedDevice.getAddress());
-
-                        startActivity(intent);
-                        finish();
-                    });
-
-
-                    recyclerView.setAdapter(adapter);
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        recyclerView.setAdapter(adapter);
     }
 
     @Override

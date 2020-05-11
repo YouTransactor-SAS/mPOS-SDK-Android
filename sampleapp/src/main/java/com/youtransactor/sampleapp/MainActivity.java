@@ -9,89 +9,100 @@
  */
 package com.youtransactor.sampleapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import com.youTransactor.uCube.api.listener.UCubeAPISettingUpListener;
-import com.youTransactor.uCube.api.listener.UCubeCheckUpdateListener;
-import com.youTransactor.uCube.api.UCubeInfo;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.api.listener.UCubeAPIListener;
-import com.youTransactor.uCube.api.UCubeAPIState;
-import com.youTransactor.uCube.api.listener.UCubeConnectListener;
-
-import com.youTransactor.uCube.api.YTMPOSProduct;
-import com.youTransactor.uCube.bluetooth.UCubeDevice;
+import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
+import com.youTransactor.uCube.connexion.BleConnectionManager;
+import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
+import com.youTransactor.uCube.connexion.BtConnectionManager;
+import com.youTransactor.uCube.connexion.IConnexionManager;
+import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.service.BinaryUpdate;
+import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
-import com.youtransactor.sampleapp.task.PrepareBankParametersTask;
+import com.youtransactor.sampleapp.connexion.ListPairedUCubeActivity;
+import com.youtransactor.sampleapp.connexion.UCubeTouchScanActivity;
+import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
+import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
+import com.youtransactor.sampleapp.payment.PaymentActivity;
+import com.youtransactor.sampleapp.rpc.FragmentDialogGetInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.youtransactor.sampleapp.MainActivity.Action.*;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
+import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static final String TAG = MainActivity.class.getName();
+    public static final int SCAN_REQUEST = 1234;
 
-    private ToggleButton scanTb, connectTb;
-    private Button bankParamDownloadsBtn, payBtn, getInfoBtn, checkUpdateBtn, sendLogBtn, displayBtn;
+    public static final String DEVICE_NAME = "DEVICE_NAME";
+    public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    private LinearLayout ucubeSection, ucubeInfoSection;
-    private TextView ucubeNameTv, ucubeAddressTv, ucubeSerialNumTv, ucubePartNumTv,
-            ucubeFirmwareVersionTv, ucubeFirmwareSTVersionTv, ucubeIICConfigTv, ucubeNFCConfigTv,
-            nfcNotSupportedTv;
+    /* UI */
+    private TextView versionNameTv;
+    private TextView uCubeModelTv;
 
-    private UCubeInfo uCubeInfo;
-    private UCubeDevice uCubeDevice;
-    private YTMPOSProduct model;
-    private boolean isConnected;
+    private LinearLayout ucubeSection;
+    private TextView ucubeNameTv, ucubeAddressTv;
 
+    private Button scanBtn, connectBtn, disconnectBtn;
+
+    private Button payBtn, getInfoBtn, displayBtn;
+
+    private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
+
+    /* Device */
+    private YTProduct ytProduct;
+
+    /* BT */
+    public static IConnexionManager connexionManager;
+
+    /* update */
     boolean checkOnlyFirmwareVersion = false;
     boolean forceUpdate = false;
 
-    enum Action {
-        INIT,
-        SCAN_UCUBE,
-        CONNECT_OR_REMOVE_UCUBE,
-        DISCONNECT_UCUBE,
+    /* shared preference */
+    private SharedPreferences sharedPreferences;
+    private static final String SHAREDPREF_NAME = "main";
+
+    enum State {
+        NO_DEVICE_SELECTED,
+        DEVICE_NOT_CONNECTED,
+        DEVICE_CONNECTED,
     }
 
-    CompoundButton.OnCheckedChangeListener scanBtCheckListener = (buttonView, isChecked) -> {
-        if (!isChecked) {
-            scan();
-        } else {
-            deleteSelectedDevice();
-        }
-    };
-
-    CompoundButton.OnCheckedChangeListener connectBtCheckListener = (buttonView, isChecked) -> {
-        if (!isChecked) {
-            connect();
-        } else {
-            disconnect();
-        }
-    };
+    enum MDMState {
+        IDLE,
+        DEVICE_REGISTERED,
+        DEVICE_NOT_REGISTERED,
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,436 +110,279 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        initVariables();
+        if (getIntent() != null) {
+            if (getIntent().hasExtra(YT_PRODUCT))
+                ytProduct = YTProduct.valueOf(getIntent().getStringExtra(YT_PRODUCT));
+        }
 
-        if(model == null) {
-            Toast.makeText(this, "Fatal error model can't be null",
-                    Toast.LENGTH_LONG).show();
+        if (ytProduct == null) {
             finish();
             return;
         }
 
+        switch (ytProduct) {
+            case uCube:
+                connexionManager = new BtClassicConnexionManager();
+                break;
+
+            case uCubeTouch:
+                connexionManager = new BleConnectionManager();
+                break;
+        }
+
+        // 1- Connexion Manager Initialisation & set
+        ((BtConnectionManager) connexionManager).init(this);
+        UCubeAPI.setConnexionManager(connexionManager);
+
         initView();
+
+        sharedPreferences = getSharedPreferences(SHAREDPREF_NAME, Context.MODE_PRIVATE);
+        if(getDevice() != null ) {
+            //2- initialise the connexion manager with saved device
+            connexionManager.setDevice(getDevice());
+        }
+
+        // 3- if user app will use YT TMS MDM Manager should be setup
+        UCubeAPI.mdmSetup(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        //do not call UCubeAPI.connect() here
+        if (connexionManager.getDevice() == null) {
+            updateConnectionUI(NO_DEVICE_SELECTED);
+            updateMDMUI(MDMState.IDLE);
+        }
+        else {
+            if (!connexionManager.isConnected())
+                updateConnectionUI(DEVICE_NOT_CONNECTED);
+            else
+                updateConnectionUI(DEVICE_CONNECTED);
+
+            // if user app will use YT TMS use this to get MDM Manager state & then update UI
+            updateMDMUI(UCubeAPI.isMdmManagerReady() ? MDMState.DEVICE_REGISTERED : MDMState.DEVICE_NOT_REGISTERED);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == SCAN_REQUEST && data != null) {
+
+            String deviceName = data.getStringExtra(DEVICE_NAME);
+            String deviceAddress = data.getStringExtra(DEVICE_ADDRESS);
+
+            Log.d(TAG, "device : " + deviceName + " : " + deviceAddress);
+
+            UCubeDevice device = new UCubeDevice(deviceName, deviceAddress);
+
+            //2- initialise the connexion manager with selected device
+            connexionManager.setDevice(device);
+
+            //save device
+            saveDevice(device);
+        }
     }
 
     private void initView() {
 
-        scanTb = findViewById(R.id.scanTb);
-        connectTb = findViewById(R.id.connectTb);
+        scanBtn = findViewById(R.id.scanBtn);
+        connectBtn = findViewById(R.id.connectBtn);
+        disconnectBtn = findViewById(R.id.disconnectBtn);
 
-        bankParamDownloadsBtn = findViewById(R.id.bankParamDownloadBtn);
-        payBtn = findViewById(R.id.payBtn);
         getInfoBtn = findViewById(R.id.getInfoBtn);
-        checkUpdateBtn = findViewById(R.id.checkUpdateBtn);
-        sendLogBtn = findViewById(R.id.sendLogBtn);
         displayBtn = findViewById(R.id.displayBtn);
 
-        ucubeSection = findViewById(R.id.ucube_section);
-        ucubeInfoSection = findViewById(R.id.ucube_info_section);
+        payBtn = findViewById(R.id.payBtn);
 
+        mdmRegisterBtn = findViewById(R.id.registerBtn);
+        mdmGetConfigBtn = findViewById(R.id.getConfigBtn);
+        mdmCheckUpdateBtn = findViewById(R.id.checkUpdateBtn);
+        mdmSendLogBtn = findViewById(R.id.sendLogBtn);
+
+        ucubeSection = findViewById(R.id.ucube_section);
         ucubeNameTv = findViewById(R.id.ucube_name);
         ucubeAddressTv = findViewById(R.id.ucube_address);
-        ucubeSerialNumTv = findViewById(R.id.ucube_serial_num);
-        ucubePartNumTv = findViewById(R.id.ucube_part_number);
-        ucubeFirmwareVersionTv = findViewById(R.id.ucube_firmware_version);
-        ucubeFirmwareSTVersionTv = findViewById(R.id.ucube_firmware_st_version);
-        ucubeIICConfigTv = findViewById(R.id.ucube_icc_config);
-        ucubeNFCConfigTv = findViewById(R.id.ucube_nfc_config);
-        nfcNotSupportedTv = findViewById(R.id.nfc_not_supported);
 
         String versionName = BuildConfig.VERSION_NAME;
-        TextView versionNametv = findViewById(R.id.version_name);
-        versionNametv.setText(getString(R.string.versionName, versionName));
+        versionNameTv = findViewById(R.id.version_name);
+        versionNameTv.setText(getString(R.string.versionName, versionName));
 
-        TextView ucubeModelTv = findViewById(R.id.ucube_model);
-        ucubeModelTv.setText(getString(R.string.ucube_model, model.name()));
+        uCubeModelTv = findViewById(R.id.ucube_model);
+        uCubeModelTv.setText(getString(R.string.ucube_model, ytProduct.name()));
 
-        scanTb.setOnCheckedChangeListener(null);
-        connectTb.setOnCheckedChangeListener(null);
+        scanBtn.setOnClickListener(v -> scan());
+        /* connexion management */
+        connectBtn.setOnClickListener(v -> connect());
+        disconnectBtn.setOnClickListener(v -> disconnect());
 
-        final Intent intent = getIntent();
-        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        String mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
-        if(mDeviceAddress != null && mDeviceName != null)
-            uCubeDevice = new UCubeDevice(mDeviceName, mDeviceAddress);
-
-        updateUI(INIT);
-
-        bankParamDownloadsBtn.setOnClickListener(v -> bankParamDownloads() );
-
+        /* payment service */
         payBtn.setOnClickListener(v -> payment());
 
+        /* RPC Example calls */
+        displayBtn.setOnClickListener(v -> displayHelloWorld());
         getInfoBtn.setOnClickListener(v -> getInfo());
 
-        checkUpdateBtn.setOnClickListener(v -> checkUpdate());
-
-        sendLogBtn.setOnClickListener(v -> sendLogs());
-
-        displayBtn.setOnClickListener(v -> displayHelloWorld());
+        /* MDM SERVICE button */
+        mdmRegisterBtn.setOnClickListener(v -> mdmRegister());
+        mdmGetConfigBtn.setOnClickListener( v -> mdmGetConfig());
+        mdmCheckUpdateBtn.setOnClickListener(v -> mdmCheckUpdate());
+        mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
     }
 
-    private void initVariables() {
+    private void updateConnectionUI(State state) {
 
-        try {
-            uCubeDevice = UCubeAPI.getSelectedUCubeDevice();
-            uCubeInfo = UCubeAPI.getUCubeInfo();
-            isConnected = UCubeAPI.isConnected();
-            model = UCubeAPI.getYTMPOSProduct();
+        displaySelectedDevice();
 
-        } catch (Exception ignore) {
-            Toast.makeText(this, "Error to retrieve info " +
-                    "from UCubeAPI, maybe setup not called", Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
+        switch (state) {
 
-    private void updateUI(Action action) {
+            case NO_DEVICE_SELECTED:
 
-        switch (action) {
-            case INIT:
+                connectBtn.setVisibility(View.GONE);
+                disconnectBtn.setVisibility(View.GONE);
 
-                if(uCubeDevice == null) {
-                    updateUI(SCAN_UCUBE);
-                    break;
-                }
-
-                if(uCubeInfo == null) {
-                    updateUI(CONNECT_OR_REMOVE_UCUBE);
-                    break;
-                }
-
-                if(!isConnected) {
-                    updateUI(CONNECT_OR_REMOVE_UCUBE);
-                }else {
-                    updateUI(DISCONNECT_UCUBE);
-                }
-
-                break;
-
-            case SCAN_UCUBE:
-
-                scanTb.setChecked(true);
-                scanTb.setOnCheckedChangeListener(scanBtCheckListener);
-
-                scanTb.setEnabled(true);
-                connectTb.setEnabled(false);
-
-                bankParamDownloadsBtn.setEnabled(false);
                 payBtn.setEnabled(false);
-                checkUpdateBtn.setEnabled(false);
-                sendLogBtn.setEnabled(false);
                 getInfoBtn.setEnabled(false);
                 displayBtn.setEnabled(false);
-
-                displayUCube();
-                displayUCubeInfo();
                 break;
 
-            case CONNECT_OR_REMOVE_UCUBE:
+            case DEVICE_NOT_CONNECTED:
 
-                scanTb.setEnabled(true);
-                scanTb.setChecked(false);
-                scanTb.setOnCheckedChangeListener(scanBtCheckListener);
+                connectBtn.setVisibility(View.VISIBLE);
+                disconnectBtn.setVisibility(View.GONE);
 
-                connectTb.setEnabled(true);
-                connectTb.setChecked(true);
-                connectTb.setOnCheckedChangeListener(connectBtCheckListener);
-
-                bankParamDownloadsBtn.setEnabled(false);
                 payBtn.setEnabled(false);
-                checkUpdateBtn.setEnabled(false);
-                sendLogBtn.setEnabled(false);
                 getInfoBtn.setEnabled(false);
                 displayBtn.setEnabled(false);
-
-                displayUCube();
-                displayUCubeInfo();
                 break;
 
-            case DISCONNECT_UCUBE:
+            case DEVICE_CONNECTED:
 
-                scanTb.setEnabled(false);
+                connectBtn.setVisibility(View.GONE);
+                disconnectBtn.setVisibility(View.VISIBLE);
 
-                connectTb.setEnabled(true);
-                connectTb.setChecked(false);
-                connectTb.setOnCheckedChangeListener(connectBtCheckListener);
-
-                bankParamDownloadsBtn.setEnabled(true);
                 payBtn.setEnabled(true);
-                checkUpdateBtn.setEnabled(true);
-                sendLogBtn.setEnabled(true);
                 getInfoBtn.setEnabled(true);
                 displayBtn.setEnabled(true);
-
-                displayUCube();
-                displayUCubeInfo();
                 break;
         }
     }
 
-    private void displayUCube() {
+    private void displaySelectedDevice() {
 
-        if(uCubeDevice == null) {
+        UCubeDevice device = getDevice();
+
+        if (device == null) {
             ucubeSection.setVisibility(View.GONE);
             return;
         }
 
         ucubeSection.setVisibility(View.VISIBLE);
 
-        ucubeNameTv.setText(getString(R.string.ucube_name, uCubeDevice.getName()));
-        ucubeAddressTv.setText(getString(R.string.ucube_address, uCubeDevice.getAddress()));
+        ucubeNameTv.setText(getString(R.string.ucube_name, device.getName()));
+        ucubeAddressTv.setText(getString(R.string.ucube_address, device.getAddress()));
     }
 
-    private void displayUCubeInfo() {
+    private void updateMDMUI(MDMState state) {
+        switch (state) {
+            case IDLE:
+                mdmRegisterBtn.setVisibility(View.VISIBLE);
+                mdmRegisterBtn.setEnabled(false);
 
-        if (uCubeInfo == null) {
-            ucubeInfoSection.setVisibility(View.GONE);
-            return;
+                mdmGetConfigBtn.setVisibility(View.GONE);
+                mdmCheckUpdateBtn.setVisibility(View.GONE);
+                mdmSendLogBtn.setVisibility(View.GONE);
+                break;
+
+            case DEVICE_NOT_REGISTERED:
+                mdmRegisterBtn.setVisibility(View.VISIBLE);
+                mdmRegisterBtn.setEnabled(true);
+
+                mdmGetConfigBtn.setVisibility(View.GONE);
+                mdmCheckUpdateBtn.setVisibility(View.GONE);
+                mdmSendLogBtn.setVisibility(View.GONE);
+                break;
+
+            case DEVICE_REGISTERED:
+                mdmRegisterBtn.setVisibility(View.GONE);
+
+                mdmGetConfigBtn.setVisibility(View.VISIBLE);
+                mdmCheckUpdateBtn.setVisibility(View.VISIBLE);
+                mdmSendLogBtn.setVisibility(View.VISIBLE);
+                break;
         }
-
-        ucubeInfoSection.setVisibility(View.VISIBLE);
-
-        ucubeSerialNumTv.setText(getString(R.string.ucube_serial_num, uCubeInfo.serialNum));
-        ucubePartNumTv.setText(getString(R.string.ucube_part_number, uCubeInfo.partNum));
-        ucubeFirmwareVersionTv.setText(getString(R.string.ucube_firmware_version, uCubeInfo.firmwareVersion));
-        ucubeIICConfigTv.setText(getString(R.string.ucube_icc_config, uCubeInfo.iccConfig));
-
-        if (model == YTMPOSProduct.uCube_touch) {
-            ucubeFirmwareSTVersionTv.setVisibility(View.GONE);
-            ucubeNFCConfigTv.setVisibility(View.VISIBLE);
-            ucubeNFCConfigTv.setText(getString(R.string.ucube_nfc_config, uCubeInfo.nfcConfig));
-        } else {
-            if (uCubeInfo.supportNFC) {
-                ucubeFirmwareSTVersionTv.setVisibility(View.VISIBLE);
-                ucubeNFCConfigTv.setVisibility(View.VISIBLE);
-                nfcNotSupportedTv.setVisibility(View.GONE);
-                ucubeFirmwareSTVersionTv.setText(getString(R.string.ucube_firmware_st_version, uCubeInfo.firmwareSTVersion));
-                ucubeNFCConfigTv.setText(getString(R.string.ucube_nfc_config, uCubeInfo.nfcConfig));
-            } else {
-                ucubeFirmwareSTVersionTv.setVisibility(View.GONE);
-                ucubeNFCConfigTv.setVisibility(View.GONE);
-                nfcNotSupportedTv.setVisibility(View.VISIBLE);
-            }
-        }
-
     }
 
     private void scan() {
-        try {
+        //disconnect
+        disconnect();
 
-            Intent intent;
+        // if user app will use YT TMS
+        // an unregister of last device should be called
+        // to delete current ssl certificate
+       boolean res = UCubeAPI.mdmUnregister(this);
+       if(!res) {
+           Log.e(TAG, "FATAL Error! error to unregister current device");
+       }
 
-            if(model == YTMPOSProduct.uCube_touch) {
-                intent = new Intent(this, UCubeTouchScanActivity.class);
-            } else {
-                intent = new Intent(this, ListPairedUCubeActivity.class);
-            }
+       //remove saved device
+       removeDevice();
 
-            startActivity(intent);
+       Intent intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
+                UCubeTouchScanActivity.class :
+                ListPairedUCubeActivity.class);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void deleteSelectedDevice() {
-
-        try {
-            UIUtils.showProgress(this, getString(R.string.delete_selected_ucube), true);
-
-            UCubeAPI.deleteSelectedUCube(this, new UCubeAPIListener() {
-                @Override
-                public void onProgress(UCubeAPIState uCubeAPIState) {
-                    runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, uCubeAPIState.name())));
-                }
-
-                @Override
-                public void onFinish(boolean status) {
-                    UIUtils.hideProgressDialog();
-
-                    if(!status) {
-
-                        scanTb.setOnCheckedChangeListener(null);
-                        scanTb.setChecked(true);
-                        scanTb.setOnCheckedChangeListener(scanBtCheckListener);
-
-
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.delete_ucube_failed));
-                    } else {
-                        Toast.makeText(MainActivity.this, getString(R.string.delete_ucube_success),
-                                Toast.LENGTH_LONG).show();
-                        updateUI(SCAN_UCUBE);
-                    }
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void disconnect() {
-        try {
-            UIUtils.showProgress(this, getString(R.string.disconnect_progress), true);
-
-            UCubeAPI.disconnect(this, new UCubeAPIListener() {
-                @Override
-                public void onProgress(UCubeAPIState uCubeAPIState) {
-                    runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, uCubeAPIState.name())));
-                }
-
-                @Override
-                public void onFinish(boolean status) {
-                    UIUtils.hideProgressDialog();
-
-                    if(!status) {
-                        connectTb.setOnCheckedChangeListener(null);
-                        connectTb.setChecked(false);
-                        connectTb.setOnCheckedChangeListener(connectBtCheckListener);
-
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.disconnect_failed));
-                    } else {
-                        Toast.makeText(MainActivity.this, getString(R.string.disconnect_success),
-                                Toast.LENGTH_LONG).show();
-                        updateUI(CONNECT_OR_REMOVE_UCUBE);
-                    }
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            UIUtils.hideProgressDialog();
-
-            connectTb.setOnCheckedChangeListener(null);
-            connectTb.setChecked(false);
-            connectTb.setOnCheckedChangeListener(connectBtCheckListener);
-
-            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.connect_failed));
-        }
+       startActivityForResult(intent, SCAN_REQUEST);
     }
 
     private void connect() {
+        if(connexionManager.isConnected()) {
+            updateConnectionUI(DEVICE_CONNECTED);
+            return;
+        }
 
-        try {
-            UIUtils.showProgress(this, getString(R.string.connect_progress), true);
+        UIUtils.showProgress(this, getString(R.string.connect_progress));
 
-            UCubeAPI.connect(this, uCubeDevice,  new UCubeConnectListener() {
-
-                @Override
-                public void onProgress(UCubeAPIState uCubeAPIState) {
-
-                    runOnUiThread(() -> {
-                        if (uCubeAPIState.equals(UCubeAPIState.INIT_RPC_MANAGER)) { // this is the state juste after connection done
-                            Toast.makeText(MainActivity.this, "Device connected", Toast.LENGTH_LONG).show();
-                        }
-
-                        UIUtils.setProgressMessage(getString(R.string.progress, uCubeAPIState.name()));
-                    });
-                }
-
-                @Override
-                public void onFinish(boolean status, UCubeInfo uCubeInfo) {
-
-                    UIUtils.hideProgressDialog();
-
-                    if (!status) {
-
-                        connectTb.setOnCheckedChangeListener(null);
-                        connectTb.setChecked(true);
-                        connectTb.setOnCheckedChangeListener(connectBtCheckListener);
-
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.connect_failed));
-
-                    } else {
-
-                        Toast.makeText(MainActivity.this, getString(R.string.connect_success),
-                                Toast.LENGTH_LONG).show();
-
-                        MainActivity.this.uCubeInfo = uCubeInfo;
-
-                        updateUI(DISCONNECT_UCUBE);
-                    }
-
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        connexionManager.connect(status -> {
 
             UIUtils.hideProgressDialog();
 
-            connectTb.setOnCheckedChangeListener(null);
-            connectTb.setChecked(true);
-            connectTb.setOnCheckedChangeListener(connectBtCheckListener);
+            if (!status) {
+                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.connect_failed));
 
-            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.connect_failed));
-        }
+            } else {
+
+                Toast.makeText(MainActivity.this, getString(R.string.connect_success),
+                        Toast.LENGTH_LONG).show();
+
+                updateConnectionUI(DEVICE_CONNECTED);
+            }
+        });
     }
 
-    private void bankParamDownloads() {
+    private void disconnect() {
 
-        PrepareBankParametersTask prepareBankParametersTask = new PrepareBankParametersTask();
-
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress), true);
-        progressDlg.setCancelable(false);
-
-        try {
-            UCubeAPI.sendBankParamToDevice(MainActivity.this,
-                    prepareBankParametersTask, new UCubeAPISettingUpListener() {
-
-                        @Override
-                        public void onProgress(UCubeAPIState uCubeAPIState, int step) {
-                            runOnUiThread(() -> {
-                                switch (uCubeAPIState) {
-                                    case PREPARE_BANK_PARAMETERS:
-                                    case EXIT_SECURE_SESSION:
-                                    case ENTER_SECURE_SESSION:
-                                        progressDlg.setMessage(getString(R.string.bank_param_donwloads_service_progress,
-                                                uCubeAPIState.name().toLowerCase()));
-                                        break;
-
-                                    case DOWNLOAD_BANK_PARAMETER:
-                                        progressDlg.setMessage(getString(R.string.bank_param_donwloads_progress,
-                                                step,
-                                                prepareBankParametersTask.getBankParameters().size()));
-                                        break;
-
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onFinish(boolean status) {
-
-                            progressDlg.dismiss();
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    status ? getString(R.string.bank_param_donwloads_success) :
-                                            getString(R.string.bank_param_donwloads_failed),
-                                    Toast.LENGTH_LONG
-                            ).show();
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            progressDlg.dismiss();
-
-            Toast.makeText(
-                    MainActivity.this,
-                    getString(R.string.bank_param_donwloads_failed),
-                    Toast.LENGTH_LONG
-            ).show();
+        if(!connexionManager.isConnected()) {
+            updateConnectionUI(DEVICE_NOT_CONNECTED);
+            return;
         }
+
+        UIUtils.showProgress(this, getString(R.string.disconnect_progress));
+
+        connexionManager.disconnect(status -> {
+
+            UIUtils.hideProgressDialog();
+
+            if (!status) {
+                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.disconnect_failed));
+            } else {
+                Toast.makeText(MainActivity.this, getString(R.string.disconnect_success),
+                        Toast.LENGTH_LONG).show();
+                updateConnectionUI(DEVICE_NOT_CONNECTED);
+            }
+        });
     }
 
     private void payment() {
@@ -536,7 +390,56 @@ public class MainActivity extends AppCompatActivity {
         startActivity(paymentIntent);
     }
 
-    private void checkUpdate() {
+    private void mdmRegister()  {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.register_progress));
+
+        UCubeAPI.mdmRegister(this, new UCubeLibMDMServiceListener() {
+            @Override
+            public void onProgress(ServiceState state) {
+                progressDlg.setMessage(getString(R.string.progress, state.name()));
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+                progressDlg.dismiss();
+
+                if(status) {
+                    Toast.makeText(MainActivity.this,
+                            getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                } else {
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.register_failed));
+                }
+
+                updateMDMUI(status ? MDMState.DEVICE_REGISTERED : MDMState.DEVICE_NOT_REGISTERED);
+            }
+        });
+    }
+
+    private void mdmGetConfig() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_config_progress));
+
+        UCubeAPI.mdmGetConfig(this, new UCubeLibMDMServiceListener() {
+            @Override
+            public void onProgress(ServiceState state) {
+                progressDlg.setMessage(getString(R.string.progress, state.name()));
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+                progressDlg.dismiss();
+
+                if(status) {
+                    DeviceConfigDialogFragment dlg = new DeviceConfigDialogFragment();
+                    dlg.init((List<Config>) params[0]);
+                    dlg.show(MainActivity.this.getSupportFragmentManager(), DeviceConfigDialogFragment.class.getSimpleName());
+                } else {
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_config_failed));
+                }
+            }
+        });
+    }
+
+    private void mdmCheckUpdate() {
 
         UIUtils.showOptionDialog(this, "Force Update ? (Install same version)",
                 "Yes", "No", (dialog, which) -> {
@@ -566,89 +469,122 @@ public class MainActivity extends AppCompatActivity {
                                 final ProgressDialog progressDlg = UIUtils.showProgress(this,
                                         getString(R.string.check_update_progress), false);
 
-                                try {
-                                    UCubeAPI.checkUpdate(
-                                            this,
-                                            forceUpdate,
-                                            checkOnlyFirmwareVersion,
-                                            new UCubeCheckUpdateListener() {
-                                                @Override
-                                                public void onProgress(UCubeAPIState state) {
-                                                    runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
-                                                }
+                                UCubeAPI.mdmCheckUpdate(this,
+                                        forceUpdate,
+                                        checkOnlyFirmwareVersion,
+                                        new UCubeLibMDMServiceListener() {
 
-                                                @Override
-                                                public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {
-                                                    progressDlg.dismiss();
+                                            @Override
+                                            public void onProgress(ServiceState state) {
+                                                progressDlg.setMessage(getString(R.string.progress, state.name()));
+                                            }
 
-                                                    if (status) {
-                                                        if (updateList.size() == 0) {
-                                                            Toast.makeText(MainActivity.this,
-                                                                    getString(R.string.ucube_up_to_date), Toast.LENGTH_SHORT).show();
-                                                        } else {
+                                            @Override
+                                            public void onFinish(boolean status, Object... params) {
+                                                progressDlg.dismiss();
 
-                                                            CheckUpdateResultDialog dlg = new CheckUpdateResultDialog();
-                                                            dlg.init(MainActivity.this, updateList, (dialog, which) -> showBinUpdateListDialog(updateList));
-                                                            dlg.show(MainActivity.this.getSupportFragmentManager(), CheckUpdateResultDialog.class.getSimpleName());
-                                                        }
+                                                if (status) {
+                                                    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[0];
+                                                    List<Config> cfgList = (List<Config>) params[1];
+
+                                                    if (updateList.size() == 0) {
+                                                        Toast.makeText(MainActivity.this,
+                                                                getString(R.string.ucube_up_to_date), Toast.LENGTH_SHORT).show();
                                                     } else {
-                                                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
+
+                                                        CheckUpdateResultDialog dlg = new CheckUpdateResultDialog();
+                                                        dlg.init(MainActivity.this, updateList, (dialog, which) -> showBinUpdateListDialog(updateList));
+                                                        dlg.show(MainActivity.this.getSupportFragmentManager(), CheckUpdateResultDialog.class.getSimpleName());
                                                     }
+
+                                                } else {
+                                                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
                                                 }
-                                            });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-
-                                    progressDlg.dismiss();
-
-                                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.check_update_failed));
-                                }
-
+                                            }
+                                        });
                             });
                 });
-
-
     }
 
-    private void sendLogs() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress), true);
-        progressDlg.setCancelable(false);
+    private void showBinUpdateListDialog(final List<BinaryUpdate> updateList) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        try {
-            UCubeAPI.sendLogs(MainActivity.this, new UCubeAPIListener() {
+        builder.setTitle("Select update");
+
+        boolean[] selectedItems = new boolean[updateList.size()];
+        String[] items = new String[updateList.size()];
+
+        for (int i = 0; i < updateList.size(); i++) {
+            selectedItems[i] = true;
+            items[i] = updateList.get(i).getCfg().getLabel();
+        }
+
+        builder.setMultiChoiceItems(items, selectedItems, null);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        builder.setPositiveButton("Ok", (dialog, which) -> {
+            final SparseBooleanArray selectedItems1 = ((AlertDialog) dialog).getListView().getCheckedItemPositions();
+
+            dialog.dismiss();
+
+            final ProgressDialog progressDlg = UIUtils.showProgress(this,
+                    getString(R.string.update_progress), false);
+
+            List<BinaryUpdate> selectedUpdateList = new ArrayList<>(selectedItems1.size());
+
+            for (int i = 0; i < selectedItems1.size(); i++) {
+                if (selectedItems1.get(i)) {
+                    selectedUpdateList.add(updateList.get(i));
+                }
+            }
+
+            UCubeAPI.mdmUpdate(this, selectedUpdateList, new UCubeLibMDMServiceListener() {
                 @Override
-                public void onProgress(UCubeAPIState uCubeAPIState) {
-                    runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, uCubeAPIState.name())));
+                public void onProgress(ServiceState state) {
+                    progressDlg.setMessage(getString(R.string.progress, state.name()));
                 }
 
                 @Override
-                public void onFinish(boolean status) {
-
+                public void onFinish(boolean status, Object... params) {
                     progressDlg.dismiss();
 
-                    Toast.makeText(
-                            MainActivity.this,
-                            status ? getString(R.string.send_log_success) : getString(R.string.send_log_failed),
+                    Toast.makeText(getApplicationContext(),
+                            status ? getString(R.string.update_success) : getString(R.string.update_failed),
                             Toast.LENGTH_LONG
                     ).show();
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
 
-            progressDlg.dismiss();
+        });
 
-            Toast.makeText(
-                    MainActivity.this,
-                    getString(R.string.send_log_failed),
-                    Toast.LENGTH_LONG
-            ).show();
-        }
+        builder.create().show();
+    }
+
+    private void mdmSendLogs() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress));
+
+        UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
+            @Override
+            public void onProgress(ServiceState state) {
+                progressDlg.setMessage(getString(R.string.progress, state.name()));
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+                progressDlg.dismiss();
+
+                Toast.makeText(
+                        MainActivity.this,
+                        status ? getString(R.string.send_log_success) : getString(R.string.send_log_failed),
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+        });
     }
 
     private void displayHelloWorld() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
-        progressDlg.setCancelable(false);
 
         new Thread(() -> new DisplayMessageCommand("Hello world").execute((event, params) -> runOnUiThread(() -> {
             switch (event) {
@@ -669,6 +605,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getInfo() {
+
         final int[] uCubeInfoTagList = {
                 Constants.TAG_ATMEL_SERIAL,
                 Constants.TAG_TERMINAL_PN,
@@ -719,75 +656,28 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }))).start();
-
     }
 
-    private void showBinUpdateListDialog(final List<BinaryUpdate> updateList) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    private void saveDevice(UCubeDevice device) {
+        sharedPreferences.edit()
+                .putString(DEVICE_NAME, device.getName())
+                .putString(DEVICE_ADDRESS, device.getAddress())
+                .apply();
+    }
 
-        builder.setTitle("Select update");
+    private void removeDevice() {
+        sharedPreferences.edit()
+                .remove(DEVICE_ADDRESS)
+                .remove(DEVICE_NAME)
+                .apply();
+    }
 
-        boolean[] selectedItems = new boolean[updateList.size()];
-        String[] items = new String[updateList.size()];
+    private UCubeDevice getDevice() {
+        String name = sharedPreferences.getString(DEVICE_NAME, null);
+        String address = sharedPreferences.getString(DEVICE_ADDRESS, null);
+        if(name != null && address != null)
+            return new UCubeDevice(name, address);
 
-        for (int i = 0; i < updateList.size(); i++) {
-            selectedItems[i] = true;
-            items[i] = updateList.get(i).getCfg().getLabel();
-        }
-
-        builder.setMultiChoiceItems(items, selectedItems, null);
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        builder.setPositiveButton("Ok", (dialog, which) -> {
-            final SparseBooleanArray selectedItems1 = ((AlertDialog) dialog).getListView().getCheckedItemPositions();
-
-            dialog.dismiss();
-
-            UIUtils.showProgress(this, "Start update", false);
-
-            // new Thread(() -> {
-            List<BinaryUpdate> selectedUpdateList = new ArrayList<>(selectedItems1.size());
-
-            for (int i = 0; i < selectedItems1.size(); i++) {
-                if (selectedItems1.get(i)) {
-                    selectedUpdateList.add(updateList.get(i));
-                }
-            }
-
-            try {
-                UCubeAPI.update(
-                        this,
-                        selectedUpdateList,
-                        new UCubeAPIListener() {
-                            @Override
-                            public void onProgress(UCubeAPIState state) {
-                                runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.update_progress)));
-                            }
-
-                            @Override
-                            public void onFinish(boolean status) {
-                                UIUtils.hideProgressDialog();
-
-                                Toast.makeText(getApplicationContext(),
-                                        status ? getString(R.string.update_success) : getString(R.string.update_failed),
-                                        Toast.LENGTH_LONG
-                                ).show();
-
-                                initVariables();
-                                displayUCube();
-                                displayUCubeInfo();
-                            }
-                        });
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                UIUtils.hideProgressDialog();
-            }
-
-            //  }).start();
-        });
-
-        builder.create().show();
+        return null;
     }
 }

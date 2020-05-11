@@ -7,7 +7,7 @@
  * is here defined as YouTransactor Intellectual Property for the purposes
  * of determining terms of use as defined within the license agreement.
  */
-package com.youtransactor.sampleapp.adapter;
+package com.youtransactor.sampleapp.payment;
 
 import android.view.View;
 import android.view.ViewGroup;
