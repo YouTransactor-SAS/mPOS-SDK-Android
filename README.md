@@ -113,7 +113,7 @@ This section describes the general uCube MPOS Android SDK architecture. The SDK 
 
 The Integrator is able to use the UCubeAPI interface and call RPC commands. 
 
-![Capture general_archi](https://user-images.githubusercontent.com/59020462/76530265-c48fda80-6473-11ea-8852-8cc2e0328896.png)
+![Capture general_archi](https://user-images.githubusercontent.com/59020462/80593040-bf392000-8a20-11ea-8fa8-155eb42b6f1f.png)
 
 ### 2. Transaction Flow : Contact
 
@@ -144,26 +144,23 @@ The APIs provided by UCubeAPI modules are:
 
 ```java
 	initManagers (@Nonnull Context context)
-		
 	setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
-		
 	YTMPOSProduct getYTMPOSProduct()
-		
-	connect (@Nonnull Activity activity, @NonNull UCubeInitListener uCubeInitListener)
-		
+	scanUCubeDevices(@NonNull Activity activity, @NonNull UCubeAPIScanListener uCubeAPIScanListener)
+	stopScan()
+	connect (@Nonnull Activity activity, @NonNull UCubeDevice uCubeDevice, @NonNull UCubeConnectListener uCubeInitListener)
+	isConnected()
+	disconnect(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
+	deleteSelectedUCube(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
+	getSelectedUCubeDevice()
 	UCubeInfo getUCubeInfo()
-	
-	deletePairedUCube()
-	
 	pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
-	
 	checkUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
-
 	update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
-
 	sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
-	
+	sendBankParamToDevice (@NonNull Activity activity, @NonNull IPrepareBankParametersTask prepareBankParametersTask, @Nonnull UCubeAPISettingUpListener uCubeSettingUpListener)
 	close()
+
 ```
 
 * You can use the sample app provided in this repository as a reference
@@ -194,11 +191,11 @@ The APIs provided by UCubeAPI modules are:
 		   UCubeAPI.setup(getApplicationContext(), this, YTMPOSProduct.uCube, new UCubeAPIListener() {
 		       @Override
 		       public void onProgress(UCubeAPIState uCubeAPIState) {
-		//TODO 
+		       //TODO 
 		       }
 		       @Override
 		       public void onFinish(boolean status) {
-				 //TODO
+		       //TODO
 		       }
 		   });
 		} catch (Exception e) {
@@ -231,27 +228,150 @@ The APIs provided by UCubeAPI modules are:
 		...
 ```
 
-#### Connect (...)
+#### scanUCubeDevices (...)
+
+* This API start a Bluetooth scan (classical Bluetooth or BLE depends of which product was selected) and return a call back: 
+	* When uCube scanned
+	* When scan finished
+	* When error occured
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	try {
+		UCubeAPI.scanUCubeDevices(this, new UCubeAPIScanListener() {
+                    @Override
+                    public void onError() {
+                    //TODO
+                    }
+
+                    @Override
+                    public void onDeviceDiscovered(UCubeDevice uCubeDevice) {
+  		    //TODO              
+   		    }
+
+                    @Override
+                    public void onScanComplete(List<UCubeDevice> discoveredUCubeDevices) {
+                    //TODO
+                    }
+                });
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
+```
+
+#### stopScan
+
+* Should be used to force stopping scan, for example before stopping activity. 
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	try {
+		UCubeAPI.stopScan();
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
+```
+
+#### connect (...)
 
 * This API connect the paired uCube if there is already one otherwise it does a Bluetooth scan and the user should select one device. it connects it and save it. It registers the device in the MDM and get the MDM-CLIENT certificate of the device. To be used for the double-authentication when calling others MDM WS.
 * It can throw an Exception if the “initManagers” method not already called.
 
 ```java
 		try {
-		   UCubeAPI.connect(this, new UCubeConnectListener() {
+		   UCubeAPI.connect(this, uCubeDevice, new UCubeConnectListener() {
 		       @Override
 		       public void onProgress(UCubeAPIState uCubeAPIState) {
-		//TODO
+			//TODO
 		       }
 		       @Override
 		       public void onFinish(boolean status, UCubeInfo uCubeInfo) {
-		//TODO
+			//TODO
 		       }
 		   });
 		} catch (Exception e) {
 		   e.printStackTrace();
 		}
-		….
+		...
+
+```
+#### isConnected ()
+
+* This API return a true or false that indicate if a connection is establishing with selected uCube or not.
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	boolean isConnected;
+	try {
+		isConnected = UCubeAPI.isConnected()
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
+
+```
+
+#### disconnect (...)
+
+* This API used to disconnect uCube. 
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	try {
+	   UCubeAPI.disconnect(this, new UCubeAPIListener() {
+	       @Override
+	       public void onProgress(UCubeAPIState uCubeAPIState) {
+		//TODO
+	       }
+	       @Override
+	       public void onFinish(boolean status) {
+		//TODO
+	       }
+	   });
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
+```
+#### deleteSelectedUCube(...)
+
+* This API remove all saved information of selected uCube and notify managers.
+* If a connection was established it disconnect the device first
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	try {
+	   UCubeAPI.deletSelectedUCube(this, new UCubeAPIListener() {
+	       @Override
+	       public void onProgress(UCubeAPIState uCubeAPIState) {
+		//TODO
+	       }
+	       @Override
+	       public void onFinish(boolean status) {
+		//TODO
+	       }
+	   });
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
+```
+
+#### getSelectedUCubeDevice()
+
+* This API returns an UCubeDevice which contains bluetooth information of selected device. 
+* It can throw an Exception if the “initManagers” method not already called.
+
+```java
+	UCubeDevice uCubeDevice = null;
+	try {
+	   uCubeDevice = UCubeAPI.getSelectedUCubeDevice();
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
 ```
 
 #### getUCubeInfo ()
@@ -270,22 +390,30 @@ The APIs provided by UCubeAPI modules are:
 		….
 ```
 
-#### deletePairedUCube ()
+#### sendBankParamToDevice (...)
 
-* This API delete the current paired uCube if there is a saved one.
+* This API used to inject list of bank parameters to uCube. The injection method is to use the SRED key to protect bank parameters. This API takes a Prepare bank parameters task where using the KSN user should prepare his parameters. 
 * It can throw an Exception if the “initManagers” method not already called.
 
 ```java
-		try {
-		   UCubeAPI.deletePairedUCube();
-		} catch (Exception e) {
-		   e.printStackTrace();
-		   return;
-		}
-		….
+	try {
+	   UCubeAPI.sendBankParamToDevice(this, prepareBankParametersTask, new UCubeAPIListener() {
+	       @Override
+	       public void onProgress(UCubeAPIState uCubeAPIState) {
+		//TODO
+	       }
+	       @Override
+	       public void onFinish(boolean status) {
+		//TODO
+	       }
+	   });
+	} catch (Exception e) {
+	   e.printStackTrace();
+	}
+	...
 ```
 
-#### Pay (...)
+#### pay (...)
 
 * This API activate all available reader in device and call Payment service and it depends from which reader is used to read card the specific service is called.
 * This API takes in input a UCubePaymentRequest and gives in output a UCubePaymentResponse. 
@@ -441,7 +569,7 @@ The APIs provided by UCubeAPI modules are:
 			       @Override
 			       public void onProgress(UCubeAPIState state) { }
 			       @Override
-			       public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {  	//TODO
+			       public void onFinish(boolean status, List<BinaryUpdate> updateList, List<Config> cfgList) {  				//TODO
 		}
 			});
 		} catch (Exception e) {
