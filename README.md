@@ -155,6 +155,24 @@ The APIs provided by UCubeAPI are:
 
 #### 6.1 Connect Terminal
 
+#### IConnexionManager
+```java
+public interface IConnexionManager {
+
+	void setDevice(UCubeDevice UCubeDevice);
+
+	UCubeDevice getDevice();
+
+	boolean isConnected();
+
+	void connect(ConnectionListener connectionListener);
+
+	void disconnect(DisconnectListener disconnectListener);
+
+	void send(byte[] input, SendCommandListener sendCommandListener);
+}
+```
+
 * First you should set the connexion manager to the SDK using `setConnexionManager` API. 
 
 ```java
@@ -199,9 +217,11 @@ The ILogger interface :
 To setup the log module you should put this instructions below in you App.java or MainActivity, 
 
 ```java
-        UCubeAPI.setupLogger(this.getApplicationContext(), null); // if you want to use the default Logger
-
-        UCubeAPI.setupLogger(this.getApplicationContext(), new MyLogger()); // if you want to use you Logger impl
+ 	// if you want to use the default Logger
+        UCubeAPI.setupLogger(this.getApplicationContext(), null);
+	
+	// if you want to use you Logger impl
+        UCubeAPI.setupLogger(this.getApplicationContext(), new MyLogger());
 ```
 #### 6.3 Payment
 
@@ -278,9 +298,8 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 		monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
 	}
 }
-	```
+```
 #### IAuthorizationTask
-
 ```java
 public class AuthorizationTask implements IAuthorizationTask {
 @Override
@@ -310,7 +329,6 @@ public class AuthorizationTask implements IAuthorizationTask {
 ```
 
 #### Transaction types
-
 ```java
     PURCHASE
     WITHDRAWAL
@@ -320,7 +338,6 @@ public class AuthorizationTask implements IAuthorizationTask {
     INQUIRY
 ```
 #### UCubePaymentRequest
-
 ```java
   List<CardReaderType> readerList = new ArrayList<>();
         readerList.add(CardReaderType.ICC);
@@ -349,7 +366,6 @@ public class AuthorizationTask implements IAuthorizationTask {
 ```
 
 #### pay
-
 ```java
   UCubeAPI.pay(this, paymentRequest, new UCubeLibPaymentServiceListener() {
 			@Override
@@ -362,9 +378,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 ```
 
-#### Response 
-
-##### PaymentState
+#### PaymentState 
 ```java
 
 	/* COMMON STATES*/
@@ -402,8 +416,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 	GET_L1_LOG
 	GET_L2_LOG
 ```
-##### PaymentContext
-
+#### PaymentContext
 ```java
 	 PaymentStatus paymentStatus; // END status
 
@@ -438,7 +451,8 @@ public class AuthorizationTask implements IAuthorizationTask {
 	 byte[] systemFailureInfo; //svpp logs level 1
 	 byte[] systemFailureInfo2; // svpp logs level 2
 ```
-The payment status possible value are : 
+
+##### PaymentStatus
 ```java
     NFC_MPOS_ERROR,
     CARD_WAIT_FAILED,
