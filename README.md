@@ -2,7 +2,7 @@
 
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
-This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the smartphone and the card terminal is a Master-Slave relation, so the smartphone drive the card terminal by calling diffrent available RPC. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
+This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling diffrent available RPC. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
 
 The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
 * The connexion module provide an interface 'IconnexionManager' so you can use your implementation and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
@@ -11,7 +11,7 @@ The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
 * The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use you own implemantation of ILogger. 
 
-All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup IConnexionManager, setup Logger, do a payment, do an update using Our TMS...
+All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnexionManager, setup Logger, do a payment, do an update using Our TMS...
 
 The SDK do not perciste any connexion or transaction or update data. 
 
@@ -21,15 +21,16 @@ For more information about YouTransactor developer products, please refer to our
 
 ### 1. Introduction
 
-YouTransactor mPOS products are : 
-* uCube (with differents models)
+YouTransactor mPOS card terminals are : 
+* uCube ( with differents models )
 * uCube Touch
 
-The uCube Touch is a new version of the uCube. There are some hardware differences, which are: 
+The uCube Touch is a new version of the uCube. There are some hardware differences, like: 
 * The uCube use the classical Bluetooth and the uCube Touch use the BLE 
 * The uCube provide a magstripe reader but not the uCube Touch
+* ...
 
-For the SDK, there is no differences betwen all YouTransactor's products. For example, if you know that you will integrate the uCube Touch and you will use Bluetooth to send and receive data from terminal you should provide the BLE Connexion manager instance to the RPC module. The UCubeAPI provie a method 
+For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connexion, and if you intergrate the uCube, you should setup a Bt classic connexion manager. So the RPC module will use the connexion manager instance that you choose to send/receive data from terminal. 
 
 #### 2. uCube
 
@@ -54,26 +55,25 @@ The mobile device can be either Android or iOS and typically hosts applications 
 The mobile device application consists of 2 modules:
 * Business module
 	* Application that meets the business needs of the end customer. This is for example a cashier    	    application in the case of a restaurant, or a control application in the case of transports.
-* "uCubeLib" Module
-	* Manages the Bluetooth connection with the uCube / uCube Touch
-	* Drives the transaction between the uCube and the payment card.
-	* Responsible for uCube software updates
+* Payment Module
+	* Drives the transaction
+	* Responsible for device software/configurations updates
 
-The business module on the mobile device is developed by the integrator. It uses the user interfaces of the mobile device to fulfill the business needs of the customer. A sample application is provided to the integrator, under the SDK.
+The business module on the mobile device is developed by the integrator. It uses the user interfaces of the mobile device to fulfill the business needs of the customer.
 
-The uCubeLib module is developed by YouTransactor. It is delivered to the integrator as a library, and compiled with the business module to generate the payment application.
+The Payment module integrates our SDK, which is delivered as a library, and compiled with the payment module to generate the payment application.
 
-The purpose of this document is to describe the services provided by the uCubeLib module to the business module.
+The purpose of this document is to describe the services provided by the SDK to the payment module.
 
 #### 5. The Management System
 
-The management system is administered by YouTransactor and offers the following services:
+The management system can be administered by YouTransactor and offers the following services:
 * Management of the uCube fleet
 * Deployment of software updates
 * Deployment of payment parameters
 * Other services
 
-The management system does not require integration with the business module, so its operation is not developed in this documentation.
+The MDM module of SDK implements all our management system services and the UCubeAPI provides API to call this implementation. Examples are provided next in this documentation.
 
 ### 6. uCube management
 
