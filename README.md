@@ -33,7 +33,7 @@ The uCube Touch is a new version of the uCube. There are some hardware differenc
 
 For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connexion, and if you intergrate the uCube, you should setup a Bt classic connexion manager. So the RPC module will use the connexion manager instance that you choose to send/receive data from terminal. 
 
-#### 2. uCube
+### 2. uCube
 
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
@@ -41,7 +41,7 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
   <img width="300" height="350" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
 </p>
 
-#### 3. uCube Touch
+### 3. uCube Touch
 
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
@@ -49,7 +49,7 @@ The uCube Touch is a lightweight and compact payment dongle. It can turn a table
   <img width="300" height="300" src="https://user-images.githubusercontent.com/59020462/77367842-437df080-6d5b-11ea-8e3a-423c3bc6b96b.png">
 </p>
 
-#### 4. Mobile Device
+### 4. Mobile Device
 
 The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the uCube / uCube Touch to the rest of the system.
 
@@ -66,7 +66,7 @@ The Payment module integrates our SDK, which is delivered as a library, and comp
 
 The purpose of this document is to describe the services provided by the SDK to the payment module.
 
-#### 5. The Management System
+### 5. The Management System
 
 The management system can be administered by YouTransactor and offers the following services:
 * Management of the uCube fleet
