@@ -4,11 +4,11 @@
 
 This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The SDK is main function is to send RPC commands to the card terminal in order to drive it. 
 The SDK provides several modules: Connexion, RPC, MDM, Payment, Log.
-*The connexion module provide an interface so you can implement your own connexionManager and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
-*The RPC module use the IconnexionManager implementation to send / receive, RPC command / response from card terminal. It provide an implementation of all RPC Commands you will see above how to use that in your application.
-*The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is used to manager the version of  firmware and ICC / NFC configuration of card terminal. It provide Web services to do that. So this module allows you to transparently update of the card terminal using our TMS. 
-*The payment module implement the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided bellow.
-*The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file which can be sent to our TMS server using a MDM module service or you can use you own implemantation of ILogger. 
+* The connexion module provide an interface so you can implement your own connexionManager and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
+* The RPC module use the IconnexionManager implementation to send / receive, RPC command / response from card terminal. It provide an implementation of all RPC Commands you will see above how to use that in your application.
+* The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is used to manager the version of  firmware and ICC / NFC configuration of card terminal. It provide Web services to do that. So this module allows you to transparently update of the card terminal using our TMS. 
+* The payment module implement the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided bellow.
+* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file which can be sent to our TMS server using a MDM module service or you can use you own implemantation of ILogger. 
 
 To simplify your integration of our SDK, a UCubeAPI class is provided. This class provide several static methods, all of it are detailled bellow.
 
