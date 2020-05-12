@@ -7,7 +7,7 @@ This repository provides a step by step documentation for YouTransactor's native
 The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
 * The connexion module provide an interface 'IconnexionManager' so you can use your implementation and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
 * The RPC module use the IconnexionManager implementation to send/receive, RPC command/response from card terminal. It provide an implementation of all RPC Commands you will see next how to use that in your application.
-* The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. 
+* The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the YouTransactor one.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
 * The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use you own implemantation of ILogger. 
 
@@ -75,53 +75,33 @@ The management system can be administered by YouTransactor and offers the follow
 
 The MDM module of SDK implements all our management system services and the UCubeAPI provides API to call this implementation. Examples are provided next in this documentation.
 
-### 6. uCube management
+### 6. Terminal management
 
-#### 6.1 Setup 
-
-##### Initial configuration 
+#### 6.1 Initial configuration  
 
 To be functional, in the scope of PCI PTS requirement, and SRED key shall be loaded securely in the device. This key is loaded locally by YouTransactor tools. The initial SALT is injected in the same way.
 
-##### Bleutooth pairing
+#### 6.2 Switching On/Off
 
-Before using the payment function, the uCube must be paired with the mobile device via Bluetooth.
+The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the payment module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
-This pairing can be done by a "connect" method of the uCubeLib module. It will scan all available devices and will display a system pop-up prompting the user to select the device to use.
+The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method of the connexion manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
 
-The uCubeLib needs the Bluetooth to be enabled, it will request to enable it, if it is disabled. And if the YTMPOSProduct chosen, when setup was called, was the uCube Touch, a Location permission will be requested.
+#### 6.3 Update
 
-<p align="center">
-  <img width="370" height="600" src="https://user-images.githubusercontent.com/59020462/76528865-c5277180-6471-11ea-82e6-69320ed62dde.jpg">
-</p>
+During the life of the terminal, the firmware could be updated (to get bug fix, evolution..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how those updates can be done and which RPC to use to do that.
+If you will use our TMS, this can be done transparentlly by calling first the 'mdmCheckUpdate' API to get the TMS configuration and compare it with current versions, then the 'mdmUpdate' to do the update.
 
-#### 6.2 Switching uCube On/Off
+#### 6.4 System logs
 
-The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the business module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
-
-The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method. When connection established, the SDK check if the device is state, if it is power off, it turns it 
-
-#### 6.3 Firmware update
-
-During the life of the uCube, the uCube firmware could be updated (for bug fix, etc..). The “checkUpdate” method make a compare between current versions of firmware and configuration with These defined in TMS server. If the is a difference or a force update parameter is set to true, it returns the update list. The method “update” used to apply the updates, it takes as input the list of updates to be applied, it can be the output of “checkUpdate” method or a sub list of that. It downloads the binaries of each update in input list and install them all. 
-
-#### 6.4 Send logs
-
-uCubeLib provide a “LogManager” Class used to print logs in logcat at runtime, save these logs in files. And it needed, send these files to TMS server. Logs can be enabled or disabled. The “sendLogs” method is used to send a zip file that contain all saved logs files. 
+The SDK print logs in logcat at runtime. The log module use a default ILoggger implementation that print these logs in a file which can be sent afterwards to a remote server. Our TMS provides a WS to receive a zip of log files.
+So you can setup the log module to use the default implementation or your own implementation. 
 
 ## II. Technical Overview
 
 ### 1. General Architecture
 
-This section describes the general uCube MPOS Android SDK architecture. The SDK provide: 
-
-* Connexion module used to scan Bluetooth devices and pair then connect uCube (classical Bluetooth and BLE supported) 
-* MDM module that implements all TMS Web services to manage uCube updates and debug.
-* RPC module that implements all SVPP commands. This RPC APIs used to drive the SVPP for processing transactions or to update it.
-* Payment module implements magstripe, contact and contactless transaction services. It uses the RPC module to call RPC commands during the transaction.
-* UCubeAPI is the public interface exposed to the integrator it implements several APIs to mainly setup the connection with uCube, do a payment, check and start a uCube update, send logs to TMS server.
-
-The Integrator is able to use the UCubeAPI interface and call RPC commands. 
+This section describes the general YouTransactor MPOS Android SDK architecture. The Integrator is able to use the UCubeAPI interface and call RPC commands. 
 
 ![Capture general_archi](https://user-images.githubusercontent.com/59020462/80593040-bf392000-8a20-11ea-8fa8-155eb42b6f1f.png)
 
