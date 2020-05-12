@@ -218,12 +218,12 @@ To setup the log module you should put this instructions below in you App.java o
  	// if you want to use the default Logger
         UCubeAPI.setupLogger(this.getApplicationContext(), null);
 	
-	// if you want to use you Logger impl
+	// if you want to use your Logger impl
         UCubeAPI.setupLogger(this.getApplicationContext(), new MyLogger());
 ```
 #### 6.3 Payment
 
-One device selected and Logger initialised, you can start using the YouTransactor SDK to accept card payments.
+Once device selected and Logger initialised, you can start using the YouTransactor SDK to accept card payments.
 As decribed in the transaction Flow contact and contactless before, durring the payment process the payment state machine will be interrupted to execute some tasks that you implement.
 
 #### IApplicationSelectionTask
