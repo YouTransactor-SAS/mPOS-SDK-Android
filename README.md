@@ -134,23 +134,20 @@ The SDK is in the format “.aar” library. You have to copy paste it in your a
 The APIs provided by UCubeAPI modules are:
 
 ```java
-	initManagers (@Nonnull Context context)
-	setup (@Nonnull Context context, @NonNull Activity activity, @NonNull YTMPOSProduct ytmposProduct, @Nonnull UCubeAPIListener uCubeAPIListener)
-	YTMPOSProduct getYTMPOSProduct()
-	scanUCubeDevices(@NonNull Activity activity, @NonNull UCubeAPIScanListener uCubeAPIScanListener)
-	stopScan()
-	connect (@Nonnull Activity activity, @NonNull UCubeDevice uCubeDevice, @NonNull UCubeConnectListener uCubeInitListener)
-	isConnected()
-	disconnect(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
-	deleteSelectedUCube(@Nonnull Activity activity , @Nonnull UCubeAPIListener uCubeAPIListener)
-	getSelectedUCubeDevice()
-	UCubeInfo getUCubeInfo()
-	pay(@Nonnull Context context, @Nonnull UCubePaymentRequest uCubePaymentRequest, @Nonnull UCubePaymentListener uCubePaymentListener)
-	checkUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeCheckUpdateListener uCubeCheckUpdateListener)
-	update(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeAPIListener uCubeAPIListener)
-	sendLogs(Activity activity, @Nonnull UCubeAPIListener uCubeAPIListener)
-	sendBankParamToDevice (@NonNull Activity activity, @NonNull IPrepareBankParametersTask prepareBankParametersTask, @Nonnull UCubeAPISettingUpListener uCubeSettingUpListener)
+
+	setConnexionManager(@NonNull IConnexionManager connexionManager)
+	setupLogger(@NonNull Context context, @Nullable ILogger logger)
+	pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
 	close()
+	
+	/* YouTransactor TMS APIs*/
+	mdmSetup(@NonNull Context context)
+	mdmRegister(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	mdmUnregister(@NonNull Context context)
+	isMdmManagerReady()
+	mdmCheckUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	mdmUpdate(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	mdmSendLogs(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 
 ```
 
