@@ -466,9 +466,9 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 #### 6.4 MDM 
 
-##### Setup 
+#### Setup 
 
-The main function of MDM module is the update of firmware and configuration of terminal to do that you shoulf first do this two steps. 
+The main function of MDM module is the update of firmware and configurations of terminal to do that you have to setup this module :
 
  * First The MDM module need to be setup by you application context using this UCUbeAPI method :
 
@@ -504,7 +504,7 @@ To check if the SSL certificate exit, use this method :
 ```java 
 	UCubeAPI.isMdmManagerReady() 
 ```
-##### Update
+#### Update
 
 The update can be done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
 
@@ -549,7 +549,8 @@ UCubeAPI.mdmCheckUpdate(activity, forceUpdate, checkOnlyFirmwareVersion,
 });
 ```
 
-##### Send Logs
+#### Send Logs
+
 Sending Logs to the server is useful in case of debug. the TMS server provides a web service to receive these log files and the SDK implement the call of this ws. 
 
 ```java 
