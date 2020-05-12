@@ -2,15 +2,18 @@
 
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
-This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The SDK is main function is to send RPC commands to the card terminal in order to drive it. 
-The SDK provides several modules: Connexion, RPC, MDM, Payment, Log.
-* The connexion module provide an interface so you can implement your own connexionManager and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
-* The RPC module use the IconnexionManager implementation to send / receive, RPC command / response from card terminal. It provide an implementation of all RPC Commands you will see above how to use that in your application.
-* The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is used to manager the version of  firmware and ICC / NFC configuration of card terminal. It provide Web services to do that. So this module allows you to transparently update of the card terminal using our TMS. 
-* The payment module implement the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided bellow.
-* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file which can be sent to our TMS server using a MDM module service or you can use you own implemantation of ILogger. 
+This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the smartphone and the card terminal is a Master-Slave relation, so the smartphone drive the card terminal by calling diffrent available RPC. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
 
-To simplify your integration of our SDK, a UCubeAPI class is provided. This class provide several static methods, all of it are detailled bellow.
+The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
+* The connexion module provide an interface 'IconnexionManager' so you can use your implementation and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
+* The RPC module use the IconnexionManager implementation to send/receive, RPC command/response from card terminal. It provide an implementation of all RPC Commands you will see next how to use that in your application.
+* The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. 
+* The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
+* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use you own implemantation of ILogger. 
+
+All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup IConnexionManager, setup Logger, do a payment, do an update using Our TMS...
+
+The SDK do not perciste any connexion or transaction or update data. 
 
 For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
 
