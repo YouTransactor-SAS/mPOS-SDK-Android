@@ -471,10 +471,41 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 ### 7. RPC Commands
 
-Oone the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. This is a list of RPC Commands class: 
+Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. This is the list of RPC Commands class: 
 
+/* System & Drivers */
+GetInfosCommand.java
+SetInfoFieldCommand.java
+WaitCardCommand.java
+WaitCardRemovalCommand.java
+DisplayChoiceCommand.java
+DisplayMessageCommand.java
+PowerOffCommand.java
+CancelCommand.java
 
-* This is an example of DisplayMessageWithoutKI command call: 
+/* System kernel */
+EnterSecureSessionCommand.java
+ExitSecureSessionCommand.java
+InstallForLoadCommand.java
+InstallForLoadKeyCommand.java
+LoadCommand.java
+SimplifiedOnlinePINCommand.java
+
+/* Payment kernel */
+BankParametersDownloads.java
+GetEMVParametersCommand.java
+BuildCandidateListCommand.java
+StartNFCTransactionCommand.java
+CompleteNFCTransactionCommand.java
+GetPlainTagCommand.java
+GetSecuredTagCommand.java
+InitTransactionCommand.java
+TransactionFinalizationCommand.java
+TransactionProcessCommand.java
+
+All this commands are described in the terminal documentation.
+
+* This is an example of command call: 
 
 ```java
 	DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
