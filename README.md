@@ -38,7 +38,7 @@ For the SDK, there is no difference betwen all YouTransactor's card terminals. F
 The uCube is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a Bluetooth connection to enable acceptance of magstripe, contactless and smart payment cards (depending on the model).
 
 <p align="center">
-  <img width="300" height="350" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
+  <img width="200" height="250" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
 </p>
 
 ### 3. uCube Touch
@@ -46,7 +46,7 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
 The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
 <p align="center">
-  <img width="300" height="300" src="https://user-images.githubusercontent.com/59020462/77367842-437df080-6d5b-11ea-8e3a-423c3bc6b96b.png">
+  <img width="250" height="250" src="https://user-images.githubusercontent.com/59020462/77367842-437df080-6d5b-11ea-8e3a-423c3bc6b96b.png">
 </p>
 
 ### 4. Mobile Device
@@ -104,13 +104,19 @@ So you can setup the log module to use the default implementation or your own im
 
 This diagrams describes the general YouTransactor MPOS Android SDK architecture. Only the uCubeAPI methods and the RPC commands are public and you can call them. 
 
-![Capture general_archi](https://user-images.githubusercontent.com/59020462/80593040-bf392000-8a20-11ea-8fa8-155eb42b6f1f.png)
+![sdk_architecture](https://user-images.githubusercontent.com/59020462/81673044-5489da80-944b-11ea-95a1-ffff128a43e9.png)
 
 ### 2. Transaction Flow : Contact
 
-![Cptr_TransactionSMC](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
+<p align="center">
+  <img width="300" height="300" src="https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg">
+</p>
 
 ### 3. Transaction Flow : Contactless
+
+<p align="center">
+  <img width="300" height="300" src="https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg">
+</p>
 
 ![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
 
