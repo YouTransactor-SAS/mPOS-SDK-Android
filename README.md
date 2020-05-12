@@ -302,40 +302,40 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 #### IAuthorizationTask
 ```java
 public class AuthorizationTask implements IAuthorizationTask {
-@Override
-    public byte[] getAuthorizationResponse() {
-        return authResponse;
-    }
+	@Override
+	public byte[] getAuthorizationResponse() {
+		return authResponse;
+	}
 
-    @Override
-    public PaymentContext getContext() {
-        return paymentContext;
-    }
+	@Override
+	public PaymentContext getContext() {
+		return paymentContext;
+	}
 
-    @Override
-    public void setContext(PaymentContext context) {
-        this.paymentContext = context;
-    }
+	@Override
+	public void setContext(PaymentContext context) {
+		this.paymentContext = context;
+	}
 
-    @Override
-    public void execute(ITaskMonitor monitor) {
-        this.monitor = monitor;
+	@Override
+	public void execute(ITaskMonitor monitor) {
+		this.monitor = monitor;
 
-       // TODO perform the authorisation
-       
-       	monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
-    }	
+		// TODO perform the authorisation
+
+		monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
+	}
 }
 ```
 
 #### Transaction types
 ```java
-    PURCHASE
-    WITHDRAWAL
-    REFUND
-    PURCHASE_CASHBACK
-    MANUAL_CASH
-    INQUIRY
+	PURCHASE
+	WITHDRAWAL
+	REFUND
+	PURCHASE_CASHBACK
+	MANUAL_CASH
+	INQUIRY
 ```
 #### UCubePaymentRequest
 ```java
@@ -344,25 +344,25 @@ public class AuthorizationTask implements IAuthorizationTask {
         readerList.add(CardReaderType.NFC);
 
   UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
-                .setAmount(15.0)
-                .setCurrency(UCubePaymentRequest.CURRENCY_EUR) // Indicates the currency code of the transaction according to ISO 4217
-		.setTransactionType(trxType)
-                .setTransactionDate(new Date())
-		.setCardWaitTimeout(timeout)
-                .setDisplayResult(true) // at the end of transaction is the SDK display the payment result on uCube or just return the result
-                .setReaderList(readerList) // the list of reader interfaces to activate when start the payment
-                .setForceOnlinePin(true) // Applicable for NFC and MSR
-                .setForceAuthorisation(true) 
-		.setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
-                .setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-                .setRequestedPlainTagList(Constants.TAG_TVR)
-		.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
-		.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
-                .setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
-                .setSystemFailureInfo(true) // get the transaction level 1 Logs
-                .setSystemFailureInfo2(true) // get the transaction level 2 Logs
-                .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
-                .build();
+	.setAmount(15.0)
+	.setCurrency(UCubePaymentRequest.CURRENCY_EUR) // Indicates the currency code of the transaction according to ISO 4217
+	.setTransactionType(trxType)
+	.setTransactionDate(new Date())
+	.setCardWaitTimeout(timeout)
+	.setDisplayResult(true) // at the end of transaction is the SDK display the payment result on uCube or just return the result
+	.setReaderList(readerList) // the list of reader interfaces to activate when start the payment
+	.setForceOnlinePin(true) // Applicable for NFC and MSR
+	.setForceAuthorisation(true) 
+	.setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
+	.setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
+	.setRequestedPlainTagList(Constants.TAG_TVR)
+	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
+	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
+	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
+	.setSystemFailureInfo(true) // get the transaction level 1 Logs
+	.setSystemFailureInfo2(true) // get the transaction level 2 Logs
+	.setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
+	.build();
 ```
 
 #### pay
@@ -380,7 +380,6 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 #### PaymentState 
 ```java
-
 	/* COMMON STATES*/
 	CANCEL_ALL
 	GET_INFO
@@ -418,52 +417,52 @@ public class AuthorizationTask implements IAuthorizationTask {
 ```
 #### PaymentContext
 ```java
-	 PaymentStatus paymentStatus; // END status
+	PaymentStatus paymentStatus; // END status
 
-	 EMVApplicationDescriptor selectedApplication;
-	 double amount = -1;
-	 Currency currency;
-	 TransactionType transactionType;
-	 int applicationVersion;
-	 List<String> preferredLanguageList;
-	 byte[] uCubeInfos;
-	 byte[] sredKsn;
-	 byte[] pinKsn;
-	 byte activatedReader;
-	 boolean forceOnlinePIN;
-	 boolean forceAuthorization;
-	 byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
-	 int[] requestedPlainTagList;
-	 int[] requestedSecuredTagList;
-	 int[] requestedAuthorizationTagList;
-	 byte[] securedTagBlock;
-	 byte[] onlinePinBlock;
-	 Map<Integer, byte[]> plainTagTLV;
-	 byte[] authorizationResponse;
-	 byte[] tvr = new byte[] {0, 0, 0, 0, 0};
-	 Date transactionDate;
-	 byte[] NFCOutcome;
-	 byte[] transactionFinalisationData;
-	 byte[] transactionInitData;
-	 byte[] transactionProcessData;
-	 boolean displayResult;
-	 boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
-	 byte[] systemFailureInfo; //svpp logs level 1
-	 byte[] systemFailureInfo2; // svpp logs level 2
+	EMVApplicationDescriptor selectedApplication;
+	double amount = -1;
+	Currency currency;
+	TransactionType transactionType;
+	int applicationVersion;
+	List<String> preferredLanguageList;
+	byte[] uCubeInfos;
+	byte[] sredKsn;
+	byte[] pinKsn;
+	byte activatedReader;
+	boolean forceOnlinePIN;
+	boolean forceAuthorization;
+	byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
+	int[] requestedPlainTagList;
+	int[] requestedSecuredTagList;
+	int[] requestedAuthorizationTagList;
+	byte[] securedTagBlock;
+	byte[] onlinePinBlock;
+	Map<Integer, byte[]> plainTagTLV;
+	byte[] authorizationResponse;
+	byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+	Date transactionDate;
+	byte[] NFCOutcome;
+	byte[] transactionFinalisationData;
+	byte[] transactionInitData;
+	byte[] transactionProcessData;
+	boolean displayResult;
+	boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
+	byte[] systemFailureInfo; //svpp logs level 1
+	byte[] systemFailureInfo2; // svpp logs level 2
 ```
 
 ##### PaymentStatus
 ```java
-    NFC_MPOS_ERROR,
-    CARD_WAIT_FAILED,
-    CANCELLED,
-    CHIP_REQUIRED,
-    UNSUPPORTED_CARD,
-    TRY_OTHER_INTERFACE,
-    REFUSED_CARD,
-    ERROR,
-    APPROVED,
-   DECLINED;
+	NFC_MPOS_ERROR
+	CARD_WAIT_FAILED
+	CANCELLED
+	CHIP_REQUIRED
+	UNSUPPORTED_CARD
+	TRY_OTHER_INTERFACE
+	REFUSED_CARD
+	ERROR
+	APPROVED
+	DECLINED
 ```
 
 #### 6.4 MDM 
@@ -478,27 +477,27 @@ Oone the connexionManager set and the device selected. You can call any RPC comm
 * This is an example of DisplayMessageWithoutKI command call: 
 
 ```java
-		DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
+	DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
 
-		displayMessageCommand.setCentered(centred);
-		displayMessageCommand.setYPosition(yPosition);
-		displayMessageCommand.setFont(font);
+	displayMessageCommand.setCentered(centred);
+	displayMessageCommand.setYPosition(yPosition);
+	displayMessageCommand.setFont(font);
 
-		displayMessageCommand.execute(new ITaskMonitor() {
+	displayMessageCommand.execute(new ITaskMonitor() {
 
-  			@Override
-  			public void handleEvent(TaskEvent event, Object... params) {
-     			switch (event) {
-     				case FAILED:
-     				//TODO
-        			break;
+		@Override
+		public void handleEvent(TaskEvent event, Object... params) {
+		switch (event) {
+			case FAILED:
+			//TODO
+			break;
 
-     			case SUCCESS:
-    				//TODO
-        			break;
-     			}
-  			}
-		});
+		case SUCCESS:
+			//TODO
+			break;
+		}
+		}
+	});
 ```
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
