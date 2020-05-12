@@ -464,8 +464,106 @@ public class AuthorizationTask implements IAuthorizationTask {
 ```
 
 #### 6.4 MDM 
-//Todo
 
+##### Setup 
+
+The main function of MDM module is the update of firmware and configuration of terminal to do that you shoulf first do this two steps. 
+
+ * First The MDM module need to be setup by you application context using this UCUbeAPI method :
+
+```java
+	UCubeAPI.mdmSetup(this);
+```
+ * Second the terminal have to be registred on the TMS server using this code below : 
+```java
+ UCubeAPI.mdmRegister(this, new UCubeLibMDMServiceListener() {
+            @Override
+            public void onProgress(ServiceState state) {
+               // Todo UI
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+               // Todo UI
+	       // params is empty for this API
+            }
+        });
+```
+At the register process the SDK send the public certificate of terminal to the TMS, so the server can verifie the YouTransactor signature and then generate and return an SSL certificate unique by terminal. This SSL certificate is used to call the rest of web services.
+Note that the register should be done only once, at the selection of terminal. the SDK save the SSL certificate and to be removed you have to call this method below.
+
+```java
+	boolean res = UCubeAPI.mdmUnregister(this);
+	if(!res) {
+		Log.e(TAG, "FATAL Error! error to unregister current device");
+	}
+```
+To check if the SSL certificate exit, use this method : 
+
+```java 
+	UCubeAPI.isMdmManagerReady() 
+```
+##### Update
+
+The update can be done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
+
+```java 
+boolean checkOnlyFirmwareVersion = false;
+boolean forceUpdate = false;
+
+UCubeAPI.mdmCheckUpdate(activity, forceUpdate, checkOnlyFirmwareVersion,
+	new UCubeLibMDMServiceListener() {
+		@Override
+		public void onProgress(ServiceState state) {
+		///TODO UI
+		}
+
+		@Override
+		public void onFinish(boolean status, Object... params) {
+		if (status) {
+		    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[0];
+		    List<Config> cfgList = (List<Config>) params[1];
+
+		    if (updateList.size() == 0) {
+			Toast.makeText(this, "Terminal up to date" , Toast.LENGTH_SHORT).show();
+		     } else {
+			// Todo call mdmUpdate with in input a List<BinaryUpdate>
+		     }
+		}
+	});
+});
+```
+
+```java 
+ UCubeAPI.mdmUpdate(this, selectedUpdateList, new UCubeLibMDMServiceListener() {
+	@Override
+	public void onProgress(ServiceState state) {
+	    //TODO UI
+	}
+
+	@Override
+	public void onFinish(boolean status, Object... params) {
+	    //TODO UI
+	}
+});
+```
+
+##### Send Logs
+Sending Logs to the server is useful in case of debug. the TMS server provides a web service to receive these log files and the SDK implement the call of this ws. 
+
+```java 
+UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
+    @Override
+    public void onProgress(ServiceState state) {
+	//TODO UI
+    }
+
+    @Override
+    public void onFinish(boolean status, Object... params) {
+    	//TODO UI
+    }
+});
+```
 
 ### 7. RPC Commands
 
