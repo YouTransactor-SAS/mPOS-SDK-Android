@@ -1,5 +1,5 @@
 # YouTransactor mPOS SDK - Android
-###### Release v 3.0.0.0
+###### Release 3.0.0.0
 
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
@@ -86,12 +86,12 @@ To be functional, in the scope of PCI PTS requirement, and SRED key shall be loa
 
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the payment module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
-The uCube Touch can be lights up exactly like the uCube, but also by using “connect” method of the connexion manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
+The uCube Touch can be lights up exactly like the uCube, but also by using ` connect`  method of the connexion manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
 
 #### 6.3 Update
 
 During the life of the terminal, the firmware could be updated (to get bug fix, evolution..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how those updates can be done and which RPC to use to do that.
-If you will use our TMS, this can be done transparentlly by calling first the 'mdmCheckUpdate' API to get the TMS configuration and compare it with current versions, then the 'mdmUpdate' to do the update.
+If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  API to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to do the update.
 
 #### 6.4 System logs
 
@@ -117,17 +117,17 @@ This section describes the general YouTransactor MPOS Android SDK architecture. 
 ### 4. Prerequisites
 
 To embed the package that you need in your application, you have to be sure of certain things in your settings.
-1. Received YouTransactor card terminal : uCube, uCubeTouch
-2. The `minSDKVersion` must be at 21 to works properly.
+1. Received YouTransactor card terminal : uCube or uCubeTouch
+2. The `minSDKVersion` must be at 21 or later to works properly.
 3. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
-4. Following Google's best practices SDK 3.3.0 will migrate to AndroidX. For more information about AndroidX and how to migrate see Google AndroidX Documentation.
+4. The `Android plugin for Gradle` must be at 3.3.0 or later.
+For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
 ### 5. Dependency
 
-Our SDK is in the format “aar” in the library. So if you want to access to it here is what you must do.
-You will need to get into your app-level Build.Gradle to add this dependency:
+The SDK is in the format “.aar” library. You have to copy paste it in your app/libs package. So if you want to access to it you will need to get into your app-level Build.Gradle to add this dependency:
 
-		implementation files('libs/ucube_lib.aar')
+		implementation files('libs/libApp.aar')
 
 ### 6. UCubeAPI
 
