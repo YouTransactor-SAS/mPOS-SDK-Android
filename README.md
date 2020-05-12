@@ -153,7 +153,8 @@ The APIs provided by UCubeAPI are:
 
 #### 6.1 Connect Terminal
 
-#### IConnexionManager
+The IConnexionManager interface : 
+
 ```java
 public interface IConnexionManager {
 
