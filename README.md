@@ -108,15 +108,9 @@ This diagrams describes the general YouTransactor MPOS Android SDK architecture.
 
 ### 2. Transaction Flow : Contact
 
-<p align="center">
-  <img width="1000" height="600" src="https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg">
-</p>
+![Cptr_Transaction](https://user-images.githubusercontent.com/59020462/71239375-b44de080-2306-11ea-9c32-f275a5407801.jpeg)
 
 ### 3. Transaction Flow : Contactless
-
-<p align="center">
-  <img width="1000" height="600" src="https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg">
-</p>
 
 ![Cptr_TransactionNFC](https://user-images.githubusercontent.com/59020462/71239723-8ddc7500-2307-11ea-9f07-2f4b11b42620.jpeg)
 
