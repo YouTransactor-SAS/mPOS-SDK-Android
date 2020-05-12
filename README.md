@@ -3,18 +3,18 @@
 
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
-This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling diffrent available RPC. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
+This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling diffrent available commands. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
 
 The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
-* The connexion module provide an interface 'IconnexionManager' so you can use your implementation and also it provide a Bluetooth implementaions (classical bluetooth ans BLE).
-* The RPC module use the IconnexionManager implementation to send/receive, RPC command/response from card terminal. It provide an implementation of all RPC Commands you will see next how to use that in your application.
+* The connexion module provides an interface 'IconnexionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
+* The RPC module use the IconnexionManager implementation to send/receive, RPC command/response from card terminal. It provides an implementation of all RPC Commands you will see next how to use that in your application.
 * The MDM module is an implementation of all YouTransaction's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the YouTransactor one.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
-* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use you own implemantation of ILogger. 
+* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use your own implemantation of ILogger. 
 
 All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnexionManager, setup Logger, do a payment, do an update using Our TMS...
 
-The SDK do not perciste any connexion or transaction or update data. 
+The SDK do not save any connexion or transaction or update data. 
 
 For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
 
@@ -27,11 +27,11 @@ YouTransactor mPOS card terminals are :
 * uCube Touch
 
 The uCube Touch is a new version of the uCube. There are some hardware differences, like: 
-* The uCube use the classical Bluetooth and the uCube Touch use the BLE 
+* The uCube use the Classic Bluetooth and the uCube Touch use the Bluetooth Low Energy (BLE)
 * The uCube provide a magstripe reader but not the uCube Touch
 * ...
 
-For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connexion, and if you intergrate the uCube, you should setup a Bt classic connexion manager. So the RPC module will use the connexion manager instance that you choose to send/receive data from terminal. 
+For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connexion Manager, and if you intergrate the uCube, you should setup a classic bluetooth connexion manager. So the RPC module will use to send/receive data from terminal. 
 
 ### 2. uCube
 
@@ -51,7 +51,7 @@ The uCube Touch is a lightweight and compact payment dongle. It can turn a table
 
 ### 4. Mobile Device
 
-The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the uCube / uCube Touch to the rest of the system.
+The mobile device can be either Android or iOS and typically hosts applications related to payment. It links the card terminal to the rest of the system.
 
 The mobile device application consists of 2 modules:
 * Business module
@@ -60,11 +60,9 @@ The mobile device application consists of 2 modules:
 	* Drives the transaction
 	* Responsible for device software/configurations updates
 
-The business module on the mobile device is developed by the integrator. It uses the user interfaces of the mobile device to fulfill the business needs of the customer.
+The business module on the mobile device is developed by you. It uses the user interfaces of the mobile device to fulfill the business needs of the customer.
 
 The Payment module integrates our SDK, which is delivered as a library, and compiled with the payment module to generate the payment application.
-
-The purpose of this document is to describe the services provided by the SDK to the payment module.
 
 ### 5. The Management System
 
@@ -74,7 +72,7 @@ The management system can be administered by YouTransactor and offers the follow
 * Deployment of payment parameters
 * Other services
 
-The MDM module of SDK implements all our management system services and the UCubeAPI provides API to call this implementation. Examples are provided next in this documentation.
+The MDM module of SDK implements all our management system services and the UCubeAPI provides methods to call this implementation. Examples are provided next in this documentation.
 
 ### 6. Terminal management
 
@@ -90,12 +88,13 @@ The uCube Touch can be lights up exactly like the uCube, but also by using ` con
 
 #### 6.3 Update
 
-During the life of the terminal, the firmware could be updated (to get bug fix, evolution..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how those updates can be done and which RPC to use to do that.
-If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  API to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to do the update.
+During the life of the terminal, the firmware could be updated (to get bug fix, evolutions..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how teose updates can be done and which RPC to use to do that.
+
+If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & intall the binary update.
 
 #### 6.4 System logs
 
-The SDK print logs in logcat at runtime. The log module use a default ILoggger implementation that print these logs in a file which can be sent afterwards to a remote server. Our TMS provides a WS to receive a zip of log files.
+The SDK prints logs in logcat at runtime. The log module use a default ILogger implementation that prints these logs in a file which can be sent afterwards to a remote server. Our TMS provides a WS to receive a zip of log files.
 So you can setup the log module to use the default implementation or your own implementation. 
 
 ## II. Technical Overview
@@ -116,16 +115,15 @@ This diagrams describes the general YouTransactor MPOS Android SDK architecture.
 
 ### 4. Prerequisites
 
-To embed the package that you need in your application, you have to be sure of certain things in your settings.
-1. Received YouTransactor card terminal : uCube or uCubeTouch
-2. The `minSDKVersion` must be at 21 or later to works properly.
-3. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
-4. The `Android plugin for Gradle` must be at 3.3.0 or later.
+To embed the SDK, you have to be sure of certain things in your settings.
+1. The `minSDKVersion` must be at 21 or later to works properly.
+2. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
+3. The `Android plugin for Gradle` must be at 3.3.0 or later.
 For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
 ### 5. Dependency
 
-The SDK is in the format “.aar” library. You have to copy paste it in your app/libs package. So if you want to access to it you will need to get into your app-level Build.Gradle to add this dependency:
+The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. So if you want to use his public APIs you will need to get into your app-level Build.Gradle to add this dependency:
 
 		implementation files('libs/libApp.aar')
 
@@ -195,11 +193,11 @@ public interface IConnexionManager {
 ```
 `BtClassicConnexionManager` and `BleConnectionManager` extend a `BtConnexionManager` which implements IConnexionManager.
 
-* Second you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you will do a BLE scan. 
+* Second you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you want to do a BLE scan. 
 
 * Third you should select the device that you want to communicate with.
-** In the case of uCube, the `BtClassicConnexionManager` provides a `public List<UCubeDevice> getPairedUCubes()` method which returns the list of paired uCube devices.
-** In the case of uCube Touch, the `BleConnectionManager` provides a `public void scan(Activity activity, ScanListener scanListener)` & `public void stopScan()` methods which allow you to start and stop LE scan.
+	* In the case of uCube, the `BtClassicConnexionManager` provides a `public List<UCubeDevice> getPairedUCubes()` method which returns the list of paired uCube devices.
+	* In the case of uCube Touch, the `BleConnectionManager` provides a `public void scan(Activity activity, ScanListener scanListener)` & `public void stopScan()` methods which allow you to start and stop LE scan.
 In the SampleApp an example of device selection using these methods is provided.
 
 #### 6.2 Setup Logger
@@ -226,7 +224,7 @@ To setup the log module you should put this instructions below in you App.java o
 #### 6.3 Payment
 
 One device selected and Logger initialised, you can start using the YouTransactor SDK to accept card payments.
-Durring the payment process the payment state machine will be interrupted to execute some tasks defined by you, as decribed in the Transaction Flow contact and contactless.
+As decribed in the transaction Flow contact and contactless before, durring the payment process the payment state machine will be interrupted to execute some tasks that you implement.
 
 #### IApplicationSelectionTask
 ```java
