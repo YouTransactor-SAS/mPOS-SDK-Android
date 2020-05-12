@@ -471,6 +471,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. This is the list of RPC Commands class: 
 
+```java
 /* System & Drivers */
 GetInfosCommand.java
 SetInfoFieldCommand.java
@@ -500,6 +501,7 @@ GetSecuredTagCommand.java
 InitTransactionCommand.java
 TransactionFinalizationCommand.java
 TransactionProcessCommand.java
+```
 
 All this commands are described in the terminal documentation.
 
