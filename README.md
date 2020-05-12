@@ -1,4 +1,5 @@
-# uCube mPOS SDK Android
+# YouTransactor mPOS SDK - Android
+###### Release v 3.0.0.0
 
 ![Cptr_PlatformAPI](https://user-images.githubusercontent.com/59020462/71244593-2b897180-2313-11ea-95af-8a2fcce628eb.jpeg)
 
