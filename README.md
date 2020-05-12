@@ -102,7 +102,7 @@ So you can setup the log module to use the default implementation or your own im
 
 ### 1. General Architecture
 
-This section describes the general YouTransactor MPOS Android SDK architecture. The Integrator is able to use the UCubeAPI interface and call RPC commands. 
+This diagrams describes the general YouTransactor MPOS Android SDK architecture. Only the uCubeAPI methods and the RPC commands are public and you can call them. 
 
 ![Capture general_archi](https://user-images.githubusercontent.com/59020462/80593040-bf392000-8a20-11ea-8fa8-155eb42b6f1f.png)
 
@@ -131,7 +131,7 @@ The SDK is in the format “.aar” library. You have to copy paste it in your a
 
 ### 6. UCubeAPI
 
-The APIs provided by UCubeAPI modules are:
+The APIs provided by UCubeAPI are:
 
 ```java
 
