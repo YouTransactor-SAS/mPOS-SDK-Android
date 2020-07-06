@@ -37,7 +37,7 @@ public class uCubePairedListAdapter extends RecyclerView.Adapter<uCubePairedList
     }
 
     public uCubePairedListAdapter(Activity activity, List<UCubeDevice> data,
-                           OnAdapterItemClickListener onAdapterItemClickListener) {
+                                  OnAdapterItemClickListener onAdapterItemClickListener) {
         super();
 
         mInflater = activity.getLayoutInflater();

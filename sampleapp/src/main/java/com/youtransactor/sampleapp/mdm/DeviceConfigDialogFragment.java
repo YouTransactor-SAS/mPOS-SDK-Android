@@ -11,16 +11,15 @@ package com.youtransactor.sampleapp.mdm;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.youTransactor.uCube.mdm.Config;
 
@@ -65,7 +64,6 @@ public class DeviceConfigDialogFragment extends DialogFragment {
 			listView.setAdapter(new DeviceConfigAdapter(configList));
 
 			view = listView;
-
 		} else {
 			TextView txtView = new TextView(getContext());
 			txtView.setText("No config found");

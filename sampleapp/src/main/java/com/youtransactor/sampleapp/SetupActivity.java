@@ -109,6 +109,6 @@ public class SetupActivity extends AppCompatActivity {
         if(ytProductName == null)
             return null;
 
-       return YTProduct.valueOf(ytProductName);
+        return YTProduct.valueOf(ytProductName);
     }
 }

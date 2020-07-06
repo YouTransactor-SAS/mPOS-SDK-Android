@@ -230,7 +230,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                                 intent.setAction(
                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                 Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
+                                        BuildConfig.LIBRARY_PACKAGE_NAME, null);
                                 intent.setData(uri);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);

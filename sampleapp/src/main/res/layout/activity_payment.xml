@@ -77,14 +77,6 @@
         android:text="@string/contact_only"
         android:id="@+id/contactOnlyBtn"/>
 
-
-    <Switch
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/use_single_entry_point"
-        android:id="@+id/useSingleEntryPointBtn"/>
-
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

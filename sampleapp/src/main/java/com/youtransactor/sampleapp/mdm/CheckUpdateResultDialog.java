@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import com.youTransactor.uCube.mdm.service.BinaryUpdate;
+import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youtransactor.sampleapp.R;
 
 import java.util.List;

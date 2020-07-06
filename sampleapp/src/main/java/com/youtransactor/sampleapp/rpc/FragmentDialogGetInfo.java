@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youtransactor.sampleapp.R;
 
