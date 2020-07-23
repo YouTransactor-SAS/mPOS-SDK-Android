@@ -14,8 +14,8 @@ import android.app.AlertDialog;
 
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
-import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 
 public class AuthorizationTask implements IAuthorizationTask {
 

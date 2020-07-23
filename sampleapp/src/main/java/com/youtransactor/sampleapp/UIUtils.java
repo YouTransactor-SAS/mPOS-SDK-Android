@@ -25,8 +25,8 @@ public class UIUtils {
 	private UIUtils() {}
 
 	public static AlertDialog showOptionDialog(Context context, String text,
-											   String yesLabel, String noLabel,
-											   final DialogInterface.OnClickListener listener) {
+										String yesLabel, String noLabel,
+										final DialogInterface.OnClickListener listener) {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
 
 		dialogBuilder.setMessage(text);

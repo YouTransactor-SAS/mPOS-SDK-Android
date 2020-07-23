@@ -29,7 +29,6 @@ import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
-
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.UIUtils;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;

@@ -15,8 +15,8 @@ import android.app.AlertDialog;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
-import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 
 import org.apache.commons.lang3.StringUtils;
