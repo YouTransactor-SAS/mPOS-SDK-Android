@@ -9,6 +9,10 @@
  */
 package com.youtransactor.sampleapp;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,10 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
@@ -35,8 +35,8 @@ import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
 import com.youTransactor.uCube.connexion.BtConnectionManager;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
-import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.Config;
+import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
@@ -52,9 +52,7 @@ import com.youtransactor.sampleapp.rpc.FragmentDialogGetInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class MainActivity extends AppCompatActivity {
@@ -122,16 +120,14 @@ public class MainActivity extends AppCompatActivity {
 
         switch (ytProduct) {
             case uCube:
-                connexionManager = new BtClassicConnexionManager();
+                connexionManager = BtClassicConnexionManager.getInstance();
                 break;
 
             case uCubeTouch:
-                connexionManager = new BleConnectionManager();
+                connexionManager = BleConnectionManager.getInstance();
                 break;
         }
 
-        // 1- Connexion Manager Initialisation & set
-        ((BtConnectionManager) connexionManager).init(this);
         UCubeAPI.setConnexionManager(connexionManager);
 
         initView();
@@ -322,19 +318,19 @@ public class MainActivity extends AppCompatActivity {
         // if user app will use YT TMS
         // an unregister of last device should be called
         // to delete current ssl certificate
-       boolean res = UCubeAPI.mdmUnregister(this);
-       if(!res) {
-           Log.e(TAG, "FATAL Error! error to unregister current device");
-       }
+        boolean res = UCubeAPI.mdmUnregister(this);
+        if(!res) {
+            Log.e(TAG, "FATAL Error! error to unregister current device");
+        }
 
-       //remove saved device
-       removeDevice();
+        //remove saved device
+        removeDevice();
 
-       Intent intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
+        Intent intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
                 UCubeTouchScanActivity.class :
                 ListPairedUCubeActivity.class);
 
-       startActivityForResult(intent, SCAN_REQUEST);
+        startActivityForResult(intent, SCAN_REQUEST);
     }
 
     private void connect() {

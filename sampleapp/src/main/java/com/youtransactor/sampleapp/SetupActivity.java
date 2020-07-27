@@ -38,11 +38,6 @@ public class SetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Fabric.with(this, new Crashlytics());
-
-        //Setup logger : if null lib will use it own logger
-        UCubeAPI.setupLogger(this.getApplicationContext(), null);
-
         setContentView(R.layout.activity_setup);
 
         uCubeCardView = findViewById(R.id.ucube_card_view);
@@ -109,6 +104,6 @@ public class SetupActivity extends AppCompatActivity {
         if(ytProductName == null)
             return null;
 
-       return YTProduct.valueOf(ytProductName);
+        return YTProduct.valueOf(ytProductName);
     }
 }
