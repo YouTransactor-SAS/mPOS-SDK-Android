@@ -63,22 +63,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
         terminalSerialNumber.setText(deviceInfos.getSerial());
         terminalState.setText(deviceInfos.getTerminalState());
 
-        String batteryStateStr ="";
-        switch (deviceInfos.getBatteryState()) {
-            case 0x01:
-                batteryStateStr = "100%";
-                break;
-            case 0x02:
-                batteryStateStr = "75%";
-                break;
-            case 0x03:
-                batteryStateStr = "50%";
-                break;
-            case 0x04:
-                batteryStateStr = "Bellow 25%";
-                break;
-        }
-        batteryState.setText(batteryStateStr);
+        batteryState.setText( deviceInfos.getBatteryState()+ "%");
 
         svppVersion.setText(deviceInfos.getSvppFirmware());
         partNumber.setText(deviceInfos.getPartNumber());

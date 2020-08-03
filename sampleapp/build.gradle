@@ -81,5 +81,5 @@ dependencies {
         transitive = true;
     }
 
-    implementation files('libs/libApp-3.2.0.aar')
+    implementation files('libs/libApp-3.2.1.aar')
 }

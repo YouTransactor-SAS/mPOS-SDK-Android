@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.connexion.BtConnectionManager;
 
 import io.fabric.sdk.android.Fabric;
 
