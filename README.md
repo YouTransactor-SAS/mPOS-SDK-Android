@@ -391,7 +391,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 	.setForceAuthorisation(true) 
 	.setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
 	.setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-	.setRequestedPlainTagList(Constants.TAG_MSR_BIN)
+	.setRequestedPlainTagList(Constants.TAG_EMV_CVM_RESULT)
 	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
 	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
 	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
