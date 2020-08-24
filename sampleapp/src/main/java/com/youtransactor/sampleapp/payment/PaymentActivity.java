@@ -29,6 +29,7 @@ import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
+
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.UIUtils;
@@ -193,7 +194,7 @@ public class PaymentActivity extends AppCompatActivity {
         UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
                 .setAmount(amount)
                 .setCurrency(currency)
-                // .setTransactionDate(new Date())
+                .setTransactionDate(new Date())
                 .setDisplayResult(displayResultOnUCube)
                 .setReaderList(readerList)
                 .setForceOnlinePin(forceOnlinePin)
@@ -202,16 +203,15 @@ public class PaymentActivity extends AppCompatActivity {
                 .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setTransactionType(trxType)
-                // .setSystemFailureInfo(true)
-                // .setSystemFailureInfo2(true)
+                .setSystemFailureInfo(true)
+                .setSystemFailureInfo2(true)
                 .setMsgBundle(msgBundle)
                 .setAltMsgBundle(altMsgBundle)
                 .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
                 .setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
                 .setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-                .setRequestedPlainTagList(Constants.TAG_MSR_BIN)
+                .setRequestedPlainTagList(Constants.TAG_EMV_CVM_RESULT)
                 .build();
-
 
         try {
             UCubeAPI.pay(this, paymentRequest,

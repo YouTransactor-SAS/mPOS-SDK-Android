@@ -19,11 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-import com.crashlytics.android.Crashlytics;
-import com.youTransactor.uCube.api.UCubeAPI;
-
-import io.fabric.sdk.android.Fabric;
-
 public class SetupActivity extends AppCompatActivity {
 
     private CardView uCubeCardView;
