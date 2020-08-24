@@ -117,7 +117,6 @@ if (propFile.canRead()) {
     android.buildTypes.release.signingConfig = null
 }
 
-
 dependencies {
 
     /* uCube lib dependencies */
@@ -138,5 +137,5 @@ dependencies {
         transitive = true;
     }
 
-    implementation files('libs/libApp-internal.aar')
+    implementation files('libs/libApp-3.2.2.aar')
 }
