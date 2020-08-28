@@ -668,7 +668,7 @@ TransactionProcessCommand.java
 
 All this commands are described in the terminal documentation. 
 
-If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
+* If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
 	* None
 	* Signed but the uCube don't check the signature // Only for input
 	* Signed
@@ -713,10 +713,9 @@ public class RPCMessage {
 	private byte[] data_ciphered; /* The Ciphered data with the crypto header when secured ( but without the MAC ) */
 	private byte[] buffer; /* contains all the whole response of ucube without parsing */ 
 	
-}
-	
+}	
 ```
-Switch case of protection level, the parse of response will be different : 
+* Switch case of protection level, the parse of response will be different : 
 	* In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
 	* In the case of signed, `commandId, status, data & data_mac` contain values. 
 	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
