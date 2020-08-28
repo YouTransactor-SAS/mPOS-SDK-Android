@@ -669,12 +669,12 @@ TransactionProcessCommand.java
 All this commands are described in the terminal documentation. 
 
 If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
-* None
-* Signed but the uCube don't check the signature // Only for input
-* Signed
-* Signed and ciphered 
+	* None
+	* Signed but the uCube don't check the signature // Only for input
+	* Signed
+	* Signed and ciphered 
 
-** In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData(). 
+* In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData(). 
 	
 This is an example :
 
@@ -701,7 +701,7 @@ This is an example :
 ```
 Note : In the secure session there is  a sequence number managed by the SDK and incremented at every RPC call, If you need to know what is the current sequence number you cann get it using `getCurrentSequenceNumber` API.
 
-** In the case of output, the SDK create e RPCMessage to store response. 
+* In the case of output, the SDK create e RPCMessage to store response. 
 
 ```java
 public class RPCMessage {
@@ -717,10 +717,9 @@ public class RPCMessage {
 	
 ```
 Switch case of protection level, the parse of response will be different : 
-
-In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
-In the case of signed, `commandId, status, data & data_mac` contain values. 
-In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
+	* In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
+	* In the case of signed, `commandId, status, data & data_mac` contain values. 
+	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
 
 Note that no MAC if the data is null.
 
