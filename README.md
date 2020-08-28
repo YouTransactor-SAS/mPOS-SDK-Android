@@ -640,8 +640,6 @@ TransactionFinalizationCommand.java
 TransactionProcessCommand.java
 ```
 
-All this commands are described in the terminal documentation.
-
 * This is an example of command call: 
 
 ```java
@@ -668,7 +666,63 @@ All this commands are described in the terminal documentation.
 	});
 ```
 
-If the you want to send a byte array of data to the device without using the RPC classes, you can use `UCubeAPI.sendData()` API. In the secure session there is  a sequence number managed by the SDK and incremented at every RPC call, If you need to know what is the current sequence number you cann get it using `getCurrentSequenceNumber` API.
+All this commands are described in the terminal documentation. 
+
+If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
+* None
+* Signed but the uCube don't check the signature // Only for input
+* Signed
+* Signed and ciphered 
+
+** In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData(). 
+	
+This is an example :
+
+```java 
+     UCubeAPI.sendData(
+                this,
+                Constants.INSTALL_FOR_LOAD_COMMAND,
+                payload,
+                SecurityMode.SIGNED_CIPHERED,
+                SecurityMode.SIGNED,
+                new UCubeLibRpcSendListener() {
+                    @Override
+                    public void onProgress(RPCCommandStatus rpcCommandStatus) {
+                        Log.d(TAG, "On progress : " + rpcCommandStatus);
+                    }
+
+                    @Override
+                    public void onFinish(boolean status, byte[] response) {
+		        //response contains the whole of the ucube response ( no parsing is done ) 
+                        Log.d(TAG, "On finish : " + status + " Reponse : " + Tools.bytesToHex(response));
+                    }
+                });
+		
+```
+Note : In the secure session there is  a sequence number managed by the SDK and incremented at every RPC call, If you need to know what is the current sequence number you cann get it using `getCurrentSequenceNumber` API.
+
+** In the case of output, the SDK create e RPCMessage to store response. 
+
+```java
+public class RPCMessage {
+
+	private short commandId;
+	private short status;
+	private byte[] data;
+	private byte[] data_mac; /* The MAC when secured */
+	private byte[] data_ciphered; /* The Ciphered data with the crypto header when secured ( but without the MAC ) */
+	private byte[] buffer; /* contains all the whole response of ucube without parsing */ 
+	
+}
+	
+```
+Switch case of protection level, the parse of response will be different : 
+
+In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
+In the case of signed, `commandId, status, data & data_mac` contain values. 
+In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
+
+Note that no MAC if the data is null.
 
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
