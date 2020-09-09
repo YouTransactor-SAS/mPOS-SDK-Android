@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.0.0.0
+###### Release 3.2.2
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -135,12 +135,21 @@ The SDK is in the format “.aar” library. You have to copy-paste it in your a
 The APIs provided by UCubeAPI are:
 
 ```java
-
+	init(@NonNull Context context)
+	getContext()
+	close()
 	setConnexionManager(@NonNull IConnexionManager connexionManager)
 	setupLogger(@NonNull Context context, @Nullable ILogger logger)
+	enableLogs(boolean enable)
+	getCurrentSequenceNumber()
+	sendData(@NonNull Activity activity,
+				short commandId,
+				@NonNull byte[] data,
+				SecurityMode inputSecurityMode,
+				SecurityMode outputSecurityMode,
+				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
 	pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
-	close()
-	
+
 	/* YouTransactor TMS APIs*/
 	mdmSetup(@NonNull Context context)
 	mdmRegister(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
@@ -149,6 +158,7 @@ The APIs provided by UCubeAPI are:
 	mdmCheckUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	mdmUpdate(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	mdmSendLogs(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	mdmGetConfig(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 
 ```
 
@@ -172,10 +182,32 @@ public interface IConnexionManager {
 	void disconnect(DisconnectListener disconnectListener);
 
 	void send(byte[] input, SendCommandListener sendCommandListener);
+
+	void close();
 }
 ```
+* First in App class you should init the `uCubeAPI`
+```java
+	public class App extends Application {
 
-* First you should set the connexion manager to the SDK using `setConnexionManager` API. 
+	    @Override
+	    public void onCreate() {
+		super.onCreate();
+
+		UCubeAPI.init(getApplicationContext());
+
+		//Setup logger : if null lib will use it own logger
+		UCubeAPI.setupLogger(this.getApplicationContext(), null);
+		
+		...
+	    }
+		
+		...
+	}
+
+```
+
+* Second you should set the connexion manager to the SDK using `setConnexionManager` API. 
 
 ```java
 	IConnexionManager connexionManager;
@@ -197,9 +229,9 @@ public interface IConnexionManager {
 ```
 `BtClassicConnexionManager` and `BleConnectionManager` extend a `BtConnexionManager` which implements IConnexionManager.
 
-* Second you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you want to do a BLE scan. 
+* Third you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you want to do a BLE scan. 
 
-* Third you should select the device that you want to communicate with.
+* Then you should select the device that you want to communicate with.
 	* In the case of uCube, the `BtClassicConnexionManager` provides a `public List<UCubeDevice> getPairedUCubes()` method which returns the list of paired uCube devices.
 	* In the case of uCube Touch, the `BleConnectionManager` provides a `public void scan(Activity activity, ScanListener scanListener)` & `public void stopScan()` methods which allow you to start and stop LE scan.
 In the SampleApp an example of device selection using these methods is provided.
@@ -225,6 +257,8 @@ To setup the log module you should put this instructions below in you App.java o
 	// if you want to use your Logger impl
         UCubeAPI.setupLogger(this.getApplicationContext(), new MyLogger());
 ```
+The SDK log can be enabled or disabled using `enableLogs` method. 
+
 #### 6.3 Payment
 
 Once device selected and Logger initialised, you can start using the YouTransactor SDK to accept card payments.
@@ -357,7 +391,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 	.setForceAuthorisation(true) 
 	.setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
 	.setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-	.setRequestedPlainTagList(Constants.TAG_MSR_BIN)
+	.setRequestedPlainTagList(Constants.TAG_EMV_CVM_RESULT)
 	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
 	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
 	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
@@ -606,8 +640,6 @@ TransactionFinalizationCommand.java
 TransactionProcessCommand.java
 ```
 
-All this commands are described in the terminal documentation.
-
 * This is an example of command call: 
 
 ```java
@@ -633,5 +665,62 @@ All this commands are described in the terminal documentation.
 		}
 	});
 ```
+
+All this commands are described in the terminal documentation. 
+
+* If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
+	* None
+	* Signed but the uCube don't check the signature // Only for input
+	* Signed
+	* Signed and ciphered 
+
+* In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData(). 
+	
+This is an example :
+
+```java 
+     UCubeAPI.sendData(
+                this,
+                Constants.INSTALL_FOR_LOAD_COMMAND,
+                payload,
+                SecurityMode.SIGNED_CIPHERED,
+                SecurityMode.SIGNED,
+                new UCubeLibRpcSendListener() {
+                    @Override
+                    public void onProgress(RPCCommandStatus rpcCommandStatus) {
+                        Log.d(TAG, "On progress : " + rpcCommandStatus);
+                    }
+
+                    @Override
+                    public void onFinish(boolean status, byte[] response) {
+		        //response contains the whole of the ucube response ( no parsing is done ) 
+                        Log.d(TAG, "On finish : " + status + " Reponse : " + Tools.bytesToHex(response));
+                    }
+                });
+		
+```
+Note : In the secure session there is  a sequence number managed by the SDK and incremented at every RPC call, If you need to know what is the current sequence number you cann get it using `getCurrentSequenceNumber` API.
+
+* In the case of output, the SDK create e RPCMessage to store response. 
+
+```java
+public class RPCMessage {
+
+	private short commandId;
+	private short status;
+	private byte[] data;
+	private byte[] data_mac; /* The MAC when secured */
+	private byte[] data_ciphered; /* The Ciphered data with the crypto header when secured ( but without the MAC ) */
+	private byte[] buffer; /* contains all the whole response of ucube without parsing */ 
+	
+}	
+```
+* Switch case of protection level, the parse of response will be different : 
+	* In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
+	* In the case of signed, `commandId, status, data & data_mac` contain values. 
+	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
+
+Note that no MAC if the data is null.
+
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
