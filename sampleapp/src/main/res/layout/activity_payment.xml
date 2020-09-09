@@ -128,13 +128,30 @@
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/start_payment"
-        android:id="@+id/doPaymentBtn"
         android:layout_margin="@dimen/margin"
-        android:layout_gravity="center_horizontal"/>
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_payment"
+            android:id="@+id/doPaymentBtn"
+            android:layout_margin="@dimen/margin" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_payment"
+            android:id="@+id/cancelPaymentBtn"
+            android:enabled="false"
+            android:layout_margin="@dimen/margin"/>
+
+    </LinearLayout>
+
 
     <TextView
         android:layout_width="match_parent"
@@ -144,5 +161,34 @@
         android:id="@+id/trxResultFld"
         android:layout_gravity="center_horizontal"
         android:gravity="center|center_horizontal"/>
+
+    <LinearLayout
+        android:id="@+id/progress_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <TextView
+            android:padding="5dp"
+            android:id="@+id/progress_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id= "@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width= "100dp"
+            android:layout_height= "100dp"
+            android:layout_gravity="center_horizontal"
+            android:background= "@drawable/circular_shape"
+            android:progress= "0"
+            android:max="200"
+            android:progressDrawable= "@drawable/circular_progress_bar" />
+    </LinearLayout>
+
 
 </LinearLayout>

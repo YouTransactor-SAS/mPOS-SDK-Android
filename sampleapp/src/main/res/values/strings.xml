@@ -131,6 +131,8 @@
     <string name="display_result_on_ucube">Display result on uCube</string>
 
     <string name="force_authorisation">Force Authorisation</string>
+    <string name="cancel_pay">Cancel current payment</string>
+
 
 
     <!--RPC DISPLAY -->
@@ -166,4 +168,5 @@
     <string name="model">Model</string>
     <string name="mdm_register">MDM Register</string>
     <string name="mdm_config">MDM Config</string>
+    <string name="cancel_payment">Cancel payment</string>
 </resources>

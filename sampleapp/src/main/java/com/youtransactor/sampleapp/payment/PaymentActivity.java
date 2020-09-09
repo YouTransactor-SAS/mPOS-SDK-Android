@@ -11,12 +11,16 @@ package com.youtransactor.sampleapp.payment;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.youTransactor.uCube.TLV;
@@ -29,13 +33,11 @@ import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
-
+import com.youTransactor.uCube.payment.service.PaymentService;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.UIUtils;
 import com.youtransactor.sampleapp.YTProduct;
-
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,6 +57,8 @@ public class PaymentActivity extends AppCompatActivity {
     /* Device */
     private YTProduct ytProduct = YTProduct.uCubeTouch;
 
+    private Button doPaymentBtn;
+    private Button cancelPaymentBtn;
     private EditText cardWaitTimeoutFld;
     private Spinner trxTypeChoice;
     private EditText amountFld;
@@ -65,6 +69,13 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch contactOnlySwitch;
     private Switch displayResultSwitch;
     private TextView trxResultFld;
+    private LinearLayout progressSection;
+    private TextView progressMessage;
+    private ProgressBar progressBar;
+    int progress = 0;
+    private static final int STEP = 10;
+
+    PaymentService paymentService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +93,8 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void initView() {
 
-        Button doPaymentBtn = findViewById(R.id.doPaymentBtn);
+        doPaymentBtn = findViewById(R.id.doPaymentBtn);
+        cancelPaymentBtn = findViewById(R.id.cancelPaymentBtn);
         cardWaitTimeoutFld = findViewById(R.id.cardWaitTimeoutFld);
         trxResultFld = findViewById(R.id.trxResultFld);
         trxTypeChoice = findViewById(R.id.trxTypeChoice);
@@ -93,6 +105,9 @@ public class PaymentActivity extends AppCompatActivity {
         contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
         displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
+        progressSection = findViewById(R.id.progress_section);
+        progressMessage = findViewById(R.id.progress_msg);
+        progressBar = findViewById(R.id.progress_bar);
 
         amountFld.setText(getString(R.string._1_00));
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
@@ -107,11 +122,182 @@ public class PaymentActivity extends AppCompatActivity {
         amountSrcSwitch.setOnClickListener(v -> amountFld.setEnabled(!amountSrcSwitch.isChecked()));
 
         doPaymentBtn.setOnClickListener(v -> startPayment());
+
+        cancelPaymentBtn.setOnClickListener(v -> cancelPayment());
     }
 
     private void startPayment() {
 
-        int timeout = Integer.valueOf(cardWaitTimeoutFld.getText().toString());
+        UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
+
+        //update UI
+        String msg;
+        if (uCubePaymentRequest.getAmount() > 0) {
+            msg = getString(
+                    R.string.payment_progress_with_amount,
+                    uCubePaymentRequest.getAmount(),
+                    uCubePaymentRequest.getCurrency().getLabel()
+            );
+        } else {
+            msg = getString(
+                    R.string.payment_progress_without_amount,
+                    uCubePaymentRequest.getCurrency().getLabel()
+            );
+        }
+
+        doPaymentBtn.setEnabled(false);
+        cancelPaymentBtn.setEnabled(true);
+        trxResultFld.setText("");
+        progressSection.setVisibility(View.VISIBLE);
+        progressMessage.setText(msg);
+        progress = 0;
+        progressBar.setProgress(progress);
+
+        try {
+
+            paymentService = UCubeAPI.pay(this, uCubePaymentRequest,
+                    new UCubeLibPaymentServiceListener() {
+
+                        @Override
+                        public void onProgress(PaymentState state, PaymentContext context) {
+                            // todo No RPC call here
+
+                            Log.d(TAG, " Payment progress : " + state);
+
+                            String msg = "";
+
+                            switch (state) {
+                                case CANCEL_ALL:
+                                    msg = "cancel all...";
+                                    break;
+
+                                case GET_INFO:
+                                    msg = "get device info...";
+                                    break;
+
+                                case WAIT_CARD:
+                                    msg = "Waiting for card insertion...";
+                                    break;
+
+                                case ENTER_SECURE_SESSION:
+                                case KSN_AVAILABLE:
+                                    msg = "starting secure session...";
+                                    break;
+
+                                case SMC_BUILD_CANDIDATE_LIST:
+                                case SMC_SELECT_APPLICATION:
+                                case SMC_USER_SELECT_APPLICATION:
+                                    msg = "App selection...";
+                                    break;
+
+                                case SMC_INIT_TRANSACTION:
+                                    msg = "Transaction initialization ...";
+                                    break;
+
+                                case START_NFC_TRANSACTION:
+                                    msg = "Starting...";
+                                    break;
+
+                                case SMC_RISK_MANAGEMENT:
+                                    msg = "Risk management processing...";
+                                    break;
+
+                                case SMC_PROCESS_TRANSACTION:
+                                    msg = "Transaction processing ...";
+                                    break;
+
+                                case MSR_GET_SECURED_TAGS:
+                                case MSR_GET_PLAIN_TAGS:
+                                case NFC_GET_SECURED_TAGS:
+                                case NFC_GET_PLAIN_TAGS:
+                                    msg = "Retrieving tags...";
+                                    break;
+
+                                case SMC_FINALIZE_TRANSACTION:
+                                    msg = "Transaction finalization ...";
+                                    break;
+
+                                case COMPLETE_NFC_TRANSACTION:
+                                    msg = "NFC transaction Finalisation...";
+                                    break;
+
+                                case SMC_REMOVE_CARD:
+                                    msg = "Please remove card";
+                                    break;
+
+                                case MSR_ONLINE_PIN:
+                                    msg = "Pin online...";
+                                    break;
+
+                                case AUTHORIZATION:
+                                    msg = "Authorization processing...";
+                                    break;
+
+                                case EXIT_SECURE_SESSION:
+                                    msg = "secure session closing...";
+                                    break;
+
+                                case DISPLAY_RESULT:
+                                    msg = "Displaying result on device...";
+                                    break;
+
+                                case GET_L1_LOG:
+                                    msg = "Getting Transaction Logs L1...";
+                                    break;
+
+                                case GET_L2_LOG:
+                                    msg = "Getting Transaction Logs L2...";
+                                    break;
+                            }
+
+                            progress = progress + STEP;
+                            if (progress > 200)
+                                progress = 200;
+
+                            progressBar.setProgress(progress);
+
+                            progressMessage.setText(msg);
+
+                            if (state == PaymentState.KSN_AVAILABLE) {
+                                Log.d(TAG, "KSN : " + Arrays.toString(context.getSredKsn()));
+                                return;
+                            }
+
+                            if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
+                                Log.d(TAG, "init data : " + Arrays.toString(context.getTransactionInitData()));
+                            }
+                        }
+
+                        @Override
+                        public void onFinish(boolean status, PaymentContext context) {
+                            Log.d(TAG, "payment finish status : " + status);
+
+                            //update UI
+                            doPaymentBtn.setEnabled(true);
+                            cancelPaymentBtn.setEnabled(false);
+                            progressSection.setVisibility(View.INVISIBLE);
+
+                            if (!status || context == null) {
+                                UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
+                            } else {
+                                parsePaymentResponse(context);
+                            }
+                        }
+                    });
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            //update UI
+            doPaymentBtn.setEnabled(true);
+            cancelPaymentBtn.setEnabled(false);
+            progressSection.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private UCubePaymentRequest preparePaymentRequest() {
+        int timeout = Integer.parseInt(cardWaitTimeoutFld.getText().toString());
 
         Currency currency = (Currency) currencyChooser.getSelectedItem();
 
@@ -121,32 +307,18 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean forceAuthorisation = forceAuthorisationBtn.isChecked();
 
-        boolean enterAmountOnuCube = amountSrcSwitch.isChecked();
-
         boolean contactOnly = contactOnlySwitch.isChecked();
 
         boolean displayResultOnUCube = displayResultSwitch.isChecked();
 
         double amount = -1;
 
-        String msg;
-
-        if (!enterAmountOnuCube) {
-
+        if (!amountSrcSwitch.isChecked()) {
             try {
                 amount = Double.parseDouble(amountFld.getText().toString());
-
-                msg = getString(R.string.payment_progress_with_amount, amount, currency.getLabel());
-
             } catch (Exception e) {
-
                 amountSrcSwitch.setChecked(true);
-
-                msg = getString(R.string.payment_progress_without_amount, currency.getLabel());
             }
-
-        } else {
-            msg = getString(R.string.payment_progress_without_amount, currency.getLabel());
         }
 
         ResourceBundle msgBundle = null;
@@ -174,24 +346,23 @@ public class PaymentActivity extends AppCompatActivity {
             altMsgBundle.putString("LBL_try_other_interface", "Try other interface");
             altMsgBundle.putString("LBL_cfg_error", "Config error");
             altMsgBundle.putString("MSG_wait_card", "{0} {1}\nInsert card");
+            altMsgBundle.putString("LBL_wait_cancel", "Cancellation \n Please wait");
             altMsgBundle.putString("GLOBAL_centered", "FF");
             altMsgBundle.putString("GLOBAL_yposition", "0C");
             altMsgBundle.putString("GLOBAL_font_id", "00");
         }
 
-        UIUtils.showProgress(this, msg);
-
         List<CardReaderType> readerList = new ArrayList<>();
 
         readerList.add(CardReaderType.ICC);
 
-        if(ytProduct == YTProduct.uCube)
+        if (ytProduct == YTProduct.uCube)
             readerList.add(CardReaderType.MSR);
 
         if (!contactOnly)
             readerList.add(CardReaderType.NFC);
 
-        UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
+        return new UCubePaymentRequest.Builder()
                 .setAmount(amount)
                 .setCurrency(currency)
                 .setTransactionDate(new Date())
@@ -203,164 +374,67 @@ public class PaymentActivity extends AppCompatActivity {
                 .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setTransactionType(trxType)
-                .setSystemFailureInfo(true)
-                .setSystemFailureInfo2(true)
+                .setSystemFailureInfo(false)
+                .setSystemFailureInfo2(false)
                 .setMsgBundle(msgBundle)
                 .setAltMsgBundle(altMsgBundle)
                 .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
+
                 .setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
-                .setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-                .setRequestedPlainTagList(Constants.TAG_EMV_CVM_RESULT)
+
+                .setRequestedSecuredTagList(
+                        0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+
+                .setRequestedPlainTagList(
+                        0x9F39, 0x9F36, 0x9F09, 0x9F27, 0x9F21, 0x9F41,
+                        0x9F36, 0x9F09, 0x9F27, 0x9F21, 0x9F41)
+
                 .build();
-
-        try {
-            UCubeAPI.pay(this, paymentRequest,
-                    new UCubeLibPaymentServiceListener() {
-
-                        @Override
-                        public void onProgress(PaymentState state, PaymentContext context) {
-
-                            //todo use this to display current payment state
-                            // No RPC call here
-
-                            Log.d(TAG, " Payment progress : " + state);
-
-                            String msg = "";
-
-                            switch (state) {
-                                case CANCEL_ALL:
-                                case GET_INFO:
-                                    msg = "Prepare payment...";
-                                    break;
-
-                                case WAIT_CARD:
-                                    msg = "Waiting for card insertion";
-                                    break;
-
-                                case ENTER_SECURE_SESSION:
-                                case KSN_AVAILABLE:
-                                    msg = "Please wait";
-                                    break;
-
-                                case SMC_BUILD_CANDIDATE_LIST:
-                                case SMC_SELECT_APPLICATION:
-                                case SMC_USER_SELECT_APPLICATION:
-                                    msg = "App selection...";
-                                    break;
-
-                                case SMC_INIT_TRANSACTION:
-                                case START_NFC_TRANSACTION:
-                                    msg = "Starting..., Please wait";
-                                    break;
-
-                                case SMC_RISK_MANAGEMENT:
-                                    msg = "Risk management processing...";
-                                    break;
-
-                                case SMC_PROCESS_TRANSACTION:
-                                case MSR_GET_SECURED_TAGS:
-                                case MSR_GET_PLAIN_TAGS:
-                                case NFC_GET_SECURED_TAGS:
-                                case NFC_GET_PLAIN_TAGS:
-                                    msg = "Processing..., please wait";
-                                    break;
-
-                                case SMC_FINALIZE_TRANSACTION:
-                                case COMPLETE_NFC_TRANSACTION:
-                                    msg = "Finalisation..., please wait";
-                                    break;
-
-                                case SMC_REMOVE_CARD:
-                                    msg = "Please remove card";
-                                    break;
-
-                                case MSR_ONLINE_PIN:
-                                    msg = "Pin online...";
-                                    break;
-
-                                case AUTHORIZATION:
-                                    msg = "Authorization processing...";
-                                    break;
-
-                                case EXIT_SECURE_SESSION:
-                                    msg = "Transaction complete";
-                                    break;
-
-                                case DISPLAY_RESULT:
-                                    msg = "Displaying result on device";
-                                    break;
-                                case GET_L1_LOG:
-                                case GET_L2_LOG:
-                                    msg = "Getting Transaction Logs...";
-                                    break;
-                            }
-
-                            UIUtils.setProgressMessage(msg);
-
-                            if (state == PaymentState.KSN_AVAILABLE) {
-                                Log.d(TAG, "KSN : " + Arrays.toString(context.getSredKsn()));
-                                return;
-                            }
-
-                            if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
-                                Log.d(TAG, "init data : " + Arrays.toString(context.getTransactionInitData()));
-                            }
-                        }
-
-                        @Override
-                        public void onFinish(boolean status, PaymentContext context) {
-
-                            UIUtils.hideProgressDialog();
-
-                            if (status && context != null) {
-                                Log.d(TAG, "Payment status : " + context.getPaymentStatus());
-
-                                trxResultFld.setText(context.getPaymentStatus().name());
-
-                                /* uCube info */
-                                byte[] ucubeFirmware = TLV.parse(context.getuCubeInfos()).get(Constants.TAG_FIRMWARE_VERSION);
-                                if (ucubeFirmware != null)
-                                    Log.d(TAG, "ucube firmware version: " + Tools.parseVersion(ucubeFirmware));
-
-                                Log.d(TAG, "Used Interface: " + CardReaderType.getLabel(context.getActivatedReader()));
-
-                                Log.d(TAG, "amount: " + context.getAmount());
-                                Log.d(TAG, "currency: " + context.getCurrency().getLabel());
-                                Log.d(TAG, "tx date: " + context.getTransactionDate());
-                                Log.d(TAG, "tx type: " + context.getTransactionType().getLabel());
-
-                                if (context.getSelectedApplication() != null) {
-                                    Log.d(TAG, "app ID: " + context.getSelectedApplication().getLabel());
-                                    Log.d(TAG, "app version: " + context.getApplicationVersion());
-                                }
-
-                                Log.d(TAG, "system failure log1: " + bytesToHex(context.getSystemFailureInfo()));
-                                Log.d(TAG, "system failure log2: " + bytesToHex(context.getSystemFailureInfo2()));
-
-                                if (context.getPlainTagTLV() != null) {
-
-                                    for (Integer tag : context.getPlainTagTLV().keySet())
-                                        Log.d(TAG, "Plain Tag : " + tag + " : " + bytesToHex(context.getPlainTagTLV().get(tag)));
-
-                                }
-                                if (context.getSecuredTagBlock() != null)
-                                    Log.d(TAG, "secure tag block: " + bytesToHex(context.getSecuredTagBlock()));
-
-                            } else {
-                                UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
-                            }
-                        }
-                    });
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            UIUtils.hideProgressDialog();
-        }
     }
 
-    private String bytesToHex(byte[] bytes) {
-        return bytes == null || bytes.length == 0 ? "" : new String(Hex.encodeHex(bytes)).toUpperCase();
+    private void parsePaymentResponse(@NonNull PaymentContext context) {
+
+        Log.d(TAG, "Payment status : " + context.getPaymentStatus());
+
+        trxResultFld.setText(context.getPaymentStatus().name());
+
+        /* uCube info */
+        byte[] ucubeFirmware = TLV.parse(context.getuCubeInfos()).get(Constants.TAG_FIRMWARE_VERSION);
+        if (ucubeFirmware != null)
+            Log.d(TAG, "ucube firmware version: " + Tools.parseVersion(ucubeFirmware));
+
+        Log.d(TAG, "Used Interface: " + CardReaderType.getLabel(context.getActivatedReader()));
+
+        Log.d(TAG, "amount: " + context.getAmount());
+        Log.d(TAG, "currency: " + context.getCurrency().getLabel());
+        Log.d(TAG, "tx date: " + context.getTransactionDate());
+        Log.d(TAG, "tx type: " + context.getTransactionType().getLabel());
+
+        if (context.getSelectedApplication() != null) {
+            Log.d(TAG, "app ID: " + context.getSelectedApplication().getLabel());
+            Log.d(TAG, "app version: " + context.getApplicationVersion());
+        }
+
+        Log.d(TAG, "system failure log1: " + Tools.bytesToHex(context.getSystemFailureInfo()));
+        Log.d(TAG, "system failure log2: " + Tools.bytesToHex(context.getSystemFailureInfo2()));
+
+        if (context.getPlainTagTLV() != null) {
+
+            for (Integer tag : context.getPlainTagTLV().keySet())
+                Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.getPlainTagTLV().get(tag))));
+
+        }
+        if (context.getSecuredTagBlock() != null)
+            Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.getSecuredTagBlock()));
+
+    }
+
+    private void cancelPayment() {
+        Log.d(TAG, "Try to cancel current Payment");
+
+        if (paymentService != null && paymentService.isRunning()) {
+            paymentService.cancel();
+        }
     }
 }
