@@ -110,6 +110,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
             intent.putExtra(MainActivity.DEVICE_ADDRESS, selectedDevice.getAddress());
 
             setResult(MainActivity.SCAN_REQUEST, intent);
+
             finish();
         });
 
@@ -147,6 +148,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 scanLeDevice(false);
                 break;
             case android.R.id.home:
+                scanLeDevice(false);
                 final Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -310,11 +312,13 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
 
                             @Override
                             public void onDeviceDiscovered(UCubeDevice uCubeDevice) {
+                                Log.e(getClass().getName(), "on device discovered");
                                 adapter.addDevice(uCubeDevice);
                             }
 
                             @Override
                             public void onScanComplete(List<UCubeDevice> discoveredUCubeDevices) {
+                                Log.e(getClass().getName(), "on scan complete");
                                 mScanning = false;
                                 invalidateOptionsMenu();
                             }

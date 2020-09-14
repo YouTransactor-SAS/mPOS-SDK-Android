@@ -321,6 +321,36 @@ public class PaymentActivity extends AppCompatActivity {
             }
         }
 
+        ResourceBundle newMsgBundle = null;
+        Bundle newAltMsgBundle = null;
+
+        try {
+            newMsgBundle = new PropertyResourceBundle(getResources().openRawResource(R.raw.new_ucube_strings));
+
+        } catch (IOException ignore) {
+            newAltMsgBundle = new Bundle();
+            newAltMsgBundle.putString("LBL_wait_context_reset", "Please wait");
+            newAltMsgBundle.putString("LBL_wait_transaction_finalization", "Please wait");
+            newAltMsgBundle.putString("LBL_wait_online_pin_process", "Please wait");
+            newAltMsgBundle.putString("LBL_wait_open_new_secure_session", "Please wait");
+            newAltMsgBundle.putString("LBL_approved", "Approved");
+            newAltMsgBundle.putString("LBL_declined", "Declined");
+            newAltMsgBundle.putString("LBL_use_chip", "Use Chip");
+            newAltMsgBundle.putString("LBL_no_card_detected", "No card detected");
+            newAltMsgBundle.putString("LBL_remove_card", "Remove card");
+            newAltMsgBundle.putString("LBL_unsupported_card", "Unsupported card");
+            newAltMsgBundle.putString("LBL_refused_card", "Card refused");
+            newAltMsgBundle.putString("LBL_cancelled", "Cancelled");
+            newAltMsgBundle.putString("LBL_try_other_interface", "Try other interface");
+            newAltMsgBundle.putString("LBL_configuration_error", "Config error");
+            newAltMsgBundle.putString("LBL_wait_card", "{0} {1}\nInsert card");
+            newAltMsgBundle.putString("LBL_wait_cancel", "Cancellation \n Please wait");
+            newAltMsgBundle.putString("GLOBAL_LBL_xposition", "FF");
+            newAltMsgBundle.putString("GLOBAL_LBL_yposition", "0C");
+            newAltMsgBundle.putString("GLOBAL_LBL_font_id", "00");
+        }
+
+        /* TODO REMOVE THIS */
         ResourceBundle msgBundle = null;
         Bundle altMsgBundle = null;
 
@@ -352,6 +382,8 @@ public class PaymentActivity extends AppCompatActivity {
             altMsgBundle.putString("GLOBAL_font_id", "00");
         }
 
+        /* TODO REMOVE THIS */
+
         List<CardReaderType> readerList = new ArrayList<>();
 
         readerList.add(CardReaderType.ICC);
@@ -376,19 +408,31 @@ public class PaymentActivity extends AppCompatActivity {
                 .setTransactionType(trxType)
                 .setSystemFailureInfo(false)
                 .setSystemFailureInfo2(false)
+                 //Deprecated use the
                 .setMsgBundle(msgBundle)
                 .setAltMsgBundle(altMsgBundle)
+
+                .setNewAltMsgBundle(newAltMsgBundle)
+                .setNewMsgBundle(newMsgBundle)
+
                 .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
 
+                //deprecated to get plain and secured tags values at the authorisationTask
+                // use setAuthorizationPlainTags & setAuthorizationSecuredTags
                 .setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
 
-                .setRequestedSecuredTagList(
-                        0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+                //deprecated to get plain and secured tags values at the end of transaction use
+                //setFinalizationSecuredTags & setFinalizationPlainTags
+                .setRequestedSecuredTagList(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+                .setRequestedPlainTagList(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
 
-                .setRequestedPlainTagList(
-                        0x9F39, 0x9F36, 0x9F09, 0x9F27, 0x9F21, 0x9F41,
-                        0x9F36, 0x9F09, 0x9F27, 0x9F21, 0x9F41)
+                .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
+                .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+                .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+                .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
 
                 .build();
     }

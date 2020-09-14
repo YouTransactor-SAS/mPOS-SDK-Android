@@ -14,6 +14,8 @@ import android.app.AlertDialog;
 
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
+import com.youTransactor.uCube.Tools;
+import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 
@@ -47,6 +49,31 @@ public class AuthorizationTask implements IAuthorizationTask {
     public void execute(ITaskMonitor monitor) {
         this.monitor = monitor;
 
+        /*TODO REMOVE THIS */
+        if(paymentContext.getSecuredTagBlock() != null)
+            LogManager.d("tod remove this log : secured tags " + Tools.bytesToHex(paymentContext.getSecuredTagBlock()));
+
+        if(paymentContext.getPlainTagTLV() != null) {
+            for (Integer tag:
+                    paymentContext.getPlainTagTLV().keySet()) {
+                LogManager.d("todo remove this log Plain tag : " + tag + " value : "+ Tools.bytesToHex(paymentContext.getPlainTagTLV().get(tag)));
+            }
+        }
+        /*TODO REMOVE THIS */
+
+        if(paymentContext.getAuthorizationSecuredTagsValues() != null)
+            LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.getAuthorizationSecuredTagsValues()));
+
+        if(paymentContext.getAuthorizationPlainTagsValues() != null) {
+            for (Integer tag:
+                    paymentContext.getAuthorizationPlainTagsValues().keySet()) {
+                LogManager.d("authorization Plain tag : " + tag + " value : "+ Tools.bytesToHex(paymentContext.getAuthorizationPlainTagsValues().get(tag)));
+            }
+        }
+
+        //todo here you can call the host
+
+        /*todo to be removed */
         activity.runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
@@ -59,6 +86,8 @@ public class AuthorizationTask implements IAuthorizationTask {
 
             builder.create().show();
         });
+
+        /*todo to be removed */
     }
 
     private void end(int choice) {
