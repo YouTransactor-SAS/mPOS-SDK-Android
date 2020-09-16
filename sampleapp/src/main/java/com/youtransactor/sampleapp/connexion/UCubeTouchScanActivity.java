@@ -38,6 +38,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.youTransactor.uCube.BuildConfig;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
+import com.youTransactor.uCube.connexion.bleService.ScanStatus;
 import com.youtransactor.sampleapp.MainActivity;
 import com.youtransactor.sampleapp.R;
 
@@ -302,8 +303,8 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 ((BleConnectionManager) MainActivity.connexionManager).scan(this,
                         new BleConnectionManager.ScanListener() {
                             @Override
-                            public void onError() {
-                                Log.e(getClass().getName(), "error to scan BLE");
+                            public void onError(ScanStatus scanStatus) {
+                                Log.e(getClass().getName(), "error to scan BLE : "+ scanStatus);
 
                                 unableToScanBT();
                                 mScanning = false;

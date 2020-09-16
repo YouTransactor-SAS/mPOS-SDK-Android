@@ -9,6 +9,10 @@
  */
 package com.youtransactor.sampleapp;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,18 +28,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
+import com.youTransactor.uCube.connexion.BtConnectionManager;
+import com.youTransactor.uCube.connexion.ConnectionListener;
+import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
-import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.Config;
+import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
@@ -51,9 +54,7 @@ import com.youtransactor.sampleapp.rpc.FragmentDialogGetInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class MainActivity extends AppCompatActivity {
@@ -340,21 +341,39 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        UIUtils.showProgress(this, getString(R.string.connect_progress));
+        UIUtils.showProgress(
+                this,
+                getString(R.string.connect_progress),
+                true,
+                dialog -> ((BleConnectionManager) connexionManager).cancelConnect()
+        );
 
-        connexionManager.connect(status -> {
+        connexionManager.connect(new ConnectionListener() {
+            @Override
+            public void onConnectionFailed(ConnectionStatus status, int error) {
+                UIUtils.hideProgressDialog();
 
-            UIUtils.hideProgressDialog();
+                UIUtils.showMessageDialog(MainActivity.this,
+                        getString(R.string.connect_failed, status.name(), error));
+            }
 
-            if (!status) {
-                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.connect_failed));
-
-            } else {
+            @Override
+            public void onConnectionSuccess() {
+                UIUtils.hideProgressDialog();
 
                 Toast.makeText(MainActivity.this, getString(R.string.connect_success),
                         Toast.LENGTH_LONG).show();
 
                 updateConnectionUI(DEVICE_CONNECTED);
+            }
+
+            @Override
+            public void onConnectionCancelled() {
+                UIUtils.hideProgressDialog();
+
+
+                Toast.makeText(MainActivity.this, getString(R.string.connection_cancelled),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }

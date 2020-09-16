@@ -60,8 +60,9 @@
 
     <!--connect message-->
     <string name="connect_progress">Connect progress…</string>
-    <string name="connect_failed">Connect failed</string>
+    <string name="connect_failed">Connect failed Msg : %s Code : %d</string>
     <string name="connect_success">Connect success</string>
+    <string name="connection_cancelled">Connection cancelled</string>
 
     <!-- disconnect message-->
     <string name="disconnect_progress">Disconnect progress…</string>
