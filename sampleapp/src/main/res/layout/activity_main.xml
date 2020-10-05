@@ -18,6 +18,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:layout_centerInParent="true"
         android:orientation="vertical">
 
@@ -33,7 +34,7 @@
             android:id="@+id/ucube_section"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:layout_marginBottom="@dimen/margin"
             android:gravity="start"
             android:orientation="vertical">
@@ -50,42 +51,53 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/scanBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:checked="true"
-            android:gravity="center"
-            android:text="@string/scan" />
-
-        <Button
-            android:id="@+id/connectBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:checked="true"
-            android:gravity="center"
-            android:text="@string/connect" />
-
-        <Button
-            android:id="@+id/disconnectBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:checked="true"
-            android:gravity="center"
-            android:text="@string/disconnect" />
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_margin="@dimen/margin"
-            android:background="#FF000000" />
+            android:layout_margin="20dp"
+            android:background="@color/grey_300" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/scanBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:gravity="center"
+                android:text="@string/scan" />
+
+            <Button
+                android:id="@+id/connectBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:gravity="center"
+                android:text="@string/connect" />
+
+            <Button
+                android:id="@+id/disconnectBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:gravity="center"
+                android:text="@string/disconnect" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="20dp"
+            android:background="@color/grey_300" />
 
         <Button
             android:id="@+id/payBtn"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:text="@string/pay" />

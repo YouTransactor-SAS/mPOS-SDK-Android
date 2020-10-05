@@ -17,18 +17,20 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.YTProduct;
 
 import java.util.Objects;
 
 public class FragmentDialogGetInfo extends DialogFragment {
 
     private DeviceInfos deviceInfos;
+    private YTProduct ytProduct;
 
-    public FragmentDialogGetInfo(DeviceInfos deviceInfos) {
+    public FragmentDialogGetInfo(DeviceInfos deviceInfos, YTProduct ytProduct) {
         this.deviceInfos = deviceInfos;
+        this.ytProduct = ytProduct;
     }
 
     @NonNull
@@ -60,73 +62,91 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView NFCFirmwareVersion = rootView.findViewById(R.id.NFC_Firmware_Version);
         TextView EMVL1_CLESS_LIB_VERSION = rootView.findViewById(R.id.EMVL1_Cell_Lib_Version);
 
+        if(ytProduct == YTProduct.uCubeTouch) {
+            rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
+
+        } else if (ytProduct == YTProduct.uCube) {
+            rootView.findViewById(R.id.nfc_section).setVisibility(View.VISIBLE);
+
+            NFCModuleState.setText(nfcState(deviceInfos.getNfcModuleState()));
+
+            if (deviceInfos.getNfcModuleState() != 0) {
+                NFCFirmwareState.setText(deviceInfos.getNfcFirmwareState());
+                NFCFirmwareVersion.setText(deviceInfos.getNfcFirmware());
+                EMVL1_CLESS_LIB_VERSION.setText(deviceInfos.getEmvL1ClessLibVersion());
+            } else {
+                NFCCapability.setText("NONE");
+                NFCFirmwareState.setVisibility(View.GONE);
+                NFCFirmwareVersion.setVisibility(View.GONE);
+                EMVL1_CLESS_LIB_VERSION.setVisibility(View.GONE);
+            }
+
+        }
+
         terminalSerialNumber.setText(deviceInfos.getSerial());
         terminalState.setText(deviceInfos.getTerminalState());
-
-        batteryState.setText( deviceInfos.getBatteryState()+ "%");
-
         svppVersion.setText(deviceInfos.getSvppFirmware());
         partNumber.setText(deviceInfos.getPartNumber());
         OSVersion.setText(deviceInfos.getOsVersion());
-
-        String nfcModuleState ="";
-        switch (deviceInfos.getNfcModuleState()) {
-            case 0x00:
-                nfcModuleState = "no mpos module available";
-                break;
-            case 0x01:
-                nfcModuleState = "mpos module initializing";
-                break;
-            case 0x02:
-                nfcModuleState = "mpos initialization done";
-                break;
-            case 0x03:
-                nfcModuleState = "mpos module is ready";
-                break;
-            case 0x04:
-                nfcModuleState = "mpos module is in bootloader mode";
-                break;
-            case 0x05:
-                nfcModuleState = "mpos bootloader initializing";
-                break;
-            case 0x06:
-                nfcModuleState = "mpos module faces an internal error";
-                break;
-            case 0x07:
-                nfcModuleState = "mpos module firmware not loaded";
-                break;
-            case 0x08:
-                nfcModuleState = "mpos firmware update is ongoing";
-                break;
-            case 0x09:
-                nfcModuleState = "mpos app firmware is corrupted";
-                break;
-            case 0x10:
-                nfcModuleState = "mpos bootloader firmware is corrupted";
-                break;
-        }
-        NFCModuleState.setText(nfcModuleState);
-
         emvConfigurationVersion.setText(deviceInfos.getIccEmvConfigVersion());
         emvClessConfigurationVersion.setText(deviceInfos.getNfcEmvConfigVersion());
-        automaticPowerOffTimeOut.setText(Integer.toString(deviceInfos.getAutoPowerOffTimeout()));
         USBCapability.setText(deviceInfos.isUsbCapability() ? "USB Capability" : "NO USB Capability");
 
-        if (deviceInfos.getNfcModuleState() != 0) {
-            NFCFirmwareState.setText(deviceInfos.getNfcFirmwareState());
-            NFCFirmwareVersion.setText(deviceInfos.getNfcFirmware());
-            EMVL1_CLESS_LIB_VERSION.setText(deviceInfos.getEmvL1ClessLibVersion());
-        } else {
-            NFCCapability.setText("NONE");
-            NFCFirmwareState.setVisibility(View.GONE);
-            NFCFirmwareVersion.setVisibility(View.GONE);
-            EMVL1_CLESS_LIB_VERSION.setVisibility(View.GONE);
-        }
+        if(deviceInfos.getBatteryState() < 0)
+            batteryState.setText("unknown");
+        else
+            batteryState.setText(deviceInfos.getBatteryState()+ "%");
+
+        if(deviceInfos.getAutoPowerOffTimeout() < 0)
+            automaticPowerOffTimeOut.setText("unknown");
+        else
+            automaticPowerOffTimeOut.setText(deviceInfos.getAutoPowerOffTimeout() + " Sec");
 
         b.setView(rootView);
         return b.create();
     }
 
+    private String nfcState(byte nfcModuleState) {
+        String nfcStateLabel ="";
+
+        switch (nfcModuleState) {
+            case 0x00:
+                nfcStateLabel = "no mpos module available";
+                break;
+            case 0x01:
+                nfcStateLabel = "mpos module initializing";
+                break;
+            case 0x02:
+                nfcStateLabel = "mpos initialization done";
+                break;
+            case 0x03:
+                nfcStateLabel = "mpos module is ready";
+                break;
+            case 0x04:
+                nfcStateLabel = "mpos module is in bootloader mode";
+                break;
+            case 0x05:
+                nfcStateLabel = "mpos bootloader initializing";
+                break;
+            case 0x06:
+                nfcStateLabel = "mpos module faces an internal error";
+                break;
+            case 0x07:
+                nfcStateLabel = "mpos module firmware not loaded";
+                break;
+            case 0x08:
+                nfcStateLabel = "mpos firmware update is ongoing";
+                break;
+            case 0x09:
+                nfcStateLabel = "mpos app firmware is corrupted";
+                break;
+            case 0x10:
+                nfcStateLabel = "mpos bootloader firmware is corrupted";
+                break;
+        }
+
+        return nfcStateLabel;
+    }
 
 }
 

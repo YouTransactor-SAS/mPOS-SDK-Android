@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
   <p/>
   Use of this product is contingent on the existence of an executed license
@@ -8,382 +7,424 @@
   is here defined as YouTransactor Intellectual Property for the purposes
   of determining terms of use as defined within the license agreement.
 -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="@string/terminal_serial_number"
-        android:gravity="left"
-        android:layout_margin="@dimen/margin"
-      />
-    <TextView
-        android:id="@+id/terminal_serial_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-      />
-</LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:gravity="left"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/terminal_state"
-     />
-    <TextView
-        android:id="@+id/terminal_state"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-       />
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/part_number"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/part_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="@string/battery_state"
-        android:gravity="left"
-        android:layout_margin="@dimen/margin"
-       />
-    <TextView
-        android:id="@+id/battery_state"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-     />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/terminal_serial_number"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/terminal_serial_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="@string/SVPP_version"
-        android:gravity="left"
-        android:layout_margin="@dimen/margin"
-        />
-    <TextView
-        android:id="@+id/SVPP_version"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-       />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/margin"
+            android:background="@color/grey_300" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/OS_version"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/OS_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/part_number"
-            android:gravity="left"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/part_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-       >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/OS_version"
-            android:gravity="left"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/OS_version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/NFC_capability"
-            android:gravity="left"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/NFC_capability"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="30dp">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/NFC_Firmware_Version"
-            android:gravity="center_horizontal"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/NFC_Firmware_Version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="30dp">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/NFC_Firmware_State"
-            android:gravity="center_horizontal"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/NFC_Firmware_State"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="30dp">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/EMVL1_Cell_Lib_Version"
-            android:gravity="center_horizontal"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/EMVL1_Cell_Lib_Version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/SVPP_version"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/SVPP_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
 
-    <LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="@string/NFC_Module_state"
-        android:gravity="left"
-        android:layout_margin="@dimen/margin"
-        />
-    <TextView
-        android:id="@+id/NFC_Module_state"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-        />
-</LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/USB_capability"
-            android:gravity="left"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/emv_configuration_version"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/emv_configuration_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/emv_cless_configuration_version"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/emv_cless_configuration_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/USB_capability"
-            android:layout_width="match_parent"
+            android:background="@color/grey_300" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/terminal_state"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/terminal_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/automatic_power_off_time_out"
-            android:gravity="left"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/battery_state"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/battery_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/USB_capability"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/USB_capability"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
+                android:text="@string/automatic_power_off_time_out"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/automatic_power_off_time_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/automatic_power_off_time_out"
+            android:background="@color/grey_300" />
+
+        <LinearLayout
+            android:id="@+id/nfc_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="left"
+                    android:text="@string/NFC_Module_state"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/NFC_Module_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:gravity="center"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="left"
+                    android:text="@string/NFC_capability"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/NFC_capability"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:text="@string/NFC_Firmware_Version"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/NFC_Firmware_Version"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:text="@string/NFC_Firmware_State"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/NFC_Firmware_State"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:text="@string/EMVL1_Cell_Lib_Version"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/EMVL1_Cell_Lib_Version"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:gravity="center_horizontal"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="@dimen/margin"
+                android:background="@color/grey_300" />
+
+        </LinearLayout>
+
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/emv_configuration_version"
-            android:gravity="left"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/emv_configuration_version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/colorPrimaryDark"
-            android:text="@string/emv_cless_configuration_version"
-            android:gravity="left"
-            android:layout_margin="@dimen/margin"
-            />
-        <TextView
-            android:id="@+id/emv_cless_configuration_version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
-            />
-    </LinearLayout>
-</LinearLayout>
-    </ScrollView>
+</ScrollView>

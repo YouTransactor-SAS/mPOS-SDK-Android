@@ -7,27 +7,29 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_margin="@dimen/margin"
-        android:background="#FF000000" />
+        android:layout_margin="20dp"
+        android:background="@color/grey_300" />
 
     <Button
         android:id="@+id/registerBtn"
-        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/mdm_register" />
 
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="horizontal"
         android:layout_gravity="center"
         android:weightSum="3">
 
         <Button
             android:id="@+id/getConfigBtn"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:layout_weight="1"
@@ -35,7 +37,7 @@
 
         <Button
             android:id="@+id/checkUpdateBtn"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:layout_weight="1"
@@ -44,7 +46,7 @@
 
         <Button
             android:id="@+id/sendLogBtn"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:layout_weight="1"

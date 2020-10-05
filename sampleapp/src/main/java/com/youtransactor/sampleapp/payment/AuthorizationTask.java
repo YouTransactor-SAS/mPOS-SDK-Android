@@ -16,8 +16,8 @@ import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.log.LogManager;
-import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.task.IAuthorizationTask;
+import com.youTransactor.uCube.payment.PaymentContext;
 
 public class AuthorizationTask implements IAuthorizationTask {
 
@@ -56,7 +56,7 @@ public class AuthorizationTask implements IAuthorizationTask {
         if(paymentContext.getPlainTagTLV() != null) {
             for (Integer tag:
                     paymentContext.getPlainTagTLV().keySet()) {
-                LogManager.d("todo remove this log Plain tag : " + tag + " value : "+ Tools.bytesToHex(paymentContext.getPlainTagTLV().get(tag)));
+                LogManager.d("todo remove this log Plain tag : " + tag + " value : "+Tools.bytesToHex(paymentContext.getPlainTagTLV().get(tag)));
             }
         }
         /*TODO REMOVE THIS */
@@ -67,7 +67,7 @@ public class AuthorizationTask implements IAuthorizationTask {
         if(paymentContext.getAuthorizationPlainTagsValues() != null) {
             for (Integer tag:
                     paymentContext.getAuthorizationPlainTagsValues().keySet()) {
-                LogManager.d("authorization Plain tag : " + tag + " value : "+ Tools.bytesToHex(paymentContext.getAuthorizationPlainTagsValues().get(tag)));
+                LogManager.d("authorization Plain tag : " + tag + " value : "+Tools.bytesToHex(paymentContext.getAuthorizationPlainTagsValues().get(tag)));
             }
         }
 

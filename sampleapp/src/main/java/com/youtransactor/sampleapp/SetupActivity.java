@@ -19,6 +19,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.crashlytics.android.Crashlytics;
+import com.youTransactor.uCube.api.UCubeAPI;
+
+import io.fabric.sdk.android.Fabric;
+
 public class SetupActivity extends AppCompatActivity {
 
     private CardView uCubeCardView;
@@ -28,6 +33,13 @@ public class SetupActivity extends AppCompatActivity {
 
     private static final String SHAREDPREF_NAME = "setup";
     public static final String YT_PRODUCT = "ytProduct";
+
+    @Override
+    protected void onDestroy() {
+        UCubeAPI.close();
+
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

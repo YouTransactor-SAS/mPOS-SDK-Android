@@ -121,7 +121,7 @@
     <string name="chip">Chip</string>
     <string name="nfc">NFC</string>
     <string name="force_online_pin">Force online PIN</string>
-    <string name="start_payment">Start payment</string>
+    <string name="start_payment">Pay</string>
     <string name="_00_00">00.00</string>
     <string name="_1_00">1.00</string>
     <string name="payment_progress_with_amount">Make payment of %.2f %s</string>
@@ -143,9 +143,9 @@
     <string name="get_info">Get Info</string>
 
     <!-- GET INFO -->
-    <string name="terminal_serial_number">Terminal Serial Number : </string>
-    <string name="part_number">Terminal Part Number : </string>
-    <string name="automatic_power_off_time_out">Automatic power off time out : </string>
+    <string name="terminal_serial_number">Terminal SN : </string>
+    <string name="part_number">Terminal PN : </string>
+    <string name="automatic_power_off_time_out">Power off Timeout : </string>
     <string name="NFC_capability">NFC Capability : </string>
     <string name="NFC_Firmware_Version"> NFC Firmware Version: </string>
     <string name="NFC_Firmware_State"> NFC_Firmware_State : </string>
@@ -157,17 +157,17 @@
     <string name="EMLV3_Version"> EMLV3 Version : </string>
     <string name="USB_capability">USB Capability : </string>
     <string name="OS_version">OS Version : </string>
-    <string name="emv_configuration_version">EMV Configuration Version : </string>
-    <string name="emv_cless_configuration_version">EMV Cless Configuration Version : </string>
+    <string name="emv_configuration_version">ICC Config Version : </string>
+    <string name="emv_cless_configuration_version">NFC Config Version : </string>
     <string name="NFC_Module_state">NFC Module State : </string>
     <string name="terminal_state">Terminal state : </string>
-    <string name="battery_state">Battery state : </string>
+    <string name="battery_state">Battery Level : </string>
     <string name="SVPP_version">SVPP version : </string>
     <string name="get_info_progress">Get Info Failed</string>
     <string name="get_info_failed">Get Info Failed</string>
     <string name="refresh">Refresh</string>
     <string name="model">Model</string>
     <string name="mdm_register">MDM Register</string>
-    <string name="mdm_config">MDM Config</string>
-    <string name="cancel_payment">Cancel payment</string>
+    <string name="mdm_config">MDM Configuration</string>
+    <string name="cancel_payment">Cancel</string>
 </resources>

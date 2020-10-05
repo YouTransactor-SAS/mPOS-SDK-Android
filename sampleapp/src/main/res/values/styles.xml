@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--
       Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
       <p/>
@@ -14,6 +14,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="buttonStyle" tools:targetApi="m">@android:style/Widget.Material.Button.Colored</item>
+        <item name="android:singleLine">true</item>
     </style>
 
 </resources>

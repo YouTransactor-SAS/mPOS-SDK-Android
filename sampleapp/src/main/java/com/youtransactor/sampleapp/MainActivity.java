@@ -341,12 +341,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        UIUtils.showProgress(
-                this,
-                getString(R.string.connect_progress),
-                true,
-                dialog -> ((BleConnectionManager) connexionManager).cancelConnect()
-        );
+        UIUtils.showProgress(this, getString(R.string.connect_progress));
 
         connexionManager.connect(new ConnectionListener() {
             @Override
@@ -666,7 +661,7 @@ public class MainActivity extends AppCompatActivity {
                     DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params[0]).getResponseData());
 
                     FragmentManager fm = MainActivity.this.getSupportFragmentManager();
-                    FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos);
+                    FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos, ytProduct);
                     Dialog.show(fm, "GET_INFO");
 
                     break;

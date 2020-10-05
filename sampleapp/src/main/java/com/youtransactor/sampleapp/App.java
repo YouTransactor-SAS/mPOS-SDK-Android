@@ -20,12 +20,4 @@ public class App extends Application {
         //Setup logger : if null lib will use it own logger
         UCubeAPI.setupLogger(this.getApplicationContext(), null);
     }
-
-    @Override
-    public void onTerminate() {
-
-        UCubeAPI.close();
-
-        super.onTerminate();
-    }
 }

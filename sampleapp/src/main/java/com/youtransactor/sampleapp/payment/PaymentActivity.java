@@ -33,6 +33,7 @@ import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
+
 import com.youTransactor.uCube.payment.service.PaymentService;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
@@ -145,8 +146,7 @@ public class PaymentActivity extends AppCompatActivity {
             );
         }
 
-        doPaymentBtn.setEnabled(false);
-        cancelPaymentBtn.setEnabled(true);
+        doPaymentBtn.setVisibility(View.GONE);
         trxResultFld.setText("");
         progressSection.setVisibility(View.VISIBLE);
         progressMessage.setText(msg);
@@ -166,6 +166,9 @@ public class PaymentActivity extends AppCompatActivity {
 
                             String msg = "";
 
+                            //always disable cancel button and switch some cases enable it
+                            cancelPaymentBtn.setVisibility(View.GONE);
+
                             switch (state) {
                                 case CANCEL_ALL:
                                     msg = "cancel all...";
@@ -176,6 +179,7 @@ public class PaymentActivity extends AppCompatActivity {
                                     break;
 
                                 case WAIT_CARD:
+                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
                                     msg = "Waiting for card insertion...";
                                     break;
 
@@ -195,6 +199,7 @@ public class PaymentActivity extends AppCompatActivity {
                                     break;
 
                                 case START_NFC_TRANSACTION:
+                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
                                     msg = "Starting...";
                                     break;
 
@@ -203,6 +208,7 @@ public class PaymentActivity extends AppCompatActivity {
                                     break;
 
                                 case SMC_PROCESS_TRANSACTION:
+                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
                                     msg = "Transaction processing ...";
                                     break;
 
@@ -273,8 +279,8 @@ public class PaymentActivity extends AppCompatActivity {
                             Log.d(TAG, "payment finish status : " + status);
 
                             //update UI
-                            doPaymentBtn.setEnabled(true);
-                            cancelPaymentBtn.setEnabled(false);
+                            doPaymentBtn.setVisibility(View.VISIBLE);
+                            cancelPaymentBtn.setVisibility(View.GONE);
                             progressSection.setVisibility(View.INVISIBLE);
 
                             if (!status || context == null) {
@@ -290,8 +296,8 @@ public class PaymentActivity extends AppCompatActivity {
             e.printStackTrace();
 
             //update UI
-            doPaymentBtn.setEnabled(true);
-            cancelPaymentBtn.setEnabled(false);
+            doPaymentBtn.setVisibility(View.VISIBLE);
+            cancelPaymentBtn.setVisibility(View.GONE);
             progressSection.setVisibility(View.INVISIBLE);
         }
     }
