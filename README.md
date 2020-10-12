@@ -575,7 +575,16 @@ public class AuthorizationTask implements IAuthorizationTask {
     ERROR_WRONG_NFC_OUTCOME, // Transaction has been failed : when terminal returns wrong values in the nfc outcome byte array
 }
 ```
-##### Messages displayed by the SDK 
+#### Cancel Payment 
+During the transaction, Customer may need to cancel process at any moment. You can use this code to cancel. You will receive onFinish() callback with paymentStatus cancelled. 
+Note : If Payment state is Display result or Get level 1 or 2 logs, the transaction is already finish and cancel it is not possible. 
+
+```java
+            EMVPaymentStateMachine emvPaymentStateMachine = UCubeAPI.pay(...);
+	    
+	   ....
+	   emvPaymentStateMachine.cancel();
+```   
 
 #### 6.4 MDM 
 
