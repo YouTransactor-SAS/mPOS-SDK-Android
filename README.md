@@ -148,7 +148,7 @@ The APIs provided by UCubeAPI are:
 				SecurityMode inputSecurityMode,
 				SecurityMode outputSecurityMode,
 				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
-	pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
+	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
 
 	/* YouTransactor TMS APIs*/
 	mdmSetup(@NonNull Context context)
