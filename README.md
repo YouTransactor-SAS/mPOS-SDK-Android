@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.2.2
+###### Release 3.4.1
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -148,7 +148,7 @@ The APIs provided by UCubeAPI are:
 				SecurityMode inputSecurityMode,
 				SecurityMode outputSecurityMode,
 				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
-	pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
+	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
 
 	/* YouTransactor TMS APIs*/
 	mdmSetup(@NonNull Context context)
@@ -261,16 +261,188 @@ The SDK log can be enabled or disabled using `enableLogs` method.
 
 #### 6.3 Payment
 
-Once device selected and Logger initialised, you can start using the YouTransactor SDK to accept card payments.
-As decribed in the transaction Flow contact and contactless before, durring the payment process the payment state machine will be interrupted to execute some tasks that you implement.
+#### Transaction types
+This is the different transaction type that the solution authorise.
 
-#### IApplicationSelectionTask
+```java
+	PURCHASE
+	WITHDRAWAL
+	REFUND
+	PURCHASE_CASHBACK
+	MANUAL_CASH
+	INQUIRY
+```
+
+#### pay API
+```java
+  UCubeAPI.pay(this, paymentRequest, new UCubeLibPaymentServiceListener() {
+	@Override
+	public void onProgress(PaymentState state, PaymentContext context) {}
+
+	  @Override
+	public void onFinish(PaymentContext context) {}
+  }
+);
+
+```
+
+#### UCubePaymentRequest
+
+The input parameter of Pay API is the uCubePaymentRequest.
+```java
+  List<CardReaderType> readerList = new ArrayList<>();
+        readerList.add(CardReaderType.ICC);
+        readerList.add(CardReaderType.NFC);
+
+  UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
+  
+	.setAmount(15.0)
+	.setCurrency(UCubePaymentRequest.CURRENCY_EUR) // Indicates the currency code of the transaction according to ISO 4217
+	.setTransactionType(trxType)
+	.setTransactionDate(new Date())
+	.setCardWaitTimeout(timeout)
+	.setDisplayResult(true) // at the end of transaction is the SDK display the payment result on uCube or just return the result
+	.setReaderList(readerList) // the list of reader interfaces to activate when start the payment
+	.setForceOnlinePin(true) // Applicable for NFC and MSR
+	.setForceAuthorisation(true) // put a bit in TVR
+	
+	.setAuthorizationPlainTags(...)
+        .setAuthorizationSecuredTags(...)
+        .setFinalizationSecuredTags(...)
+        .setFinalizationPlainTags(...)
+		
+	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
+	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
+	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
+	
+	.setSystemFailureInfo(true) // get the transaction level 1 Logs
+	.setSystemFailureInfo2(true) // get the transaction level 2 Logs
+	
+	.setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
+	.build();
+```
+
+#### PaymentContext
+The PaymentContext is the object that evoluate for each step of the payment and is returned at the end.
+
+```java
+	/* input */
+	public int cardWaitTimeout = 30;
+	public double amount = -1;
+	public Currency currency;
+	public TransactionType transactionType;
+	public Date transactionDate;
+	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
+	public List<String> preferredLanguageList;
+	public boolean forceOnlinePIN;
+	public boolean forceAuthorization;
+	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
+	public List<CardReaderType> readerList;
+	public ResourceBundle msgBundle;
+	public Bundle altMsgBundle;
+	public boolean displayResult = true;
+	public boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
+	public int[] authorizationPlainTags, authorizationSecuredTags;
+	public int[] finalizationPlainTags, finalizationSecuredTags;
+	
+	/* output common */
+	public PaymentStatus paymentStatus;
+	public byte[] uCubeInfos;
+	public byte[] sredKsn;
+	public byte[] pinKsn;
+	public byte[] onlinePinBlock;
+	public byte activatedReader;
+	public Map<Integer, byte[]> finalizationPlainTagsValues;
+	public byte [] finalizationSecuredTagsValues;
+	public Map<Integer, byte[]> authorizationPlainTagsValues;
+	public byte [] authorizationSecuredTagsValues;
+	public byte[] authorizationResponse;
+	
+	/* output icc */
+	public EMVApplicationDescriptor selectedApplication;
+	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+	public byte[] transactionFinalisationData;
+	public byte[] transactionInitData;
+	public byte[] transactionProcessData;
+	
+	/* output nfc */
+	public byte[] nfcOutcome;
+	public boolean signatureRequired;
+	
+	/* output for debug */
+	public byte[] systemFailureInfo; //svpp logs level 1
+	public byte[] systemFailureInfo2; // svpp logs level 2
+```
+
+#### PaymentState 
+You will receive the onProgress() callback for each new state. This is the whole liste of payement states : 
+
+```java
+	/* COMMON STATES*/
+	//start
+	START_EXIT_SECURE_SESSION,
+	DISPLAY_WAIT_PREPARE_TRANSACTION,
+	GET_INFO,
+	ENTER_SECURE_SESSION,
+	KSN_AVAILABLE,
+	START_TRANSACTION,
+	
+	//authorization
+	AUTHORIZATION,
+	
+	//end
+	END_EXIT_SECURE_SESSION,
+	DISPLAY_RESULT,
+	GET_L1_LOG,
+	GET_L2_LOG,
+
+	/* SMC STATES*/
+	SMC_DISPLAY_WAIT_INIT_TRANSACTION,
+	SMC_BUILD_CANDIDATE_LIST,
+	SMC_SELECT_APPLICATION,
+	SMC_USER_SELECT_APPLICATION,
+	SMC_INIT_TRANSACTION,
+	SMC_DISPLAY_WAIT_RISK_MANAGEMENT_PROCESSING,
+	SMC_RISK_MANAGEMENT,
+	SMC_PROCESS_TRANSACTION,
+	SMC_DISPLAY_AUTHORIZATION,
+	SMC_GET_AUTHORIZATION_SECURED_TAGS,
+	SMC_GET_AUTHORIZATION_PLAIN_TAGS,
+	SMC_DISPLAY_TRANSACTION_FINALIZATION,
+	SMC_FINALIZE_TRANSACTION,
+	SMC_GET_FINALIZATION_SECURED_TAGS,
+	SMC_GET_FINALIZATION_PLAIN_TAGS,
+	SMC_DISPLAY_REMOVE_CARD,
+	SMC_REMOVE_CARD,
+
+	/* NFC STATES*/
+	NFC_DISPLAY_AUTHORIZATION,
+	NFC_GET_AUTHORIZATION_SECURED_TAGS,
+	NFC_GET_AUTHORIZATION_PLAIN_TAGS,
+	NFC_SIMPLIFIED_ONLINE_PIN,
+	NFC_DISPLAY_COMPLETE_TRANSACTION,
+	NFC_COMPLETE_TRANSACTION,
+	NFC_GET_FINALIZATION_SECURED_TAGS,
+	NFC_GET_FINALIZATION_PLAIN_TAGS,
+```
+#### EMV Payment state machine
+
+![Document sans titre (4)](https://user-images.githubusercontent.com/59020462/95754791-d6ed2380-0ca3-11eb-80be-0cb91394b9b8.jpg)
+
+The EMV payment state machine is sequence of executing commands and tasks. Bellow you will see the different tasks used at transaction
+
+#### Tasks
+Durring the payment process the payment state machine will be interrupted to execute some tasks that you implement.
+
+##### IApplicationSelectionTask
+
 ```java
 public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 
 	private List<EMVApplicationDescriptor> applicationList;
 	private List<EMVApplicationDescriptor> candidateList;
 	private PaymentContext context;
+	protected ITaskMonitor monitor;
 
 	@Override
 	public void setAvailableApplication(List<EMVApplicationDescriptor> applicationList) {
@@ -294,21 +466,28 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 
 	@Override
 	public void execute(ITaskMonitor monitor) {
+		this.monitor = monitor;
+		
 		candidateList = new ArrayList<>();
 
 		// Todo do AID selection
 
 		monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
 	}
-
+	
+	@Override
+	public void cancel() {
+		monitor.handleEvent(TaskEvent.CANCELLED);
+	}
 }
 ```
 
-#### IRiskManagementTask
+##### IRiskManagementTask
  ```java
  public class RiskManagementTask implements IRiskManagementTask {
 	private PaymentContext paymentContext;
 	private byte[] tvr;
+	private ITaskMonitor monitor;
 
 	@Override
 	public byte[] getTVR() {
@@ -333,11 +512,18 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 		
 		monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
 	}
+	
+	@Override
+	public void cancel() {
+		monitor.handleEvent(TaskEvent.CANCELLED);
+	}
 }
 ```
-#### IAuthorizationTask
+##### IAuthorizationTask
 ```java
 public class AuthorizationTask implements IAuthorizationTask {
+    	private ITaskMonitor monitor;
+	
 	@Override
 	public byte[] getAuthorizationResponse() {
 		return authResponse;
@@ -361,145 +547,44 @@ public class AuthorizationTask implements IAuthorizationTask {
 
 		monitor.handleEvent(TaskEvent.SUCCESS); // should call this to return to the payment state machine
 	}
+	
+	@Override
+	public void cancel() {
+		monitor.handleEvent(TaskEvent.CANCELLED);
+	}
 }
-```
-
-#### Transaction types
-```java
-	PURCHASE
-	WITHDRAWAL
-	REFUND
-	PURCHASE_CASHBACK
-	MANUAL_CASH
-	INQUIRY
-```
-#### UCubePaymentRequest
-```java
-  List<CardReaderType> readerList = new ArrayList<>();
-        readerList.add(CardReaderType.ICC);
-        readerList.add(CardReaderType.NFC);
-
-  UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
-	.setAmount(15.0)
-	.setCurrency(UCubePaymentRequest.CURRENCY_EUR) // Indicates the currency code of the transaction according to ISO 4217
-	.setTransactionType(trxType)
-	.setTransactionDate(new Date())
-	.setCardWaitTimeout(timeout)
-	.setDisplayResult(true) // at the end of transaction is the SDK display the payment result on uCube or just return the result
-	.setReaderList(readerList) // the list of reader interfaces to activate when start the payment
-	.setForceOnlinePin(true) // Applicable for NFC and MSR
-	.setForceAuthorisation(true) 
-	.setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
-	.setRequestedSecuredTagList(Constants.TAG_TRACK2_EQU_DATA)
-	.setRequestedPlainTagList(Constants.TAG_EMV_CVM_RESULT)
-	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
-	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
-	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
-	.setSystemFailureInfo(true) // get the transaction level 1 Logs
-	.setSystemFailureInfo2(true) // get the transaction level 2 Logs
-	.setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
-	.build();
-```
-
-#### pay
-```java
-  UCubeAPI.pay(this, paymentRequest, new UCubeLibPaymentServiceListener() {
-			@Override
-			public void onProgress(PaymentState state, PaymentContext context) {}
-
-			  @Override
-			public void onFinish(boolean status, PaymentContext context) {}
-		}
-);
-
-```
-
-#### PaymentState 
-```java
-	/* COMMON STATES*/
-	CANCEL_ALL
-	GET_INFO
-	WAIT_CARD //Contact only state
-	ENTER_SECURE_SESSION
-	KSN_AVAILABLE
-
-	/* SMC STATES*/
-	SMC_BUILD_CANDIDATE_LIST
-	SMC_SELECT_APPLICATION
-	SMC_USER_SELECT_APPLICATION
-	SMC_INIT_TRANSACTION
-	SMC_RISK_MANAGEMENT
-	SMC_PROCESS_TRANSACTION
-	SMC_FINALIZE_TRANSACTION
-	SMC_REMOVE_CARD
-
-	/* MSR STATES*/
-	MSR_GET_SECURED_TAGS
-	MSR_GET_PLAIN_TAGS
-	MSR_ONLINE_PIN
-
-	/* NFC STATES*/
-	START_NFC_TRANSACTION
-	NFC_GET_SECURED_TAGS
-	NFC_GET_PLAIN_TAGS
-	COMPLETE_NFC_TRANSACTION
-
-	/* COMMON STATES*/
-	AUTHORIZATION
-	EXIT_SECURE_SESSION
-	DISPLAY_RESULT
-	GET_L1_LOG
-	GET_L2_LOG
-```
-#### PaymentContext
-```java
-	PaymentStatus paymentStatus; // END status
-
-	EMVApplicationDescriptor selectedApplication;
-	double amount = -1;
-	Currency currency;
-	TransactionType transactionType;
-	int applicationVersion;
-	List<String> preferredLanguageList;
-	byte[] uCubeInfos;
-	byte[] sredKsn;
-	byte[] pinKsn;
-	byte activatedReader;
-	boolean forceOnlinePIN;
-	boolean forceAuthorization;
-	byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;
-	int[] requestedPlainTagList;
-	int[] requestedSecuredTagList;
-	int[] requestedAuthorizationTagList;
-	byte[] securedTagBlock;
-	byte[] onlinePinBlock;
-	Map<Integer, byte[]> plainTagTLV;
-	byte[] authorizationResponse;
-	byte[] tvr = new byte[] {0, 0, 0, 0, 0};
-	Date transactionDate;
-	byte[] NFCOutcome;
-	byte[] transactionFinalisationData;
-	byte[] transactionInitData;
-	byte[] transactionProcessData;
-	boolean displayResult;
-	boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
-	byte[] systemFailureInfo; //svpp logs level 1
-	byte[] systemFailureInfo2; // svpp logs level 2
 ```
 
 ##### PaymentStatus
 ```java
-	NFC_MPOS_ERROR
-	CARD_WAIT_FAILED
-	CANCELLED
-	CHIP_REQUIRED
-	UNSUPPORTED_CARD
-	TRY_OTHER_INTERFACE
-	REFUSED_CARD
-	ERROR
-	APPROVED
-	DECLINED
+    APPROVED,  // Transaction has been approved by terminal
+    DECLINED, // Transaction has been declined by terminal
+    CANCELLED, //Transaction has been cancelled by terminal or by application
+
+    CARD_WAIT_FAILED,//Transaction has been failed because customer does not present a card and startNFCTransaction fail
+    UNSUPPORTED_CARD, ///Transaction has been failed: Error returned by terminal, at contact transaction, when no application match between card and terminal's configuration
+
+    NFC_OUTCOME_TRY_OTHER_INTERFACE, // Transaction has been failed: Error returned by terminal, at contactless transaction
+    NFC_OUTCOME_END_APPLICATION,// Transaction has been failed: Error returned by terminal, at contactless transaction
+    NFC_OUTCOME_FAILED,// Transaction has been failed: Error returned by terminal, at contactless transaction
+
+    ERROR, // Transaction has been failed : when one of the tasks or commands has been fail
+    ERROR_WRONG_ACTIVATED_READER, // Transaction has been failed : when terminal return wrong value in the tag DF70 at startNFCTransaction
+    ERROR_MISSING_REQUIRED_CRYPTOGRAM,// Transaction has been failed :when the value of the tag 9f27 is wrong
+    ERROR_WRONG_CRYPTOGRAM_VALUE, // Transaction has been failed : when in the response of the transaction process command the tag 9F27 is missing
+    ERROR_WRONG_NFC_OUTCOME, // Transaction has been failed : when terminal returns wrong values in the nfc outcome byte array
+}
 ```
+#### Cancel Payment 
+During the transaction, Customer may need to cancel process at any moment. You can use this code to cancel. You will receive onFinish() callback with paymentStatus cancelled. 
+Note : If Payment state is Display result or Get level 1 or 2 logs, the transaction is already finish and cancel it is not possible. 
+
+```java
+            EMVPaymentStateMachine emvPaymentStateMachine = UCubeAPI.pay(...);
+	    
+	   ....
+	   emvPaymentStateMachine.cancel();
+```   
 
 #### 6.4 MDM 
 
