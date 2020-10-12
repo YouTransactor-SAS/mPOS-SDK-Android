@@ -15,8 +15,8 @@ import android.app.AlertDialog;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
-import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +27,7 @@ public class RiskManagementTask implements IRiskManagementTask {
 	private ITaskMonitor monitor;
 	private PaymentContext paymentContext;
 	private byte[] tvr;
+	private AlertDialog alertDialog;
 
 	public RiskManagementTask(Activity activity) {
 		this.activity = activity;
@@ -55,7 +56,7 @@ public class RiskManagementTask implements IRiskManagementTask {
 			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 			builder.setTitle("Risk management");
-			builder.setCancelable(false);
+			builder.setCancelable(true);
 			builder.setMessage("Is card stolen ?");
 
 			builder.setPositiveButton("Yes", (dialog, which) -> {
@@ -70,25 +71,34 @@ public class RiskManagementTask implements IRiskManagementTask {
 				end(new byte[] {0, 0, 0, 0, 0});
 			});
 
-			builder.create().show();
+			alertDialog = builder.create();
+			alertDialog.show();
 		});
+	}
+
+	@Override
+	public void cancel() {
+		if(alertDialog != null && alertDialog.isShowing())
+			alertDialog.dismiss();
+
+		new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
 	}
 
 	private void end(byte[] tvr) {
 		this.tvr = tvr;
 
-		EMVApplicationDescriptor selectedApplication = paymentContext.getSelectedApplication();
+		EMVApplicationDescriptor selectedApplication = paymentContext.selectedApplication;
 		if (selectedApplication != null) {
 			String selectedAID = Tools.bytesToHex(selectedApplication.getAid()).substring(0, 10);
 
 			if (StringUtils.equals("A000000003", selectedAID)) {
-				paymentContext.setApplicationVersion(140);
+				paymentContext.applicationVersion = 140;
 
 			} else if (StringUtils.equals("A000000004", selectedAID)) {
-				paymentContext.setApplicationVersion(202);
+				paymentContext.applicationVersion = 202;
 
 			} else if (StringUtils.equals("A000000042", selectedAID)) {
-				paymentContext.setApplicationVersion(203);
+				paymentContext.applicationVersion = 203;
 
 			}
 		}

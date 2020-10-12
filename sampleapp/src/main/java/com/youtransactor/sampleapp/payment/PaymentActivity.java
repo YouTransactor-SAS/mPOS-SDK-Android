@@ -30,11 +30,10 @@ import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
+import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.TransactionType;
-
-import com.youTransactor.uCube.payment.service.PaymentService;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.UIUtils;
@@ -76,7 +75,7 @@ public class PaymentActivity extends AppCompatActivity {
     int progress = 0;
     private static final int STEP = 10;
 
-    PaymentService paymentService;
+    EMVPaymentStateMachine emvPaymentStateMachine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +146,7 @@ public class PaymentActivity extends AppCompatActivity {
         }
 
         doPaymentBtn.setVisibility(View.GONE);
+        cancelPaymentBtn.setVisibility(View.VISIBLE);
         trxResultFld.setText("");
         progressSection.setVisibility(View.VISIBLE);
         progressMessage.setText(msg);
@@ -154,8 +154,7 @@ public class PaymentActivity extends AppCompatActivity {
         progressBar.setProgress(progress);
 
         try {
-
-            paymentService = UCubeAPI.pay(this, uCubePaymentRequest,
+            emvPaymentStateMachine = UCubeAPI.pay(this, uCubePaymentRequest,
                     new UCubeLibPaymentServiceListener() {
 
                         @Override
@@ -164,130 +163,34 @@ public class PaymentActivity extends AppCompatActivity {
 
                             Log.d(TAG, " Payment progress : " + state);
 
-                            String msg = "";
-
-                            //always disable cancel button and switch some cases enable it
-                            cancelPaymentBtn.setVisibility(View.GONE);
-
-                            switch (state) {
-                                case CANCEL_ALL:
-                                    msg = "cancel all...";
-                                    break;
-
-                                case GET_INFO:
-                                    msg = "get device info...";
-                                    break;
-
-                                case WAIT_CARD:
-                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
-                                    msg = "Waiting for card insertion...";
-                                    break;
-
-                                case ENTER_SECURE_SESSION:
-                                case KSN_AVAILABLE:
-                                    msg = "starting secure session...";
-                                    break;
-
-                                case SMC_BUILD_CANDIDATE_LIST:
-                                case SMC_SELECT_APPLICATION:
-                                case SMC_USER_SELECT_APPLICATION:
-                                    msg = "App selection...";
-                                    break;
-
-                                case SMC_INIT_TRANSACTION:
-                                    msg = "Transaction initialization ...";
-                                    break;
-
-                                case START_NFC_TRANSACTION:
-                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
-                                    msg = "Starting...";
-                                    break;
-
-                                case SMC_RISK_MANAGEMENT:
-                                    msg = "Risk management processing...";
-                                    break;
-
-                                case SMC_PROCESS_TRANSACTION:
-                                    cancelPaymentBtn.setVisibility(View.VISIBLE);
-                                    msg = "Transaction processing ...";
-                                    break;
-
-                                case MSR_GET_SECURED_TAGS:
-                                case MSR_GET_PLAIN_TAGS:
-                                case NFC_GET_SECURED_TAGS:
-                                case NFC_GET_PLAIN_TAGS:
-                                    msg = "Retrieving tags...";
-                                    break;
-
-                                case SMC_FINALIZE_TRANSACTION:
-                                    msg = "Transaction finalization ...";
-                                    break;
-
-                                case COMPLETE_NFC_TRANSACTION:
-                                    msg = "NFC transaction Finalisation...";
-                                    break;
-
-                                case SMC_REMOVE_CARD:
-                                    msg = "Please remove card";
-                                    break;
-
-                                case MSR_ONLINE_PIN:
-                                    msg = "Pin online...";
-                                    break;
-
-                                case AUTHORIZATION:
-                                    msg = "Authorization processing...";
-                                    break;
-
-                                case EXIT_SECURE_SESSION:
-                                    msg = "secure session closing...";
-                                    break;
-
-                                case DISPLAY_RESULT:
-                                    msg = "Displaying result on device...";
-                                    break;
-
-                                case GET_L1_LOG:
-                                    msg = "Getting Transaction Logs L1...";
-                                    break;
-
-                                case GET_L2_LOG:
-                                    msg = "Getting Transaction Logs L2...";
-                                    break;
-                            }
-
-                            progress = progress + STEP;
-                            if (progress > 200)
-                                progress = 200;
-
-                            progressBar.setProgress(progress);
-
-                            progressMessage.setText(msg);
+                            displayProgress(state);
 
                             if (state == PaymentState.KSN_AVAILABLE) {
-                                Log.d(TAG, "KSN : " + Arrays.toString(context.getSredKsn()));
+                                Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
                                 return;
                             }
 
                             if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
-                                Log.d(TAG, "init data : " + Arrays.toString(context.getTransactionInitData()));
+                                Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
                             }
                         }
 
                         @Override
-                        public void onFinish(boolean status, PaymentContext context) {
-                            Log.d(TAG, "payment finish status : " + status);
+                        public void onFinish(PaymentContext context) {
+                            if(context == null) {
+                                UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
+                                return;
+                            }
+
+                            Log.d(TAG, "payment finish status : " + context.paymentStatus);
 
                             //update UI
                             doPaymentBtn.setVisibility(View.VISIBLE);
                             cancelPaymentBtn.setVisibility(View.GONE);
                             progressSection.setVisibility(View.INVISIBLE);
 
-                            if (!status || context == null) {
-                                UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
-                            } else {
-                                parsePaymentResponse(context);
-                            }
+                            parsePaymentResponse(context);
+
                         }
                     });
 
@@ -327,36 +230,6 @@ public class PaymentActivity extends AppCompatActivity {
             }
         }
 
-        ResourceBundle newMsgBundle = null;
-        Bundle newAltMsgBundle = null;
-
-        try {
-            newMsgBundle = new PropertyResourceBundle(getResources().openRawResource(R.raw.new_ucube_strings));
-
-        } catch (IOException ignore) {
-            newAltMsgBundle = new Bundle();
-            newAltMsgBundle.putString("LBL_wait_context_reset", "Please wait");
-            newAltMsgBundle.putString("LBL_wait_transaction_finalization", "Please wait");
-            newAltMsgBundle.putString("LBL_wait_online_pin_process", "Please wait");
-            newAltMsgBundle.putString("LBL_wait_open_new_secure_session", "Please wait");
-            newAltMsgBundle.putString("LBL_approved", "Approved");
-            newAltMsgBundle.putString("LBL_declined", "Declined");
-            newAltMsgBundle.putString("LBL_use_chip", "Use Chip");
-            newAltMsgBundle.putString("LBL_no_card_detected", "No card detected");
-            newAltMsgBundle.putString("LBL_remove_card", "Remove card");
-            newAltMsgBundle.putString("LBL_unsupported_card", "Unsupported card");
-            newAltMsgBundle.putString("LBL_refused_card", "Card refused");
-            newAltMsgBundle.putString("LBL_cancelled", "Cancelled");
-            newAltMsgBundle.putString("LBL_try_other_interface", "Try other interface");
-            newAltMsgBundle.putString("LBL_configuration_error", "Config error");
-            newAltMsgBundle.putString("LBL_wait_card", "{0} {1}\nInsert card");
-            newAltMsgBundle.putString("LBL_wait_cancel", "Cancellation \n Please wait");
-            newAltMsgBundle.putString("GLOBAL_LBL_xposition", "FF");
-            newAltMsgBundle.putString("GLOBAL_LBL_yposition", "0C");
-            newAltMsgBundle.putString("GLOBAL_LBL_font_id", "00");
-        }
-
-        /* TODO REMOVE THIS */
         ResourceBundle msgBundle = null;
         Bundle altMsgBundle = null;
 
@@ -364,38 +237,50 @@ public class PaymentActivity extends AppCompatActivity {
             msgBundle = new PropertyResourceBundle(getResources().openRawResource(R.raw.ucube_strings));
 
         } catch (IOException ignore) {
-
             altMsgBundle = new Bundle();
-            altMsgBundle.putString("LBL_wait", "Please wait");
-            altMsgBundle.putString("LBL_wait_legacy", "Please wait");
-            altMsgBundle.putString("LBL_wait_card_ok", "Please wait");
-            altMsgBundle.putString("LBL_approved", "Approved");
-            altMsgBundle.putString("LBL_declined", "Declined");
-            altMsgBundle.putString("LBL_use_chip", "Use Chip");
-            altMsgBundle.putString("LBL_authorization", "Authorization");
-            altMsgBundle.putString("LBL_pin_prompt", "{0} {1}\nEnter PIN");
-            altMsgBundle.putString("LBL_no_card_detected", "No card detected");
-            altMsgBundle.putString("LBL_remove_card", "Remove card");
-            altMsgBundle.putString("LBL_unsupported_card", "Unsupported card");
-            altMsgBundle.putString("LBL_refused_card", "Card refused");
-            altMsgBundle.putString("LBL_cancelled", "Cancelled");
-            altMsgBundle.putString("LBL_try_other_interface", "Try other interface");
-            altMsgBundle.putString("LBL_cfg_error", "Config error");
-            altMsgBundle.putString("MSG_wait_card", "{0} {1}\nInsert card");
-            altMsgBundle.putString("LBL_wait_cancel", "Cancellation \n Please wait");
-            altMsgBundle.putString("GLOBAL_centered", "FF");
-            altMsgBundle.putString("GLOBAL_yposition", "0C");
-            altMsgBundle.putString("GLOBAL_font_id", "00");
-        }
 
-        /* TODO REMOVE THIS */
+            // common messages to nfc & smc transaction
+            altMsgBundle.putString("LBL_prepare_context", "Preparing context");
+            altMsgBundle.putString("LBL_authorization", "Authorization processing");
+
+            // smc messages
+            altMsgBundle.putString("LBL_smc_initialization", "initialization processing");
+            altMsgBundle.putString("LBL_smc_risk_management", "risk management processing");
+            altMsgBundle.putString("LBL_smc_finalization", "finalization processing");
+            altMsgBundle.putString("LBL_smc_remove_card", "Remove card, please");
+
+            //nfc messages
+            altMsgBundle.putString("LBL_nfc_complete", "complete processing");
+            altMsgBundle.putString("LBL_wait_online_pin_process", "online pin processing");
+            altMsgBundle.putString("LBL_wait_card", "Insert card");
+
+            /*  Payment status messages*/
+            altMsgBundle.putString("LBL_approved", "Approved"); // returned by the application
+            altMsgBundle.putString("LBL_declined", "Declined"); // returned by the application
+            altMsgBundle.putString("LBL_unsupported_card", "Unsupported card"); // returned by the application
+            altMsgBundle.putString("LBL_cancelled", "Cancelled"); // terminal or application
+            altMsgBundle.putString("LBL_error", "Error"); // returned by the application
+            altMsgBundle.putString("LBL_no_card_detected", "No card detected");  // returned by the application
+            altMsgBundle.putString("LBL_wrong_activated_reader", "wrong activated reader");  // returned by the application
+            // nfc specific error status
+            altMsgBundle.putString("LBL_try_other_interface", "Try other interface"); // returned by terminal
+            altMsgBundle.putString("LBL_end_application", "End application"); // returned by terminal
+            altMsgBundle.putString("LBL_failed", "Failed"); // returned by terminal
+            altMsgBundle.putString("LBL_wrong_nfc_outcome", "wrong activated reader"); // returned by the application
+            // smc specific error status
+            altMsgBundle.putString("LBL_wrong_cryptogram_value", "wrong cryptogram"); // returned by the application
+            altMsgBundle.putString("LBL_missing_required_cryptogram", "missing required cryptogram"); // returned by the application
+
+
+            // Global configuration of messages layout
+            altMsgBundle.putString("GLOBAL_LBL_xposition", "FF");
+            altMsgBundle.putString("GLOBAL_LBL_yposition", "0C");
+            altMsgBundle.putString("GLOBAL_LBL_font_id", "00");
+        }
 
         List<CardReaderType> readerList = new ArrayList<>();
 
         readerList.add(CardReaderType.ICC);
-
-        if (ytProduct == YTProduct.uCube)
-            readerList.add(CardReaderType.MSR);
 
         if (!contactOnly)
             readerList.add(CardReaderType.NFC);
@@ -414,77 +299,72 @@ public class PaymentActivity extends AppCompatActivity {
                 .setTransactionType(trxType)
                 .setSystemFailureInfo(false)
                 .setSystemFailureInfo2(false)
-                 //Deprecated use the
-                .setMsgBundle(msgBundle)
                 .setAltMsgBundle(altMsgBundle)
-
-                .setNewAltMsgBundle(newAltMsgBundle)
-                .setNewMsgBundle(newMsgBundle)
-
+                .setMsgBundle(msgBundle)
                 .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
-
-                //deprecated to get plain and secured tags values at the authorisationTask
-                // use setAuthorizationPlainTags & setAuthorizationSecuredTags
-                .setRequestedAuthorizationTagList(Constants.TAG_TVR, Constants.TAG_TSI)
-
-                //deprecated to get plain and secured tags values at the end of transaction use
-                //setFinalizationSecuredTags & setFinalizationPlainTags
-                .setRequestedSecuredTagList(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
-                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-                .setRequestedPlainTagList(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
-
                 .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
                 .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
                 .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
                 .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
-
                 .build();
     }
 
+    private void displayProgress(PaymentState state) {
+
+        String msg = state.name() + "...";
+
+        progress = progress + STEP;
+        if (progress > 200)
+            progress = 200;
+
+        progressBar.setProgress(progress);
+
+        progressMessage.setText(msg);
+    }
+
     private void parsePaymentResponse(@NonNull PaymentContext context) {
+        Log.d(TAG, "Payment status : " + context.paymentStatus);
 
-        Log.d(TAG, "Payment status : " + context.getPaymentStatus());
-
-        trxResultFld.setText(context.getPaymentStatus().name());
+        trxResultFld.setText(context.paymentStatus.name());
 
         /* uCube info */
-        byte[] ucubeFirmware = TLV.parse(context.getuCubeInfos()).get(Constants.TAG_FIRMWARE_VERSION);
+        byte[] ucubeFirmware = TLV.parse(context.uCubeInfos).get(Constants.TAG_FIRMWARE_VERSION);
         if (ucubeFirmware != null)
-            Log.d(TAG, "ucube firmware version: " + Tools.parseVersion(ucubeFirmware));
+            Log.d(TAG, "uCube firmware version: " + Tools.parseVersion(ucubeFirmware));
 
-        Log.d(TAG, "Used Interface: " + CardReaderType.getLabel(context.getActivatedReader()));
+        Log.d(TAG, "Used Interface: " + CardReaderType.getLabel(context.activatedReader));
 
-        Log.d(TAG, "amount: " + context.getAmount());
-        Log.d(TAG, "currency: " + context.getCurrency().getLabel());
-        Log.d(TAG, "tx date: " + context.getTransactionDate());
-        Log.d(TAG, "tx type: " + context.getTransactionType().getLabel());
+        Log.d(TAG, "amount: " + context.amount);
+        Log.d(TAG, "currency: " + context.currency.getLabel());
+        Log.d(TAG, "tx date: " + context.transactionDate);
+        Log.d(TAG, "tx type: " + context.transactionType.getLabel());
 
-        if (context.getSelectedApplication() != null) {
-            Log.d(TAG, "app ID: " + context.getSelectedApplication().getLabel());
-            Log.d(TAG, "app version: " + context.getApplicationVersion());
+        if (context.selectedApplication != null) {
+            Log.d(TAG, "app ID: " + context.selectedApplication.getLabel());
+            Log.d(TAG, "app version: " + context.applicationVersion);
         }
 
-        Log.d(TAG, "system failure log1: " + Tools.bytesToHex(context.getSystemFailureInfo()));
-        Log.d(TAG, "system failure log2: " + Tools.bytesToHex(context.getSystemFailureInfo2()));
+        Log.d(TAG, "system failure log1: " + Tools.bytesToHex(context.systemFailureInfo));
+        Log.d(TAG, "system failure log2: " + Tools.bytesToHex(context.systemFailureInfo2));
 
-        if (context.getPlainTagTLV() != null) {
+        if (context.finalizationPlainTagsValues != null) {
 
-            for (Integer tag : context.getPlainTagTLV().keySet())
-                Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.getPlainTagTLV().get(tag))));
+            for (Integer tag : context.finalizationPlainTagsValues.keySet())
+                Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationPlainTagsValues.get(tag))));
 
         }
-        if (context.getSecuredTagBlock() != null)
-            Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.getSecuredTagBlock()));
+        if (context.finalizationSecuredTagsValues != null)
+            Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.finalizationSecuredTagsValues));
 
     }
 
     private void cancelPayment() {
         Log.d(TAG, "Try to cancel current Payment");
 
-        if (paymentService != null && paymentService.isRunning()) {
-            paymentService.cancel();
+        if (emvPaymentStateMachine != null && emvPaymentStateMachine.isRunning()) {
+            emvPaymentStateMachine.cancel();
         }
     }
 }

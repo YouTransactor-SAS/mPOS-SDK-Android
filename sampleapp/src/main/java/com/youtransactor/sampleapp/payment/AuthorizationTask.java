@@ -16,8 +16,8 @@ import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.log.LogManager;
-import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 
 public class AuthorizationTask implements IAuthorizationTask {
 
@@ -25,6 +25,7 @@ public class AuthorizationTask implements IAuthorizationTask {
     private byte[] authResponse;
     private ITaskMonitor monitor;
     private PaymentContext paymentContext;
+    private AlertDialog alertDialog;
 
     public AuthorizationTask(Activity activity) {
         this.activity = activity;
@@ -49,34 +50,22 @@ public class AuthorizationTask implements IAuthorizationTask {
     public void execute(ITaskMonitor monitor) {
         this.monitor = monitor;
 
-        /*TODO REMOVE THIS */
-        if(paymentContext.getSecuredTagBlock() != null)
-            LogManager.d("tod remove this log : secured tags " + Tools.bytesToHex(paymentContext.getSecuredTagBlock()));
+        if (paymentContext.authorizationSecuredTagsValues != null)
+            LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
 
-        if(paymentContext.getPlainTagTLV() != null) {
-            for (Integer tag:
-                    paymentContext.getPlainTagTLV().keySet()) {
-                LogManager.d("todo remove this log Plain tag : " + tag + " value : "+Tools.bytesToHex(paymentContext.getPlainTagTLV().get(tag)));
-            }
-        }
-        /*TODO REMOVE THIS */
-
-        if(paymentContext.getAuthorizationSecuredTagsValues() != null)
-            LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.getAuthorizationSecuredTagsValues()));
-
-        if(paymentContext.getAuthorizationPlainTagsValues() != null) {
-            for (Integer tag:
-                    paymentContext.getAuthorizationPlainTagsValues().keySet()) {
-                LogManager.d("authorization Plain tag : " + tag + " value : "+Tools.bytesToHex(paymentContext.getAuthorizationPlainTagsValues().get(tag)));
+        if (paymentContext.authorizationPlainTagsValues != null) {
+            for (Integer tag :
+                    paymentContext.authorizationPlainTagsValues.keySet()) {
+                LogManager.d("authorization Plain tag : " + tag + " value : " + Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag)));
             }
         }
 
         //todo here you can call the host
 
-        /*todo to be removed */
         activity.runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
+            builder.setCancelable(true);
             builder.setTitle("Authorization response");
 
             builder.setItems(new String[]{"Approved", "Declined", "Unable to go online"}, (dialog, which) -> {
@@ -84,11 +73,19 @@ public class AuthorizationTask implements IAuthorizationTask {
                 end(which);
             });
 
-            builder.create().show();
+            alertDialog = builder.create();
+            alertDialog.show();
         });
-
-        /*todo to be removed */
     }
+
+    @Override
+    public void cancel() {
+        if(alertDialog != null && alertDialog.isShowing())
+            alertDialog.dismiss();
+
+        new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
+    }
+
 
     private void end(int choice) {
         switch (choice) {
