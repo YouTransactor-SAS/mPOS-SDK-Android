@@ -300,7 +300,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 mScanning = true;
                 invalidateOptionsMenu();
 
-                ((BleConnectionManager) MainActivity.connexionManager).scan(this,
+                ((BleConnectionManager) MainActivity.connexionManager).scan(this, null,
                         new BleConnectionManager.ScanListener() {
                             @Override
                             public void onError(ScanStatus scanStatus) {
