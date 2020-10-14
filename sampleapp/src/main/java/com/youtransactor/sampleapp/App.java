@@ -18,6 +18,6 @@ public class App extends Application {
         UCubeAPI.init(getApplicationContext());
 
         //Setup logger : if null lib will use it own logger
-        UCubeAPI.setupLogger(this.getApplicationContext(), null);
+        UCubeAPI.setupLogger(null);
     }
 }

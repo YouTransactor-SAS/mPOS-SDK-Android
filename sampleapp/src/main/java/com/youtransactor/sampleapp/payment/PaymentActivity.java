@@ -30,9 +30,9 @@ import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
-import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
+import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
@@ -271,7 +271,6 @@ public class PaymentActivity extends AppCompatActivity {
             altMsgBundle.putString("LBL_wrong_cryptogram_value", "wrong cryptogram"); // returned by the application
             altMsgBundle.putString("LBL_missing_required_cryptogram", "missing required cryptogram"); // returned by the application
 
-
             // Global configuration of messages layout
             altMsgBundle.putString("GLOBAL_LBL_xposition", "FF");
             altMsgBundle.putString("GLOBAL_LBL_yposition", "0C");
@@ -285,30 +284,28 @@ public class PaymentActivity extends AppCompatActivity {
         if (!contactOnly)
             readerList.add(CardReaderType.NFC);
 
-        return new UCubePaymentRequest.Builder()
-                .setAmount(amount)
-                .setCurrency(currency)
+        UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
+                readerList, altMsgBundle, msgBundle,
+                new AuthorizationTask(this), Collections.singletonList("en"));
+
+        //Add optional variables
+        uCubePaymentRequest
+                .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
                 .setDisplayResult(displayResultOnUCube)
-                .setReaderList(readerList)
-                .setForceOnlinePin(forceOnlinePin)
                 .setForceAuthorisation(forceAuthorisation)
-                .setAuthorizationTask(new AuthorizationTask(this))
                 .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
-                .setTransactionType(trxType)
                 .setSystemFailureInfo(false)
                 .setSystemFailureInfo2(false)
-                .setAltMsgBundle(altMsgBundle)
-                .setMsgBundle(msgBundle)
-                .setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
                 .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
                 .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
                 .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-                .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
-                .build();
+                .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A);
+
+        return uCubePaymentRequest;
     }
 
     private void displayProgress(PaymentState state) {
