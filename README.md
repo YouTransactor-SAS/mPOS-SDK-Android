@@ -139,7 +139,7 @@ The APIs provided by UCubeAPI are:
 	getContext()
 	close()
 	setConnexionManager(@NonNull IConnexionManager connexionManager)
-	setupLogger(@NonNull Context context, @Nullable ILogger logger)
+	setupLogger(@Nullable ILogger logger)
 	enableLogs(boolean enable)
 	getCurrentSequenceNumber()
 	sendData(@NonNull Activity activity,
@@ -197,7 +197,7 @@ public interface IConnexionManager {
 		UCubeAPI.init(getApplicationContext());
 
 		//Setup logger : if null lib will use it own logger
-		UCubeAPI.setupLogger(this.getApplicationContext(), null);
+		UCubeAPI.setupLogger(null);
 		
 		...
 	    }
@@ -252,10 +252,10 @@ To setup the log module you should put this instructions below in you App.java o
 
 ```java
  	// if you want to use the default Logger
-        UCubeAPI.setupLogger(this.getApplicationContext(), null);
+        UCubeAPI.setupLogger(null);
 	
 	// if you want to use your Logger impl
-        UCubeAPI.setupLogger(this.getApplicationContext(), new MyLogger());
+        UCubeAPI.setupLogger(new MyLogger());
 ```
 The SDK log can be enabled or disabled using `enableLogs` method. 
 
@@ -294,32 +294,25 @@ The input parameter of Pay API is the uCubePaymentRequest.
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.NFC);
 
-  UCubePaymentRequest paymentRequest = new UCubePaymentRequest.Builder()
+  UCubePaymentRequest paymentRequest = new UCubePaymentRequest(15.0, UCubePaymentRequest.CURRENCY_EUR,
+    trxType, readerList, altMsgBundle, msgBundle, 
+    new AuthorizationTask(this), Collections.singletonList("en")
   
-	.setAmount(15.0)
-	.setCurrency(UCubePaymentRequest.CURRENCY_EUR) // Indicates the currency code of the transaction according to ISO 4217
-	.setTransactionType(trxType)
-	.setTransactionDate(new Date())
-	.setCardWaitTimeout(timeout)
-	.setDisplayResult(true) // at the end of transaction is the SDK display the payment result on uCube or just return the result
-	.setReaderList(readerList) // the list of reader interfaces to activate when start the payment
-	.setForceOnlinePin(true) // Applicable for NFC and MSR
-	.setForceAuthorisation(true) // put a bit in TVR
-	
-	.setAuthorizationPlainTags(...)
-        .setAuthorizationSecuredTags(...)
-        .setFinalizationSecuredTags(...)
-        .setFinalizationPlainTags(...)
-		
-	.setApplicationSelectionTask(new ApplicationSelectionTask()) // if not set the SDK use the EMV default selection
-	.setAuthorizationTask(new AuthorizationTask(this)) //Mandatory
-	.setRiskManagementTask(new RiskManagementTask(this)) // Mandatory
-	
-	.setSystemFailureInfo(true) // get the transaction level 1 Logs
-	.setSystemFailureInfo2(true) // get the transaction level 2 Logs
-	
-	.setPreferredLanguageList(Collections.singletonList("en")) // each language represented by 2 alphabetical characters according to ISO 639
-	.build();
+	paymentRequest
+    .setForceOnlinePin(forceOnlinePin)
+    .setTransactionDate(new Date())
+    .setDisplayResult(displayResultOnUCube)
+    .setForceAuthorisation(forceAuthorisation)
+    .setRiskManagementTask(new RiskManagementTask(this))
+    .setCardWaitTimeout(timeout)
+    .setSystemFailureInfo(false)
+    .setSystemFailureInfo2(false)
+    .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
+    .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+    .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+    .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A);
 ```
 
 #### PaymentContext
