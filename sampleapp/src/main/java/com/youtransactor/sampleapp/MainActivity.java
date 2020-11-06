@@ -24,15 +24,16 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
-import com.youTransactor.uCube.connexion.BtConnectionManager;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.connexion.IConnexionManager;
@@ -43,7 +44,9 @@ import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
+import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
+import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeActivity;
 import com.youtransactor.sampleapp.connexion.UCubeTouchScanActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
@@ -65,16 +68,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEVICE_NAME = "DEVICE_NAME";
     public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    /* UI */
-    private TextView versionNameTv;
-    private TextView uCubeModelTv;
-
     private LinearLayout ucubeSection;
     private TextView ucubeNameTv, ucubeAddressTv;
 
-    private Button scanBtn, connectBtn, disconnectBtn;
+    private Button connectBtn;
+    private Button disconnectBtn;
 
-    private Button payBtn, getInfoBtn, displayBtn;
+    private Button payBtn, getInfoBtn, displayBtn, powerOffTimeoutBtn;
 
     private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
 
@@ -122,11 +122,11 @@ public class MainActivity extends AppCompatActivity {
 
         switch (ytProduct) {
             case uCube:
-                connexionManager = BtClassicConnexionManager.getInstance();
+                connexionManager = new BtClassicConnexionManager();
                 break;
 
             case uCubeTouch:
-                connexionManager = BleConnectionManager.getInstance();
+                connexionManager = new BleConnectionManager();
                 break;
         }
 
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         sharedPreferences = getSharedPreferences(SHAREDPREF_NAME, Context.MODE_PRIVATE);
-        if(getDevice() != null ) {
+        if (getDevice() != null) {
             //2- initialise the connexion manager with saved device
             connexionManager.setDevice(getDevice());
         }
@@ -151,8 +151,7 @@ public class MainActivity extends AppCompatActivity {
         if (connexionManager.getDevice() == null) {
             updateConnectionUI(NO_DEVICE_SELECTED);
             updateMDMUI(MDMState.IDLE);
-        }
-        else {
+        } else {
             if (!connexionManager.isConnected())
                 updateConnectionUI(DEVICE_NOT_CONNECTED);
             else
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == SCAN_REQUEST && data != null) {
+        if (requestCode == SCAN_REQUEST && data != null) {
 
             String deviceName = data.getStringExtra(DEVICE_NAME);
             String deviceAddress = data.getStringExtra(DEVICE_ADDRESS);
@@ -185,13 +184,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        Button setupBtn = findViewById(R.id.setupBtn);
+        setupBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SetupActivity.class);
+            intent.putExtra(SetupActivity.NO_DEFAULT, "true");
 
-        scanBtn = findViewById(R.id.scanBtn);
+            startActivity(intent);
+        });
+
+        Button scanBtn = findViewById(R.id.scanBtn);
         connectBtn = findViewById(R.id.connectBtn);
         disconnectBtn = findViewById(R.id.disconnectBtn);
 
         getInfoBtn = findViewById(R.id.getInfoBtn);
         displayBtn = findViewById(R.id.displayBtn);
+        powerOffTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
 
         payBtn = findViewById(R.id.payBtn);
 
@@ -205,10 +212,11 @@ public class MainActivity extends AppCompatActivity {
         ucubeAddressTv = findViewById(R.id.ucube_address);
 
         String versionName = BuildConfig.VERSION_NAME;
-        versionNameTv = findViewById(R.id.version_name);
+        /* UI */
+        TextView versionNameTv = findViewById(R.id.version_name);
         versionNameTv.setText(getString(R.string.versionName, versionName));
 
-        uCubeModelTv = findViewById(R.id.ucube_model);
+        TextView uCubeModelTv = findViewById(R.id.ucube_model);
         uCubeModelTv.setText(getString(R.string.ucube_model, ytProduct.name()));
 
         scanBtn.setOnClickListener(v -> scan());
@@ -222,10 +230,11 @@ public class MainActivity extends AppCompatActivity {
         /* RPC Example calls */
         displayBtn.setOnClickListener(v -> displayHelloWorld());
         getInfoBtn.setOnClickListener(v -> getInfo());
+        powerOffTimeoutBtn.setOnClickListener(v -> powerOffTimeout());
 
         /* MDM SERVICE button */
         mdmRegisterBtn.setOnClickListener(v -> mdmRegister());
-        mdmGetConfigBtn.setOnClickListener( v -> mdmGetConfig());
+        mdmGetConfigBtn.setOnClickListener(v -> mdmGetConfig());
         mdmCheckUpdateBtn.setOnClickListener(v -> mdmCheckUpdate());
         mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
     }
@@ -321,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
         // an unregister of last device should be called
         // to delete current ssl certificate
         boolean res = UCubeAPI.mdmUnregister(this);
-        if(!res) {
+        if (!res) {
             Log.e(TAG, "FATAL Error! error to unregister current device");
         }
 
@@ -336,54 +345,63 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        if(connexionManager.isConnected()) {
+        if (connexionManager.isConnected()) {
             updateConnectionUI(DEVICE_CONNECTED);
             return;
         }
 
-        UIUtils.showProgress(this, getString(R.string.connect_progress));
+        UIUtils.showProgress(this, getString(R.string.connect_progress), true, dialog -> {
+            if (connexionManager instanceof BleConnectionManager) {
+                ((BleConnectionManager) connexionManager).cancelConnect();
+            }
+        });
 
         connexionManager.connect(new ConnectionListener() {
             @Override
             public void onConnectionFailed(ConnectionStatus status, int error) {
-                UIUtils.hideProgressDialog();
+                runOnUiThread(() -> {
+                    UIUtils.hideProgressDialog();
 
-                UIUtils.showMessageDialog(MainActivity.this,
-                        getString(R.string.connect_failed, status.name(), error));
+                    UIUtils.showMessageDialog(MainActivity.this,
+                            getString(R.string.connect_failed, status.name(), error));
+                });
             }
 
             @Override
             public void onConnectionSuccess() {
-                UIUtils.hideProgressDialog();
+                runOnUiThread(() -> {
+                    UIUtils.hideProgressDialog();
 
-                Toast.makeText(MainActivity.this, getString(R.string.connect_success),
-                        Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.connect_success),
+                            Toast.LENGTH_LONG).show();
 
-                updateConnectionUI(DEVICE_CONNECTED);
+                    updateConnectionUI(DEVICE_CONNECTED);
+                });
+
             }
 
             @Override
             public void onConnectionCancelled() {
-                UIUtils.hideProgressDialog();
+                runOnUiThread(() -> {
+                    UIUtils.hideProgressDialog();
+                    Toast.makeText(MainActivity.this, getString(R.string.connection_cancelled),
+                            Toast.LENGTH_LONG).show();
+                });
 
-
-                Toast.makeText(MainActivity.this, getString(R.string.connection_cancelled),
-                        Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void disconnect() {
 
-        if(!connexionManager.isConnected()) {
+        if (!connexionManager.isConnected()) {
             updateConnectionUI(DEVICE_NOT_CONNECTED);
             return;
         }
 
         UIUtils.showProgress(this, getString(R.string.disconnect_progress));
 
-        connexionManager.disconnect(status -> {
-
+        connexionManager.disconnect(status -> runOnUiThread(() -> {
             UIUtils.hideProgressDialog();
 
             if (!status) {
@@ -393,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 updateConnectionUI(DEVICE_NOT_CONNECTED);
             }
-        });
+        }));
     }
 
     private void payment() {
@@ -402,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(paymentIntent);
     }
 
-    private void mdmRegister()  {
+    private void mdmRegister() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.register_progress));
 
         UCubeAPI.mdmRegister(this, new UCubeLibMDMServiceListener() {
@@ -415,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish(boolean status, Object... params) {
                 progressDlg.dismiss();
 
-                if(status) {
+                if (status) {
                     Toast.makeText(MainActivity.this,
                             getString(R.string.register_success), Toast.LENGTH_SHORT).show();
                 } else {
@@ -440,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish(boolean status, Object... params) {
                 progressDlg.dismiss();
 
-                if(status) {
+                if (status) {
                     DeviceConfigDialogFragment dlg = new DeviceConfigDialogFragment();
                     dlg.init((List<Config>) params[0]);
                     dlg.show(MainActivity.this.getSupportFragmentManager(), DeviceConfigDialogFragment.class.getSimpleName());
@@ -598,22 +616,43 @@ public class MainActivity extends AppCompatActivity {
     private void displayHelloWorld() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
 
-        new Thread(() -> new DisplayMessageCommand("Hello world").execute((event, params) -> runOnUiThread(() -> {
+        new ExitSecureSessionCommand().execute((event, params) -> {
+            if (event == TaskEvent.PROGRESS)
+                return;
+
             switch (event) {
                 case FAILED:
-                    UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
+                case CANCELLED:
+                    runOnUiThread(() -> {
+                        progressDlg.dismiss();
+                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.display_msg_failure));
+                    });
+
                     break;
 
                 case SUCCESS:
-                    Toast.makeText(this, getString(R.string.display_msg_success), Toast.LENGTH_LONG).show();
+
+                    new DisplayMessageCommand("Hello world").execute((event1, params1) -> runOnUiThread(() -> {
+                        switch (event1) {
+                            case FAILED:
+                                UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
+                                break;
+
+                            case SUCCESS:
+                                Toast.makeText(this, getString(R.string.display_msg_success), Toast.LENGTH_LONG).show();
+                                break;
+
+                            default:
+                                return;
+                        }
+
+                        progressDlg.dismiss();
+                    }));
+
                     break;
-
-                default:
-                    return;
             }
+        });
 
-            progressDlg.dismiss();
-        }))).start();
     }
 
     private void getInfo() {
@@ -649,25 +688,101 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_info));
         progressDlg.setCancelable(false);
 
-        new Thread(() -> new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> runOnUiThread(() -> {
+        new ExitSecureSessionCommand().execute((event, params) -> {
+            if (event == TaskEvent.PROGRESS)
+                return;
+
             switch (event) {
                 case FAILED:
-                    progressDlg.dismiss();
-                    UIUtils.showMessageDialog(this, getString(R.string.get_info_failed));
-                    return;
-
-                case SUCCESS:
-                    progressDlg.dismiss();
-                    DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params[0]).getResponseData());
-
-                    FragmentManager fm = MainActivity.this.getSupportFragmentManager();
-                    FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos, ytProduct);
-                    Dialog.show(fm, "GET_INFO");
+                case CANCELLED:
+                    runOnUiThread(() -> {
+                        progressDlg.dismiss();
+                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_info_failed));
+                    });
 
                     break;
-            }
 
-        }))).start();
+                case SUCCESS:
+
+                    new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> runOnUiThread(() -> {
+                        switch (event1) {
+                            case FAILED:
+                            case CANCELLED:
+                                progressDlg.dismiss();
+                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_info_failed));
+                                return;
+
+                            case SUCCESS:
+                                progressDlg.dismiss();
+                                DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
+
+                                FragmentManager fm = MainActivity.this.getSupportFragmentManager();
+                                FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos, ytProduct);
+                                Dialog.show(fm, "GET_INFO");
+
+                                break;
+                        }
+                    }));
+                    break;
+            }
+        });
+    }
+
+    private void powerOffTimeout() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.set_power_off_timeout_value));
+        progressDlg.setCancelable(false);
+
+        int powerOffValue = 180; //default value 3 minutes
+
+        EditText powerTimeoutFld = findViewById(R.id.powerTimeoutFld);
+        if (powerTimeoutFld != null && !powerTimeoutFld.getText().toString().isEmpty()) {
+            powerOffValue = Integer.parseInt(powerTimeoutFld.getText().toString());
+        }
+
+        int finalPowerOffValue = powerOffValue;
+
+        new ExitSecureSessionCommand().execute((event, params) -> {
+            if (event == TaskEvent.PROGRESS)
+                return;
+
+            switch (event) {
+                case FAILED:
+                case CANCELLED:
+                    runOnUiThread(() -> {
+                        progressDlg.dismiss();
+                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_power_off_timeout_failed));
+                    });
+
+                    break;
+
+                case SUCCESS:
+
+                    SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+                    setInfoFieldCommand.setPowerTimeout(finalPowerOffValue);
+                    setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+                        if (event1 == TaskEvent.PROGRESS)
+                            return;
+
+                        switch (event1) {
+                            case CANCELLED:
+                                UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
+                                break;
+
+                            case FAILED:
+                                UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_failed));
+                                break;
+
+                            case SUCCESS:
+                                Toast.makeText(this, getString(R.string.set_power_off_timeout_success), Toast.LENGTH_LONG).show();
+                                break;
+                        }
+
+                        progressDlg.dismiss();
+
+                    }));
+                    break;
+            }
+        });
     }
 
     private void saveDevice(UCubeDevice device) {
@@ -687,7 +802,7 @@ public class MainActivity extends AppCompatActivity {
     private UCubeDevice getDevice() {
         String name = sharedPreferences.getString(DEVICE_NAME, null);
         String address = sharedPreferences.getString(DEVICE_ADDRESS, null);
-        if(name != null && address != null)
+        if (name != null && address != null)
             return new UCubeDevice(name, address);
 
         return null;

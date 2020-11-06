@@ -15,46 +15,56 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/ucube_section"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_centerInParent="true"
+        android:layout_marginTop="@dimen/margin_20dp"
+        android:layout_centerHorizontal="true"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/ucube_model"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:textStyle="bold"
+            android:text="@string/model"/>
+
+        <TextView
+            android:id="@+id/ucube_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/margin"
-            android:text="@string/model" />
+            android:layout_gravity="start"
+            android:textStyle="bold"/>
 
-        <LinearLayout
-            android:id="@+id/ucube_section"
+        <TextView
+            android:id="@+id/ucube_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/margin"
-            android:gravity="start"
-            android:orientation="vertical">
+            android:layout_gravity="start"
+            android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/ucube_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/ucube_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ucube_section"
+        android:layout_above="@+id/footer"
+        >
 
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_margin="20dp"
+            android:layout_margin="@dimen/margin"
             android:background="@color/grey_300" />
 
         <LinearLayout
@@ -62,6 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
+
             <Button
                 android:id="@+id/scanBtn"
                 android:layout_width="wrap_content"
@@ -89,31 +100,62 @@
                 android:gravity="center"
                 android:text="@string/disconnect" />
         </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_margin="20dp"
+            android:layout_margin="@dimen/margin"
             android:background="@color/grey_300" />
 
-        <Button
-            android:id="@+id/payBtn"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/pay" />
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/payBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/pay" />
+
+        </LinearLayout>
 
         <include layout="@layout/rpc_section_layout" />
 
         <include layout="@layout/mdm_section_layout" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
-    <include
-        layout="@layout/version_name_section_layout"
-        android:layout_width="wrap_content"
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="0dp"
-        android:orientation="vertical"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/setupBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/setup" />
+
+        <include
+            layout="@layout/version_name_section_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical" />
+    </LinearLayout>
+
 </RelativeLayout>

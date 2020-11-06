@@ -10,45 +10,47 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical">
+    android:gravity="start|center_vertical"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/card_wait_timeout"
+            android:layout_gravity="center_vertical"
             android:layout_margin="@dimen/margin"
-            android:layout_gravity="center_vertical"/>
+            android:layout_weight="1"
+            android:text="@string/card_wait_timeout" />
 
         <EditText
+            android:id="@+id/cardWaitTimeoutFld"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/cardWaitTimeoutFld"
             android:layout_gravity="start"
             android:width="60dp"
-            android:gravity="start"
-            android:text="@string/_30"/>
+            android:ems="10"
+            android:gravity="end"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:text="@string/_30" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/s"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:text="@string/s" />
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,139 +59,151 @@
             android:text="@string/type" />
 
         <Spinner
+            android:id="@+id/trxTypeChoice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:id="@+id/trxTypeChoice"/>
-
+            android:layout_margin="@dimen/margin" />
     </LinearLayout>
 
     <Switch
+        android:id="@+id/amountSrcBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/enter_amount_on_ucube"
-        android:id="@+id/amountSrcBtn"/>
+        android:text="@string/enter_amount_on_ucube" />
 
     <Switch
+        android:id="@+id/contactOnlyBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/contact_only"
-        android:id="@+id/contactOnlyBtn"/>
+        android:text="@string/contact_only" />
 
     <Switch
+        android:id="@+id/forceAuthorisationBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/force_authorisation"
-        android:id="@+id/forceAuthorisationBtn"/>
+        android:text="@string/force_authorisation" />
 
     <Switch
+        android:id="@+id/forceOnlinePINBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/force_online_pin"
-        android:id="@+id/forceOnlinePINBtn"/>
+        android:text="@string/force_online_pin" />
 
     <Switch
+        android:id="@+id/displayResultOnUCubeBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:text="@string/display_result_on_ucube"
-        android:id="@+id/displayResultOnUCubeBtn"/>
+        android:text="@string/display_result_on_ucube" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/amount" />
+
+        <EditText
+            android:id="@+id/amountFld"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:gravity="end"
+            android:hint="@string/_00_00"
+            android:importantForAutofill="no"
+            android:inputType="numberDecimal" />
+
+        <Spinner
+            android:id="@+id/currencyChooser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/auto_cancel_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
-            android:text="@string/amount"
-            android:layout_gravity="center_vertical"/>
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:ems="10"
-            android:id="@+id/amountFld"
-            android:hint="@string/_00_00"
-            android:layout_weight="0"
-            android:gravity="end"/>
+            android:text="@string/auto_cancel" />
 
         <Spinner
+            android:id="@+id/cancelEventSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/auto_disconnect_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/currencyChooser"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"/>
+            android:layout_margin="@dimen/margin"
+            android:text="@string/auto_disconnect" />
+
+        <Spinner
+            android:id="@+id/disconnectEventSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_margin="@dimen/margin"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_payment"
             android:id="@+id/doPaymentBtn"
-            android:layout_margin="@dimen/margin" />
-
-        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel_payment"
-            android:visibility="gone"
+            android:layout_margin="@dimen/margin"
+            android:gravity="center|center_horizontal"
+            android:text="@string/start_payment" />
+
+        <Button
             android:id="@+id/cancelPaymentBtn"
-            app:backgroundTint ="@color/red"
-            android:layout_margin="@dimen/margin"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:gravity="center_vertical"
+            android:text="@string/cancel_payment"
+            app:backgroundTint="@color/red" />
     </LinearLayout>
 
-
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/trxResultFld"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center|center_horizontal"/>
-
-    <LinearLayout
-        android:id="@+id/progress_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="invisible">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <TextView
-            android:padding="5dp"
-            android:id="@+id/progress_msg"
+            android:id="@+id/trxResultFld"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:textStyle="bold" />
-
-        <ProgressBar
-            android:id= "@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width= "100dp"
-            android:layout_height= "100dp"
-            android:layout_gravity="center_horizontal"
-            android:background= "@drawable/circular_shape"
-            android:progress= "0"
-            android:max="200"
-            android:progressDrawable= "@drawable/circular_progress_bar" />
-    </LinearLayout>
-
+            android:layout_margin="@dimen/margin"
+            android:gravity="center|center_horizontal" />
+    </ScrollView>
 
 </LinearLayout>

@@ -9,13 +9,14 @@
  */
 package com.youtransactor.sampleapp.payment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -28,26 +29,31 @@ import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
+import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.PaymentMessage;
+import com.youTransactor.uCube.payment.PaymentMessagesConfiguration;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
 import com.youtransactor.sampleapp.YTProduct;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
+import java.util.Map;
 
+import static com.youTransactor.uCube.payment.PaymentMessage.*;
+import static com.youTransactor.uCube.payment.PaymentMessagesConfiguration.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class PaymentActivity extends AppCompatActivity {
@@ -69,17 +75,18 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch contactOnlySwitch;
     private Switch displayResultSwitch;
     private TextView trxResultFld;
-    private LinearLayout progressSection;
-    private TextView progressMessage;
-    private ProgressBar progressBar;
-    int progress = 0;
-    private static final int STEP = 10;
 
-    EMVPaymentStateMachine emvPaymentStateMachine;
+    private PaymentState autoCancelState;
+    private PaymentState autoDisconnectState;
+    private boolean testModeEnabled = false;
+    private EMVPaymentStateMachine emvPaymentStateMachine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
 
         setContentView(R.layout.activity_payment);
 
@@ -91,12 +98,16 @@ public class PaymentActivity extends AppCompatActivity {
         initView();
     }
 
-    private void initView() {
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        cancelPayment();
+    }
 
+    private void initView() {
         doPaymentBtn = findViewById(R.id.doPaymentBtn);
         cancelPaymentBtn = findViewById(R.id.cancelPaymentBtn);
         cardWaitTimeoutFld = findViewById(R.id.cardWaitTimeoutFld);
-        trxResultFld = findViewById(R.id.trxResultFld);
         trxTypeChoice = findViewById(R.id.trxTypeChoice);
         amountFld = findViewById(R.id.amountFld);
         currencyChooser = findViewById(R.id.currencyChooser);
@@ -105,9 +116,7 @@ public class PaymentActivity extends AppCompatActivity {
         contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
         displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
-        progressSection = findViewById(R.id.progress_section);
-        progressMessage = findViewById(R.id.progress_msg);
-        progressBar = findViewById(R.id.progress_bar);
+        trxResultFld = findViewById(R.id.trxResultFld);
 
         amountFld.setText(getString(R.string._1_00));
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
@@ -115,6 +124,7 @@ public class PaymentActivity extends AppCompatActivity {
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_USD);
+        currencyAdapter.add(UCubePaymentRequest.CURRENCY_GBP);
 
         currencyChooser.setAdapter(currencyAdapter);
         currencyChooser.setSelection(0);
@@ -124,34 +134,63 @@ public class PaymentActivity extends AppCompatActivity {
         doPaymentBtn.setOnClickListener(v -> startPayment());
 
         cancelPaymentBtn.setOnClickListener(v -> cancelPayment());
+        cancelPaymentBtn.setVisibility(View.GONE);
+
+
+        final Spinner cancelEventSwitch = findViewById(R.id.cancelEventSwitch);
+        cancelEventSwitch.setAdapter(new PaymentStateAdapter());
+        cancelEventSwitch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                autoCancelState = (PaymentState) cancelEventSwitch.getSelectedItem();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                autoCancelState = null;
+            }
+        });
+
+        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+
+
+        final Spinner disconnectEventSwitch = findViewById(R.id.disconnectEventSwitch);
+        disconnectEventSwitch.setAdapter(new PaymentStateAdapter());
+        disconnectEventSwitch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                autoDisconnectState = (PaymentState) disconnectEventSwitch.getSelectedItem();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                autoDisconnectState = null;
+            }
+        });
+
+        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
     }
 
     private void startPayment() {
-
         UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
 
-        //update UI
-        String msg;
-        if (uCubePaymentRequest.getAmount() > 0) {
-            msg = getString(
-                    R.string.payment_progress_with_amount,
-                    uCubePaymentRequest.getAmount(),
-                    uCubePaymentRequest.getCurrency().getLabel()
-            );
-        } else {
-            msg = getString(
-                    R.string.payment_progress_without_amount,
-                    uCubePaymentRequest.getCurrency().getLabel()
-            );
-        }
+//        String msg;
+//        if (uCubePaymentRequest.getAmount() > 0) {
+//            msg = getString(
+//                    R.string.payment_progress_with_amount,
+//                    uCubePaymentRequest.getAmount(),
+//                    uCubePaymentRequest.getCurrency().getLabel()
+//            );
+//        } else {
+//            msg = getString(
+//                    R.string.payment_progress_without_amount,
+//                    uCubePaymentRequest.getCurrency().getLabel()
+//            );
+//        }
 
         doPaymentBtn.setVisibility(View.GONE);
         cancelPaymentBtn.setVisibility(View.VISIBLE);
         trxResultFld.setText("");
-        progressSection.setVisibility(View.VISIBLE);
-        progressMessage.setText(msg);
-        progress = 0;
-        progressBar.setProgress(progress);
 
         try {
             emvPaymentStateMachine = UCubeAPI.pay(this, uCubePaymentRequest,
@@ -165,6 +204,14 @@ public class PaymentActivity extends AppCompatActivity {
 
                             displayProgress(state);
 
+                            if (state == autoCancelState) {
+                                cancelPayment();
+                            }
+
+                            if (state == autoDisconnectState) {
+                                disconnect();
+                            }
+
                             if (state == PaymentState.KSN_AVAILABLE) {
                                 Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
                                 return;
@@ -177,31 +224,25 @@ public class PaymentActivity extends AppCompatActivity {
 
                         @Override
                         public void onFinish(PaymentContext context) {
-                            if(context == null) {
+                            if (context == null) {
                                 UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
                                 return;
                             }
 
                             Log.d(TAG, "payment finish status : " + context.paymentStatus);
 
-                            //update UI
                             doPaymentBtn.setVisibility(View.VISIBLE);
                             cancelPaymentBtn.setVisibility(View.GONE);
-                            progressSection.setVisibility(View.INVISIBLE);
 
                             parsePaymentResponse(context);
-
                         }
                     });
 
         } catch (Exception e) {
-
             e.printStackTrace();
 
-            //update UI
             doPaymentBtn.setVisibility(View.VISIBLE);
             cancelPaymentBtn.setVisibility(View.GONE);
-            progressSection.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -229,53 +270,47 @@ public class PaymentActivity extends AppCompatActivity {
                 amountSrcSwitch.setChecked(true);
             }
         }
+        Map<PaymentMessage, String> paymentMessages = new HashMap<>();
 
-        ResourceBundle msgBundle = null;
-        Bundle altMsgBundle = null;
+        // common messages to nfc & smc transaction
+        paymentMessages.put(LBL_prepare_context, "Preparing context");
+        paymentMessages.put(LBL_authorization, "Authorization processing");
 
-        try {
-            msgBundle = new PropertyResourceBundle(getResources().openRawResource(R.raw.ucube_strings));
+        // smc messages
+        paymentMessages.put(LBL_smc_initialization, "initialization processing");
+        paymentMessages.put(LBL_smc_risk_management, "risk management processing");
+        paymentMessages.put(LBL_smc_finalization, "finalization processing");
+        paymentMessages.put(LBL_smc_remove_card, "Remove card, please");
 
-        } catch (IOException ignore) {
-            altMsgBundle = new Bundle();
+        //nfc messages
+        paymentMessages.put(LBL_nfc_complete, "complete processing");
+        paymentMessages.put(LBL_wait_online_pin_process, "online pin processing");
+        paymentMessages.put(LBL_wait_card, "Insert card");
 
-            // common messages to nfc & smc transaction
-            altMsgBundle.putString("LBL_prepare_context", "Preparing context");
-            altMsgBundle.putString("LBL_authorization", "Authorization processing");
+        /*  Payment status messages*/
+        paymentMessages.put(LBL_approved, "Approved"); // returned by the application
+        paymentMessages.put(LBL_declined, "Declined"); // returned by the application
+        paymentMessages.put(LBL_unsupported_card, "Unsupported card"); // returned by the application
+        paymentMessages.put(LBL_cancelled, "Cancelled"); // terminal or application
+        paymentMessages.put(LBL_error, "Error"); // returned by the application
+        paymentMessages.put(LBL_no_card_detected, "No card detected");  // returned by the application
+        paymentMessages.put(LBL_wrong_activated_reader, "wrong activated reader");  // returned by the application
+        // nfc specific error status
+        paymentMessages.put(LBL_try_other_interface, "Try other interface"); // returned by terminal
+        paymentMessages.put(LBL_end_application, "End application"); // returned by terminal
+        paymentMessages.put(LBL_failed, "Failed"); // returned by terminal
+        paymentMessages.put(LBL_wrong_nfc_outcome, "wrong nfc outcome"); // returned by the application
+        // smc specific error status
+        paymentMessages.put(LBL_wrong_cryptogram_value, "wrong cryptogram"); // returned by the application
+        paymentMessages.put(LBL_missing_required_cryptogram, "missing required cryptogram"); // returned by the application
 
-            // smc messages
-            altMsgBundle.putString("LBL_smc_initialization", "initialization processing");
-            altMsgBundle.putString("LBL_smc_risk_management", "risk management processing");
-            altMsgBundle.putString("LBL_smc_finalization", "finalization processing");
-            altMsgBundle.putString("LBL_smc_remove_card", "Remove card, please");
 
-            //nfc messages
-            altMsgBundle.putString("LBL_nfc_complete", "complete processing");
-            altMsgBundle.putString("LBL_wait_online_pin_process", "online pin processing");
-            altMsgBundle.putString("LBL_wait_card", "Insert card");
+        Map<PaymentMessagesConfiguration, Byte> paymentMessagesConfiguration = new HashMap<>();
+        // Global configuration of messages layout
+        paymentMessagesConfiguration.put(GLOBAL_LBL_xposition, (byte) 0xFF);
+        paymentMessagesConfiguration.put(GLOBAL_LBL_yposition, (byte) 0x0C);
+        paymentMessagesConfiguration.put(GLOBAL_LBL_font_id, (byte) 0x00);
 
-            /*  Payment status messages*/
-            altMsgBundle.putString("LBL_approved", "Approved"); // returned by the application
-            altMsgBundle.putString("LBL_declined", "Declined"); // returned by the application
-            altMsgBundle.putString("LBL_unsupported_card", "Unsupported card"); // returned by the application
-            altMsgBundle.putString("LBL_cancelled", "Cancelled"); // terminal or application
-            altMsgBundle.putString("LBL_error", "Error"); // returned by the application
-            altMsgBundle.putString("LBL_no_card_detected", "No card detected");  // returned by the application
-            altMsgBundle.putString("LBL_wrong_activated_reader", "wrong activated reader");  // returned by the application
-            // nfc specific error status
-            altMsgBundle.putString("LBL_try_other_interface", "Try other interface"); // returned by terminal
-            altMsgBundle.putString("LBL_end_application", "End application"); // returned by terminal
-            altMsgBundle.putString("LBL_failed", "Failed"); // returned by terminal
-            altMsgBundle.putString("LBL_wrong_nfc_outcome", "wrong activated reader"); // returned by the application
-            // smc specific error status
-            altMsgBundle.putString("LBL_wrong_cryptogram_value", "wrong cryptogram"); // returned by the application
-            altMsgBundle.putString("LBL_missing_required_cryptogram", "missing required cryptogram"); // returned by the application
-
-            // Global configuration of messages layout
-            altMsgBundle.putString("GLOBAL_LBL_xposition", "FF");
-            altMsgBundle.putString("GLOBAL_LBL_yposition", "0C");
-            altMsgBundle.putString("GLOBAL_LBL_font_id", "00");
-        }
 
         List<CardReaderType> readerList = new ArrayList<>();
 
@@ -285,16 +320,18 @@ public class PaymentActivity extends AppCompatActivity {
             readerList.add(CardReaderType.NFC);
 
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
-                readerList, altMsgBundle, msgBundle,
-                new AuthorizationTask(this), Collections.singletonList("en"));
+                readerList, new AuthorizationTask(this), Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest
+                .setPaymentMessages(paymentMessages)
+                .setPaymentMessagesConfiguration(paymentMessagesConfiguration)
                 .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
                 .setDisplayResult(displayResultOnUCube)
                 .setForceAuthorisation(forceAuthorisation)
                 .setRiskManagementTask(new RiskManagementTask(this))
+                .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo(false)
                 .setSystemFailureInfo2(false)
@@ -309,16 +346,13 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void displayProgress(PaymentState state) {
+        String msg = state.name();
 
-        String msg = state.name() + "...";
+//        if (testModeEnabled) {
+//            msg += "\n" + trxResultFld.getText();
+//        }
 
-        progress = progress + STEP;
-        if (progress > 200)
-            progress = 200;
-
-        progressBar.setProgress(progress);
-
-        progressMessage.setText(msg);
+        trxResultFld.setText(msg);
     }
 
     private void parsePaymentResponse(@NonNull PaymentContext context) {
@@ -358,10 +392,17 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void cancelPayment() {
-        Log.d(TAG, "Try to cancel current Payment");
-
         if (emvPaymentStateMachine != null && emvPaymentStateMachine.isRunning()) {
+            Log.d(TAG, "Try to cancel current Payment");
             emvPaymentStateMachine.cancel();
         }
+    }
+
+    private void disconnect() {
+        Log.d(TAG, "disconnect from terminal");
+
+        IConnexionManager connexionManager = UCubeAPI.getConnexionManager();
+        if (connexionManager != null)
+            connexionManager.disconnect(status -> Log.d(TAG, "Disconnected"));
     }
 }

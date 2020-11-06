@@ -7,7 +7,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin"
         android:background="@color/grey_300" />
 
     <LinearLayout
@@ -33,5 +33,53 @@
             android:text="@string/display" />
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="20dp"
+        android:background="@color/grey_300" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/power_off_timeout_val" />
+
+        <EditText
+            android:id="@+id/powerTimeoutFld"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:width="50dp"
+            android:ems="4"
+            android:inputType="number"
+            android:text="@string/_180"
+            android:autofillHints="@string/_180" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/second_symbol" />
+
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:layout_gravity="center_vertical"
+        android:text="@string/poweroff_value_note" />
+    <Button
+        android:id="@+id/powerTimeoutBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/set_power_off_timeout" />
 
 </LinearLayout>
