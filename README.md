@@ -296,15 +296,17 @@ The input parameter of Pay API is the uCubePaymentRequest.
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.NFC);
 
-  UCubePaymentRequest paymentRequest = new UCubePaymentRequest(15.0, UCubePaymentRequest.CURRENCY_EUR,
-    trxType, readerList, altMsgBundle, msgBundle, 
-    new AuthorizationTask(this), Collections.singletonList("en")
+      UCubePaymentRequest paymentRequest = new UCubePaymentRequest(amount, currency, trxType,
+                readerList, new AuthorizationTask(this), Collections.singletonList("en"));
   
 	paymentRequest
+    .setPaymentMessages(paymentMessages)
+    .setPaymentMessagesConfiguration(paymentMessagesConfiguration)
     .setForceOnlinePin(forceOnlinePin)
     .setTransactionDate(new Date())
     .setDisplayResult(displayResultOnUCube)
     .setForceAuthorisation(forceAuthorisation)
+    .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
     .setRiskManagementTask(new RiskManagementTask(this))
     .setCardWaitTimeout(timeout)
     .setSystemFailureInfo(false)
@@ -322,6 +324,8 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 
 ```java
 	/* input */
+	public boolean allowFallback;
+	public int retryBeforeFallback = 3;
 	public int cardWaitTimeout = 30;
 	public double amount = -1;
 	public Currency currency;
@@ -330,13 +334,16 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
 	public List<String> preferredLanguageList;
 	public boolean forceOnlinePIN;
-	public boolean forceAuthorization;
+	private boolean forceAuthorization;
 	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
 	public List<CardReaderType> readerList;
-	public ResourceBundle msgBundle;
-	public Bundle altMsgBundle;
+	public Map<PaymentMessage, String> paymentMessages;
+	public Map<PaymentMessagesConfiguration, Byte> paymentMessagesConfiguration;
+	public byte[] inputProprietaryTLVStream;
 	public boolean displayResult = true;
 	public boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
+	
+	/* input NFC & ICC */
 	public int[] authorizationPlainTags, authorizationSecuredTags;
 	public int[] finalizationPlainTags, finalizationSecuredTags;
 	
@@ -347,23 +354,21 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public byte[] pinKsn;
 	public byte[] onlinePinBlock;
 	public byte activatedReader;
+	public byte[] selectedCardHolderLanguage;
 	public Map<Integer, byte[]> finalizationPlainTagsValues;
 	public byte [] finalizationSecuredTagsValues;
 	public Map<Integer, byte[]> authorizationPlainTagsValues;
 	public byte [] authorizationSecuredTagsValues;
-	public byte[] authorizationResponse;
-	
+	public byte[] authorizationResponse; //0x8A
 	/* output icc */
 	public EMVApplicationDescriptor selectedApplication;
 	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
 	public byte[] transactionFinalisationData;
 	public byte[] transactionInitData;
 	public byte[] transactionProcessData;
-	
 	/* output nfc */
 	public byte[] nfcOutcome;
 	public boolean signatureRequired;
-	
 	/* output for debug */
 	public byte[] systemFailureInfo; //svpp logs level 1
 	public byte[] systemFailureInfo2; // svpp logs level 2
@@ -613,6 +618,7 @@ public class AuthorizationTask implements IAuthorizationTask {
     NFC_OUTCOME_FAILED,// Transaction has been failed: Error returned by terminal, at contactless transaction
 
     ERROR, // Transaction has been failed : when one of the tasks or commands has been fail
+    ERROR_DISCONNECT,//Transaction has been failed : when there is a disconnect during the transaction
     ERROR_WRONG_ACTIVATED_READER, // Transaction has been failed : when terminal return wrong value in the tag DF70 at startNFCTransaction
     ERROR_MISSING_REQUIRED_CRYPTOGRAM,// Transaction has been failed :when the value of the tag 9f27 is wrong
     ERROR_WRONG_CRYPTOGRAM_VALUE, // Transaction has been failed : when in the response of the transaction process command the tag 9F27 is missing
