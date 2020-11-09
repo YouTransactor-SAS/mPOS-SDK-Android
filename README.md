@@ -180,6 +180,8 @@ public interface IConnexionManager {
 	void connect(ConnectionListener connectionListener);
 
 	void disconnect(DisconnectListener disconnectListener);
+	
+	void registerDisconnectListener(DisconnectListener disconnectListener);
 
 	void send(byte[] input, SendCommandListener sendCommandListener);
 
@@ -395,6 +397,8 @@ You will receive the onProgress() callback for each new state. This is the whole
 	SMC_SELECT_APPLICATION,
 	SMC_USER_SELECT_APPLICATION,
 	SMC_INIT_TRANSACTION,
+	SMC_GET_DF37_CARD_HOLDER_LANGUAGE,
+	SMC_USE_CARD_HOLDER_LANGUAGE,
 	SMC_DISPLAY_WAIT_RISK_MANAGEMENT_PROCESSING,
 	SMC_RISK_MANAGEMENT,
 	SMC_PROCESS_TRANSACTION,
@@ -409,6 +413,8 @@ You will receive the onProgress() callback for each new state. This is the whole
 	SMC_REMOVE_CARD,
 
 	/* NFC STATES*/
+	NFC_GET_DF37_CARD_HOLDER_LANGUAGE,
+	NFC_USE_CARD_HOLDER_LANGUAGE,
 	NFC_DISPLAY_AUTHORIZATION,
 	NFC_GET_AUTHORIZATION_SECURED_TAGS,
 	NFC_GET_AUTHORIZATION_PLAIN_TAGS,
@@ -473,6 +479,51 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 		monitor.handleEvent(TaskEvent.CANCELLED);
 	}
 }
+```
+##### IUseCardHolderLanguageTask
+ ```java
+ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
+
+	private ITaskMonitor monitor;
+	private byte[] selectedCardHolderLanguage;
+	private Map<PaymentMessage, String> paymentMessages;
+
+	@Override
+	public void setSelectedCardHolderLanguage(byte[] selectedCardHolderLanguage) {
+		this.selectedCardHolderLanguage = selectedCardHolderLanguage;
+	}
+
+	@Override
+	public Map<PaymentMessage, String> getPaymentMessages() {
+		return paymentMessages;
+	}
+   
+	@Override
+	public PaymentContext getContext() {
+		return paymentContext;
+	}
+
+	@Override
+	public void setContext(PaymentContext context) {
+		this.paymentContext = context;
+	}
+
+	@Override
+	public void execute(ITaskMonitor monitor) {
+		this.monitor = monitor;
+
+		//Todo : compare merchant language with selected
+		// language and updaye PaymentMessages if they are different
+		
+		monitor.handleEvent(TaskEvent.SUCCESS);
+	}
+
+	@Override
+	public void cancel() {
+	monitor.handleEvent(TaskEvent.CANCELLED);
+	}
+}
+
 ```
 
 ##### IRiskManagementTask
