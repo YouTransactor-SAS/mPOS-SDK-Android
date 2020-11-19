@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.4.2
+###### Release 3.4.4
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -180,6 +180,8 @@ public interface IConnexionManager {
 	void connect(ConnectionListener connectionListener);
 
 	void disconnect(DisconnectListener disconnectListener);
+	
+	void registerDisconnectListener(DisconnectListener disconnectListener);
 
 	void send(byte[] input, SendCommandListener sendCommandListener);
 
@@ -294,15 +296,17 @@ The input parameter of Pay API is the uCubePaymentRequest.
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.NFC);
 
-  UCubePaymentRequest paymentRequest = new UCubePaymentRequest(15.0, UCubePaymentRequest.CURRENCY_EUR,
-    trxType, readerList, altMsgBundle, msgBundle, 
-    new AuthorizationTask(this), Collections.singletonList("en")
+      UCubePaymentRequest paymentRequest = new UCubePaymentRequest(amount, currency, trxType,
+                readerList, new AuthorizationTask(this), Collections.singletonList("en"));
   
 	paymentRequest
+    .setPaymentMessages(paymentMessages)
+    .setPaymentMessagesConfiguration(paymentMessagesConfiguration)
     .setForceOnlinePin(forceOnlinePin)
     .setTransactionDate(new Date())
     .setDisplayResult(displayResultOnUCube)
     .setForceAuthorisation(forceAuthorisation)
+    .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
     .setRiskManagementTask(new RiskManagementTask(this))
     .setCardWaitTimeout(timeout)
     .setSystemFailureInfo(false)
@@ -320,6 +324,8 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 
 ```java
 	/* input */
+	public boolean allowFallback;
+	public int retryBeforeFallback = 3;
 	public int cardWaitTimeout = 30;
 	public double amount = -1;
 	public Currency currency;
@@ -328,13 +334,16 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
 	public List<String> preferredLanguageList;
 	public boolean forceOnlinePIN;
-	public boolean forceAuthorization;
+	private boolean forceAuthorization;
 	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
 	public List<CardReaderType> readerList;
-	public ResourceBundle msgBundle;
-	public Bundle altMsgBundle;
+	public Map<PaymentMessage, String> paymentMessages;
+	public Map<PaymentMessagesConfiguration, Byte> paymentMessagesConfiguration;
+	public byte[] inputProprietaryTLVStream;
 	public boolean displayResult = true;
 	public boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
+	
+	/* input NFC & ICC */
 	public int[] authorizationPlainTags, authorizationSecuredTags;
 	public int[] finalizationPlainTags, finalizationSecuredTags;
 	
@@ -345,23 +354,21 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public byte[] pinKsn;
 	public byte[] onlinePinBlock;
 	public byte activatedReader;
+	public byte[] selectedCardHolderLanguage;
 	public Map<Integer, byte[]> finalizationPlainTagsValues;
 	public byte [] finalizationSecuredTagsValues;
 	public Map<Integer, byte[]> authorizationPlainTagsValues;
 	public byte [] authorizationSecuredTagsValues;
-	public byte[] authorizationResponse;
-	
+	public byte[] authorizationResponse; //0x8A
 	/* output icc */
 	public EMVApplicationDescriptor selectedApplication;
 	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
 	public byte[] transactionFinalisationData;
 	public byte[] transactionInitData;
 	public byte[] transactionProcessData;
-	
 	/* output nfc */
 	public byte[] nfcOutcome;
 	public boolean signatureRequired;
-	
 	/* output for debug */
 	public byte[] systemFailureInfo; //svpp logs level 1
 	public byte[] systemFailureInfo2; // svpp logs level 2
@@ -395,6 +402,8 @@ You will receive the onProgress() callback for each new state. This is the whole
 	SMC_SELECT_APPLICATION,
 	SMC_USER_SELECT_APPLICATION,
 	SMC_INIT_TRANSACTION,
+	SMC_GET_DF37_CARD_HOLDER_LANGUAGE,
+	SMC_USE_CARD_HOLDER_LANGUAGE,
 	SMC_DISPLAY_WAIT_RISK_MANAGEMENT_PROCESSING,
 	SMC_RISK_MANAGEMENT,
 	SMC_PROCESS_TRANSACTION,
@@ -409,6 +418,8 @@ You will receive the onProgress() callback for each new state. This is the whole
 	SMC_REMOVE_CARD,
 
 	/* NFC STATES*/
+	NFC_GET_DF37_CARD_HOLDER_LANGUAGE,
+	NFC_USE_CARD_HOLDER_LANGUAGE,
 	NFC_DISPLAY_AUTHORIZATION,
 	NFC_GET_AUTHORIZATION_SECURED_TAGS,
 	NFC_GET_AUTHORIZATION_PLAIN_TAGS,
@@ -420,7 +431,7 @@ You will receive the onProgress() callback for each new state. This is the whole
 ```
 #### EMV Payment state machine
 
-![Document sans titre (4)](https://user-images.githubusercontent.com/59020462/95754791-d6ed2380-0ca3-11eb-80be-0cb91394b9b8.jpg)
+![Document sans titre](https://user-images.githubusercontent.com/59020462/98590885-c3979d00-22cf-11eb-819c-d3139ade7dac.png)
 
 The EMV payment state machine is sequence of executing commands and tasks. Bellow you will see the different tasks used at transaction
 
@@ -473,6 +484,51 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 		monitor.handleEvent(TaskEvent.CANCELLED);
 	}
 }
+```
+##### IUseCardHolderLanguageTask
+ ```java
+ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
+
+	private ITaskMonitor monitor;
+	private byte[] selectedCardHolderLanguage;
+	private Map<PaymentMessage, String> paymentMessages;
+
+	@Override
+	public void setSelectedCardHolderLanguage(byte[] selectedCardHolderLanguage) {
+		this.selectedCardHolderLanguage = selectedCardHolderLanguage;
+	}
+
+	@Override
+	public Map<PaymentMessage, String> getPaymentMessages() {
+		return paymentMessages;
+	}
+   
+	@Override
+	public PaymentContext getContext() {
+		return paymentContext;
+	}
+
+	@Override
+	public void setContext(PaymentContext context) {
+		this.paymentContext = context;
+	}
+
+	@Override
+	public void execute(ITaskMonitor monitor) {
+		this.monitor = monitor;
+
+		//Todo : compare merchant language with selected
+		// language and updaye PaymentMessages if they are different
+		
+		monitor.handleEvent(TaskEvent.SUCCESS);
+	}
+
+	@Override
+	public void cancel() {
+	monitor.handleEvent(TaskEvent.CANCELLED);
+	}
+}
+
 ```
 
 ##### IRiskManagementTask
@@ -562,6 +618,7 @@ public class AuthorizationTask implements IAuthorizationTask {
     NFC_OUTCOME_FAILED,// Transaction has been failed: Error returned by terminal, at contactless transaction
 
     ERROR, // Transaction has been failed : when one of the tasks or commands has been fail
+    ERROR_DISCONNECT,//Transaction has been failed : when there is a disconnect during the transaction
     ERROR_WRONG_ACTIVATED_READER, // Transaction has been failed : when terminal return wrong value in the tag DF70 at startNFCTransaction
     ERROR_MISSING_REQUIRED_CRYPTOGRAM,// Transaction has been failed :when the value of the tag 9f27 is wrong
     ERROR_WRONG_CRYPTOGRAM_VALUE, // Transaction has been failed : when in the response of the transaction process command the tag 9F27 is missing
