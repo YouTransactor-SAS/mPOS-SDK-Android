@@ -314,13 +314,13 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
 
                             @Override
                             public void onDeviceDiscovered(UCubeDevice uCubeDevice) {
-                                Log.e(getClass().getName(), "on device discovered");
+                                Log.d(getClass().getName(), "on device discovered");
                                 adapter.addDevice(uCubeDevice);
                             }
 
                             @Override
                             public void onScanComplete(List<UCubeDevice> discoveredUCubeDevices) {
-                                Log.e(getClass().getName(), "on scan complete");
+                                Log.d(getClass().getName(), "on scan complete");
                                 mScanning = false;
                                 invalidateOptionsMenu();
                             }

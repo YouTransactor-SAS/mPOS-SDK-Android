@@ -193,7 +193,7 @@ public class PaymentActivity extends AppCompatActivity {
         trxResultFld.setText("");
 
         try {
-            emvPaymentStateMachine = UCubeAPI.pay(this, uCubePaymentRequest,
+            emvPaymentStateMachine = UCubeAPI.pay(uCubePaymentRequest,
                     new UCubeLibPaymentServiceListener() {
 
                         @Override
@@ -275,6 +275,7 @@ public class PaymentActivity extends AppCompatActivity {
         // common messages to nfc & smc transaction
         paymentMessages.put(LBL_prepare_context, "Preparing context");
         paymentMessages.put(LBL_authorization, "Authorization processing");
+        paymentMessages.put(LBL_wait_card_ok, "Wait");
 
         // smc messages
         paymentMessages.put(LBL_smc_initialization, "initialization processing");
@@ -377,8 +378,7 @@ public class PaymentActivity extends AppCompatActivity {
             Log.d(TAG, "app version: " + context.applicationVersion);
         }
 
-        Log.d(TAG, "system failure log1: " + Tools.bytesToHex(context.systemFailureInfo));
-        Log.d(TAG, "system failure log2: " + Tools.bytesToHex(context.systemFailureInfo2));
+        Log.d(TAG, "SVPP Logs level 2: " + Tools.bytesToHex(context.systemFailureInfo2));
 
         if (context.finalizationPlainTagsValues != null) {
 

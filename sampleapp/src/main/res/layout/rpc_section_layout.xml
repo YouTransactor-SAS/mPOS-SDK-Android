@@ -11,11 +11,19 @@
         android:background="@color/grey_300" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:weightSum="3">
+        <Button
+            android:id="@+id/getSvppLogL1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:layout_weight="1"
+            android:text="@string/get_logs_l1" />
+
         <Button
             android:id="@+id/getInfoBtn"
             android:layout_width="0dp"

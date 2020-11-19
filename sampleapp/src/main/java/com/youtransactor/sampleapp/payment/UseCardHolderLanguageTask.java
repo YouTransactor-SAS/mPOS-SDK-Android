@@ -26,6 +26,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
         // common messages to nfc & smc transaction
         paymentMessages.put(LBL_prepare_context, "Preparation du context");
         paymentMessages.put(LBL_authorization, "Autorisation en cours");
+        paymentMessages.put(LBL_wait_card_ok, "Attendez svp");
 
         // smc messages
         paymentMessages.put(LBL_smc_initialization, "Initialisation en cours");
@@ -39,16 +40,16 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
         paymentMessages.put(LBL_wait_card, "Inserez votre carte");
 
         /*  Payment status messages*/
-        paymentMessages.put(LBL_approved, "Approuvé"); // returned by the application
-        paymentMessages.put(LBL_declined, "Refusé"); // returned by the application
-        paymentMessages.put(LBL_unsupported_card, "Carte non supporté"); // returned by the application
-        paymentMessages.put(LBL_cancelled, "Annulé"); // terminal or application
+        paymentMessages.put(LBL_approved, "Approuve"); // returned by the application
+        paymentMessages.put(LBL_declined, "Refuse"); // returned by the application
+        paymentMessages.put(LBL_unsupported_card, "Carte non supporter"); // returned by the application
+        paymentMessages.put(LBL_cancelled, "Annuler"); // terminal or application
         paymentMessages.put(LBL_error, "Erreur"); // returned by the application
-        paymentMessages.put(LBL_no_card_detected, "Pas de carte detecté");  // returned by the application
-        paymentMessages.put(LBL_wrong_activated_reader, "Mauvaise interface activé");  // returned by the application
+        paymentMessages.put(LBL_no_card_detected, "Pas de carte detecte");  // returned by the application
+        paymentMessages.put(LBL_wrong_activated_reader, "Mauvaise interface active");  // returned by the application
         // nfc specific error status
         paymentMessages.put(LBL_try_other_interface, "Essayez une autre interface"); // returned by terminal
-        paymentMessages.put(LBL_end_application, "Fin de l'application"); // returned by terminal
+        paymentMessages.put(LBL_end_application, "Fin de application"); // returned by terminal
         paymentMessages.put(LBL_failed, "Echec"); // returned by terminal
         paymentMessages.put(LBL_wrong_nfc_outcome, "Mauvai NFC OUTCOME"); // returned by the application
         // smc specific error status
@@ -65,7 +66,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
         // common messages to nfc & smc transaction
         paymentMessages.put(LBL_prepare_context, "Preparing context");
         paymentMessages.put(LBL_authorization, "Authorization processing");
-
+        paymentMessages.put(LBL_wait_card_ok, "Wait please");
         // smc messages
         paymentMessages.put(LBL_smc_initialization, "initialization processing");
         paymentMessages.put(LBL_smc_risk_management, "risk management processing");
@@ -124,7 +125,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
     public void execute(ITaskMonitor monitor) {
 
         if(selectedCardHolderLanguage == null || selectedCardHolderLanguage.length < 2) {
-            monitor.handleEvent(TaskEvent.FAILED);
+            monitor.handleEvent(TaskEvent.CANCELLED);
             return;
         }
         short selectedCardHolderLang = Tools.makeShort(selectedCardHolderLanguage[0], selectedCardHolderLanguage[1]);

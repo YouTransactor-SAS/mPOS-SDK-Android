@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
@@ -44,6 +45,7 @@ import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
+import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private Button connectBtn;
     private Button disconnectBtn;
 
-    private Button payBtn, getInfoBtn, displayBtn, powerOffTimeoutBtn;
+    private Button payBtn, getInfoBtn, getLogsL1, displayBtn, powerOffTimeoutBtn;
 
     private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
 
@@ -197,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         disconnectBtn = findViewById(R.id.disconnectBtn);
 
         getInfoBtn = findViewById(R.id.getInfoBtn);
+        getLogsL1 = findViewById(R.id.getSvppLogL1);
         displayBtn = findViewById(R.id.displayBtn);
         powerOffTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
 
@@ -229,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* RPC Example calls */
         displayBtn.setOnClickListener(v -> displayHelloWorld());
+        getLogsL1.setOnClickListener(v -> getSvppLogsL1());
         getInfoBtn.setOnClickListener(v -> getInfo());
         powerOffTimeoutBtn.setOnClickListener(v -> powerOffTimeout());
 
@@ -345,11 +349,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        if (connexionManager.isConnected()) {
-            updateConnectionUI(DEVICE_CONNECTED);
-            return;
-        }
-
         UIUtils.showProgress(this, getString(R.string.connect_progress), true, dialog -> {
             if (connexionManager instanceof BleConnectionManager) {
                 ((BleConnectionManager) connexionManager).cancelConnect();
@@ -393,12 +392,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnect() {
-
-        if (!connexionManager.isConnected()) {
-            updateConnectionUI(DEVICE_NOT_CONNECTED);
-            return;
-        }
-
         UIUtils.showProgress(this, getString(R.string.disconnect_progress));
 
         connexionManager.disconnect(status -> runOnUiThread(() -> {
@@ -423,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
     private void mdmRegister() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.register_progress));
 
-        UCubeAPI.mdmRegister(this, new UCubeLibMDMServiceListener() {
+        UCubeAPI.mdmRegister(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
                 progressDlg.setMessage(getString(R.string.progress, state.name()));
@@ -448,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
     private void mdmGetConfig() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_config_progress));
 
-        UCubeAPI.mdmGetConfig(this, new UCubeLibMDMServiceListener() {
+        UCubeAPI.mdmGetConfig(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
                 progressDlg.setMessage(getString(R.string.progress, state.name()));
@@ -499,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
                                 final ProgressDialog progressDlg = UIUtils.showProgress(this,
                                         getString(R.string.check_update_progress), false);
 
-                                UCubeAPI.mdmCheckUpdate(this,
+                                UCubeAPI.mdmCheckUpdate(
                                         forceUpdate,
                                         checkOnlyFirmwareVersion,
                                         new UCubeLibMDMServiceListener() {
@@ -569,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            UCubeAPI.mdmUpdate(this, selectedUpdateList, new UCubeLibMDMServiceListener() {
+            UCubeAPI.mdmUpdate(selectedUpdateList, new UCubeLibMDMServiceListener() {
                 @Override
                 public void onProgress(ServiceState state) {
                     progressDlg.setMessage(getString(R.string.progress, state.name()));
@@ -594,7 +587,7 @@ public class MainActivity extends AppCompatActivity {
     private void mdmSendLogs() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress));
 
-        UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
+        UCubeAPI.mdmSendLogs(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
                 progressDlg.setMessage(getString(R.string.progress, state.name()));
@@ -806,5 +799,76 @@ public class MainActivity extends AppCompatActivity {
             return new UCubeDevice(name, address);
 
         return null;
+    }
+
+    private void getSvppLogsL1() {
+
+        final int[] uCubeInfoTagList = {
+                Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1,
+        };
+
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_logs_l1));
+        progressDlg.setCancelable(false);
+
+        new EnterSecureSessionCommand().execute((event, params) -> {
+            if (event == TaskEvent.PROGRESS)
+                return;
+
+            switch (event) {
+                case FAILED:
+                case CANCELLED:
+                    runOnUiThread(() -> {
+                        progressDlg.dismiss();
+                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
+                    });
+
+                    break;
+
+                case SUCCESS:
+                    new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> {
+                    if (event1 == TaskEvent.PROGRESS)
+                        return;
+
+                    switch (event1) {
+                        case FAILED:
+                        case CANCELLED:
+                            runOnUiThread(() -> {
+                                progressDlg.dismiss();
+                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
+                            });
+                            break;
+
+                        case SUCCESS:
+                            new ExitSecureSessionCommand().execute(new ITaskMonitor() {
+                                @Override
+                                public void handleEvent(TaskEvent event, Object... params) {
+                                    if (event == TaskEvent.PROGRESS)
+                                        return;
+
+                                    progressDlg.dismiss();
+
+                                    switch (event) {
+                                        case FAILED:
+                                        case CANCELLED:
+                                            runOnUiThread(() -> {
+                                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
+                                            });
+
+                                            break;
+
+                                        case SUCCESS:
+                                            runOnUiThread(() -> {
+                                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_success));
+                                            });
+                                            break;
+                                    }
+                                }
+                            });
+                            break;
+
+                    }});
+                    break;
+            }
+        });
     }
 }
