@@ -334,7 +334,6 @@ public class PaymentActivity extends AppCompatActivity {
                 .setRiskManagementTask(new RiskManagementTask(this))
                 .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
                 .setCardWaitTimeout(timeout)
-                .setSystemFailureInfo(false)
                 .setSystemFailureInfo2(false)
                 .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
                 .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
@@ -378,7 +377,9 @@ public class PaymentActivity extends AppCompatActivity {
             Log.d(TAG, "app version: " + context.applicationVersion);
         }
 
-        Log.d(TAG, "SVPP Logs level 2: " + Tools.bytesToHex(context.systemFailureInfo2));
+        Log.d(TAG, "SVPP Logs level 2 Tag CC: " + Tools.bytesToHex(context.tagCC));
+        Log.d(TAG, "SVPP Logs level 2 Tag F4: " + Tools.bytesToHex(context.tagF4));
+        Log.d(TAG, "SVPP Logs level 2 Tag F5: " + Tools.bytesToHex(context.tagF5));
 
         if (context.finalizationPlainTagsValues != null) {
 
