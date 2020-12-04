@@ -54,9 +54,8 @@ public class AuthorizationTask implements IAuthorizationTask {
             LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
 
         if (paymentContext.authorizationPlainTagsValues != null) {
-            for (Integer tag :
-                    paymentContext.authorizationPlainTagsValues.keySet()) {
-                LogManager.d("authorization Plain tag : " + tag + " value : " + Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag)));
+            for (Integer tag : paymentContext.authorizationPlainTagsValues.keySet()) {
+                LogManager.d( String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag))));
             }
         }
 
@@ -68,7 +67,7 @@ public class AuthorizationTask implements IAuthorizationTask {
             builder.setCancelable(true);
             builder.setTitle("Authorization response");
 
-            builder.setItems(new String[]{"Approved", "Declined", "Unable to go online"}, (dialog, which) -> {
+            builder.setItems(new String[]{"Approved", "Declined", "Unable to go online", "Failed"}, (dialog, which) -> {
                 dialog.dismiss();
                 end(which);
             });
@@ -100,8 +99,11 @@ public class AuthorizationTask implements IAuthorizationTask {
             case 2:
                 this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x39, 0x38};
                 break;
-        }
 
+            case 3:
+                new Thread(() -> monitor.handleEvent(TaskEvent.FAILED)).start();
+                return;
+        }
 
         new Thread(() -> monitor.handleEvent(TaskEvent.SUCCESS)).start();
     }

@@ -74,6 +74,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
     private Switch displayResultSwitch;
+    private Switch forceDebugSwitch;
     private TextView trxResultFld;
 
     private PaymentState autoCancelState;
@@ -116,6 +117,7 @@ public class PaymentActivity extends AppCompatActivity {
         contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
         displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
+        forceDebugSwitch = findViewById(R.id.forceDebugBtn);
         trxResultFld = findViewById(R.id.trxResultFld);
 
         amountFld.setText(getString(R.string._1_00));
@@ -261,6 +263,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean displayResultOnUCube = displayResultSwitch.isChecked();
 
+        boolean forceDebug = forceDebugSwitch.isChecked();
+
         double amount = -1;
 
         if (!amountSrcSwitch.isChecked()) {
@@ -286,7 +290,7 @@ public class PaymentActivity extends AppCompatActivity {
         //nfc messages
         paymentMessages.put(LBL_nfc_complete, "complete processing");
         paymentMessages.put(LBL_wait_online_pin_process, "online pin processing");
-        paymentMessages.put(LBL_wait_card, "Insert card");
+        paymentMessages.put(LBL_pin_request, "Enter pin");
 
         /*  Payment status messages*/
         paymentMessages.put(LBL_approved, "Approved"); // returned by the application
@@ -335,7 +339,8 @@ public class PaymentActivity extends AppCompatActivity {
                 .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo2(false)
-                .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
+                .setForceDebug(forceDebug)
+                .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A, 0xDF8129, 0xDFC302)
                 .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
                         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
                 .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,

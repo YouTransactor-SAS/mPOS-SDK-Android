@@ -37,7 +37,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
         //nfc messages
         paymentMessages.put(LBL_nfc_complete, "Finalisation en cours");
         paymentMessages.put(LBL_wait_online_pin_process, "pin online en cours");
-        paymentMessages.put(LBL_wait_card, "Inserez votre carte");
+        paymentMessages.put(LBL_pin_request, "Entrez votre pin");
 
         /*  Payment status messages*/
         paymentMessages.put(LBL_approved, "Approuve"); // returned by the application
@@ -76,7 +76,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
         //nfc messages
         paymentMessages.put(LBL_nfc_complete, "complete processing");
         paymentMessages.put(LBL_wait_online_pin_process, "online pin processing");
-        paymentMessages.put(LBL_wait_card, "Insert card");
+        paymentMessages.put(LBL_pin_request, "Enter pin ");
 
         /*  Payment status messages*/
         paymentMessages.put(LBL_approved, "Approved"); // returned by the application
