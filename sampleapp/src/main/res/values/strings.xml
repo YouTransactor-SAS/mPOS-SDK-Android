@@ -39,7 +39,7 @@
     <string name="logo_YT_description">Logo YT</string>
 
     <string name="title_scan_devices">uCube Touch Devices Discovery</string>
-    <string name="title_list_devices">uCube Paired Devices</string>
+    <string name="title_list_devices">Paired Devices</string>
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
 
     <!-- menu -->
@@ -189,4 +189,8 @@
     <string name="get_logs_l1_failure">Get Logs L1 failed</string>
     <string name="get_logs_l1_success">Get Logs L1 Success</string>
     <string name="force_debug">Force debug</string>
+    <string name="_0">0</string>
+    <string name="start_cancel_after">start cancel after :</string>
+    <string name="ms">ms</string>
+    <string name="_200">200</string>
 </resources>

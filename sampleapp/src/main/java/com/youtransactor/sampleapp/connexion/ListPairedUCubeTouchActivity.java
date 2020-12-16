@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
 import com.youTransactor.uCube.connexion.BtConnectionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
@@ -35,11 +36,11 @@ import com.youtransactor.sampleapp.UIUtils;
 
 import java.util.List;
 
-public class ListPairedUCubeActivity extends AppCompatActivity {
+public class ListPairedUCubeTouchActivity extends AppCompatActivity {
 
-    private static final int ENABLE_BT_REQUEST_CODE = 4321;
+    private static final int ENABLE_BT_REQUEST_CODE = 1234;
 
-    uCubePairedListAdapter adapter;
+    uCubeTouchPairedListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +105,8 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        List<UCubeDevice> devices = ((BtClassicConnexionManager) MainActivity.connexionManager).getPairedUCubes(BtConnectionManager.UCUBE_NAME_REGEX);
-        adapter = new uCubePairedListAdapter(ListPairedUCubeActivity.this, devices, view -> {
+        List<UCubeDevice> devices = ((BleConnectionManager) MainActivity.connexionManager).getPairedUCubes(BtConnectionManager.UCUBE_TOUCH_NAME_REGEX);
+        adapter = new uCubeTouchPairedListAdapter(ListPairedUCubeTouchActivity.this, devices, view -> {
             final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
             final UCubeDevice selectedDevice = adapter.getItemAtPosition(childAdapterPosition);
 

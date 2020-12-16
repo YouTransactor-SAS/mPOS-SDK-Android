@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -50,6 +51,7 @@ import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeActivity;
+import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchActivity;
 import com.youtransactor.sampleapp.connexion.UCubeTouchScanActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
@@ -341,9 +343,18 @@ public class MainActivity extends AppCompatActivity {
         //remove saved device
         removeDevice();
 
-        Intent intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
-                UCubeTouchScanActivity.class :
-                ListPairedUCubeActivity.class);
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
+                    UCubeTouchScanActivity.class :
+                    ListPairedUCubeActivity.class);
+
+        } else {
+            intent = new Intent(this, ytProduct == YTProduct.uCubeTouch ?
+                    ListPairedUCubeTouchActivity.class :
+                    ListPairedUCubeActivity.class);
+        }
 
         startActivityForResult(intent, SCAN_REQUEST);
     }
@@ -625,7 +636,10 @@ public class MainActivity extends AppCompatActivity {
 
                 case SUCCESS:
 
-                    new DisplayMessageCommand("Hello world").execute((event1, params1) -> runOnUiThread(() -> {
+                   DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand("Hello world");
+                   displayMessageCommand.setTimeout(2);
+                   displayMessageCommand.setClearConfig((byte) 0x01);
+                   displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
                         switch (event1) {
                             case FAILED:
                                 UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
@@ -681,7 +695,28 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_info));
         progressDlg.setCancelable(false);
 
-        new ExitSecureSessionCommand().execute((event, params) -> {
+        new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> runOnUiThread(() -> {
+            switch (event1) {
+                case FAILED:
+                case CANCELLED:
+                    progressDlg.dismiss();
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_info_failed));
+                    return;
+
+                case SUCCESS:
+                    progressDlg.dismiss();
+                    DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
+
+                    FragmentManager fm = MainActivity.this.getSupportFragmentManager();
+                    FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos, ytProduct);
+                    Dialog.show(fm, "GET_INFO");
+
+                    break;
+            }
+        }));
+
+
+      /*  new ExitSecureSessionCommand().execute((event, params) -> {
             if (event == TaskEvent.PROGRESS)
                 return;
 
@@ -718,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
                     }));
                     break;
             }
-        });
+        });*/
     }
 
     private void powerOffTimeout() {

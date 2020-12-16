@@ -25,11 +25,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="ae2664c7159b72049a1d19c857806a34504ff75e" />
 
         <activity android:name=".connexion.ListPairedUCubeActivity"/>
+        <activity android:name=".connexion.ListPairedUCubeTouchActivity"/>
         <activity android:name=".connexion.UCubeTouchScanActivity"/>
     </application>
 

@@ -12,6 +12,8 @@ package com.youtransactor.sampleapp.payment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,6 +32,7 @@ import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
+import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
@@ -67,7 +70,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Button cancelPaymentBtn;
     private EditText cardWaitTimeoutFld;
     private Spinner trxTypeChoice;
-    private EditText amountFld;
+    private CurrencyEditText amountFld;
     private Spinner currencyChooser;
     private Switch forceOnlinePINBtn;
     private Switch forceAuthorisationBtn;
@@ -76,8 +79,10 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch displayResultSwitch;
     private Switch forceDebugSwitch;
     private TextView trxResultFld;
+    private EditText startCancelDelayEditText;
 
     private PaymentState autoCancelState;
+    private int startCancelDelay;
     private PaymentState autoDisconnectState;
     private boolean testModeEnabled = false;
     private EMVPaymentStateMachine emvPaymentStateMachine;
@@ -119,8 +124,8 @@ public class PaymentActivity extends AppCompatActivity {
         displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
         forceDebugSwitch = findViewById(R.id.forceDebugBtn);
         trxResultFld = findViewById(R.id.trxResultFld);
+        startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
 
-        amountFld.setText(getString(R.string._1_00));
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
@@ -207,7 +212,10 @@ public class PaymentActivity extends AppCompatActivity {
                             displayProgress(state);
 
                             if (state == autoCancelState) {
-                                cancelPayment();
+                                startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
+                                Log.d(TAG, "start cancel delay : "+ startCancelDelay);
+
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
                             }
 
                             if (state == autoDisconnectState) {
@@ -265,15 +273,9 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean forceDebug = forceDebugSwitch.isChecked();
 
-        double amount = -1;
+        int amount = amountFld.getCleanIntValue();
+        LogManager.d("Amount : "+ amount);
 
-        if (!amountSrcSwitch.isChecked()) {
-            try {
-                amount = Double.parseDouble(amountFld.getText().toString());
-            } catch (Exception e) {
-                amountSrcSwitch.setChecked(true);
-            }
-        }
         Map<PaymentMessage, String> paymentMessages = new HashMap<>();
 
         // common messages to nfc & smc transaction

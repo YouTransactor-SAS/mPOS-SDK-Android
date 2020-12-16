@@ -56,7 +56,7 @@ public class RiskManagementTask implements IRiskManagementTask {
 			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 			builder.setTitle("Risk management");
-			builder.setCancelable(true);
+			builder.setCancelable(false);
 			builder.setMessage("Is card stolen ?");
 
 			builder.setPositiveButton("Yes", (dialog, which) -> {

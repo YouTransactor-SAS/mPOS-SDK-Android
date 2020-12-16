@@ -125,7 +125,7 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
     public void execute(ITaskMonitor monitor) {
 
         if(selectedCardHolderLanguage == null || selectedCardHolderLanguage.length < 2) {
-            monitor.handleEvent(TaskEvent.CANCELLED);
+            monitor.handleEvent(TaskEvent.FAILED);
             return;
         }
         short selectedCardHolderLang = Tools.makeShort(selectedCardHolderLanguage[0], selectedCardHolderLanguage[1]);
