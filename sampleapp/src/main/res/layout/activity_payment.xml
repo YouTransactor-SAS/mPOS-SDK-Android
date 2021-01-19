@@ -216,9 +216,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:ems="10"
             android:gravity="end"
+            android:maxLength="15"
             android:importantForAutofill="no"
+            android:text="0,00 "
             android:inputType="numberDecimal" />
 
         <Spinner

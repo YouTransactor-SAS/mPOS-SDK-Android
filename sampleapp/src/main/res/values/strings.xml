@@ -183,8 +183,7 @@
     <string name="second_symbol">(s)</string>
     <string name="_180">180</string>
     <string name="set_power_off_timeout">Set power off timeout</string>
-    <string name="poweroff_value_note"><![CDATA[Note : value should be > 32 and < 255]]></string>
-    <string name="power_off_timeout_val">Power off timeout Val:</string>
+    <string name="power_off_timeout_val">Power off timeout Val: (<![CDATA[> 32 and < 255]]>)</string>
     <string name="get_logs_l1">Get logs L1</string>
     <string name="get_logs_l1_failure">Get Logs L1 failed</string>
     <string name="get_logs_l1_success">Get Logs L1 Success</string>
@@ -193,4 +192,6 @@
     <string name="start_cancel_after">start cancel after :</string>
     <string name="ms">ms</string>
     <string name="_200">200</string>
+    <string name="scan_ucube_touch_filter">Scan Filter : </string>
+    <string name="utouch_filter">uTouch</string>
 </resources>

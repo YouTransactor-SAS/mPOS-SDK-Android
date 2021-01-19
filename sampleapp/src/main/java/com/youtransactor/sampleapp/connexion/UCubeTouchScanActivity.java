@@ -52,6 +52,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
     private BluetoothAdapter mBluetoothAdapter;
 
     private boolean mScanning;
+    private String scanFilter;
 
     private static final int REQUEST_LOCATION_PERMISSION = 0;
     private static final int REQUEST_ENABLE_BT = 1;
@@ -74,6 +75,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         final BluetoothManager bluetoothManager =
@@ -100,6 +102,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
         if (!(MainActivity.connexionManager instanceof BleConnectionManager)) {
             Log.e(getClass().getName(), "Error Connexion manager is not an instance of BleConnexionManager");
             finish();
+            return;
         }
 
         // Initializes recycle view adapter.
@@ -123,6 +126,10 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+
+        if(getIntent() != null && getIntent().getStringExtra(MainActivity.SCAN_FILTER) != null) {
+            scanFilter = getIntent().getStringExtra(MainActivity.SCAN_FILTER);
+        }
     }
 
     @Override
@@ -301,7 +308,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 mScanning = true;
                 invalidateOptionsMenu();
 
-                ((BleConnectionManager) MainActivity.connexionManager).startScan(null,
+                ((BleConnectionManager) MainActivity.connexionManager).startScan(scanFilter,
                         new ScanListener() {
                             @Override
                             public void onError(ScanStatus scanStatus) {

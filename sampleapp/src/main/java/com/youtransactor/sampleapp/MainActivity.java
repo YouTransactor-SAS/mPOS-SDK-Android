@@ -69,16 +69,22 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getName();
     public static final int SCAN_REQUEST = 1234;
 
+    public static final String SCAN_FILTER = "SCAN_FILTER";
     public static final String DEVICE_NAME = "DEVICE_NAME";
     public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    /* UI */
+    private TextView versionNameTv;
+    private TextView uCubeModelTv;
 
     private LinearLayout ucubeSection;
     private TextView ucubeNameTv, ucubeAddressTv;
 
-    private Button connectBtn;
-    private Button disconnectBtn;
+    private EditText scanFilter;
 
-    private Button payBtn, getInfoBtn, getLogsL1, displayBtn, powerOffTimeoutBtn;
+    private Button scanBtn, connectBtn, disconnectBtn;
+
+    private Button payBtn, getInfoBtn, displayBtn, getLogsL1, powerOffTimeoutBtn;
 
     private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
 
@@ -196,7 +202,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        Button scanBtn = findViewById(R.id.scanBtn);
+        scanFilter = findViewById(R.id.scanFilter);
+        switch (ytProduct) {
+            case uCube:
+                scanFilter.setText("uCube");
+                break;
+
+            case uCubeTouch:
+                scanFilter.setText("uTouch");
+                break;
+        }
+
+        scanBtn = findViewById(R.id.scanBtn);
         connectBtn = findViewById(R.id.connectBtn);
         disconnectBtn = findViewById(R.id.disconnectBtn);
 
@@ -217,11 +234,10 @@ public class MainActivity extends AppCompatActivity {
         ucubeAddressTv = findViewById(R.id.ucube_address);
 
         String versionName = BuildConfig.VERSION_NAME;
-        /* UI */
-        TextView versionNameTv = findViewById(R.id.version_name);
+        versionNameTv = findViewById(R.id.version_name);
         versionNameTv.setText(getString(R.string.versionName, versionName));
 
-        TextView uCubeModelTv = findViewById(R.id.ucube_model);
+        uCubeModelTv = findViewById(R.id.ucube_model);
         uCubeModelTv.setText(getString(R.string.ucube_model, ytProduct.name()));
 
         scanBtn.setOnClickListener(v -> scan());
@@ -356,10 +372,18 @@ public class MainActivity extends AppCompatActivity {
                     ListPairedUCubeActivity.class);
         }
 
+        String filter = scanFilter.getText().toString();
+        intent.putExtra(MainActivity.SCAN_FILTER, filter);
+
         startActivityForResult(intent, SCAN_REQUEST);
     }
 
     private void connect() {
+        if(connexionManager.isConnected()) {
+            updateConnectionUI(DEVICE_CONNECTED);
+            return;
+        }
+
         UIUtils.showProgress(this, getString(R.string.connect_progress), true, dialog -> {
             if (connexionManager instanceof BleConnectionManager) {
                 ((BleConnectionManager) connexionManager).cancelConnect();
@@ -403,6 +427,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnect() {
+
+        if(!connexionManager.isConnected()) {
+            updateConnectionUI(DEVICE_NOT_CONNECTED);
+            return;
+        }
+
         UIUtils.showProgress(this, getString(R.string.disconnect_progress));
 
         connexionManager.disconnect(status -> runOnUiThread(() -> {

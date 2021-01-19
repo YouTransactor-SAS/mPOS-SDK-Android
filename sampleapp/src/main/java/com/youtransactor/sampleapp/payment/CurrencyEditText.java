@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-
 import androidx.appcompat.widget.AppCompatEditText;
 
 import java.text.NumberFormat;
@@ -42,7 +41,6 @@ public class CurrencyEditText extends AppCompatEditText {
         this.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -55,12 +53,12 @@ public class CurrencyEditText extends AppCompatEditText {
                     if (cleanString.length() != 0) {
                         try {
 
-                            String currencyFormat = "";
+                            String currencyFormat;
                             if (Spacing) {
                                 if (Delimiter) {
                                     currencyFormat = Currency + ". ";
                                 } else {
-                                    currencyFormat = Currency + " ";
+                                    currencyFormat = Currency;
                                 }
                             } else {
                                 if (Delimiter) {
@@ -69,6 +67,11 @@ public class CurrencyEditText extends AppCompatEditText {
                                     currencyFormat = Currency;
                                 }
                             }
+
+                            int startText, endText;
+                            startText = editText.getText().length();
+
+                            int selectionStart = editText.getSelectionStart();
 
                             double parsed;
                             int parsedInt;
@@ -92,9 +95,16 @@ public class CurrencyEditText extends AppCompatEditText {
                                 //since no custom separators were set, proceed with comma separation
                                 editText.setText(formatted);
                             }
-                            editText.setSelection(formatted.length() - 1);
-                        } catch (NumberFormatException e) {
 
+                            endText = editText.getText().length();
+                            int selection = (selectionStart + (endText - startText));
+
+                            if(selection < 0)
+                                selection = 1;
+
+                            editText.setSelection(selection);
+
+                        } catch (NumberFormatException ignored) {
                         }
                     }
 
@@ -104,7 +114,6 @@ public class CurrencyEditText extends AppCompatEditText {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
     }

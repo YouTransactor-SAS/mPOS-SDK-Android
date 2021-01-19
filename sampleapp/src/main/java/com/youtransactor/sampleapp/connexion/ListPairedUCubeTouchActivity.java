@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
@@ -42,6 +43,8 @@ public class ListPairedUCubeTouchActivity extends AppCompatActivity {
 
     uCubeTouchPairedListAdapter adapter;
 
+    private String filter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +58,8 @@ public class ListPairedUCubeTouchActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(R.string.title_list_devices);
         }
+        if (getIntent() != null && getIntent().getStringExtra(MainActivity.SCAN_FILTER) != null)
+            filter = getIntent().getStringExtra(MainActivity.SCAN_FILTER);
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
@@ -105,7 +110,8 @@ public class ListPairedUCubeTouchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        List<UCubeDevice> devices = ((BleConnectionManager) MainActivity.connexionManager).getPairedUCubes(BtConnectionManager.UCUBE_TOUCH_NAME_REGEX);
+        List<UCubeDevice> devices = ((BleConnectionManager) MainActivity.connexionManager).getPairedUCubes(filter);
+
         adapter = new uCubeTouchPairedListAdapter(ListPairedUCubeTouchActivity.this, devices, view -> {
             final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
             final UCubeDevice selectedDevice = adapter.getItemAtPosition(childAdapterPosition);

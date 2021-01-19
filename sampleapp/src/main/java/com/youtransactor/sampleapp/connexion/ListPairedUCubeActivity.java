@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
@@ -29,10 +30,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
 import com.youTransactor.uCube.connexion.BtConnectionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
+import com.youTransactor.uCube.log.LogManager;
 import com.youtransactor.sampleapp.MainActivity;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.UIUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListPairedUCubeActivity extends AppCompatActivity {
@@ -40,6 +43,8 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
     private static final int ENABLE_BT_REQUEST_CODE = 4321;
 
     uCubePairedListAdapter adapter;
+
+    private String filter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,9 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(R.string.title_list_devices);
         }
+
+        if (getIntent() != null && getIntent().getStringExtra(MainActivity.SCAN_FILTER) != null)
+            filter = getIntent().getStringExtra(MainActivity.SCAN_FILTER);
 
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
@@ -104,7 +112,8 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        List<UCubeDevice> devices = ((BtClassicConnexionManager) MainActivity.connexionManager).getPairedUCubes(BtConnectionManager.UCUBE_NAME_REGEX);
+        List<UCubeDevice> devices = ((BtClassicConnexionManager) MainActivity.connexionManager).getPairedUCubes(filter);
+
         adapter = new uCubePairedListAdapter(ListPairedUCubeActivity.this, devices, view -> {
             final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
             final UCubeDevice selectedDevice = adapter.getItemAtPosition(childAdapterPosition);
@@ -126,4 +135,16 @@ public class ListPairedUCubeActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    private List<UCubeDevice> filterList(List<UCubeDevice> devices, String filter) {
+        List<UCubeDevice> res = new ArrayList<>();
+
+        for (UCubeDevice device : devices) {
+            if (device.getName().toLowerCase().contains(filter.toLowerCase())) {
+                res.add(device);
+            }
+        }
+        return res;
+    }
+
 }

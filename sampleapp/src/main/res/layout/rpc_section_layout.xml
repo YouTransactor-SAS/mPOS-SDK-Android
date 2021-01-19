@@ -14,8 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:weightSum="3">
+        android:orientation="horizontal">
         <Button
             android:id="@+id/getSvppLogL1"
             android:layout_width="0dp"
@@ -45,19 +44,24 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_margin="20dp"
         android:background="@color/grey_300" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:text="@string/power_off_timeout_val" />
 
         <EditText
@@ -77,17 +81,13 @@
             android:text="@string/second_symbol" />
 
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:layout_gravity="center_vertical"
-        android:text="@string/poweroff_value_note" />
     <Button
         android:id="@+id/powerTimeoutBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/set_power_off_timeout" />
 
+    </LinearLayout>
 </LinearLayout>
