@@ -63,6 +63,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     public static final String TAG = PaymentActivity.class.getName();
 
+    private SharedPreferences prefs;
     /* Device */
     private YTProduct ytProduct = YTProduct.uCubeTouch;
 
@@ -91,8 +92,7 @@ public class PaymentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
+        prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         setContentView(R.layout.activity_payment);
 
@@ -102,6 +102,15 @@ public class PaymentActivity extends AppCompatActivity {
         }
 
         initView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
+        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        findViewById(R.id.auto_disconnect_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -175,7 +184,7 @@ public class PaymentActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        findViewById(R.id.auto_disconnect_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
     }
 
     private void startPayment() {
