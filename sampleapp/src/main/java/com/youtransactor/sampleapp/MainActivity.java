@@ -650,45 +650,25 @@ public class MainActivity extends AppCompatActivity {
     private void displayHelloWorld() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
 
-        new ExitSecureSessionCommand().execute((event, params) -> {
-            if (event == TaskEvent.PROGRESS)
-                return;
-
-            switch (event) {
+        DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand("Hello world");
+       // displayMessageCommand.setTimeout(2);
+       // displayMessageCommand.setClearConfig((byte) 0x01);
+        displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            switch (event1) {
                 case FAILED:
-                case CANCELLED:
-                    runOnUiThread(() -> {
-                        progressDlg.dismiss();
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.display_msg_failure));
-                    });
-
+                    UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
                     break;
 
                 case SUCCESS:
-
-                   DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand("Hello world");
-                   displayMessageCommand.setTimeout(2);
-                   displayMessageCommand.setClearConfig((byte) 0x01);
-                   displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
-                        switch (event1) {
-                            case FAILED:
-                                UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
-                                break;
-
-                            case SUCCESS:
-                                Toast.makeText(this, getString(R.string.display_msg_success), Toast.LENGTH_LONG).show();
-                                break;
-
-                            default:
-                                return;
-                        }
-
-                        progressDlg.dismiss();
-                    }));
-
+                    Toast.makeText(this, getString(R.string.display_msg_success), Toast.LENGTH_LONG).show();
                     break;
+
+                default:
+                    return;
             }
-        });
+
+            progressDlg.dismiss();
+        }));
 
     }
 
@@ -745,45 +725,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
 
-
-      /*  new ExitSecureSessionCommand().execute((event, params) -> {
-            if (event == TaskEvent.PROGRESS)
-                return;
-
-            switch (event) {
-                case FAILED:
-                case CANCELLED:
-                    runOnUiThread(() -> {
-                        progressDlg.dismiss();
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_info_failed));
-                    });
-
-                    break;
-
-                case SUCCESS:
-
-                    new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> runOnUiThread(() -> {
-                        switch (event1) {
-                            case FAILED:
-                            case CANCELLED:
-                                progressDlg.dismiss();
-                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_info_failed));
-                                return;
-
-                            case SUCCESS:
-                                progressDlg.dismiss();
-                                DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
-
-                                FragmentManager fm = MainActivity.this.getSupportFragmentManager();
-                                FragmentDialogGetInfo Dialog = new FragmentDialogGetInfo(deviceInfos, ytProduct);
-                                Dialog.show(fm, "GET_INFO");
-
-                                break;
-                        }
-                    }));
-                    break;
-            }
-        });*/
     }
 
     private void powerOffTimeout() {
@@ -799,48 +740,29 @@ public class MainActivity extends AppCompatActivity {
 
         int finalPowerOffValue = powerOffValue;
 
-        new ExitSecureSessionCommand().execute((event, params) -> {
-            if (event == TaskEvent.PROGRESS)
+        SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setPowerTimeout(finalPowerOffValue);
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            if (event1 == TaskEvent.PROGRESS)
                 return;
 
-            switch (event) {
-                case FAILED:
-                case CANCELLED:
-                    runOnUiThread(() -> {
-                        progressDlg.dismiss();
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_power_off_timeout_failed));
-                    });
+            progressDlg.dismiss();
 
+            switch (event1) {
+                case CANCELLED:
+                    UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
+                    break;
+
+                case FAILED:
+                    UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_failed));
                     break;
 
                 case SUCCESS:
-
-                    SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
-                    setInfoFieldCommand.setPowerTimeout(finalPowerOffValue);
-                    setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
-                        if (event1 == TaskEvent.PROGRESS)
-                            return;
-
-                        switch (event1) {
-                            case CANCELLED:
-                                UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
-                                break;
-
-                            case FAILED:
-                                UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_failed));
-                                break;
-
-                            case SUCCESS:
-                                Toast.makeText(this, getString(R.string.set_power_off_timeout_success), Toast.LENGTH_LONG).show();
-                                break;
-                        }
-
-                        progressDlg.dismiss();
-
-                    }));
+                    Toast.makeText(this, getString(R.string.set_power_off_timeout_success), Toast.LENGTH_LONG).show();
                     break;
             }
-        });
+
+        }));
     }
 
     private void saveDevice(UCubeDevice device) {

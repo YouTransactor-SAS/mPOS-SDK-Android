@@ -67,7 +67,7 @@ public class AuthorizationTask implements IAuthorizationTask {
             builder.setCancelable(true);
             builder.setTitle("Authorization response");
 
-            builder.setItems(new String[]{"Approved", "Declined", "Unable to go online", "Failed"}, (dialog, which) -> {
+            builder.setItems(new String[]{"Approved", "SCA (0x1A)", "SCA (0x70)", "Declined", "Unable to go online",  "Failed"}, (dialog, which) -> {
                 dialog.dismiss();
                 end(which);
             });
@@ -78,11 +78,12 @@ public class AuthorizationTask implements IAuthorizationTask {
     }
 
     @Override
-    public void cancel() {
+    public boolean cancel() {
         if(alertDialog != null && alertDialog.isShowing())
             alertDialog.dismiss();
 
         new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
+        return true;
     }
 
 
@@ -93,14 +94,22 @@ public class AuthorizationTask implements IAuthorizationTask {
                 break;
 
             case 1:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x35};
+                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x31, 0x41};
                 break;
 
             case 2:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x39, 0x38};
+                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x37, 0x30};
                 break;
 
             case 3:
+                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x35};
+                break;
+
+            case 4:
+                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x39, 0x38};
+                break;
+
+            case 5:
                 new Thread(() -> monitor.handleEvent(TaskEvent.FAILED)).start();
                 return;
         }

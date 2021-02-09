@@ -77,11 +77,12 @@ public class RiskManagementTask implements IRiskManagementTask {
 	}
 
 	@Override
-	public void cancel() {
+	public boolean cancel() {
 		if(alertDialog != null && alertDialog.isShowing())
 			alertDialog.dismiss();
 
 		new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
+		return true;
 	}
 
 	private void end(byte[] tvr) {

@@ -219,7 +219,7 @@
             android:gravity="end"
             android:maxLength="15"
             android:importantForAutofill="no"
-            android:text="0,00 "
+            android:text="1,00 "
             android:inputType="numberDecimal" />
 
         <Spinner

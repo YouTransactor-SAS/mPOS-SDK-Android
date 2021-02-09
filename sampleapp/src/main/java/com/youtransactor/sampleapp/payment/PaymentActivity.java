@@ -233,11 +233,15 @@ public class PaymentActivity extends AppCompatActivity {
 
                             if (state == PaymentState.KSN_AVAILABLE) {
                                 Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
-                                return;
                             }
 
                             if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
                                 Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
+                            }
+
+                            if(state == PaymentState.CARD_READ_END) {
+                                //DISABLE CANCELLING
+                                cancelPaymentBtn.setVisibility(View.GONE);
                             }
                         }
 
@@ -290,7 +294,7 @@ public class PaymentActivity extends AppCompatActivity {
         // common messages to nfc & smc transaction
         paymentMessages.put(LBL_prepare_context, "Preparing context");
         paymentMessages.put(LBL_authorization, "Authorization processing");
-        paymentMessages.put(LBL_wait_card_ok, "Wait");
+        paymentMessages.put(LBL_wait_card_ok, "Card read Succeed, wait please");
 
         // smc messages
         paymentMessages.put(LBL_smc_initialization, "initialization processing");

@@ -147,7 +147,8 @@ public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
     }
 
     @Override
-    public void cancel() {
+    public boolean cancel() {
         monitor.handleEvent(TaskEvent.CANCELLED);
+        return true;
     }
 }
