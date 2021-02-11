@@ -57,6 +57,7 @@ import java.util.Map;
 
 import static com.youTransactor.uCube.payment.PaymentMessage.*;
 import static com.youTransactor.uCube.payment.PaymentMessagesConfiguration.*;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class PaymentActivity extends AppCompatActivity {
@@ -355,13 +356,104 @@ public class PaymentActivity extends AppCompatActivity {
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
-                .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A, 0xDF8129, 0xDFC302)
-                .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
-                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-                .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
-                        0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-                .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A);
 
+                .setAuthorizationPlainTags(
+                        TAG_4F_APPLICATION_IDENTIFIER,
+                        TAG_50_APPLICATION_LABEL,
+                        TAG_5F2A_TRANSACTION_CURRENCY_CODE,
+                        TAG_5F34_APPLICATION_PRIMARY_ACCOUNT_NUMBER_SEQUENCE_NUMBER,
+                        TAG_81_AMOUNT_AUTHORISED,
+                        TAG_8E_CARDHOLDER_VERIFICATION_METHOD_LIST,
+                        TAG_95_TERMINAL_VERIFICATION_RESULTS,
+                        TAG_9B_TRANSACTION_STATUS_INFORMATION,
+                        TAG_99_TRANSACTION_PERSONAL_IDENTIFICATION_NUMBER_DATA,
+                        TAG_9A_TRANSACTION_DATE,
+                        TAG_9C_TRANSACTION_TYPE,
+                        TAG_9F06_APPLICATION_IDENTIFIER__TERMINAL,
+                        TAG_9F10_ISSUER_APPLICATION_DATA,
+                        TAG_9F1A_TERMINAL_COUNTRY_CODE,
+                        TAG_9F26_APPLICATION_CRYPTOGRAM,
+                        TAG_9F27_CRYPTOGRAM_INFORMATION_DATA,
+                        TAG_9F33_TERMINAL_CAPABILITIES,
+                        TAG_9F34_CARDHOLDER_VERIFICATION_METHOD_RESULTS,
+                        TAG_9F36_APPLICATION_TRANSACTION_COUNTER,
+                        TAG_DF02_PEK_VERSION_NUMBER,
+                        TAG_84_APPLICATION_ID,
+                        TAG_9F12_APPLICATION_PREFERRED_NAME,
+                        TAG_9F39_POINT_OF_SERVICE_ENTRY_MODE,
+                        TAG_8A_AUTHORIZATION_RESPONSE_CODE,
+                        TAG_91_ISSUER_AUTHENTICATION_DATA,
+                        TAG_71_ISSUER_SCRIPT_TEMPLATE1,
+                        TAG_72_ISSUER_SCRIPT_TEMPLATE2,
+                        TAG_9F6E_NFC_FORM_FORMAT,
+                        TAG_5F34_PAN_SEQUENCE_NUMBER,
+                        TAG_DF37_SELECTED_CARDHOLDER_LANGUAGE,
+                        TAG_9F08_APPLICATION_VERSION_NUMBER,
+                        TAG_5F25_APPLICATION_EFFECTIVE_DATE,
+                        TAG_82_APPLICATION_INTERCHANGE_PROFILE,
+                        TAG_9F07_APPLICATION_USAGE_CONTROL,
+                        TAG_9F37_UNPREDICTABLE_NUMBER
+                )
+
+                .setAuthorizationSecuredTags(
+                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
+                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
+                        TAG_SECURE_56_TRACK_1_DATA,
+                        TAG_SECURE_5F20_CARDHOLDER_NAME,
+                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_SECURE_5F30_SERVICE_CODE,
+                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
+                        TAG_SECURE_9F6B_TRACK_2_DATA
+                )
+
+                .setFinalizationSecuredTags(
+                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
+                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
+                        TAG_SECURE_56_TRACK_1_DATA,
+                        TAG_SECURE_5F20_CARDHOLDER_NAME,
+                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_SECURE_5F30_SERVICE_CODE,
+                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
+                        TAG_SECURE_9F6B_TRACK_2_DATA
+                )
+
+                .setFinalizationPlainTags(
+                        TAG_4F_APPLICATION_IDENTIFIER,
+                        TAG_50_APPLICATION_LABEL,
+                        TAG_5F2A_TRANSACTION_CURRENCY_CODE,
+                        TAG_5F34_APPLICATION_PRIMARY_ACCOUNT_NUMBER_SEQUENCE_NUMBER,
+                        TAG_81_AMOUNT_AUTHORISED,
+                        TAG_8E_CARDHOLDER_VERIFICATION_METHOD_LIST,
+                        TAG_95_TERMINAL_VERIFICATION_RESULTS,
+                        TAG_9B_TRANSACTION_STATUS_INFORMATION,
+                        TAG_99_TRANSACTION_PERSONAL_IDENTIFICATION_NUMBER_DATA,
+                        TAG_9A_TRANSACTION_DATE,
+                        TAG_9C_TRANSACTION_TYPE,
+                        TAG_9F06_APPLICATION_IDENTIFIER__TERMINAL,
+                        TAG_9F10_ISSUER_APPLICATION_DATA,
+                        TAG_9F1A_TERMINAL_COUNTRY_CODE,
+                        TAG_9F26_APPLICATION_CRYPTOGRAM,
+                        TAG_9F27_CRYPTOGRAM_INFORMATION_DATA,
+                        TAG_9F33_TERMINAL_CAPABILITIES,
+                        TAG_9F34_CARDHOLDER_VERIFICATION_METHOD_RESULTS,
+                        TAG_9F36_APPLICATION_TRANSACTION_COUNTER,
+                        TAG_DF02_PEK_VERSION_NUMBER,
+                        TAG_84_APPLICATION_ID,
+                        TAG_9F12_APPLICATION_PREFERRED_NAME,
+                        TAG_9F39_POINT_OF_SERVICE_ENTRY_MODE,
+                        TAG_8A_AUTHORIZATION_RESPONSE_CODE,
+                        TAG_91_ISSUER_AUTHENTICATION_DATA,
+                        TAG_71_ISSUER_SCRIPT_TEMPLATE1,
+                        TAG_72_ISSUER_SCRIPT_TEMPLATE2,
+                        TAG_9F6E_NFC_FORM_FORMAT,
+                        TAG_5F34_PAN_SEQUENCE_NUMBER,
+                        TAG_DF37_SELECTED_CARDHOLDER_LANGUAGE,
+                        TAG_9F08_APPLICATION_VERSION_NUMBER,
+                        TAG_5F25_APPLICATION_EFFECTIVE_DATE,
+                        TAG_82_APPLICATION_INTERCHANGE_PROFILE,
+                        TAG_9F07_APPLICATION_USAGE_CONTROL,
+                        TAG_9F37_UNPREDICTABLE_NUMBER
+                );
         return uCubePaymentRequest;
     }
 
