@@ -12,8 +12,8 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 3415
-        versionName "3.4.15"
+        versionCode 3416
+        versionName "3.4.16"
         multiDexEnabled true
     }
 
@@ -119,5 +119,5 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    implementation files('libs/libApp-3.4.15.aar')
+    implementation files('libs/libApp-3.4.16.aar')
 }

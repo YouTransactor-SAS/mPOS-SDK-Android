@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -507,7 +508,18 @@ public class PaymentActivity extends AppCompatActivity {
     private void cancelPayment() {
         if (emvPaymentStateMachine != null && emvPaymentStateMachine.isRunning()) {
             Log.d(TAG, "Try to cancel current Payment");
-            emvPaymentStateMachine.cancel();
+            UIUtils.showProgress(this, "Trying cancellation");
+
+            emvPaymentStateMachine.cancel(status -> {
+                Log.d(TAG, "cancel value : "+ status);
+                runOnUiThread(() -> {
+                    UIUtils.hideProgressDialog();
+                    if(status)
+                        Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
+                });
+          });
         }
     }
 

@@ -12,6 +12,7 @@ package com.youtransactor.sampleapp.payment;
 import android.app.Activity;
 import android.app.AlertDialog;
 
+import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
@@ -78,12 +79,12 @@ public class AuthorizationTask implements IAuthorizationTask {
     }
 
     @Override
-    public boolean cancel() {
+    public void cancel(ITaskCancelListener taskCancelListener){
         if(alertDialog != null && alertDialog.isShowing())
             alertDialog.dismiss();
 
         new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
-        return true;
+        taskCancelListener.onCancelFinish(true);
     }
 
 
