@@ -431,7 +431,7 @@ You will receive the onProgress() callback for each new state. This is the whole
 ```
 #### EMV Payment state machine
 
-![Document sans titre](https://user-images.githubusercontent.com/59020462/98590885-c3979d00-22cf-11eb-819c-d3139ade7dac.png)
+![Document sans titre](https://user-images.githubusercontent.com/59020462/110345361-c5c7f900-802e-11eb-9748-94ddd0645aab.png)
 
 The EMV payment state machine is sequence of executing commands and tasks. Bellow you will see the different tasks used at transaction
 
