@@ -173,6 +173,7 @@
     <string name="terminal_state">Terminal state : </string>
     <string name="battery_state">Battery Level : </string>
     <string name="SVPP_version">SVPP version : </string>
+    <string name="BLE_version">BLE version : </string>
     <string name="get_info_progress">Get Info Failed</string>
     <string name="get_info_failed">Get Info Failed</string>
     <string name="refresh">Refresh</string>
@@ -194,4 +195,5 @@
     <string name="_200">200</string>
     <string name="scan_ucube_touch_filter">Scan Filter : </string>
     <string name="utouch_filter">uTouch</string>
+    <string name="resources_file_version">Resources file version</string>
 </resources>

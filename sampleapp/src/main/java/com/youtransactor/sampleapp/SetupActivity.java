@@ -67,8 +67,6 @@ public class SetupActivity extends AppCompatActivity {
         TextView versionNametv = findViewById(R.id.version_name);
         versionNametv.setText(getString(R.string.versionName, versionName));
 
-        YTProduct selectedProduct = getYtProduct();
-
         uCubeCardView.setOnClickListener(v -> {
             uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
             uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));

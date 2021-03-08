@@ -21,6 +21,8 @@ import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 
 public class FragmentDialogGetInfo extends DialogFragment {
@@ -61,6 +63,8 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView NFCFirmwareState = rootView.findViewById(R.id.NFC_Firmware_State);
         TextView NFCFirmwareVersion = rootView.findViewById(R.id.NFC_Firmware_Version);
         TextView EMVL1_CLESS_LIB_VERSION = rootView.findViewById(R.id.EMVL1_Cell_Lib_Version);
+        TextView bleFirmwareVersion = rootView.findViewById(R.id.ble_version);
+        TextView resourcesVersion = rootView.findViewById(R.id.resources_file_version);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -88,6 +92,20 @@ public class FragmentDialogGetInfo extends DialogFragment {
         svppVersion.setText(deviceInfos.getSvppFirmware());
         partNumber.setText(deviceInfos.getPartNumber());
         OSVersion.setText(deviceInfos.getOsVersion());
+        if(StringUtils.isEmpty(deviceInfos.getBleFirmwareVersion())) {
+            rootView.findViewById(R.id.ble_section).setVisibility(View.GONE);
+        }else {
+            rootView.findViewById(R.id.ble_section).setVisibility(View.VISIBLE);
+            bleFirmwareVersion.setText(deviceInfos.getBleFirmwareVersion());
+        }
+
+        if(StringUtils.isEmpty(deviceInfos.getResourcesVersion())) {
+            rootView.findViewById(R.id.resource_file_section).setVisibility(View.GONE);
+        }else {
+            rootView.findViewById(R.id.resource_file_section).setVisibility(View.VISIBLE);
+            resourcesVersion.setText(deviceInfos.getResourcesVersion());
+        }
+
         emvConfigurationVersion.setText(deviceInfos.getIccEmvConfigVersion());
         emvClessConfigurationVersion.setText(deviceInfos.getNfcEmvConfigVersion());
         USBCapability.setText(deviceInfos.isUsbCapability() ? "USB Capability" : "NO USB Capability");

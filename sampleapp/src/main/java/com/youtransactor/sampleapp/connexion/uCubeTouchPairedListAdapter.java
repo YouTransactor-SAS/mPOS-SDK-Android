@@ -91,8 +91,8 @@ public class uCubeTouchPairedListAdapter extends RecyclerView.Adapter<uCubeTouch
         ViewHolder(View itemView) {
             super(itemView);
 
-            textViewName = itemView.findViewById(R.id.textViewName);
-            textViewMacAddress = itemView.findViewById(R.id.textViewMacAddress);
+            textViewName = itemView.findViewById(R.id.device_name);
+            textViewMacAddress = itemView.findViewById(R.id.device_address);
         }
     }
 }

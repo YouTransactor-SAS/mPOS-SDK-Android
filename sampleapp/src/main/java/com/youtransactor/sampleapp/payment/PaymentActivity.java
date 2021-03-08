@@ -37,8 +37,6 @@ import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
-import com.youTransactor.uCube.payment.PaymentMessage;
-import com.youTransactor.uCube.payment.PaymentMessagesConfiguration;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.TransactionType;
@@ -52,12 +50,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static com.youTransactor.uCube.payment.PaymentMessage.*;
-import static com.youTransactor.uCube.payment.PaymentMessagesConfiguration.*;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
@@ -79,7 +73,6 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch forceAuthorisationBtn;
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
-    private Switch displayResultSwitch;
     private Switch forceDebugSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
@@ -132,7 +125,6 @@ public class PaymentActivity extends AppCompatActivity {
         amountSrcSwitch = findViewById(R.id.amountSrcBtn);
         contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
-        displayResultSwitch = findViewById(R.id.displayResultOnUCubeBtn);
         forceDebugSwitch = findViewById(R.id.forceDebugBtn);
         trxResultFld = findViewById(R.id.trxResultFld);
         startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
@@ -284,55 +276,10 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean contactOnly = contactOnlySwitch.isChecked();
 
-        boolean displayResultOnUCube = displayResultSwitch.isChecked();
-
         boolean forceDebug = forceDebugSwitch.isChecked();
 
         int amount = amountFld.getCleanIntValue();
         LogManager.d("Amount : "+ amount);
-
-        Map<PaymentMessage, String> paymentMessages = new HashMap<>();
-
-        // common messages to nfc & smc transaction
-        paymentMessages.put(LBL_prepare_context, "Preparing context");
-        paymentMessages.put(LBL_authorization, "Authorization processing");
-        paymentMessages.put(LBL_wait_card_ok, "Card read Succeed, wait please");
-
-        // smc messages
-        paymentMessages.put(LBL_smc_initialization, "initialization processing");
-        paymentMessages.put(LBL_smc_risk_management, "risk management processing");
-        paymentMessages.put(LBL_smc_finalization, "finalization processing");
-        paymentMessages.put(LBL_smc_remove_card, "Remove card, please");
-
-        //nfc messages
-        paymentMessages.put(LBL_nfc_complete, "complete processing");
-        paymentMessages.put(LBL_wait_online_pin_process, "online pin processing");
-        paymentMessages.put(LBL_pin_request, "Enter pin");
-
-        /*  Payment status messages*/
-        paymentMessages.put(LBL_approved, "Approved"); // returned by the application
-        paymentMessages.put(LBL_declined, "Declined"); // returned by the application
-        paymentMessages.put(LBL_unsupported_card, "Unsupported card"); // returned by the application
-        paymentMessages.put(LBL_cancelled, "Cancelled"); // terminal or application
-        paymentMessages.put(LBL_error, "Error"); // returned by the application
-        paymentMessages.put(LBL_no_card_detected, "No card detected");  // returned by the application
-        paymentMessages.put(LBL_wrong_activated_reader, "wrong activated reader");  // returned by the application
-        // nfc specific error status
-        paymentMessages.put(LBL_try_other_interface, "Try other interface"); // returned by terminal
-        paymentMessages.put(LBL_end_application, "End application"); // returned by terminal
-        paymentMessages.put(LBL_failed, "Failed"); // returned by terminal
-        paymentMessages.put(LBL_wrong_nfc_outcome, "wrong nfc outcome"); // returned by the application
-        // smc specific error status
-        paymentMessages.put(LBL_wrong_cryptogram_value, "wrong cryptogram"); // returned by the application
-        paymentMessages.put(LBL_missing_required_cryptogram, "missing required cryptogram"); // returned by the application
-
-
-        Map<PaymentMessagesConfiguration, Byte> paymentMessagesConfiguration = new HashMap<>();
-        // Global configuration of messages layout
-        paymentMessagesConfiguration.put(GLOBAL_LBL_xposition, (byte) 0xFF);
-        paymentMessagesConfiguration.put(GLOBAL_LBL_yposition, (byte) 0x0C);
-        paymentMessagesConfiguration.put(GLOBAL_LBL_font_id, (byte) 0x00);
-
 
         List<CardReaderType> readerList = new ArrayList<>();
 
@@ -346,14 +293,10 @@ public class PaymentActivity extends AppCompatActivity {
 
         //Add optional variables
         uCubePaymentRequest
-                .setPaymentMessages(paymentMessages)
-                .setPaymentMessagesConfiguration(paymentMessagesConfiguration)
                 .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
-                .setDisplayResult(displayResultOnUCube)
                 .setForceAuthorisation(forceAuthorisation)
                 .setRiskManagementTask(new RiskManagementTask(this))
-                .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
@@ -455,6 +398,7 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_9F07_APPLICATION_USAGE_CONTROL,
                         TAG_9F37_UNPREDICTABLE_NUMBER
                 );
+
         return uCubePaymentRequest;
     }
 

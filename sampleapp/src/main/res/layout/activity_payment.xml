@@ -186,13 +186,6 @@
         android:text="@string/force_online_pin" />
 
     <Switch
-        android:id="@+id/displayResultOnUCubeBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/display_result_on_ucube" />
-
-    <Switch
         android:id="@+id/forceDebugBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
