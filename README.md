@@ -296,27 +296,24 @@ The input parameter of Pay API is the uCubePaymentRequest.
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.NFC);
 
-      UCubePaymentRequest paymentRequest = new UCubePaymentRequest(amount, currency, trxType,
+ UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
                 readerList, new AuthorizationTask(this), Collections.singletonList("en"));
-  
-	paymentRequest
-    .setPaymentMessages(paymentMessages)
-    .setPaymentMessagesConfiguration(paymentMessagesConfiguration)
-    .setForceOnlinePin(forceOnlinePin)
-    .setTransactionDate(new Date())
-    .setDisplayResult(displayResultOnUCube)
-    .setForceAuthorisation(forceAuthorisation)
-    .setUseCardHolderLanguageTask(new UseCardHolderLanguageTask())
-    .setRiskManagementTask(new RiskManagementTask(this))
-    .setCardWaitTimeout(timeout)
-    .setSystemFailureInfo(false)
-    .setSystemFailureInfo2(false)
-    .setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
-    .setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
-         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-    .setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
-         0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
-    .setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A);
+
+//Add optional variables
+uCubePaymentRequest
+	.setForceOnlinePin(forceOnlinePin)
+	.setTransactionDate(new Date())
+	.setForceAuthorisation(forceAuthorisation)
+	.setRiskManagementTask(new RiskManagementTask(this))
+	.setCardWaitTimeout(timeout)
+	.setSystemFailureInfo2(false)
+	.setForceDebug(forceDebug)
+	.setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
+	.setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+	0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+	.setFinalizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
+	0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
+	.setFinalizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A);
 ```
 
 #### PaymentContext
@@ -327,7 +324,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public boolean allowFallback;
 	public int retryBeforeFallback = 3;
 	public int cardWaitTimeout = 30;
-	public double amount = -1;
+	public int amount = -1;
 	public Currency currency;
 	public TransactionType transactionType;
 	public Date transactionDate;
@@ -337,16 +334,14 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	private boolean forceAuthorization;
 	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
 	public List<CardReaderType> readerList;
-	public Map<PaymentMessage, String> paymentMessages;
-	public Map<PaymentMessagesConfiguration, Byte> paymentMessagesConfiguration;
+
 	public byte[] inputProprietaryTLVStream;
-	public boolean displayResult = true;
-	public boolean getSystemFailureInfoL1, getSystemFailureInfoL2;
-	
+	public boolean forceDebug = false;
+	public boolean getSystemFailureInfoL2;
+
 	/* input NFC & ICC */
 	public int[] authorizationPlainTags, authorizationSecuredTags;
 	public int[] finalizationPlainTags, finalizationSecuredTags;
-	
 	/* output common */
 	public PaymentStatus paymentStatus;
 	public byte[] uCubeInfos;
@@ -370,8 +365,9 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	public byte[] nfcOutcome;
 	public boolean signatureRequired;
 	/* output for debug */
-	public byte[] systemFailureInfo; //svpp logs level 1
-	public byte[] systemFailureInfo2; // svpp logs level 2
+	public byte[] tagCC; // svpp logs level 2 Tag CC
+	public byte[] tagF4; // svpp logs level 2 Tag F4
+	public byte[] tagF5; // svpp logs level 2 Tag F5
 ```
 
 #### PaymentState 
@@ -379,56 +375,47 @@ You will receive the onProgress() callback for each new state. This is the whole
 
 ```java
 	/* COMMON STATES*/
-	//start
+	//Start
+	START_CANCEL_ALL,
 	START_EXIT_SECURE_SESSION,
-	DISPLAY_WAIT_PREPARE_TRANSACTION,
 	GET_INFO,
 	ENTER_SECURE_SESSION,
 	KSN_AVAILABLE,
 	START_TRANSACTION,
-	
-	//authorization
+	CARD_READ_END,
+
+	//Authorization
 	AUTHORIZATION,
-	
-	//end
+
+	//END
+	GET_FINALIZATION_SECURED_TAGS,
+	GET_FINALIZATION_PLAIN_TAGS,
+	GET_CC_L2_LOG,
+	GET_F4_L2_LOG,
+	GET_F5_L2_LOG,
 	END_EXIT_SECURE_SESSION,
-	DISPLAY_RESULT,
-	GET_L1_LOG,
-	GET_L2_LOG,
 
 	/* SMC STATES*/
-	SMC_DISPLAY_WAIT_INIT_TRANSACTION,
+	START_ICC,
 	SMC_BUILD_CANDIDATE_LIST,
 	SMC_SELECT_APPLICATION,
 	SMC_USER_SELECT_APPLICATION,
 	SMC_INIT_TRANSACTION,
-	SMC_GET_DF37_CARD_HOLDER_LANGUAGE,
-	SMC_USE_CARD_HOLDER_LANGUAGE,
-	SMC_DISPLAY_WAIT_RISK_MANAGEMENT_PROCESSING,
 	SMC_RISK_MANAGEMENT,
 	SMC_PROCESS_TRANSACTION,
-	SMC_DISPLAY_AUTHORIZATION,
 	SMC_GET_AUTHORIZATION_SECURED_TAGS,
 	SMC_GET_AUTHORIZATION_PLAIN_TAGS,
-	SMC_DISPLAY_TRANSACTION_FINALIZATION,
 	SMC_FINALIZE_TRANSACTION,
-	SMC_GET_FINALIZATION_SECURED_TAGS,
-	SMC_GET_FINALIZATION_PLAIN_TAGS,
-	SMC_DISPLAY_REMOVE_CARD,
 	SMC_REMOVE_CARD,
 
 	/* NFC STATES*/
-	NFC_GET_DF37_CARD_HOLDER_LANGUAGE,
-	NFC_USE_CARD_HOLDER_LANGUAGE,
-	NFC_DISPLAY_AUTHORIZATION,
+	START_NFC,
 	NFC_GET_AUTHORIZATION_SECURED_TAGS,
 	NFC_GET_AUTHORIZATION_PLAIN_TAGS,
 	NFC_SIMPLIFIED_ONLINE_PIN,
-	NFC_DISPLAY_COMPLETE_TRANSACTION,
 	NFC_COMPLETE_TRANSACTION,
-	NFC_GET_FINALIZATION_SECURED_TAGS,
-	NFC_GET_FINALIZATION_PLAIN_TAGS,
 ```
+
 #### EMV Payment state machine
 
 ![Document sans titre](https://user-images.githubusercontent.com/59020462/110345361-c5c7f900-802e-11eb-9748-94ddd0645aab.png)
@@ -480,57 +467,12 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 	}
 	
 	@Override
-	public void cancel() {
+	public void cancel(ITaskCancelListener taskCancelListener) {
 		monitor.handleEvent(TaskEvent.CANCELLED);
+		taskCancelListener.onCancelFinish(true);
 	}
 }
 ```
-##### IUseCardHolderLanguageTask
- ```java
- public class UseCardHolderLanguageTask implements IUseCardHolderLanguageTask {
-
-	private ITaskMonitor monitor;
-	private byte[] selectedCardHolderLanguage;
-	private Map<PaymentMessage, String> paymentMessages;
-
-	@Override
-	public void setSelectedCardHolderLanguage(byte[] selectedCardHolderLanguage) {
-		this.selectedCardHolderLanguage = selectedCardHolderLanguage;
-	}
-
-	@Override
-	public Map<PaymentMessage, String> getPaymentMessages() {
-		return paymentMessages;
-	}
-   
-	@Override
-	public PaymentContext getContext() {
-		return paymentContext;
-	}
-
-	@Override
-	public void setContext(PaymentContext context) {
-		this.paymentContext = context;
-	}
-
-	@Override
-	public void execute(ITaskMonitor monitor) {
-		this.monitor = monitor;
-
-		//Todo : compare merchant language with selected
-		// language and updaye PaymentMessages if they are different
-		
-		monitor.handleEvent(TaskEvent.SUCCESS);
-	}
-
-	@Override
-	public void cancel() {
-	monitor.handleEvent(TaskEvent.CANCELLED);
-	}
-}
-
-```
-
 ##### IRiskManagementTask
  ```java
  public class RiskManagementTask implements IRiskManagementTask {
@@ -563,8 +505,9 @@ public class EMVApplicationSelectionTask implements IApplicationSelectionTask {
 	}
 	
 	@Override
-	public void cancel() {
+	public void cancel(ITaskCancelListener taskCancelListener) {
 		monitor.handleEvent(TaskEvent.CANCELLED);
+		taskCancelListener.onCancelFinish(true);
 	}
 }
 ```
@@ -598,17 +541,23 @@ public class AuthorizationTask implements IAuthorizationTask {
 	}
 	
 	@Override
-	public void cancel() {
+	public void cancel(ITaskCancelListener taskCancelListener) {
 		monitor.handleEvent(TaskEvent.CANCELLED);
+		taskCancelListener.onCancelFinish(true);
 	}
 }
 ```
 
 ##### PaymentStatus
 ```java
-    APPROVED,  // Transaction has been approved by terminal
+    APPROVED, // Transaction has been approved by terminal
     DECLINED, // Transaction has been declined by terminal
-    CANCELLED, //Transaction has been cancelled by terminal or by application
+    /* Cancelled Status cases:
+        1/ GPO not read yet and application calls payment.cancel()
+        2/ one of commands returns -32 or -28 status
+        3/ NFC_Outcome[1] = 0x3A Transaction_cancelled
+    */
+    CANCELLED,
 
     CARD_WAIT_FAILED,//Transaction has been failed because customer does not present a card and startNFCTransaction fail
     UNSUPPORTED_CARD, ///Transaction has been failed: Error returned by terminal, at contact transaction, when no application match between card and terminal's configuration
@@ -619,6 +568,7 @@ public class AuthorizationTask implements IAuthorizationTask {
 
     ERROR, // Transaction has been failed : when one of the tasks or commands has been fail
     ERROR_DISCONNECT,//Transaction has been failed : when there is a disconnect during the transaction
+    ERROR_SHUTTING_DOWN,//Transaction has been failed : when command fails with SHUTTING_DOWN error during the transaction
     ERROR_WRONG_ACTIVATED_READER, // Transaction has been failed : when terminal return wrong value in the tag DF70 at startNFCTransaction
     ERROR_MISSING_REQUIRED_CRYPTOGRAM,// Transaction has been failed :when the value of the tag 9f27 is wrong
     ERROR_WRONG_CRYPTOGRAM_VALUE, // Transaction has been failed : when in the response of the transaction process command the tag 9F27 is missing
@@ -626,14 +576,15 @@ public class AuthorizationTask implements IAuthorizationTask {
 }
 ```
 #### Cancel Payment 
-During the transaction, Customer may need to cancel process at any moment. You can use this code to cancel. You will receive onFinish() callback with paymentStatus cancelled. 
-Note : If Payment state is Display result or Get level 1 or 2 logs, the transaction is already finish and cancel it is not possible. 
+During the transaction, Customer may need to cancel payment. This is only possible before terminal reads card with success, in other words the GPO of card was successfully read. The cancel method returns a callback with status of cancellation. Here is a figure that resume the two kind of states, blue ones the cancellation is possoble the red ones the cancellation not possible. Note that at the end of startTransaction state, if the reader interface was NFC, so the card  was successfully read. The startTransaction step do the wait card and the read card for contactless and only the wait card for contact.  
+
+![payment states](https://user-images.githubusercontent.com/59020462/110348022-7e8f3780-8031-11eb-96a3-35c67997a7e2.png)
 
 ```java
             EMVPaymentStateMachine emvPaymentStateMachine = UCubeAPI.pay(...);
 	    
 	   ....
-	   emvPaymentStateMachine.cancel();
+	   emvPaymentStateMachine.cancel(ITaskCancelListener taskCancelListener);
 ```   
 
 #### 6.4 MDM 
