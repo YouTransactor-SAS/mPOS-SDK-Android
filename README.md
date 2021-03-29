@@ -149,6 +149,9 @@ The APIs provided by UCubeAPI are:
 				SecurityMode outputSecurityMode,
 				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
 	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
+    setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
+    getLocale(UCubeLibTaskListener uCubeLibTaskListener)
+    getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
 	/* YouTransactor TMS APIs*/
 	mdmSetup(@NonNull Context context)
@@ -307,7 +310,8 @@ uCubePaymentRequest
 	.setRiskManagementTask(new RiskManagementTask(this))
 	.setCardWaitTimeout(timeout)
 	.setSystemFailureInfo2(false)
-	.setForceDebug(forceDebug)
+	.setForceDebug(true)
+    .setSkipCardRemoval(false)
 	.setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
 	.setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
 	0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
@@ -321,53 +325,55 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 
 ```java
 	/* input */
-	public boolean allowFallback;
-	public int retryBeforeFallback = 3;
-	public int cardWaitTimeout = 30;
-	public int amount = -1;
-	public Currency currency;
-	public TransactionType transactionType;
-	public Date transactionDate;
-	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
-	public List<String> preferredLanguageList;
-	public boolean forceOnlinePIN;
-	private boolean forceAuthorization;
-	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
-	public List<CardReaderType> readerList;
-
-	public byte[] inputProprietaryTLVStream;
-	public boolean forceDebug = false;
-	public boolean getSystemFailureInfoL2;
-
-	/* input NFC & ICC */
-	public int[] authorizationPlainTags, authorizationSecuredTags;
-	public int[] finalizationPlainTags, finalizationSecuredTags;
-	/* output common */
-	public PaymentStatus paymentStatus;
-	public byte[] uCubeInfos;
-	public byte[] sredKsn;
-	public byte[] pinKsn;
-	public byte[] onlinePinBlock;
-	public byte activatedReader;
-	public byte[] selectedCardHolderLanguage;
-	public Map<Integer, byte[]> finalizationPlainTagsValues;
-	public byte [] finalizationSecuredTagsValues;
-	public Map<Integer, byte[]> authorizationPlainTagsValues;
-	public byte [] authorizationSecuredTagsValues;
-	public byte[] authorizationResponse; //0x8A
-	/* output icc */
-	public EMVApplicationDescriptor selectedApplication;
-	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
-	public byte[] transactionFinalisationData;
-	public byte[] transactionInitData;
-	public byte[] transactionProcessData;
-	/* output nfc */
-	public byte[] nfcOutcome;
-	public boolean signatureRequired;
-	/* output for debug */
-	public byte[] tagCC; // svpp logs level 2 Tag CC
-	public byte[] tagF4; // svpp logs level 2 Tag F4
-	public byte[] tagF5; // svpp logs level 2 Tag F5
+    	public boolean allowFallback;
+    	public int retryBeforeFallback = 3;
+    	public int cardWaitTimeout = 30;
+    	public int amount = -1;
+    	public Currency currency;
+    	public TransactionType transactionType;
+    	public Date transactionDate;
+    	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
+    	public List<String> preferredLanguageList;
+    	public boolean forceOnlinePIN;
+    	private boolean forceAuthorization;
+    	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
+    	public List<CardReaderType> readerList;
+    	public byte[] inputProprietaryTLVStream;
+    	public boolean forceDebug = false;
+    	public boolean getSystemFailureInfoL2;
+    	public int[] authorizationPlainTags, authorizationSecuredTags;
+    	public int[] finalizationPlainTags, finalizationSecuredTags;
+    
+    	/*icc input */
+    	public boolean skipCardRemoval = false;
+    
+    	/* output common */
+    	public PaymentStatus paymentStatus;
+    	public byte[] uCubeInfos;
+    	public byte[] sredKsn;
+    	public byte[] pinKsn;
+    	public byte[] onlinePinBlock;
+    	public byte activatedReader;
+    	public Map<Integer, byte[]> finalizationPlainTagsValues;
+    	public Map<Integer, byte[]> authorizationPlainTagsValues;
+    	public byte[] finalizationGetPlainTagsResponse;
+    	public byte [] finalizationSecuredTagsValues;
+    	public byte[] authorizationGetPlainTagsResponse;
+    	public byte [] authorizationSecuredTagsValues;
+    	public byte[] authorizationResponse; //0x8A
+    	/* output icc */
+    	public EMVApplicationDescriptor selectedApplication;
+    	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+    	public byte[] transactionFinalisationData;
+    	public byte[] transactionInitData;
+    	public byte[] transactionProcessData;
+    	/* output nfc */
+    	public byte[] nfcOutcome;
+    	public boolean signatureRequired;
+    	/* output for debug */
+    	public byte[] tagCC; // svpp logs level 2 Tag CC
+    	public byte[] tagF4; // svpp logs level 2 Tag F4
+    	public byte[] tagF5; // svpp logs level 2 Tag F5
 ```
 
 #### PaymentState 
