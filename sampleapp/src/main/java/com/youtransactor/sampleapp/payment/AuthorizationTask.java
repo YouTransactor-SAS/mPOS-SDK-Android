@@ -14,11 +14,14 @@ import android.app.AlertDialog;
 
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
+import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+
+import java.util.Map;
 
 public class AuthorizationTask implements IAuthorizationTask {
 
@@ -54,7 +57,9 @@ public class AuthorizationTask implements IAuthorizationTask {
         if (paymentContext.authorizationSecuredTagsValues != null)
             LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
 
+        //todo send this to backend to check MAC paymentContext.authorizationGetPlainTagsResponse
         if (paymentContext.authorizationPlainTagsValues != null) {
+
             for (Integer tag : paymentContext.authorizationPlainTagsValues.keySet()) {
                 LogManager.d( String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag))));
             }

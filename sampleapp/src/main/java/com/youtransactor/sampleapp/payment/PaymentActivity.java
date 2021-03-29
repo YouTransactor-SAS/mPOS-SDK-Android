@@ -74,6 +74,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
     private Switch forceDebugSwitch;
+    private Switch skipCardRemovalSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
 
@@ -128,7 +129,7 @@ public class PaymentActivity extends AppCompatActivity {
         forceDebugSwitch = findViewById(R.id.forceDebugBtn);
         trxResultFld = findViewById(R.id.trxResultFld);
         startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
-
+        skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalBtn);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
@@ -278,6 +279,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean forceDebug = forceDebugSwitch.isChecked();
 
+        boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
+
         int amount = amountFld.getCleanIntValue();
         LogManager.d("Amount : "+ amount);
 
@@ -300,6 +303,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
+                .setSkipCardRemoval(skipCardRemoval)
 
                 .setAuthorizationPlainTags(
                         TAG_4F_APPLICATION_IDENTIFIER,
@@ -438,12 +442,12 @@ public class PaymentActivity extends AppCompatActivity {
         Log.d(TAG, "SVPP Logs level 2 Tag F4: " + Tools.bytesToHex(context.tagF4));
         Log.d(TAG, "SVPP Logs level 2 Tag F5: " + Tools.bytesToHex(context.tagF5));
 
+        //todo send this to backend to check MAC context.finalizationGetPlainTagsResponse
         if (context.finalizationPlainTagsValues != null) {
-
             for (Integer tag : context.finalizationPlainTagsValues.keySet())
                 Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationPlainTagsValues.get(tag))));
-
         }
+
         if (context.finalizationSecuredTagsValues != null)
             Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.finalizationSecuredTagsValues));
 

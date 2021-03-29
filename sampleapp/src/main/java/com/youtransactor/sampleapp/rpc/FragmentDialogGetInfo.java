@@ -22,6 +22,7 @@ import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -65,6 +66,8 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView EMVL1_CLESS_LIB_VERSION = rootView.findViewById(R.id.EMVL1_Cell_Lib_Version);
         TextView bleFirmwareVersion = rootView.findViewById(R.id.ble_version);
         TextView resourcesVersion = rootView.findViewById(R.id.resources_file_version);
+        TextView merchantLocale = rootView.findViewById(R.id.merchant_locale);
+        TextView supportedLocaleList = rootView.findViewById(R.id.supported_locale_list);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -119,6 +122,19 @@ public class FragmentDialogGetInfo extends DialogFragment {
             automaticPowerOffTimeOut.setText("unknown");
         else
             automaticPowerOffTimeOut.setText(deviceInfos.getAutoPowerOffTimeout() + " Sec");
+
+        if(deviceInfos.getMerchantLocale() != null) {
+            merchantLocale.setText(deviceInfos.getMerchantLocale());
+        }
+
+        if(deviceInfos.getSupportedLocaleList() != null && !deviceInfos.getSupportedLocaleList().isEmpty()) {
+            StringBuilder locales = new StringBuilder();
+            for(String locale : deviceInfos.getSupportedLocaleList()) {
+                locales.append(locale).append(", ");
+            }
+
+            supportedLocaleList.setText(locales.toString());
+        }
 
         b.setView(rootView);
         return b.create();

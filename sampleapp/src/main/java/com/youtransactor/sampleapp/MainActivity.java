@@ -34,17 +34,21 @@ import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
+import com.youTransactor.uCube.api.UCubeLibState;
+import com.youTransactor.uCube.api.UCubeLibTaskListener;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
+import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.service.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
+import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
@@ -57,6 +61,7 @@ import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
 import com.youtransactor.sampleapp.rpc.FragmentDialogGetInfo;
+import com.youtransactor.sampleapp.test.CommandDaemon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEVICE_NAME = "DEVICE_NAME";
     public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
+    private SharedPreferences prefs;
+
     /* UI */
     private TextView versionNameTv;
     private TextView uCubeModelTv;
@@ -80,13 +87,15 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout ucubeSection;
     private TextView ucubeNameTv, ucubeAddressTv;
 
-    private EditText scanFilter;
+    private EditText scanFilter;//, qrCodeText;
 
     private Button scanBtn, connectBtn, disconnectBtn;
 
-    private Button payBtn, getInfoBtn, displayBtn, getLogsL1, powerOffTimeoutBtn;
-
+    private Button payBtn, getInfoBtn, displayBtn, getLogsL1, powerOffTimeoutBtn, setLocaleBtn, startDaemonBtn; //,qrCodeBtn;
     private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
+
+    private int commandStartDelay;
+    private boolean testModeEnabled = false;
 
     /* Device */
     private YTProduct ytProduct;
@@ -117,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         setContentView(R.layout.activity_main);
 
@@ -158,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
+        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+
         if (connexionManager.getDevice() == null) {
             updateConnectionUI(NO_DEVICE_SELECTED);
             updateMDMUI(MDMState.IDLE);
@@ -193,6 +207,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        stopTestDaemon();
+
+        super.onDestroy();
+    }
+
     private void initView() {
         Button setupBtn = findViewById(R.id.setupBtn);
         setupBtn.setOnClickListener(v -> {
@@ -221,6 +242,10 @@ public class MainActivity extends AppCompatActivity {
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         displayBtn = findViewById(R.id.displayBtn);
         powerOffTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
+        setLocaleBtn = findViewById(R.id.set_locale);
+      //  qrCodeBtn = findViewById(R.id.qr_code_bt);
+     /*   qrCodeText = findViewById(R.id.qr_code_data);*/
+        startDaemonBtn = findViewById(R.id.startDaemonBtn);
 
         payBtn = findViewById(R.id.payBtn);
 
@@ -253,12 +278,17 @@ public class MainActivity extends AppCompatActivity {
         getLogsL1.setOnClickListener(v -> getSvppLogsL1());
         getInfoBtn.setOnClickListener(v -> getInfo());
         powerOffTimeoutBtn.setOnClickListener(v -> powerOffTimeout());
+        setLocaleBtn.setOnClickListener(v -> setLocale());
+      //  qrCodeBtn.setOnClickListener(v -> generateQRCode());
 
         /* MDM SERVICE button */
         mdmRegisterBtn.setOnClickListener(v -> mdmRegister());
         mdmGetConfigBtn.setOnClickListener(v -> mdmGetConfig());
         mdmCheckUpdateBtn.setOnClickListener(v -> mdmCheckUpdate());
         mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
+
+        /*auto test calls*/
+        startDaemonBtn.setOnClickListener(v -> startTestDaemon());
     }
 
     private void updateConnectionUI(State state) {
@@ -379,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        if(connexionManager.isConnected()) {
+        if (connexionManager.isConnected()) {
             updateConnectionUI(DEVICE_CONNECTED);
             return;
         }
@@ -428,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void disconnect() {
 
-        if(!connexionManager.isConnected()) {
+        if (!connexionManager.isConnected()) {
             updateConnectionUI(DEVICE_NOT_CONNECTED);
             return;
         }
@@ -651,10 +681,13 @@ public class MainActivity extends AppCompatActivity {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
 
         DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand("Hello world");
-       // displayMessageCommand.setTimeout(2);
-       // displayMessageCommand.setClearConfig((byte) 0x01);
+        displayMessageCommand.setTimeout(5);
+        displayMessageCommand.setClearConfig((byte) 0x05);
         displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
+                case PROGRESS:
+                    LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
+                    break;
                 case FAILED:
                     UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
                     break;
@@ -684,7 +717,8 @@ public class MainActivity extends AppCompatActivity {
                 Constants.TAG_TERMINAL_STATE,
                 Constants.TAG_BATTERY_STATE,
                 Constants.TAG_POWER_OFF_TIMEOUT,
-                Constants.TAG_NFC_INFOS,
+                Constants.TAG_CONFIGURATION_MERCHANT_INTERFACE_LOCALE,
+                Constants.TAG_SUPPORTED_LOCALE_LIST,
                 Constants.TAG_EMVL1_CLESS_LIB_VERSION,
                 Constants.TAG_USB_CAPABILITY,
                 Constants.TAG_OS_VERSION,
@@ -694,7 +728,6 @@ public class MainActivity extends AppCompatActivity {
                 Constants.TAG_ACE_LAYER_VERSION,
                 Constants.TAG_GPI_VERSION,
                 Constants.TAG_EMVL3_VERSION,
-                Constants.TAG_PAYMENT_APP_CLESS_VERSION,
                 Constants.TAG_PCI_PED_VERSION,
                 Constants.TAG_PCI_PED_CHECKSUM,
                 Constants.TAG_EMV_L1_CHECKSUM,
@@ -709,6 +742,9 @@ public class MainActivity extends AppCompatActivity {
 
         new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
+                case PROGRESS:
+                    LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
+                    break;
                 case FAILED:
                 case CANCELLED:
                     progressDlg.dismiss();
@@ -726,7 +762,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }));
-
     }
 
     private void powerOffTimeout() {
@@ -751,6 +786,9 @@ public class MainActivity extends AppCompatActivity {
             progressDlg.dismiss();
 
             switch (event1) {
+                case PROGRESS:
+                    LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
+                    break;
                 case CANCELLED:
                     UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
                     break;
@@ -804,6 +842,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             switch (event) {
+                case PROGRESS:
+                    LogManager.e("message display progress state"+ ((RPCCommandStatus) params[1]).name());
+                    break;
                 case FAILED:
                 case CANCELLED:
                     runOnUiThread(() -> {
@@ -815,49 +856,138 @@ public class MainActivity extends AppCompatActivity {
 
                 case SUCCESS:
                     new GetInfosCommand(uCubeInfoTagList).execute((event1, params1) -> {
-                    if (event1 == TaskEvent.PROGRESS)
-                        return;
+                        if (event1 == TaskEvent.PROGRESS)
+                            return;
 
-                    switch (event1) {
-                        case FAILED:
-                        case CANCELLED:
-                            runOnUiThread(() -> {
-                                progressDlg.dismiss();
-                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
-                            });
-                            break;
+                        switch (event1) {
+                            case FAILED:
+                            case CANCELLED:
+                                runOnUiThread(() -> {
+                                    progressDlg.dismiss();
+                                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
+                                });
+                                break;
 
-                        case SUCCESS:
-                            new ExitSecureSessionCommand().execute(new ITaskMonitor() {
-                                @Override
-                                public void handleEvent(TaskEvent event, Object... params) {
-                                    if (event == TaskEvent.PROGRESS)
+                            case SUCCESS:
+                                new ExitSecureSessionCommand().execute((event2, params2) -> {
+                                    if (event2 == TaskEvent.PROGRESS)
                                         return;
 
                                     progressDlg.dismiss();
 
-                                    switch (event) {
+                                    switch (event2) {
                                         case FAILED:
                                         case CANCELLED:
-                                            runOnUiThread(() -> {
-                                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure));
-                                            });
+                                            runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_failure)));
 
                                             break;
 
                                         case SUCCESS:
-                                            runOnUiThread(() -> {
-                                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_success));
-                                            });
+                                            runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_logs_l1_success)));
                                             break;
                                     }
-                                }
-                            });
-                            break;
+                                });
+                                break;
 
-                    }});
+                        }
+                    });
                     break;
             }
         });
+    }
+
+    private void setLocale() {
+
+        UIUtils.showProgress(MainActivity.this, getString(R.string.get_supported_locales));
+
+        UCubeAPI.getSupportedLocaleList(new UCubeLibTaskListener() {
+            @Override
+            public void onProgress(UCubeLibState uCubeLibState) {
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+
+                if (!status) {
+                    UIUtils.hideProgressDialog();
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_supported_locale_list_failed));
+                    return;
+                }
+
+                List<String> locales = ((ArrayList<String>) params[0]);
+                if (locales == null || locales.isEmpty()) {
+                    UIUtils.hideProgressDialog();
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.supported_locale_list_is_empty));
+                    return;
+                }
+
+                CharSequence[] items = new CharSequence[locales.size()];
+                for (int i = 0; i < locales.size(); i++) {
+                    LogManager.d("locale : " + locales.get(i));
+                    items[i] = locales.get(i);
+                }
+
+                UIUtils.setProgressMessage(getString(R.string.set_locale));
+                UIUtils.showItemsDialog(MainActivity.this, getString(R.string.set_locale),
+                        items, (dialog, which) -> UCubeAPI.setLocale(locales.get(which), new UCubeLibTaskListener() {
+                        @Override
+                        public void onProgress(UCubeLibState uCubeLibState) {
+                        }
+
+                        @Override
+                        public void onFinish(boolean status1, Object... params1) {
+
+                            UIUtils.hideProgressDialog();
+
+                            if (status1) {
+                                Toast.makeText(MainActivity.this, getString(R.string.set_locale_success), Toast.LENGTH_LONG).show();
+                            } else {
+                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_locale_failed));
+                            }
+                        }
+                        }
+                        ));
+            }
+        });
+
+    }
+
+    /*private void generateQRCode() {
+        String text = qrCodeText.getText().toString();
+        if(text.isEmpty()) {
+            Toast.makeText(this, "empty data ! ", Toast.LENGTH_LONG).show();
+            return;
+        }
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_qr_code));
+
+        new DisplayQRCodeCommand(text).execute((event1, params1) -> runOnUiThread(() -> {
+            switch (event1) {
+                case FAILED:
+                    UIUtils.showMessageDialog(this, getString(R.string.display_qr_code_failure));
+                    break;
+
+                case SUCCESS:
+                    Toast.makeText(this, getString(R.string.display_qr_code_success), Toast.LENGTH_LONG).show();
+                    break;
+
+                default:
+                    return;
+            }
+
+            progressDlg.dismiss();
+        }));
+    }*/
+
+    private static CommandDaemon DAEMON;
+
+    private void startTestDaemon() {
+        DAEMON = new CommandDaemon(0);
+        new Thread(DAEMON).start();
+    }
+
+    private void stopTestDaemon() {
+        if (DAEMON != null) {
+            DAEMON.stop();
+        }
     }
 }

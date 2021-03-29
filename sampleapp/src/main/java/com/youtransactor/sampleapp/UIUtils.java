@@ -24,6 +24,16 @@ public class UIUtils {
 
 	private UIUtils() {}
 
+	public static AlertDialog showItemsDialog(Context context, String title, CharSequence[] items, DialogInterface.OnClickListener onClickListener) {
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+		dialogBuilder.setTitle(title);
+		dialogBuilder.setCancelable(false);
+		dialogBuilder.setItems(items, onClickListener);
+		AlertDialog dialog = dialogBuilder.create();
+		dialog.show();
+		return dialog;
+	}
+
 	public static AlertDialog showOptionDialog(Context context, String text,
 										String yesLabel, String noLabel,
 										final DialogInterface.OnClickListener listener) {

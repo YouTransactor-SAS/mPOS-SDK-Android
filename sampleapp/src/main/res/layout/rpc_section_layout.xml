@@ -9,34 +9,46 @@
         android:layout_height="1dp"
         android:layout_margin="@dimen/margin"
         android:background="@color/grey_300" />
-
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="horizontal">
         <Button
-            android:id="@+id/getSvppLogL1"
-            android:layout_width="0dp"
+            android:id="@+id/set_locale"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
-            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="@string/set_locale" />
+
+        <Button
+            android:id="@+id/getSvppLogL1"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
             android:text="@string/get_logs_l1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/getInfoBtn"
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
-            android:layout_weight="1"
             android:text="@string/get_info" />
 
         <Button
             android:id="@+id/displayBtn"
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
-            android:layout_weight="1"
             android:text="@string/display" />
 
     </LinearLayout>
@@ -75,8 +87,37 @@
     </LinearLayout>
     <Button
         android:id="@+id/powerTimeoutBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/set_power_off_timeout" />
+    <!--<View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_300" />-->
+<!--    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/qr_code_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:inputType="text"
+            android:text="@string/hello_world"
+            android:autofillHints="Hello world" />
+
+        <Button
+            android:id="@+id/qr_code_bt"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_gravity="center"
+            android:text="@string/qr_code" />
+    </LinearLayout>-->
+
 </LinearLayout>

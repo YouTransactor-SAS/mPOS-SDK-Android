@@ -15,44 +15,34 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:id="@+id/test_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/daemon_tool" />
+
+        <Button
+            android:id="@+id/startDaemonBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/start_daemon" />
+    </LinearLayout>
+
     <View
         android:id="@+id/start"
+        android:layout_below="@+id/test_section"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/grey_300" />
-
-<!--
-    <LinearLayout
-        android:id="@+id/ucube_section"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/ucube_model"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:textStyle="bold"
-            android:text="@string/model"/>
-
-        <TextView
-            android:id="@+id/ucube_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/ucube_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:textStyle="bold"/>
-
-    </LinearLayout>-->
 
     <ScrollView
         android:layout_width="match_parent"
@@ -163,7 +153,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_margin="@dimen/margin"
             android:background="@color/grey_300" />
 
         <LinearLayout
@@ -176,7 +165,6 @@
                 android:id="@+id/payBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin"
                 android:text="@string/pay" />
 
         </LinearLayout>
