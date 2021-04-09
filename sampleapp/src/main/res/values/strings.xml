@@ -48,6 +48,8 @@
 
     <!-- ERRORS -->
     <string name="error_setup">Error setup!</string>
+    <string name="error_set_mandatory_field">Mandatory field</string>
+    <string name="error_wrong_value">Wrong value</string>
 
     <!--Bluetooth -->
     <string name="enable_bt_msg">This app needs Bluetooth to work without any problems.</string>
@@ -193,7 +195,7 @@
     <string name="second_symbol">(s)</string>
     <string name="_180">180</string>
     <string name="set_power_off_timeout">Set power off timeout</string>
-    <string name="power_off_timeout_val">val <![CDATA[> 32 and < 255]]></string>
+    <string name="power_off_timeout_val">val 0 or <![CDATA[> 32 and < 255]]></string>
     <string name="get_logs_l1">Tag 0xCB</string>
     <string name="get_logs_l1_failure">Get Logs L1 failed</string>
     <string name="get_logs_l1_success">Get Logs L1 Success</string>

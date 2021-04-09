@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -30,7 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.youTransactor.uCube.ITaskMonitor;
+import com.google.android.material.textfield.TextInputLayout;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
@@ -78,24 +80,18 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEVICE_NAME = "DEVICE_NAME";
     public static final String DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    private SharedPreferences prefs;
-
     /* UI */
-    private TextView versionNameTv;
-    private TextView uCubeModelTv;
-
     private LinearLayout ucubeSection;
-    private TextView ucubeNameTv, ucubeAddressTv;
 
-    private EditText scanFilter;//, qrCodeText;
+    private TextView versionNameTv, uCubeModelTv, ucubeNameTv, ucubeAddressTv;
 
-    private Button scanBtn, connectBtn, disconnectBtn;
+    private EditText scanFilter, powerTimeoutFld;
 
-    private Button payBtn, getInfoBtn, displayBtn, getLogsL1, powerOffTimeoutBtn, setLocaleBtn, startDaemonBtn; //,qrCodeBtn;
-    private Button mdmRegisterBtn, mdmCheckUpdateBtn, mdmSendLogBtn, mdmGetConfigBtn;
+    private Button scanBtn, connectBtn, disconnectBtn, payBtn, getInfoBtn, displayBtn, getLogsL1,
+            powerOffTimeoutBtn, setLocaleBtn, startDaemonBtn, mdmRegisterBtn, mdmCheckUpdateBtn,
+            mdmSendLogBtn, mdmGetConfigBtn;
 
-    private int commandStartDelay;
-    private boolean testModeEnabled = false;
+    private TextInputLayout powerOffTimeoutInputLayout;
 
     /* Device */
     private YTProduct ytProduct;
@@ -108,8 +104,11 @@ public class MainActivity extends AppCompatActivity {
     boolean forceUpdate = false;
 
     /* shared preference */
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences prefs;
     private static final String SHAREDPREF_NAME = "main";
+
+    private int commandStartDelay;
+    private boolean testModeEnabled = false;
 
     enum State {
         NO_DEVICE_SELECTED,
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
 
-        sharedPreferences = getSharedPreferences(SHAREDPREF_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(SHAREDPREF_NAME, Context.MODE_PRIVATE);
         if (getDevice() != null) {
             //2- initialise the connexion manager with saved device
             connexionManager.setDevice(getDevice());
@@ -241,12 +240,11 @@ public class MainActivity extends AppCompatActivity {
         getInfoBtn = findViewById(R.id.getInfoBtn);
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         displayBtn = findViewById(R.id.displayBtn);
+        powerTimeoutFld = findViewById(R.id.powerTimeoutFld);
+        powerOffTimeoutInputLayout = findViewById(R.id.poweroff_timeout_input_layout);
         powerOffTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
         setLocaleBtn = findViewById(R.id.set_locale);
-      //  qrCodeBtn = findViewById(R.id.qr_code_bt);
-     /*   qrCodeText = findViewById(R.id.qr_code_data);*/
         startDaemonBtn = findViewById(R.id.startDaemonBtn);
-
         payBtn = findViewById(R.id.payBtn);
 
         mdmRegisterBtn = findViewById(R.id.registerBtn);
@@ -277,9 +275,22 @@ public class MainActivity extends AppCompatActivity {
         displayBtn.setOnClickListener(v -> displayHelloWorld());
         getLogsL1.setOnClickListener(v -> getSvppLogsL1());
         getInfoBtn.setOnClickListener(v -> getInfo());
+        powerTimeoutFld.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                powerOffTimeoutInputLayout.setError("");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         powerOffTimeoutBtn.setOnClickListener(v -> powerOffTimeout());
         setLocaleBtn.setOnClickListener(v -> setLocale());
-      //  qrCodeBtn.setOnClickListener(v -> generateQRCode());
 
         /* MDM SERVICE button */
         mdmRegisterBtn.setOnClickListener(v -> mdmRegister());
@@ -689,6 +700,7 @@ public class MainActivity extends AppCompatActivity {
                     LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
                     break;
                 case FAILED:
+                case CANCELLED:
                     UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
                     break;
 
@@ -765,20 +777,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void powerOffTimeout() {
+        EditText powerTimeoutFld = findViewById(R.id.powerTimeoutFld);
+        if(powerTimeoutFld.getText().toString().isEmpty()) {
+            powerOffTimeoutInputLayout.setError(getString(R.string.error_set_mandatory_field));
+            return;
+        }
+
+        int powerOffValue = Integer.parseInt(powerTimeoutFld.getText().toString());
+        if(powerOffValue != 0 && (powerOffValue > 255 || powerOffValue < 32))  {
+            powerOffTimeoutInputLayout.setError(getString(R.string.error_wrong_value));
+            return;
+        }
+
+        powerOffTimeoutInputLayout.setError("");
+
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.set_power_off_timeout_value));
         progressDlg.setCancelable(false);
 
-        int powerOffValue = 180; //default value 3 minutes
-
-        EditText powerTimeoutFld = findViewById(R.id.powerTimeoutFld);
-        if (powerTimeoutFld != null && !powerTimeoutFld.getText().toString().isEmpty()) {
-            powerOffValue = Integer.parseInt(powerTimeoutFld.getText().toString());
-        }
-
-        int finalPowerOffValue = powerOffValue;
-
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
-        setInfoFieldCommand.setPowerTimeout(finalPowerOffValue);
+        setInfoFieldCommand.setPowerTimeout(powerOffValue);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
             if (event1 == TaskEvent.PROGRESS)
                 return;
@@ -789,6 +806,7 @@ public class MainActivity extends AppCompatActivity {
                 case PROGRESS:
                     LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
                     break;
+
                 case CANCELLED:
                     UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
                     break;
@@ -806,22 +824,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveDevice(UCubeDevice device) {
-        sharedPreferences.edit()
+        prefs.edit()
                 .putString(DEVICE_NAME, device.getName())
                 .putString(DEVICE_ADDRESS, device.getAddress())
                 .apply();
     }
 
     private void removeDevice() {
-        sharedPreferences.edit()
+        prefs.edit()
                 .remove(DEVICE_ADDRESS)
                 .remove(DEVICE_NAME)
                 .apply();
     }
 
     private UCubeDevice getDevice() {
-        String name = sharedPreferences.getString(DEVICE_NAME, null);
-        String address = sharedPreferences.getString(DEVICE_ADDRESS, null);
+        String name = prefs.getString(DEVICE_NAME, null);
+        String address = prefs.getString(DEVICE_ADDRESS, null);
         if (name != null && address != null)
             return new UCubeDevice(name, address);
 
@@ -830,9 +848,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getSvppLogsL1() {
 
-        final int[] uCubeInfoTagList = {
-                Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1,
-        };
+        final int[] uCubeInfoTagList = {Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1};
 
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_logs_l1));
         progressDlg.setCancelable(false);
@@ -888,7 +904,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
                                 break;
-
                         }
                     });
                     break;
@@ -930,53 +945,26 @@ public class MainActivity extends AppCompatActivity {
                 UIUtils.setProgressMessage(getString(R.string.set_locale));
                 UIUtils.showItemsDialog(MainActivity.this, getString(R.string.set_locale),
                         items, (dialog, which) -> UCubeAPI.setLocale(locales.get(which), new UCubeLibTaskListener() {
-                        @Override
-                        public void onProgress(UCubeLibState uCubeLibState) {
-                        }
+                                    @Override
+                                    public void onProgress(UCubeLibState uCubeLibState) {
+                                    }
 
-                        @Override
-                        public void onFinish(boolean status1, Object... params1) {
+                                    @Override
+                                    public void onFinish(boolean status1, Object... params1) {
 
-                            UIUtils.hideProgressDialog();
+                                        UIUtils.hideProgressDialog();
 
-                            if (status1) {
-                                Toast.makeText(MainActivity.this, getString(R.string.set_locale_success), Toast.LENGTH_LONG).show();
-                            } else {
-                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_locale_failed));
-                            }
-                        }
-                        }
+                                        if (status1) {
+                                            Toast.makeText(MainActivity.this, getString(R.string.set_locale_success), Toast.LENGTH_LONG).show();
+                                        } else {
+                                            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_locale_failed));
+                                        }
+                                    }
+                                }
                         ));
             }
         });
-
     }
-
-    /*private void generateQRCode() {
-        String text = qrCodeText.getText().toString();
-        if(text.isEmpty()) {
-            Toast.makeText(this, "empty data ! ", Toast.LENGTH_LONG).show();
-            return;
-        }
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_qr_code));
-
-        new DisplayQRCodeCommand(text).execute((event1, params1) -> runOnUiThread(() -> {
-            switch (event1) {
-                case FAILED:
-                    UIUtils.showMessageDialog(this, getString(R.string.display_qr_code_failure));
-                    break;
-
-                case SUCCESS:
-                    Toast.makeText(this, getString(R.string.display_qr_code_success), Toast.LENGTH_LONG).show();
-                    break;
-
-                default:
-                    return;
-            }
-
-            progressDlg.dismiss();
-        }));
-    }*/
 
     private static CommandDaemon DAEMON;
 
