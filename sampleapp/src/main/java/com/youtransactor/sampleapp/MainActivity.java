@@ -67,6 +67,7 @@ import com.youtransactor.sampleapp.test.CommandDaemon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.youtransactor.sampleapp.MainActivity.State.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
@@ -795,7 +796,7 @@ public class MainActivity extends AppCompatActivity {
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
-        setInfoFieldCommand.setPowerTimeout(powerOffValue);
+        setInfoFieldCommand.setPowerTimeout((byte) powerOffValue);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
             if (event1 == TaskEvent.PROGRESS)
                 return;
@@ -806,7 +807,6 @@ public class MainActivity extends AppCompatActivity {
                 case PROGRESS:
                     LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
                     break;
-
                 case CANCELLED:
                     UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
                     break;
@@ -929,7 +929,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                List<String> locales = ((ArrayList<String>) params[0]);
+                List<Locale> locales = ((ArrayList<Locale>) params[0]);
                 if (locales == null || locales.isEmpty()) {
                     UIUtils.hideProgressDialog();
                     UIUtils.showMessageDialog(MainActivity.this, getString(R.string.supported_locale_list_is_empty));
@@ -938,8 +938,8 @@ public class MainActivity extends AppCompatActivity {
 
                 CharSequence[] items = new CharSequence[locales.size()];
                 for (int i = 0; i < locales.size(); i++) {
-                    LogManager.d("locale : " + locales.get(i));
-                    items[i] = locales.get(i);
+                    LogManager.d("locale : " + locales.get(i).getLanguage());
+                    items[i] = locales.get(i).getLanguage() + "_" + locales.get(i).getCountry();
                 }
 
                 UIUtils.setProgressMessage(getString(R.string.set_locale));

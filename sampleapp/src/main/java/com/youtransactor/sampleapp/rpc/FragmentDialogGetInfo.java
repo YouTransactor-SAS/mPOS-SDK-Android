@@ -22,8 +22,8 @@ import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Text;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class FragmentDialogGetInfo extends DialogFragment {
@@ -124,13 +124,14 @@ public class FragmentDialogGetInfo extends DialogFragment {
             automaticPowerOffTimeOut.setText(deviceInfos.getAutoPowerOffTimeout() + " Sec");
 
         if(deviceInfos.getMerchantLocale() != null) {
-            merchantLocale.setText(deviceInfos.getMerchantLocale());
+            String tmp = deviceInfos.getMerchantLocale().getLanguage() + "_" + deviceInfos.getMerchantLocale().getCountry();
+            merchantLocale.setText(tmp);
         }
 
         if(deviceInfos.getSupportedLocaleList() != null && !deviceInfos.getSupportedLocaleList().isEmpty()) {
             StringBuilder locales = new StringBuilder();
-            for(String locale : deviceInfos.getSupportedLocaleList()) {
-                locales.append(locale).append(", ");
+            for(Locale locale : deviceInfos.getSupportedLocaleList()) {
+                locales.append(locale.getLanguage()).append("_").append(locale.getCountry()).append(", ");
             }
 
             supportedLocaleList.setText(locales.toString());
