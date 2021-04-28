@@ -66,6 +66,11 @@ public class AuthorizationTask implements IAuthorizationTask {
         }
 
         //todo here you can call the host
+        if(activity == null) {
+            this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x30};
+            new Thread(() -> monitor.handleEvent(TaskEvent.SUCCESS)).start();
+            return;
+        }
 
         activity.runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);

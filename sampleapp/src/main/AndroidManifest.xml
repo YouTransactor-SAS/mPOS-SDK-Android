@@ -20,6 +20,8 @@
 
         <activity android:name=".payment.PaymentActivity"/>
 
+        <activity android:name=".test.TestActivity"/>
+
         <activity android:name=".SetupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
