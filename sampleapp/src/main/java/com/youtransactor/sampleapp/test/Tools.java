@@ -19,6 +19,8 @@ import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.SecurityMode;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
+import com.youTransactor.uCube.rpc.command.InstallForLoadCommand;
+import com.youTransactor.uCube.rpc.command.InstallForLoadKeyCommand;
 import com.youTransactor.uCube.rpc.command.LoadCommand;
 import com.youTransactor.uCube.rpc.command.PowerOffCommand;
 import com.youtransactor.sampleapp.payment.AuthorizationTask;
@@ -37,6 +39,7 @@ import static com.youTransactor.uCube.rpc.Constants.INSTALL_FOR_LOAD_COMMAND;
 public class Tools {
 
     interface Listener {
+        void onSent();
         void onFinish(boolean status);
     }
 
@@ -50,6 +53,14 @@ public class Tools {
 
         new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> {
             switch (event) {
+                case PROGRESS:
+                    LogManager.d("GetInfoCommand");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
+
                 case FAILED:
                 case CANCELLED:
                     listener.onFinish(false);
@@ -102,35 +113,70 @@ public class Tools {
         });
     }
 
-    public static void load(Listener listener) {
+    public static void installForLoadKey(Listener listener) {
+         new InstallForLoadKeyCommand().execute((event1, params1) -> {
+             switch (event1) {
+                 case PROGRESS:
+                     LogManager.d("InstallForLoadKeyCommand");
+                     LogManager.d("progress state " + ((RPCCommandStatus) params1[1]).name());
+                     if(params1[1] == RPCCommandStatus.SENT) {
+                         listener.onSent();
+                     }
+
+                     break;
+                 case FAILED:
+                 case CANCELLED:
+                     listener.onFinish(false);
+                     return;
+                 case SUCCESS:
+                     listener.onFinish(true);
+                     break;
+
+             }
+         });
+    }
+
+    public static void installForLoad(Listener listener) {
         byte[] installForLoad = com.youTransactor.uCube.Tools.hexStringToByteArray("00015DCE55E5D02254C479F42C5C7B47273C89FB7B8518AA1BF10F4D28006A01D50F86A5273ABFFCBCC4FB1BA919E31FFDF41CE090A7B652DB50FE5D6EA47236124A2F734E727FFF3A147795C225C30720AE7FB8BCF8B5C48A2DDABAADCC3DE247FEEC92BBB95A17627FD8FDB1BBADA31F9253CA0B708AF3B59BC115CE41CD0038B32C78192556525E9B39B178419DD952D2B1B0F87A1966DAC77FBCD186E564AB58D1BF3B2DCB2EADEBDEFD4301E8CACEAC48B95E027703C814DE3B4A1D19632D1E5E91A9B65143B2CE25819056B3265ED747824D394B60F97060A4575D79314C424A0E812201D2D0DB794849E9EA6B7F925C060A080F1409F7FB5D0F2E8EF22CA305010000001E0315010000BE2D0000BE2D0000020000");
+
+        UCubeAPI.sendData(INSTALL_FOR_LOAD_COMMAND, installForLoad, SecurityMode.SIGNED_NOT_CHECKED, SecurityMode.SIGNED, new UCubeLibRpcSendListener() {
+            @Override
+            public void onProgress(RPCCommandStatus rpcCommandStatus) {
+                LogManager.d("InstallForLoadCommand");
+                LogManager.d("progress state " + rpcCommandStatus.name());
+                if(rpcCommandStatus == RPCCommandStatus.SENT) {
+                    listener.onSent();
+                }
+            }
+
+            @Override
+            public void onFinish(boolean status, byte[] response) {
+                listener.onFinish(status);
+            }
+        });
+    }
+
+    public static void load(Listener listener) {
         byte[] loadBuffer = com.youTransactor.uCube.Tools.hexStringToByteArray("84000000DB000000A204000000000000A2040000A20400000001090401020A04FFFFFFFF08000000160000001600000030000000B0000000100200001A9F0000020000007003000002000000339F000003000000720300000300000000D000000100000075030000010000001781DF000100000076030000010000001A81DF0003000000770300000300000002DFDF00000000007A0300008000000014DFDF0004000000FA0300000400000015DFDF0004000000FE03000004000000069F0000070000000204000010000000099F00000200000012040000020000001D9F0000060000001404000006000000359F0000010000001A04000001000000409F0000050000001B040000050000007E9F00000100000020040000010000000C81DF000100000021040000010000001881DF000100000022040000010000001981DF000100000023040000010000001B81DF000100000024040000010000001C81DF000200000025040000020000001D81DF000100000027040000010000001E81DF000100000028040000010000001F81DF000100000029040000010000002081DF00050000002A040000050000002181DF00050000002F040000050000002281DF000500000034040000050000002381DF000600000039040000060000002481DF00060000003F040000060000002581DF000600000045040000060000002681DF00060000004B040000060000002C81DF00010000005104000001000000069F0000070000005204000010000000099F00000200000062040000020000001D9F0000060000006404000006000000359F0000010000006A04000001000000409F0000050000006B040000050000007E9F00000100000070040000010000000C81DF000100000071040000010000001881DF000100000072040000010000001981DF000100000073040000010000001B81DF000100000074040000010000001C81DF000200000075040000020000001D81DF000100000077040000010000001E81DF000100000078040000010000001F81DF000100000079040000010000002081DF00050000007A040000050000002181DF00050000007F040000050000002281DF000500000084040000050000002381DF000600000089040000060000002481DF00060000008F040000060000002581DF000600000095040000060000002681DF00060000009B040000060000002C81DF0001000000A104000001000000078820B84802209F6A04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003A9800000001A000000004101000000000000000000000020CF08000000022600080300101022008B000000020C8F45080800C0000000000F45080800C00000000000000009999999900009999999900000000500008A000000004306000000000000000000000020CF08000000022600080300101022008B000000020C8F45080800C0000000000F45080800C000000000000000099999999000099999999000000005000088500000056000000A002000000000000A0020000A00200000001090401020A04FFFFFFFF1400000001000000010000003000000070010000800100001A9F0000020000009001000002000000339F0000030000009201000003000000359F00000100000095010000010000004E9F0000000000009601000032000000669F000004000000C80100000400000000D0000001000000CC0100000100000001D0000001000000CD0100000100000000DF000006000000CE0100000600000001DF000006000000D40100000600000002DF000006000000DA010000060000002081DF0005000000E0010000050000002181DF0005000000E5010000050000002281DF0005000000EA0100000500000002DFDF0000000000EF0100008000000014DFDF00040000006F0200000400000015DFDF0004000000730200000400000016DFDF0004000000770200000400000021DFDF00020000007B0200000200000022DFDF00020000007D0200000200000023DFDF00010000007F02000001000000069F0000070000008002000010000000069F0000070000009002000010000000078820B848220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000320040000200000099999999000000005000000000000000DC4000A8000010000000DC4004F800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003A98000000010000008083B0390005A0000000031010000000000000000000A000000003201000000000000000000081000000");
 
         List<byte[]> listLoad = new ArrayList<>();
         listLoad.add(loadBuffer);
 
-        UCubeAPI.sendData(INSTALL_FOR_LOAD_COMMAND, installForLoad, SecurityMode.SIGNED_NOT_CHECKED, SecurityMode.SIGNED, new UCubeLibRpcSendListener() {
-            @Override
-            public void onProgress(RPCCommandStatus rpcCommandStatus) {
-            }
+        new LoadCommand(listLoad).execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    LogManager.d("LoadCommand");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
 
-            @Override
-            public void onFinish(boolean status, byte[] response) {
-                if(status) {
-                    new LoadCommand(listLoad).execute(new ITaskMonitor() {
-                        @Override
-                        public void handleEvent(TaskEvent event, Object... params) {
-                            switch (event) {
-                                case FAILED:
-                                case CANCELLED:
-                                case SUCCESS:
-                                    listener.onFinish(true);
-                                    break;
-                            }
-                        }
-                    });
-                }else
-                    listener.onFinish(false);
+                case FAILED:
+                case CANCELLED:
+                case SUCCESS:
+                    listener.onFinish(true);
+                    break;
             }
         });
     }
@@ -156,6 +202,14 @@ public class Tools {
             @Override
             public void handleEvent(TaskEvent event, Object... params) {
                 switch (event) {
+                    case PROGRESS:
+                        LogManager.d("Power off command");
+                        LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                        if(params[1] == RPCCommandStatus.SENT) {
+                            listener.onSent();
+                        }
+                        break;
+
                     case FAILED:
                     case CANCELLED:
                         listener.onFinish(false);

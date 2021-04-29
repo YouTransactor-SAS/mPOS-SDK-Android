@@ -31,9 +31,26 @@
                 android:layout_margin="@dimen/margin" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_300"/>
+        <TextView
+            android:id="@+id/ticket_description"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin"
+            android:ellipsize="end"
+            android:maxLines="5"
+            android:singleLine="false"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_300"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
@@ -41,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
                 android:textStyle="bold"
-                android:text="@string/delay_between_runs" />
+                android:text="@string/delay" />
 
             <EditText
                 android:id="@+id/start_run_delay"
@@ -59,13 +76,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
                 android:text="@string/ms" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -85,10 +95,11 @@
                 android:importantForAutofill="no"
                 android:inputType="number"
                 android:text="@string/_10"  />
+
         </LinearLayout>
 
         <Button
-            android:id="@+id/startDaemonBtn"
+            android:id="@+id/start_daemon"
             android:layout_marginStart="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,7 +107,7 @@
             android:text="@string/start_daemon" />
 
         <Button
-            android:id="@+id/stopDaemonBtn"
+            android:id="@+id/stop_daemon"
             android:layout_marginStart="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -114,7 +125,7 @@
         android:layout_below="@+id/configuration_section"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLogs"
+        android:id="@+id/logs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"

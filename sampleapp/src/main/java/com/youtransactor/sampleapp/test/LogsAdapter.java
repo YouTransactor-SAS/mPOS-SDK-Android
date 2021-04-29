@@ -53,4 +53,10 @@ public class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
             logTextView = itemView.findViewById(R.id.log_message);
         }
     }
+
+    public void clear() {
+        int size = logs.size();
+        logs.clear();
+        notifyItemRangeRemoved(0, size);
+    }
 }

@@ -224,4 +224,5 @@
     <string name="ticket_to_repoduce">Ticket to repoduce</string>
     <string name="delay_between_runs">delay between runs</string>
     <string name="number_of_runs">number of runs</string>
+    <string name="delay">delay</string>
 </resources>

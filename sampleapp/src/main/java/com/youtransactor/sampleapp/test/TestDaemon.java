@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.youTransactor.uCube.log.LogManager;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,8 +16,11 @@ public class TestDaemon implements Runnable {
 
     public enum Step{
         IDLE,
+        delay,
         connect,
         getInfo,
+        installForLoadKay,
+        installForLoad,
         load,
         transaction,
         powerOff,
@@ -29,6 +34,31 @@ public class TestDaemon implements Runnable {
     private List<Step> sequence;
     private LinkedList<Step> remainSequence;
 
+    private Listener finishListener = new Listener() {
+        @Override
+        public void onSent() {//ignore
+        }
+
+        @Override
+        public void onFinish(boolean status) {
+            if(status)
+                loop();
+            else
+                end();
+        }
+    };
+
+    private Listener sentListener = new Listener() {
+        @Override
+        public void onSent() {
+            loop();
+        }
+
+        @Override
+        public void onFinish(boolean status) {//ignore
+        }
+    };
+
     public TestDaemon(@NonNull Ticket ticket, int delayToStart, int numberOfRuns) {
         this.delayToStart = delayToStart;
         this.numberOfRuns = numberOfRuns;
@@ -36,6 +66,7 @@ public class TestDaemon implements Runnable {
     }
 
     public void end() {
+        LogManager.d("Test daemon end");
         interrupted = true;
     }
 
@@ -62,22 +93,26 @@ public class TestDaemon implements Runnable {
 
         Step currentStep = remainSequence.poll();
         if(currentStep == null) {
-            Log.e(TAG, "error step is null");
+            LogManager.e("error step is null");
             return;
         }
 
+        LogManager.d("Test daemon Step : " + currentStep);
+
         switch (currentStep) {
             case IDLE:
-
                 if(counter == numberOfRuns) {
                     end();
                     return;
                 }
 
                 counter++;
+                LogManager.d("Test number "+ counter);
 
-                Log.d(TAG, "Test number "+ counter);
+                loop();
+                break;
 
+            case delay:
                 if (delayToStart > 0) {
                     try {
                         Thread.sleep(delayToStart);
@@ -92,57 +127,35 @@ public class TestDaemon implements Runnable {
                 break;
 
             case connect:
-                connect(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
-                break;
-
-            case load:
-                load(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
+                connect(finishListener);
                 break;
 
             case getInfo:
-                getInfo(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
+                getInfo(finishListener);
+                break;
+
+            case installForLoadKay:
+                installForLoadKey(sentListener);
+                break;
+
+            case installForLoad:
+                installForLoad(finishListener);
+                break;
+
+            case load:
+                load(finishListener);
                 break;
 
             case powerOff:
-                powerOff(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
+                powerOff(finishListener);
                 break;
 
             case transaction:
-                transaction(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
+                transaction(finishListener);
                 break;
 
             case disconnect:
-                disconnect(status -> {
-                    if(status)
-                        loop();
-                    else
-                        end();
-                });
+                disconnect(finishListener);
                 break;
         }
     }

@@ -6,6 +6,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +31,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
     private List<String> logsList;
     private RecyclerView rvLogs;
     private LogsAdapter adapter;
+    private TextView ticketDescriptionTextView;
 
     private Ticket ticketToReproduce;
 
@@ -52,11 +54,12 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
     }
 
     private void initView() {
-        startDaemonBtn = findViewById(R.id.startDaemonBtn);
-        stopDaemonBtn = findViewById(R.id.stopDaemonBtn);
+        startDaemonBtn = findViewById(R.id.start_daemon);
+        stopDaemonBtn = findViewById(R.id.stop_daemon);
         startRunDelayEditText = findViewById(R.id.start_run_delay);
         numberOfRunsEditText = findViewById(R.id.number_of_runs);
-        rvLogs = findViewById(R.id.rvLogs);
+        ticketDescriptionTextView = findViewById(R.id.ticket_description);
+        rvLogs = findViewById(R.id.logs);
 
         logsList = new ArrayList<>();
         adapter = new LogsAdapter(logsList);
@@ -75,6 +78,9 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 ticketToReproduce = (Ticket) ticketSwitch.getSelectedItem();
+
+                ticketDescriptionTextView.setText(ticketToReproduce.getDescription());
+                startRunDelayEditText.setText(String.valueOf(ticketToReproduce.getDelay()));
             }
 
             @Override
@@ -96,6 +102,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
 
         startDaemonBtn.setVisibility(View.GONE);
         stopDaemonBtn.setVisibility(View.VISIBLE);
+        adapter.clear();
     }
 
     private void stopTestDaemon() {
