@@ -75,6 +75,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch contactOnlySwitch;
     private Switch forceDebugSwitch;
     private Switch skipCardRemovalSwitch;
+    private Switch skipStartingStepsSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
 
@@ -122,14 +123,15 @@ public class PaymentActivity extends AppCompatActivity {
         trxTypeChoice = findViewById(R.id.trxTypeChoice);
         amountFld = findViewById(R.id.amountFld);
         currencyChooser = findViewById(R.id.currencyChooser);
-        forceOnlinePINBtn = findViewById(R.id.forceOnlinePINBtn);
-        amountSrcSwitch = findViewById(R.id.amountSrcBtn);
-        contactOnlySwitch = findViewById(R.id.contactOnlyBtn);
-        forceAuthorisationBtn = findViewById(R.id.forceAuthorisationBtn);
-        forceDebugSwitch = findViewById(R.id.forceDebugBtn);
+        forceOnlinePINBtn = findViewById(R.id.forceOnlinePINSwitch);
+        amountSrcSwitch = findViewById(R.id.amountSrcSwitch);
+        contactOnlySwitch = findViewById(R.id.contactOnlySwitch);
+        forceAuthorisationBtn = findViewById(R.id.forceAuthorisationSwitch);
+        forceDebugSwitch = findViewById(R.id.forceDebugSwitch);
         trxResultFld = findViewById(R.id.trxResultFld);
         startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
-        skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalBtn);
+        skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalSwitch);
+        skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
@@ -281,6 +283,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
 
+        boolean skipStartingSteps = skipStartingStepsSwitch.isChecked();
+
         int amount = amountFld.getCleanIntValue();
         LogManager.d("Amount : "+ amount);
 
@@ -304,6 +308,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)
+                .setSkipStartingSteps(skipStartingSteps)
 
                 .setAuthorizationPlainTags(
                         TAG_4F_APPLICATION_IDENTIFIER,
@@ -442,7 +447,10 @@ public class PaymentActivity extends AppCompatActivity {
         Log.d(TAG, "SVPP Logs level 2 Tag F4: " + Tools.bytesToHex(context.tagF4));
         Log.d(TAG, "SVPP Logs level 2 Tag F5: " + Tools.bytesToHex(context.tagF5));
 
-        //todo send this to backend to check MAC context.finalizationGetPlainTagsResponse
+        //todo send this to backend to check the integrity
+        if (context.finalizationGetPlainTagsResponse != null)
+            LogManager.d("finalization plain tags response " + Tools.bytesToHex(context.finalizationGetPlainTagsResponse));
+
         if (context.finalizationPlainTagsValues != null) {
             for (Integer tag : context.finalizationPlainTagsValues.keySet())
                 Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationPlainTagsValues.get(tag))));

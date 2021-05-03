@@ -114,26 +114,26 @@ public class Tools {
     }
 
     public static void installForLoadKey(Listener listener) {
-         new InstallForLoadKeyCommand().execute((event1, params1) -> {
-             switch (event1) {
-                 case PROGRESS:
-                     LogManager.d("InstallForLoadKeyCommand");
-                     LogManager.d("progress state " + ((RPCCommandStatus) params1[1]).name());
-                     if(params1[1] == RPCCommandStatus.SENT) {
-                         listener.onSent();
-                     }
+        new InstallForLoadKeyCommand().execute((event1, params1) -> {
+            switch (event1) {
+                case PROGRESS:
+                    LogManager.d("InstallForLoadKeyCommand");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params1[1]).name());
+                    if(params1[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
 
-                     break;
-                 case FAILED:
-                 case CANCELLED:
-                     listener.onFinish(false);
-                     return;
-                 case SUCCESS:
-                     listener.onFinish(true);
-                     break;
+                    break;
+                case FAILED:
+                case CANCELLED:
+                    listener.onFinish(false);
+                    return;
+                case SUCCESS:
+                    listener.onFinish(true);
+                    break;
 
-             }
-         });
+            }
+        });
     }
 
     public static void installForLoad(Listener listener) {

@@ -57,7 +57,10 @@ public class AuthorizationTask implements IAuthorizationTask {
         if (paymentContext.authorizationSecuredTagsValues != null)
             LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
 
-        //todo send this to backend to check MAC paymentContext.authorizationGetPlainTagsResponse
+        //todo send this to backend to check the integrity
+        if (paymentContext.authorizationGetPlainTagsResponse != null)
+            LogManager.d("authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));
+
         if (paymentContext.authorizationPlainTagsValues != null) {
 
             for (Integer tag : paymentContext.authorizationPlainTagsValues.keySet()) {

@@ -158,46 +158,53 @@
     </LinearLayout>
 
     <Switch
-        android:id="@+id/amountSrcBtn"
+        android:id="@+id/amountSrcSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/enter_amount_on_ucube" />
 
     <Switch
-        android:id="@+id/contactOnlyBtn"
+        android:id="@+id/contactOnlySwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/contact_only" />
 
     <Switch
-        android:id="@+id/forceAuthorisationBtn"
+        android:id="@+id/forceAuthorisationSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/force_authorisation" />
 
     <Switch
-        android:id="@+id/forceOnlinePINBtn"
+        android:id="@+id/forceOnlinePINSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/force_online_pin" />
 
     <Switch
-        android:id="@+id/forceDebugBtn"
+        android:id="@+id/forceDebugSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/force_debug"/>
 
     <Switch
-        android:id="@+id/skipCardRemovalBtn"
+        android:id="@+id/skipCardRemovalSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         android:text="@string/skip_card_removal"/>
+
+    <Switch
+        android:id="@+id/skipStartingStepsSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/skip_starting_steps"/>
 
     <LinearLayout
         android:layout_width="match_parent"
