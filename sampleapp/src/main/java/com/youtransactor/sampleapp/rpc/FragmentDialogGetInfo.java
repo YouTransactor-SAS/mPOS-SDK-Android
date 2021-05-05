@@ -136,10 +136,24 @@ public class FragmentDialogGetInfo extends DialogFragment {
 
             supportedLocaleList.setText(locales.toString());
         }
-        if(deviceInfos.isChargingStatus() == null )
-            chargingState.setText("Unknown");
-        else
-            chargingState.setText(deviceInfos.isChargingStatus() ? "Plugged" : "Unplugged");
+
+        switch (deviceInfos.getChargingStatus()) {
+            case 0x00:
+                chargingState.setText("unplugged");
+                break;
+
+            case 0x01:
+                chargingState.setText("plugged");
+                break;
+
+            case 0x03:
+                chargingState.setText("Battery is Full");
+                break;
+
+            default:
+                chargingState.setText("Unknown");
+                break;
+        }
 
         b.setView(rootView);
         return b.create();
