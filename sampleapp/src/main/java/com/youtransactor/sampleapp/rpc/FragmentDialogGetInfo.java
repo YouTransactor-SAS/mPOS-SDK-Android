@@ -67,6 +67,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView resourcesVersion = rootView.findViewById(R.id.resources_file_version);
         TextView merchantLocale = rootView.findViewById(R.id.merchant_locale);
         TextView supportedLocaleList = rootView.findViewById(R.id.supported_locale_list);
+        TextView chargingState = rootView.findViewById(R.id.charging_state);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -135,6 +136,10 @@ public class FragmentDialogGetInfo extends DialogFragment {
 
             supportedLocaleList.setText(locales.toString());
         }
+        if(deviceInfos.isChargingStatus() == null )
+            chargingState.setText("Unknown");
+        else
+            chargingState.setText(deviceInfos.isChargingStatus() ? "Plugged" : "Unplugged");
 
         b.setView(rootView);
         return b.create();

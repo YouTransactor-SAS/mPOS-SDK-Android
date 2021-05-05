@@ -265,6 +265,31 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
                 android:gravity="left"
+                android:text="@string/charging_state"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/charging_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="left"
                 android:text="@string/battery_state"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"

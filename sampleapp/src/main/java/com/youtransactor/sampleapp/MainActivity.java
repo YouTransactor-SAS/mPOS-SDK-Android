@@ -742,7 +742,8 @@ public class MainActivity extends AppCompatActivity {
                 Constants.TAG_BOOT_LOADER_CHECKSUM,
                 Constants.TAG_EMV_L2_CHECKSUM,
                 Constants.TAG_BLE_FIRMWARE_VERSION,
-                Constants.TAG_RESOURCE_FILE_VERSION
+                Constants.TAG_RESOURCE_FILE_VERSION,
+                Constants.TAG_FB_CHARGING_STATUS
         };
 
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_info));
