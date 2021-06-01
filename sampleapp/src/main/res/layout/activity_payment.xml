@@ -193,6 +193,13 @@
         android:text="@string/force_debug"/>
 
     <Switch
+        android:id="@+id/retrieveF5Tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="@string/retrieve_f5_tag"/>
+
+            <Switch
         android:id="@+id/skipCardRemovalSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

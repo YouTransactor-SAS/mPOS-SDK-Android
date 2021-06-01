@@ -76,6 +76,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch forceDebugSwitch;
     private Switch skipCardRemovalSwitch;
     private Switch skipStartingStepsSwitch;
+    private Switch retrieveF5TagSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
 
@@ -132,6 +133,7 @@ public class PaymentActivity extends AppCompatActivity {
         startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
         skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalSwitch);
         skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
+        retrieveF5TagSwitch = findViewById(R.id.retrieveF5Tag);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
@@ -285,6 +287,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean skipStartingSteps = skipStartingStepsSwitch.isChecked();
 
+        boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
+
         int amount = amountFld.getCleanIntValue();
         LogManager.d("Amount : "+ amount);
 
@@ -309,6 +313,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)
                 .setSkipStartingSteps(skipStartingSteps)
+                .setRetrieveF5Tag(retrieveF5Tag)
 
                 .setAuthorizationPlainTags(
                         TAG_4F_APPLICATION_IDENTIFIER,

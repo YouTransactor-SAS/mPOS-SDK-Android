@@ -228,4 +228,5 @@
     <string name="select_log_file">select log file</string>
     <string name="skip_starting_steps">skip starting steps</string>
     <string name="charging_state">Charging state</string>
+    <string name="retrieve_f5_tag">Retrieve F5 tag</string>
 </resources>
