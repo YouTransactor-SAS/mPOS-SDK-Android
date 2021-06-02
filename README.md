@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.4.21
+###### Release 3.4.26
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -135,13 +135,84 @@ The SDK is in the format “.aar” library. You have to copy-paste it in your a
 The APIs provided by UCubeAPI are:
 
 ```java
+	/*
+	* set the Application context
+	* the SDK will save this context in a static attribute and use it if need
+	* @param context application context
+	* */
 	init(@NonNull Context context)
+	
+	/*
+	* get the Application context passed before to the SDK
+	* @return Context : the application context, null if the init() method was not called yet
+	* */
 	getContext()
+	
+	/*
+	* stop all communication with the terminal
+	* */
 	close()
+	
+	/*
+	* pass the connexionManager implementation that should be used to communicate the terminal 
+	* the SDK propose two implementation : BleConnexionManager, BtClassicConnexionManager
+	* the BleConnexionManager should be used if the terminal to connect is the uCube Touch
+	* the BtClassicConnexionManager should be used if the terminal to connect is the uCube  
+	* @param connexionManager the implementation of the IConnexionManager the application want to use
+	* 
+	* This is the IConnexionManager interface definition :
+	* public interface IConnexionManager {
+	*   void setDevice(UCubeDevice UCubeDevice);
+	*   UCubeDevice getDevice();
+	*   boolean isConnected();
+	*   void connect(ConnectionListener connectionListener);
+	*   void disconnect(DisconnectListener disconnectListener);
+	*   void registerDisconnectListener(DisconnectListener disconnectListener);
+	*   void send(byte[] input, SendCommandListener sendCommandListener);
+	*   void close();
+	* }
+	* */
 	setConnexionManager(@NonNull IConnexionManager connexionManager)
+	
+	/*
+	* get the IConnexionManager object instance set before and 
+	* used by the SDK to communicate with the terminal 
+	* @return IConnexionManager : null if setConnexionManager not be called yet
+	* */
+	getConnexionManager()
+	
+	/*
+	* set the ILogger implementation that specify how the logger module should works
+	* The SDK has a default impl if the passed param is null this default one will be used
+	* The default impl will print logs on logcat and save them into a log file
+	* there are two level of logs : debug and error 
+	* there are maximum 5 log files to save logs
+	* a zip of these all log files can be requested and sent to a distante server
+	* @param logger implementation of ILogger interface
+	* */
 	setupLogger(@Nullable ILogger logger)
+	
+	/*
+	* enable or disable the SDK logs
+	* depends on enable value, the SDK will call or not the d() and e() 
+	* functions of ILogger object
+	* @param enable if true SDK print logs, otherwise SDK stop printing logs
+	* by default logs are enabled
+	* */
 	enableLogs(boolean enable)
+	
+	/*
+	* This api should be used by the application to get the
+	* current sequence number value and sent it to the backend,
+	* so it will be able to create a command payload with
+	* header and footer that include the current sequence number + 1
+	* and then cipher data and generate MAC
+	* @return int : the current sequence number value 
+	* Ref : PED Interface section 5.5.1 
+	* */
 	getCurrentSequenceNumber()
+	
+	
 	sendData(@NonNull Activity activity,
 				short commandId,
 				@NonNull byte[] data,
