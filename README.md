@@ -136,9 +136,9 @@ The APIs provided by UCubeAPI are:
 
 ```java
 	/*
-	* set the Application context
+	* set the Android application context
 	* the SDK will save this context in a static attribute and use it if need
-	* @param context application context
+	* @param context : the Android application context
 	* */
 	init(@NonNull Context context)
 	
@@ -149,7 +149,7 @@ The APIs provided by UCubeAPI are:
 	getContext()
 	
 	/*
-	* stop all communication with the terminal
+	* stop and clean all communication with the terminal
 	* */
 	close()
 	
@@ -202,26 +202,63 @@ The APIs provided by UCubeAPI are:
 	enableLogs(boolean enable)
 	
 	/*
-	* This api should be used by the application to get the
-	* current sequence number value and sent it to the backend,
-	* so it will be able to create a command payload with
-	* header and footer that include the current sequence number + 1
-	* and then cipher data and generate MAC
-	* @return int : the current sequence number value 
+	* get the current sequence number value if a command with inputSecurityMode = SIGNED_CIPHERED need         * to be created and sent to the terminal. Only the one who has the SRED key could cipher and sign
+	* the data, in the header of the command the current_sequence_number + 1 need to be add. 
 	* Ref : PED Interface section 5.5.1 
+	* @return int : the current sequence number value 
 	* */
 	getCurrentSequenceNumber()
 	
 	
+	/*
+	* used this api when the application need to send RPC command to the terminal
+	* Note that the SDK implements an RPC module where each command is a task and could be
+	* instantiated and executed. So the SDK create the data based on the variable in input,
+	* the terminal state and the inputSecurityMode. Then the response is parsed base on the
+	* outputSecurityMode and saved in RPCMessage object structure.
+	* Ref : PED interface documentation section 6.1 describe all commands & section 3.2 describe
+	* in which terminal state the command can be called
+	* @param commandID : the is of command e.g. 0x5040
+	* @param data : the payload of command
+	* @param inputSecurityMode : the security mode of the RPCCommand data
+	* @param outputSecurityMode : the securityMode of the RPCCommand response 
+	* 
+	* This is the different values of the SecurityMode
+	* public enum SecurityMode {
+	*   NONE,
+	*   SIGNED_NOT_CHECKED,
+	*   SIGNED,
+	*   SIGNED_CIPHERED,
+	* } 
+	* @param uCubeLibRpcSendListener : listener to implement to get callback with the send 
+	* progress and finish 
+	*  */
 	sendData(@NonNull Activity activity,
 				short commandId,
 				@NonNull byte[] data,
 				SecurityMode inputSecurityMode,
 				SecurityMode outputSecurityMode,
 				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
+				
+	/*
+	* use this api when you need to start a transaction
+	* the SDK implement the contact and the contactless transaction flow
+	* @param uCubePaymentRequest : object with all needed dat in input of the transaction
+	* @param listener : the UCubeLibPaymentServiceListener that implement the callbacks of
+	* onProgress and onFinish. The onFinish() callback has a PaymentContext object as parameters.
+	* The paymentContext object is created at the begin of transaction, his input variable are set 
+	* from the begin of the transaction, they can be updated during that and all output variable 
+	* are set during and at the end of the transaction. 
+	* */			
 	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
+	
+	
     setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
+    
+    
     getLocale(UCubeLibTaskListener uCubeLibTaskListener)
+    
+    
     getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
 	/* YouTransactor TMS APIs*/
