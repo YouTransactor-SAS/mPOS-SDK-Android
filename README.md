@@ -806,38 +806,212 @@ UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
 
 ### 7. RPC Commands
 
-Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. This is the list of RPC Commands class: 
+Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. Al commands are described in details in the PED Interfaces document section 6. 
+
+This is the list of RPC Commands class: 
 
 ```java
-/* System & Drivers */
+/************************************ System & Drivers ************************************/
+
+/*
+ * The command gets a set of device informations. 
+ * */
 GetInfosCommand.java
+
+/*
+ * The command set device information. Note, this command can be called once the device is in the field. 
+ * */
 SetInfoFieldCommand.java
+
+/*
+ * This function waits for card insertion on a set of slots, in parallel. 
+ * In case a smart card is inserted, the card is powered on automatically (cold reset).
+ * Note: This command can be cancelled by the cardholder (Cancel key pressed by the cardholder)
+ * */
 WaitCardCommand.java
+
+
+/*
+ * This command sends a power off to a smart card previously inserted. 
+ * */
 WaitCardRemovalCommand.java
+
+/*
+ * This command is used to display a list box. The keys ABORT and OK are evaluated during this command. 
+ * The list is build up in the order the text strings are given. 
+ * A clear screen is performed before and after each command execution in order to erase remaining previous text
+ * */
 DisplayChoiceCommand.java
+
+/*
+ * This command is used to display a message on the screen without user Key Input. 
+ * Only the OK, CANCEL and ABORT keys are monitored, and returned back. 
+ * The text is given in command parameters. The command will answer only when:
+    • The timeout is reached or
+    • One of the configured “abortkey” is pressed.
+ * The command defines a full display. A clear screen is performed before each command execution 
+ * in order to erase remaining previous text.
+ * */
 DisplayMessageCommand.java
+
+/*
+ * This command is used to power off the device. Additionally, to this command there is an automatic
+ * power off after a defined timeout. The timeout can be set with the Set Device Info command. 
+ * */
 PowerOffCommand.java
+
+/*
+ * This command is used to cancel all asynchronous process.
+ * */
 CancelCommand.java
 
-/* System kernel */
+/************************************ System kernel ************************************/
+
+/*
+ * If this command is called during the:
+ *   • READY state: the product switches from READY state to SECURED state. 
+ *   This command will internally increment the DUKPT key counter and generates session keys for a new transaction.
+ *   All internal data or states which may be left from a previous transaction are cleared during the call.
+ *   • PERSO state: the product switches from PERSO to READY. 
+ *   It can no more switching back to PERSO state any more after this action.
+ *   • PRE PERSO state: the product switches from PRE PERSO to PERSO. 
+ *   It can no more switching back to PRE PERSO state any more after this action.
+ * */
 EnterSecureSessionCommand.java
+
+/*
+ * This command is used to switch from SECURED state to READY state. 
+ * All internal data or states which may be left from the previous transaction are cleared during the call.
+ * */
 ExitSecureSessionCommand.java
+
+/*
+ * This command initializes a download sequence. 
+ * */
 InstallForLoadCommand.java
+
+/*
+ * This command is used to export all the necessary information to the RKI server 
+ * in order to perform the further DUKPT initial key injection. 
+ * */
 InstallForLoadKeyCommand.java
+
+/*
+ * This command sends the Data File to load. This command is sent in several Blocks. 
+ * Once the last block is received by the SVPP, the code installed once the signature has been verified.
+ * */
 LoadCommand.java
+
+/*
+ * This command processes an online PIN entry and return back the encrypted PIN block using the DUKPT PIN session key.
+ * */
 SimplifiedOnlinePINCommand.java
 
-/* Payment kernel */
+/************************************ Payment kernel ************************************/
+
+/*
+ * Before executing any transaction, a set of banking parameters must be initialized. 
+ * These banking parameters provided to this function are only the one handled by EMVL2 
+ * (AID list for application selection public keys to perform cards offline authentication, 
+ * and Certificate Revocation List: CRL). 
+ * Note that the parameters provided by the bank, but corresponding to the local payment scheme 
+ * should be handled by the calling application.
+ * */
 BankParametersDownloads.java
+
+/*
+ * This command retrieve previously set bank parameters. 
+ * */
 GetEMVParametersCommand.java
-BuildCandidateListCommand.java
+
+/*
+ * This function starts a NFC Transaction.
+ * */
 StartNFCTransactionCommand.java
+
+/*
+ * This function completes a NFC Transaction (if necessary)
+ * */
 CompleteNFCTransactionCommand.java
+
+/*
+ * This function returns the value of one given tag. 
+ * The tag can be an EMV tag or a proprietary tag. 
+ * */
 GetPlainTagCommand.java
+
+/*
+ * This function returns the value of one given tag. 
+ * The tag can be an EMV tag or a proprietary tag. 
+ * NOTE: If only one TAG is provided in input, the output will ONLY contain the value (and not the format TLV)
+ * SRED tags: 56 – 57 - 5A – 5F20 – 5F24 – 5F30 – 9F0B – 9F6B
+ * */
 GetSecuredTagCommand.java
+
+/*
+ * The execution of this command presumes that a card is already inserted in the device, and powered on.
+ * This command process the matching between the EMV applications supported by the terminal, and the one 
+ * supported by the card (with card supporting PSE or list of AID) with the Build candidate process list 
+ * defined in [EMV-1], section 12.3. It builds the candidate list and returns the mutually supported applications
+ * list with, for each application, the AID, the preferred name ( if the issuer table index is supported, 
+ * see [ ISO/IEC 8859] ) or the label, the application priority indicator and the issuer table index. 
+ * This command provides back all the necessary information to enable the calling application to choose the
+ * appropriated AID according to its local scheme specificities. If more than one application can be chosen, 
+ * the calling application will ask for cardholder choice through the DisplayListBox function. 
+ * Once the AID selected, the PAY.TransactionInitialization command is called with this AID in input to continue
+ * the transaction sequence.
+ * */
+BuildCandidateListCommand.java
+
+/*
+ * The execution of this command presumes that a card is already inserted in the device, and powered on, and the
+ * BuildCandidateList has previously been called.
+ * This command:
+ *   • Initializes the transaction, with an amount, currency, etc.
+ *   • Performs the FINAL SELECTION, with the Final selection according to [EMV-1], section 12.4
+ *   • Performs the GET PROCESSING OPTIONS followed by the subsequent READ RECORDS, according to [EMV-3], 
+ *     section 10.1 & 10.2.
+ *   • Select the cardholder language. In case a card language matches with a language provided by 
+ *   the calling application, it is automatically selected. In case of multiple choices, 
+ *   a DisplayListBox appears on the screen to ask the user to select his preferred language.
+ * This command provides back all the necessary information to enable the calling application to 
+ * perform an acquire risk management (black list, b check, etc...). Once the result of the 
+ * risk management is known, the calling application sends the TransactionProcess to continue 
+ * the transaction sequence.
+ * */
 InitTransactionCommand.java
-TransactionFinalizationCommand.java
+
+/*
+ * The execution of this command presumes that a card is already inserted in the device,
+ * and powered on, and the PAY.TransactionInitialization has previously been called.
+ * This command:
+ *   • Performs the PROCESSING RESTRICTIONS according to [EMV-3], section 10.4
+ *   • Performs the PIN ENTRY according to [PCI PTS] security requirements, according to the cardholder 
+ *     selected language during PAY.TransactionInitialization, and according to [EMV-3], section 10.5
+ *   • Performs the OFFLINE DATA AUTHENTICATION (SDA, DDA, SDA) according to [EMV-3], section 10.3
+ *   • Performs the TERMINAL RISK MANAGEMENT according to [EMV-3], section 10.6 (Floor Limits, 
+ *      Random Transaction Selection, Velocity Checking)
+ *   • Performs the TERMINAL ACTION ANALYSIS (first generate AC) according to [EMV-3], section 10.7
+ * This command provides back all the necessary information to enable the calling application to perform 
+ * an authorisation to the acquire
+ * */
 TransactionProcessCommand.java
+
+/*
+ * The execution of this command presumes that a card is already inserted in the device, and powered on,
+ * and the TransactionProcess has previously been called.
+ * This command:
+ *   • Performs the ISSUER DATA AUTHENTICATION according to [EMV-3], section 10.9 (Online processing / external
+ *   authenticate)
+ *   • Performs the ISSUER SCRIPT PRCESSING according to [EMV-3], section 10.10. It
+ *       ◦ Applies SCRIPT 71
+ *       ◦ Performs the SECOND GENERATE AC
+ *       ◦ Applies SCRIPT 72
+ * This command provides back all the necessary information to finalise a transaction. 
+ * Note, at the end of this command, even if the transaction is accepted, the calling application
+ * can later refuse it (for instance if the cardholder receipt printing failed).
+ * */
+TransactionFinalizationCommand.java
 ```
 
 * This is an example of command call: 
