@@ -106,7 +106,7 @@ So you can setup the log module to use the default implementation or your own im
 
 This diagrams describes the general YouTransactor MPOS Android SDK architecture. The Application could access to the Payment, MDM, connection modules using the uCubeAPI interface. The RPC module is public so the application could call it directly. 
 
-![Capture du 2021-06-03 19-22-26](https://user-images.githubusercontent.com/59020462/120686295-21c0e300-c4a1-11eb-826c-3e202761d5fc.png)
+![Capture du 2021-06-03 19-27-14](https://user-images.githubusercontent.com/59020462/120686940-cc390600-c4a1-11eb-9ec6-bca640c9da0c.png)
 
 ### 2. Transaction Flow : Contact
 
