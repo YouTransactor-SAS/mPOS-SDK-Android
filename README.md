@@ -373,9 +373,14 @@ This is the different transaction type that the solution authorise.
 The input parameter of Pay API is the uCubePaymentRequest. This class contains all input variables of a payment. At the begin of the transaction, the SDK create a new instance of PaymentContext and save into it all the input values. Here is an example of preparing a uCubePaymentRequest object, all variables are explained in the PaymentCOntext section :
 
 ```java
-  int amount = 100 // means 1 euro 
+  int amount = 100;
   Currency currency = UCubePaymentRequest.CURRENCY_EUR;
   TransactionType trxType = TransactionType.PURCHASE;
+  List<String> preferredLanguageList = Collections.singletonList("en");
+  List<CardReaderType> readerList = new ArrayList<>();
+  readerList.add(CardReaderType.ICC);
+  readerList.add(CardReaderType.NFC);
+	
   int timeout = 30;
   boolean forceOnlinePin = false; 
   boolean forceAuthorisation = false; 
@@ -384,15 +389,17 @@ The input parameter of Pay API is the uCubePaymentRequest. This class contains a
   boolean retrieveF5Tag = false; 
   boolean skipStartingSteps = true; 
   
-  List<CardReaderType> readerList = new ArrayList<>();
-        readerList.add(CardReaderType.ICC);
-        readerList.add(CardReaderType.NFC);
+  UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(
+ 						amount, 
+						currency, 
+						trxType,
+						readerList, 
+						new AuthorizationTask(this), 
+						preferredLanguageList
+						);
 
- UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
-                readerList, new AuthorizationTask(this), Collections.singletonList("en"));
-
-//Add optional variables
-uCubePaymentRequest
+   //Add optional variables
+   uCubePaymentRequest
 	.setForceOnlinePin(forceOnlinePin)
 	.setTransactionDate(new Date())
 	.setForceAuthorisation(forceAuthorisation)
@@ -414,29 +421,134 @@ uCubePaymentRequest
 The PaymentContext is the object that evoluate for each step of the payment and it is returned at the end of the transaction using the callback onFinish().
 
 ```java
-	/* input */
-    	public int cardWaitTimeout = 30;
-    	public int amount = -1;
+	/***************************************** input *******************************************/
+	
+	/* 
+	* Amount of the transaction, as defined in [EMV-2]. 
+	* If the Currency exponent is set to 2, and Amount is 100, 
+	* the transaction price will be 1,00
+	* the amount could maximun have 12 digit
+	* default value is -1 means no amount will be passed byt the application
+	* and the terminal will request the amount at the begin of the transaction 
+	* */
+    	public int amount = -1; // 
+	
+	/*
+	* Indicates the currency of the transaction 
+	* The Currency class has 3 attributes : 
+	* 	String label;
+	*	int code; // according to ISO 4217
+	*	int exponent; 
+	* */
     	public Currency currency;
+	
+	/*
+	* Indicates the type of financial transaction, represented by the first two digits of the 
+	* ISO 8583:1987 Processing Code. The actual values to be used for the Transaction Type data 
+	* element are defined by the payment system. The supported Transaction type are the following one:
+	*	* PURCHASE
+	*	* WITHDRAWAL
+	*	* REFUND
+	*	* PURCHASE_CASHBACK
+	*	* MANUAL_CASH
+	*	* INQUIRY
+	* NOTE: the support of these Transaction Type depends on the configuration. 
+	* */
     	public TransactionType transactionType;
+	
+	/*
+	* 1 to 6 languages stored in order of preference, each represented by 2 alphabetical
+	* characters according to ISO 639
+	* */
+	public List<String> preferredLanguageList;
+	
+	/*
+	* Local date & time that the transaction was authorised
+	* */
     	public Date transactionDate;
-    	public int applicationVersion; // Mandatory for Carte Bancaire 'CB' scheme
-    	public List<String> preferredLanguageList;
-    	public boolean forceOnlinePIN;
-    	private boolean forceAuthorization;
-    	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
-	public List<CardReaderType> readerList;
-	public byte[] inputProprietaryTLVStream;
-	public boolean forceDebug = false;
-	public boolean getSystemFailureInfoL2 = false;
-	public boolean retrieveF5Tag = false;
+	
+	/*
+	* Timeout for "waiting for any interfaces" 
+	* NOTE: The timeout is limited to 0xFF (255 seconds)
+	* */
+    	public int cardWaitTimeout = 30; 
+
+	/*
+	* Requested PIN block format:
+	*	0x00 – ISO 9564 format 0
+	*	0x01 – ISO 9564 format 1
+	*	0x03 – ISO 9564 format 3
+	*	0x04 – ISO 9564 format 4
+	*	Default is 0
+	* */
+    	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0; 
+	
+	/*
+	* The different interfaces to be activated 
+	* */
+	public List<CardReaderType> readerList; 
+	
+	/*
+	* only mandatory for Carte Bancaire 'CB' scheme
+	* */
+    	public int applicationVersion;
+	
+	/*
+	* the list of tags need to be retrieved before calling the authorisationTask
+	* */
 	public int[] authorizationPlainTags, authorizationSecuredTags;
+	
+	/*
+	* the list of tags need to be retrieved before ending the transaction
+	* */
 	public int[] finalizationPlainTags, finalizationSecuredTags;
-	public boolean skipStartingSteps = false;
     
-    	/*icc input */
+	/*
+	* skip START_CANCEL_ALL, START_EXIT_SECURE_SESSION & GET_INFO steps
+	* These steps are optional to juste make sure that the device is in READY mode and not bloqued
+	* */
+	public boolean skipStartingSteps = false;
+	
+	/*
+	* only for the contactless transaction, if true, force the execution of this step 
+	* NFC_SIMPLIFIED_ONLINE_PIN to get the online pin block
+	* */
+	public boolean forceOnlinePIN = false;
+	
+	/*
+	* For contactless, it enable the force online at the start nfc transaction 
+	* for the contact, it enable the Merchant force online : byte 4 bit 4 of the TVR
+	* */
+    	private boolean forceAuthorization = false;
+	
+	/*
+	* if true, the SDK will retrieve the 0xF4 and 0xCC tags at the end of the transaction 
+	* the 0xF4 and 0xCC tags contain part of SVPP Level 2 logs
+	* */
+	public boolean forceDebug = false;
+	
+	/*
+	* if true, the SDK will retrieve the 0xF4 and 0xCC tags at the end of the transaction
+	* this flag could be enabled by the application during one of the tasks for instance the 
+	* authorisationTask if the backend decide to decline the transaction.
+	* */
+	public boolean getSystemFailureInfoL2 = false;
+	
+	/*
+	* if true, the SDK will retrieve the 0xF5 after a STRT_NFC_TRANSACTION command fails
+	* the 0xF5 tag contains part of the SVPP Level 2 logs
+	* */
+	public boolean retrieveF5Tag = false;
+
+	/*
+	* if true, the SDK will skip the SMC_REMOVE_CARD and does not wait for card to be removed 
+	* and go through the transaction result
+	* */
     	public boolean skipCardRemoval = false;
     
+    
+        /***************************************** output *******************************************/
+	
     	/* output common */
     	public PaymentStatus paymentStatus;
     	public byte[] uCubeInfos;
@@ -451,15 +563,18 @@ The PaymentContext is the object that evoluate for each step of the payment and 
     	public byte[] authorizationGetPlainTagsResponse;
     	public byte [] authorizationSecuredTagsValues;
     	public byte[] authorizationResponse; //0x8A
+	
     	/* output icc */
     	public EMVApplicationDescriptor selectedApplication;
     	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
     	public byte[] transactionFinalisationData;
     	public byte[] transactionInitData;
     	public byte[] transactionProcessData;
+	
     	/* output nfc */
     	public byte[] nfcOutcome;
     	public boolean signatureRequired;
+	
     	/* output for debug */
     	public byte[] tagCC; // svpp logs level 2 Tag CC
     	public byte[] tagF4; // svpp logs level 2 Tag F4
