@@ -382,9 +382,7 @@ The input parameter of Pay API is the uCubePaymentRequest. This class contains a
 						trxType,
 						readerList, 
 						new AuthorizationTask(this), 
-						preferredLanguageList
-						);
-
+						preferredLanguageList);
    //Add optional variables
    uCubePaymentRequest
 	.setForceOnlinePin(forceOnlinePin)
@@ -533,33 +531,88 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	* */
     	public boolean skipCardRemoval = false;
     
-    
+	/*
+	* This variable need to be set after calling the authorisation backend 
+	* It contains the host response
+	* */
+        public byte[] authorizationResponse;
+	
+	
         /***************************************** output *******************************************/
 	
     	/* output common */
-    	public PaymentStatus paymentStatus;
-    	public byte[] uCubeInfos;
-    	public byte[] sredKsn;
-    	public byte[] pinKsn;
-    	public byte[] onlinePinBlock;
-    	public byte activatedReader;
-    	public Map<Integer, byte[]> finalizationPlainTagsValues;
-    	public Map<Integer, byte[]> authorizationPlainTagsValues;
-    	public byte[] finalizationGetPlainTagsResponse;
-    	public byte [] finalizationSecuredTagsValues;
-    	public byte[] authorizationGetPlainTagsResponse;
-    	public byte [] authorizationSecuredTagsValues;
-    	public byte[] authorizationResponse; //0x8A
-	
+    	public PaymentStatus paymentStatus; // The payment status see below possible values 
+    	public byte[] uCubeInfos; // If the GET_INFO was called, it will contains the terminal firmware version
+    	public byte[] sredKsn; // Key serial number (SMID) includes current transaction key counter for the data encryption
+    	public byte[] pinKsn; // MANDATORY if an Online PIN has been entered.Null if not.
+    	public byte[] onlinePinBlock; // The returned pin block formatted with the onlinePinBlockFormat specified in the input 
+    	public byte activatedReader; // The activated interface 
+    	public Map<Integer, byte[]> finalizationPlainTagsValues; // A map of key value that contains all requested finalization plain tags
+    	public Map<Integer, byte[]> authorizationPlainTagsValues; // A map of key value that contains all requested authorisation plain tags
+    	public byte[] finalizationGetPlainTagsResponse; // the whole terminal's response of the getPlainTags command to be checked by the backend
+    	public byte [] finalizationSecuredTagsValues; // the whole terminal's response of the getSecuredTags command to be checked & parsed by the backend
+    	public byte[] authorizationGetPlainTagsResponse; //the whole terminal's response of the getPlainTags command to be checked by the backend
+    	public byte [] authorizationSecuredTagsValues; // the whole terminal's response of the getSecuredTags command to be checked & parsed by the backend
+    	
     	/* output icc */
+	/*
+	* The object that describe the selected application
+	* the EMVApplicationDescriptor has these attributes : 
+	*	private byte[] aid;
+	*	private String label;
+	*	private int priority;
+	*	private int issuerCodeIndex;
+	*	private byte selectionOptions;
+	*	private boolean blocked;
+	*	private byte[] languagePreference;
+	*	private byte[] fci;
+	*	private byte[] productId;
+	* */
     	public EMVApplicationDescriptor selectedApplication;
+	
+	/*
+	* The terminal verification result
+	* */
     	public byte[] tvr = new byte[] {0, 0, 0, 0, 0};
+	
+	/*
+	* The whole response of the TransactionFinalisation command with header and footer 
+	* */
     	public byte[] transactionFinalisationData;
+	
+	/*
+	* The whole response of the TransactionInitialization command with header and footer 
+	* */
     	public byte[] transactionInitData;
+	
+	/*
+	* The whole response of the TransactionProcess command with header and footer 
+	* */
     	public byte[] transactionProcessData;
 	
-    	/* output nfc */
+	/*
+	* The OUTCOME is composed of 2 bytes:
+	*	Byte 0:
+	*	- 0x30: Receipt
+	*	- 0x31: Receipt, Signature required
+	*	- 0x32: No Receipt
+	*	- 0x34: Online PIN Request
+	*	Byte 1:
+	*	- 0x36: APPROVED 
+	*	- 0x3E: ONLINE_REQUEST 
+	*	- 0x31: TRY_ANOTHER_INTERFACE
+	*	- 0x3A: TRANSACTION_CANCELLED 
+	*	- 0x3F: END_APPLICATION 
+	*	- 0x37: DECLINED 
+	*	- 0x38: FAILED 
+	* Example: "0x3036" 
+	*	
+	* */
     	public byte[] nfcOutcome;
+	
+	/*
+	*
+	* */
     	public boolean signatureRequired;
 	
     	/* output for debug */
