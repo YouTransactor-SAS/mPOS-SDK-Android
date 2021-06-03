@@ -252,14 +252,11 @@ The APIs provided by UCubeAPI are:
 	* */			
 	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
 	
-	
-    setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
+        setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
     
+        getLocale(UCubeLibTaskListener uCubeLibTaskListener)
     
-    getLocale(UCubeLibTaskListener uCubeLibTaskListener)
-    
-    
-    getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
+        getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
 	/* YouTransactor TMS APIs*/
 	mdmSetup(@NonNull Context context)
@@ -277,28 +274,8 @@ The APIs provided by UCubeAPI are:
 
 #### 6.1 Connect Terminal
 
-The IConnexionManager interface : 
+To be able to connect the terminal you need to follow these steps bellow : 
 
-```java
-public interface IConnexionManager {
-
-	void setDevice(UCubeDevice UCubeDevice);
-
-	UCubeDevice getDevice();
-
-	boolean isConnected();
-
-	void connect(ConnectionListener connectionListener);
-
-	void disconnect(DisconnectListener disconnectListener);
-	
-	void registerDisconnectListener(DisconnectListener disconnectListener);
-
-	void send(byte[] input, SendCommandListener sendCommandListener);
-
-	void close();
-}
-```
 * First in App class you should init the `uCubeAPI`
 ```java
 	public class App extends Application {
@@ -351,17 +328,7 @@ In the SampleApp an example of device selection using these methods is provided.
 
 #### 6.2 Setup Logger
 
-The ILogger interface : 
-
-```java
-	public interface ILogger {
-
-	    void d(String tag, String message);
-
-	    void e(String tag, String message, Exception e);
-	}
-```
-To setup the log module you should put this instructions below in you App.java or MainActivity, 
+To setup the log module you should put this instructions below in the onCreate() function of your App class or MainActivity class. 
 
 ```java
  	// if you want to use the default Logger
@@ -370,9 +337,11 @@ To setup the log module you should put this instructions below in you App.java o
 	// if you want to use your Logger impl
         UCubeAPI.setupLogger(new MyLogger());
 ```
-The SDK log can be enabled or disabled using `enableLogs` method. 
+The SDK log can be enabled or disabled using `enableLogs()` method. 
 
 #### 6.3 Payment
+
+The SDK implement the payment state machine, both contact and contactless. You configure you transaction using the uCubePaymentRequest object by specifing a value for each attribut, for instance, the transaction amount, currency, type, ...
 
 #### Transaction types
 This is the different transaction type that the solution authorise.
@@ -401,8 +370,20 @@ This is the different transaction type that the solution authorise.
 
 #### UCubePaymentRequest
 
-The input parameter of Pay API is the uCubePaymentRequest.
+The input parameter of Pay API is the uCubePaymentRequest. This class contains all input variables of a payment. At the begin of the transaction, the SDK create a new instance of PaymentContext and save into it all the input values. Here is an example of preparing a uCubePaymentRequest object, all variables are explained in the PaymentCOntext section :
+
 ```java
+  int amount = 100 // means 1 euro 
+  Currency currency = UCubePaymentRequest.CURRENCY_EUR;
+  TransactionType trxType = TransactionType.PURCHASE;
+  int timeout = 30;
+  boolean forceOnlinePin = false; 
+  boolean forceAuthorisation = false; 
+  boolean forceDebug = false;
+  boolean skipCardRemoval = true;
+  boolean retrieveF5Tag = false; 
+  boolean skipStartingSteps = true; 
+  
   List<CardReaderType> readerList = new ArrayList<>();
         readerList.add(CardReaderType.ICC);
         readerList.add(CardReaderType.NFC);
@@ -417,9 +398,10 @@ uCubePaymentRequest
 	.setForceAuthorisation(forceAuthorisation)
 	.setRiskManagementTask(new RiskManagementTask(this))
 	.setCardWaitTimeout(timeout)
-	.setSystemFailureInfo2(false)
 	.setForceDebug(true)
-    .setSkipCardRemoval(false)
+        .setSkipCardRemoval(false)
+	.setSkipStartingSteps(skipStartingSteps)
+        .setRetrieveF5Tag(retrieveF5Tag)
 	.setAuthorizationPlainTags(0x50, 0x8A, 0x8F, 0x9F09, 0x9F17, 0x9F35, 0x5F28, 0x9F0A)
 	.setAuthorizationSecuredTags(0x56, 0x57, 0x5A, 0x5F34, 0x5F20, 0x5F24, 0x5F30,
 	0x9F0B, 0x9F6B, 0x9F08, 0x9F68, 0x5F2C, 0x5F2E)
@@ -429,12 +411,10 @@ uCubePaymentRequest
 ```
 
 #### PaymentContext
-The PaymentContext is the object that evoluate for each step of the payment and is returned at the end.
+The PaymentContext is the object that evoluate for each step of the payment and it is returned at the end of the transaction using the callback onFinish().
 
 ```java
 	/* input */
-    	public boolean allowFallback;
-    	public int retryBeforeFallback = 3;
     	public int cardWaitTimeout = 30;
     	public int amount = -1;
     	public Currency currency;
@@ -445,12 +425,14 @@ The PaymentContext is the object that evoluate for each step of the payment and 
     	public boolean forceOnlinePIN;
     	private boolean forceAuthorization;
     	public byte onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_0;     
-    	public List<CardReaderType> readerList;
-    	public byte[] inputProprietaryTLVStream;
-    	public boolean forceDebug = false;
-    	public boolean getSystemFailureInfoL2;
-    	public int[] authorizationPlainTags, authorizationSecuredTags;
-    	public int[] finalizationPlainTags, finalizationSecuredTags;
+	public List<CardReaderType> readerList;
+	public byte[] inputProprietaryTLVStream;
+	public boolean forceDebug = false;
+	public boolean getSystemFailureInfoL2 = false;
+	public boolean retrieveF5Tag = false;
+	public int[] authorizationPlainTags, authorizationSecuredTags;
+	public int[] finalizationPlainTags, finalizationSecuredTags;
+	public boolean skipStartingSteps = false;
     
     	/*icc input */
     	public boolean skipCardRemoval = false;
