@@ -1084,7 +1084,7 @@ public class RPCMessage {
 	private byte[] data;
 	private byte[] data_mac; /* The MAC when secured */
 	private byte[] data_ciphered; /* The Ciphered data with the crypto header when secured ( but without the MAC ) */
-	private byte[] buffer; /* contains all the whole response of ucube without parsing */ 
+	private byte[] buffer; /* contains the whole response of ucube without parsing */ 
 	
 }	
 ```
