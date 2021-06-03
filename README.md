@@ -611,7 +611,9 @@ The PaymentContext is the object that evoluate for each step of the payment and 
     	public byte[] nfcOutcome;
 	
 	/*
-	*
+	* When the byte 0 of the outcome equals to 0x31, 
+	* this flag will be enabled and the application nned to 
+	* request the cardholder signature
 	* */
     	public boolean signatureRequired;
 	
