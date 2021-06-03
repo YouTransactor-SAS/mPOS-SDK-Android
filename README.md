@@ -267,7 +267,6 @@ The APIs provided by UCubeAPI are:
 	mdmUpdate(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	mdmSendLogs(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	mdmGetConfig(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
-
 ```
 
 * You can use the sample app provided in this repository as a reference
@@ -294,7 +293,6 @@ To be able to connect the terminal you need to follow these steps bellow :
 		
 		...
 	}
-
 ```
 
 * Second you should set the connexion manager to the SDK using `setConnexionManager` API. 
@@ -343,19 +341,9 @@ The SDK log can be enabled or disabled using `enableLogs()` method.
 
 The SDK implement the payment state machine, both contact and contactless. You configure you transaction using the uCubePaymentRequest object by specifing a value for each attribut, for instance, the transaction amount, currency, type, ...
 
-#### Transaction types
-This is the different transaction type that the solution authorise.
-
-```java
-	PURCHASE
-	WITHDRAWAL
-	REFUND
-	PURCHASE_CASHBACK
-	MANUAL_CASH
-	INQUIRY
-```
-
 #### pay API
+Here is the API need to be called to start a payment : 
+
 ```java
   UCubeAPI.pay(this, paymentRequest, new UCubeLibPaymentServiceListener() {
 	@Override
@@ -365,7 +353,6 @@ This is the different transaction type that the solution authorise.
 	public void onFinish(PaymentContext context) {}
   }
 );
-
 ```
 
 #### UCubePaymentRequest
@@ -582,7 +569,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 ```
 
 #### PaymentState 
-You will receive the onProgress() callback for each new state. This is the whole liste of payement states : 
+You will receive the onProgress() callback for each new state. This is the whole list of payment states : 
 
 ```java
 	/* COMMON STATES*/
