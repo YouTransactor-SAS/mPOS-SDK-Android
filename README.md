@@ -1040,8 +1040,7 @@ TransactionFinalizationCommand.java
 	});
 ```
 
-All this commands are described in the terminal documentation. 
-
+In which state of the terminal command could be called is described in the PED Interfaces document section 3.2. 
 * If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
 	* None
 	* Signed but the uCube don't check the signature // Only for input
