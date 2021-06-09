@@ -19,8 +19,7 @@ All this functions are resumed in one Class which is UCubeAPI. This class provid
 
 The SDK do not save any connexion or transaction or update data. 
 
-For more information about YouTransactor developer products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com).
-[www.youtransactor.com](https://www.youtransactor.com).
+For more information about YouTransactor developer products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
 
 ## I. General overview 
 
