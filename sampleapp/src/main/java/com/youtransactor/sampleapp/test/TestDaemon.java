@@ -1,7 +1,5 @@
 package com.youtransactor.sampleapp.test;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.youTransactor.uCube.log.LogManager;
@@ -10,21 +8,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.youtransactor.sampleapp.test.Tools.*;
+import static com.youtransactor.sampleapp.test.Tools.installForLoad;
+import static com.youtransactor.sampleapp.test.Tools.installForLoadKey;
 
 public class TestDaemon implements Runnable {
-    public static final String TAG = TestDaemon.class.getName();
 
     public enum Step{
         IDLE,
         delay,
         connect,
         getInfo,
+        getCB,
         installForLoadKay,
         installForLoad,
         load,
         transaction,
         powerOff,
-        disconnect
+        disconnect,
+        exitSecureSession,
+        enterSecureSession,
+        displayMessage,
     }
 
     int counter = 0;
@@ -85,7 +88,7 @@ public class TestDaemon implements Runnable {
             return;
 
         if(remainSequence == null || remainSequence.isEmpty()) {
-           //pass to next run
+            //pass to next run
             remainSequence = new LinkedList<>(sequence);
             loop();
             return;
@@ -156,6 +159,22 @@ public class TestDaemon implements Runnable {
 
             case disconnect:
                 disconnect(finishListener);
+                break;
+
+            case exitSecureSession:
+                exitSecureSession(finishListener);
+                break;
+
+            case enterSecureSession:
+                enterSecureSession(finishListener);
+                break;
+
+            case displayMessage:
+                displayMessage(finishListener);
+                break;
+
+            case getCB:
+                getCB(finishListener);
                 break;
         }
     }

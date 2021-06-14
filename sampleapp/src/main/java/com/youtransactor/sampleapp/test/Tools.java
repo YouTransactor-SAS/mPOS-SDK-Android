@@ -18,8 +18,10 @@ import com.youTransactor.uCube.payment.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.SecurityMode;
+import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
+import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
+import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
-import com.youTransactor.uCube.rpc.command.InstallForLoadCommand;
 import com.youTransactor.uCube.rpc.command.InstallForLoadKeyCommand;
 import com.youTransactor.uCube.rpc.command.LoadCommand;
 import com.youTransactor.uCube.rpc.command.PowerOffCommand;
@@ -46,9 +48,34 @@ public class Tools {
     public static void getInfo(Listener listener) {
 
         final int[] uCubeInfoTagList = {
+                Constants.TAG_ATMEL_SERIAL,
                 Constants.TAG_TERMINAL_PN,
                 Constants.TAG_TERMINAL_SN,
-                Constants.TAG_FIRMWARE_VERSION
+                Constants.TAG_FIRMWARE_VERSION,
+                Constants.TAG_EMV_ICC_CONFIG_VERSION,
+                Constants.TAG_EMV_NFC_CONFIG_VERSION,
+                Constants.TAG_TERMINAL_STATE,
+                Constants.TAG_BATTERY_STATE,
+                Constants.TAG_POWER_OFF_TIMEOUT,
+                Constants.TAG_CONFIGURATION_MERCHANT_INTERFACE_LOCALE,
+                Constants.TAG_SUPPORTED_LOCALE_LIST,
+                Constants.TAG_EMVL1_CLESS_LIB_VERSION,
+                Constants.TAG_USB_CAPABILITY,
+                Constants.TAG_OS_VERSION,
+                Constants.TAG_MPOS_MODULE_STATE,
+                Constants.TAG_TST_LOOPBACK_VERSION,
+                Constants.TAG_AGNOS_LIB_VERSION,
+                Constants.TAG_ACE_LAYER_VERSION,
+                Constants.TAG_GPI_VERSION,
+                Constants.TAG_EMVL3_VERSION,
+                Constants.TAG_PCI_PED_VERSION,
+                Constants.TAG_PCI_PED_CHECKSUM,
+                Constants.TAG_EMV_L1_CHECKSUM,
+                Constants.TAG_BOOT_LOADER_CHECKSUM,
+                Constants.TAG_EMV_L2_CHECKSUM,
+                Constants.TAG_BLE_FIRMWARE_VERSION,
+                Constants.TAG_RESOURCE_FILE_VERSION,
+                Constants.TAG_FB_CHARGING_STATUS
         };
 
         new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> {
@@ -261,5 +288,106 @@ public class Tools {
                 );
 
         return uCubePaymentRequest;
+    }
+
+    public static void exitSecureSession(Listener listener) {
+        new ExitSecureSessionCommand().execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    LogManager.d("exitSecureSession command");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                case SUCCESS:
+                    listener.onFinish(true);
+                    break;
+            }
+        });
+    }
+
+    public static void enterSecureSession(Listener listener) {
+        new EnterSecureSessionCommand().execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    LogManager.d("enterSecureSession command");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                    LogManager.e("Error! Enter secure session Failed");
+                    break;
+
+                case SUCCESS:
+                    if(((EnterSecureSessionCommand) params[0]).getKsn() == null) {
+                        LogManager.e("Error! KSN IS NULL");
+                    }
+
+                    listener.onFinish(true);
+                    break;
+            }
+        });
+    }
+
+    public static void displayMessage(Listener listener) {
+        DisplayMessageCommand cmd = new DisplayMessageCommand("");
+        cmd.setTimeout(0);
+        cmd.setAbortKey((byte) 0x00);
+        cmd.setClearConfig((byte) 0x05);
+
+        cmd.execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    LogManager.d("display command");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                    listener.onFinish(false);
+                    break;
+
+                case SUCCESS:
+                    listener.onFinish(true);
+                    break;
+            }
+        });
+    }
+
+    public static void getCB(Listener listener) {
+
+        final int[] uCubeInfoTagList = {0xCB};
+
+        new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    LogManager.d("GetInfoCommand");
+                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    if(params[1] == RPCCommandStatus.SENT) {
+                        listener.onSent();
+                    }
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                    listener.onFinish(false);
+                    return;
+
+                case SUCCESS:
+                    listener.onFinish(true);
+                    break;
+            }
+        });
     }
 }

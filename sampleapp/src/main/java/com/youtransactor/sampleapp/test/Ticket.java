@@ -7,6 +7,8 @@ import java.util.List;
 public enum Ticket {
     _7132("IDLE -> DELAY -> CONNECT -> GetInfo -> DISCONNECT \nrecommended delay : 1000 ms", 1000),
     _6928("IDLE -> DELAY -> CONNECT -> GetInfo -> InstallForLoadKey -> DISCONNECT \nrecommended delay : 0 ms", 0),
+    _7300("exitSecureSession -> displayMessage -> exitSecureSession -> exitSecureSession -> enterSecureSession", 0),
+    _7238("exitSecureSession -> Delay -> exitSecureSession -> enterSecureSession -> getInfo -> exitSecureSession", 100)
     ;
 
     private String description;
@@ -32,6 +34,15 @@ public enum Ticket {
 
             case _6928:
                 return new ArrayList<>(Arrays.asList(TestDaemon.Step.IDLE, TestDaemon.Step.delay, TestDaemon.Step.connect, TestDaemon.Step.getInfo, TestDaemon.Step.installForLoadKay, TestDaemon.Step.disconnect));
+
+            case _7300:
+                return new ArrayList<>(Arrays.asList(TestDaemon.Step.exitSecureSession, TestDaemon.Step.displayMessage,
+                        TestDaemon.Step.exitSecureSession, TestDaemon.Step.exitSecureSession,
+                        TestDaemon.Step.enterSecureSession));
+            case _7238:
+                return new ArrayList<>(Arrays.asList(TestDaemon.Step.exitSecureSession, TestDaemon.Step.delay,
+                        TestDaemon.Step.exitSecureSession, TestDaemon.Step.enterSecureSession,
+                        TestDaemon.Step.getCB, TestDaemon.Step.exitSecureSession));
 
             default:
                 return null;
