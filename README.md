@@ -19,7 +19,7 @@ All this functions are resumed in one Class which is UCubeAPI. This class provid
 
 The SDK do not save any connexion or transaction or update data. 
 
-For more information about YouTransactor developer products, please refer to our [www.youtransactor.com](https://www.youtransactor.com).
+For more information about YouTransactor developer products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
 
 ## I. General overview 
 
@@ -242,8 +242,8 @@ The APIs provided by UCubeAPI are:
 				
 	/*
 	* use this api when you need to start a transaction
-	* the SDK implement the contact and the contactless transaction flow
-	* @param uCubePaymentRequest : object with all needed dat in input of the transaction
+	* the SDK implements the contact and the contactless transaction flow
+	* @param uCubePaymentRequest : object with all needed data in input of the transaction
 	* @param listener : the UCubeLibPaymentServiceListener that implement the callbacks of
 	* onProgress and onFinish. The onFinish() callback has a PaymentContext object as parameters.
 	* The paymentContext object is created at the begin of transaction, his input variable are set 
