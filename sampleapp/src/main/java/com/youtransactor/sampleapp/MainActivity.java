@@ -38,6 +38,7 @@ import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.api.UCubeLibState;
 import com.youTransactor.uCube.api.UCubeLibTaskListener;
+import com.youTransactor.uCube.connexion.BatteryLevelListener;
 import com.youTransactor.uCube.connexion.BleConnectionManager;
 import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
 import com.youTransactor.uCube.connexion.ConnectionListener;
@@ -71,7 +72,7 @@ import java.util.List;
 import static com.youtransactor.sampleapp.MainActivity.State.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BatteryLevelListener {
 
     public static final String TAG = MainActivity.class.getName();
     public static final int SCAN_REQUEST = 1234;
@@ -110,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHAREDPREF_NAME = "main";
 
     private boolean testModeEnabled = false;
+
+    @Override
+    public void onLevelChanged(int newLevel) {
+        Toast.makeText(this.getApplicationContext(),
+                String.format(getString(R.string.battery_level), newLevel),
+                Toast.LENGTH_LONG
+        ).show();
+    }
 
     enum State {
         NO_DEVICE_SELECTED,
@@ -152,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         UCubeAPI.setConnexionManager(connexionManager);
+        connexionManager.registerBatteryLevelChangeListener(this);
 
         initView();
 
@@ -800,6 +810,10 @@ public class MainActivity extends AppCompatActivity {
             progressDlg.dismiss();
 
             switch (event1) {
+                case PROGRESS:
+                    LogManager.e("message display progress state"+ ((RPCCommandStatus) params1[1]).name());
+                    break;
+
                 case CANCELLED:
                     UIUtils.showMessageDialog(this, getString(R.string.set_power_off_timeout_cancelled));
                     break;
@@ -972,6 +986,10 @@ public class MainActivity extends AppCompatActivity {
             switch (event1) {
                 case FAILED:
                     UIUtils.showMessageDialog(this, getString(R.string.display_qr_code_failure));
+                    break;
+
+                case CANCELLED:
+                    UIUtils.showMessageDialog(this, getString(R.string.display_qr_code_cancelled));
                     break;
 
                 case SUCCESS:

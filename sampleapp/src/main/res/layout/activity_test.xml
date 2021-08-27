@@ -115,6 +115,18 @@
             android:visibility="gone"
             android:text="@string/stop_daemon" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_300"/>
+        <Button
+            android:id="@+id/run_logs"
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/run_logs" />
+
     </LinearLayout>
 
     <View

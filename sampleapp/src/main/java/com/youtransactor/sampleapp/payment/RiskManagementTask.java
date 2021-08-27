@@ -20,8 +20,6 @@ import com.youTransactor.uCube.payment.task.IRiskManagementTask;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class RiskManagementTask implements IRiskManagementTask {
 
 	private Activity activity;
@@ -93,15 +91,16 @@ public class RiskManagementTask implements IRiskManagementTask {
 		if (selectedApplication != null) {
 			String selectedAID = Tools.bytesToHex(selectedApplication.getAid()).substring(0, 10);
 
-			if (StringUtils.equals("A000000003", selectedAID)) {
-				paymentContext.applicationVersion = 140;
-
-			} else if (StringUtils.equals("A000000004", selectedAID)) {
-				paymentContext.applicationVersion = 202;
-
-			} else if (StringUtils.equals("A000000042", selectedAID)) {
-				paymentContext.applicationVersion = 203;
-
+			switch (selectedAID) {
+				case "A000000003":
+					paymentContext.applicationVersion = 140;
+					break;
+				case "A000000004":
+					paymentContext.applicationVersion = 202;
+					break;
+				case "A000000042":
+					paymentContext.applicationVersion = 203;
+					break;
 			}
 		}
 

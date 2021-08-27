@@ -33,6 +33,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
     private LogsAdapter adapter;
     private TextView ticketDescriptionTextView;
 
+    private Button runLogsBt;
     private Ticket ticketToReproduce;
 
     @Override
@@ -60,6 +61,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
         numberOfRunsEditText = findViewById(R.id.number_of_runs);
         ticketDescriptionTextView = findViewById(R.id.ticket_description);
         rvLogs = findViewById(R.id.logs);
+        runLogsBt = findViewById(R.id.run_logs);
 
         logsList = new ArrayList<>();
         adapter = new LogsAdapter(logsList);
@@ -88,6 +90,8 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
                 ticketToReproduce = null;
             }
         });
+
+        runLogsBt.setOnClickListener(v -> LogsExecutor.runLogs(this));
     }
 
     private static TestDaemon DAEMON;

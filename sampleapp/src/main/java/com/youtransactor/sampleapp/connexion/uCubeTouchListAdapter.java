@@ -21,8 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youtransactor.sampleapp.R;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,7 +59,7 @@ public class uCubeTouchListAdapter extends RecyclerView.Adapter<uCubeTouchListAd
     };
 
     public void addDevice(UCubeDevice device) {
-        if(StringUtils.isEmpty(device.getName()))
+        if(device.getName() == null)
             return;
 
         for (int i = 0; i < mLeDevices.size(); i++) {

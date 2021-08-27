@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.youTransactor.uCube.mdm.Config;
 import com.youtransactor.sampleapp.R;
 
-import org.apache.commons.lang3.StringUtils;
+//import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class DeviceConfigAdapter extends BaseExpandableListAdapter {
 			convertView = li.inflate(R.layout.expandable_list_header, null);
 		}
 
-		((TextView) convertView.findViewById(R.id.lblListHeader)).setText(StringUtils.isNotBlank(cfg.getLabel()) ? cfg.getLabel() : String.valueOf(cfg.getType()));
+		((TextView) convertView.findViewById(R.id.lblListHeader)).setText(cfg.getLabel() != null ? cfg.getLabel() : String.valueOf(cfg.getType()));
 
 		return convertView;
 	}

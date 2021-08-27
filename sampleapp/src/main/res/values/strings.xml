@@ -159,6 +159,7 @@
     <string name="set_locale_success"> set locale success</string>
     <string name="display_qr_code">Display QR CODE</string>
     <string name="display_qr_code_failure">QR CODE display failure</string>
+    <string name="display_qr_code_cancelled">QR CODE display cancelled</string>
     <string name="display_qr_code_success">QR CODE displayed successfully</string>
 
     <!-- GET INFO -->
@@ -229,4 +230,6 @@
     <string name="skip_starting_steps">skip starting steps</string>
     <string name="charging_state">Charging state</string>
     <string name="retrieve_f5_tag">Retrieve F5 tag</string>
+    <string name="run_logs">run logs</string>
+    <string name="battery_level">Battery Level :  %1$d %%</string>
 </resources>

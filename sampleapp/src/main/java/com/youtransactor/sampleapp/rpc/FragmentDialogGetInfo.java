@@ -21,7 +21,7 @@ import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
-import org.apache.commons.lang3.StringUtils;
+//import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -44,8 +44,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
 
         setCancelable(false);
 
-        View rootView = Objects.requireNonNull(getActivity())
-                .getLayoutInflater().inflate(R.layout.fragment_get_info, null);
+        View rootView = getActivity().getLayoutInflater().inflate(R.layout.fragment_get_info, null);
 
         //UI
         TextView terminalSerialNumber = rootView.findViewById(R.id.terminal_serial_number);
@@ -95,14 +94,14 @@ public class FragmentDialogGetInfo extends DialogFragment {
         svppVersion.setText(deviceInfos.getSvppFirmware());
         partNumber.setText(deviceInfos.getPartNumber());
         OSVersion.setText(deviceInfos.getOsVersion());
-        if(StringUtils.isEmpty(deviceInfos.getBleFirmwareVersion())) {
+        if(deviceInfos.getBleFirmwareVersion()== null) {
             rootView.findViewById(R.id.ble_section).setVisibility(View.GONE);
         }else {
             rootView.findViewById(R.id.ble_section).setVisibility(View.VISIBLE);
             bleFirmwareVersion.setText(deviceInfos.getBleFirmwareVersion());
         }
 
-        if(StringUtils.isEmpty(deviceInfos.getResourcesVersion())) {
+        if(deviceInfos.getResourcesVersion() == null) {
             rootView.findViewById(R.id.resource_file_section).setVisibility(View.GONE);
         }else {
             rootView.findViewById(R.id.resource_file_section).setVisibility(View.VISIBLE);
