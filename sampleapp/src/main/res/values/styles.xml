@@ -1,3 +1,13 @@
+<!--
+  ~ Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+  ~
+  ~ Use of this product is contingent on the existence of an executed license
+  ~ agreement between YouTransactor or one of its sublicensee, and your
+  ~ organization, which specifies this software's terms of use. This software
+  ~ is here defined as YouTransactor Intellectual Property for the purposes
+  ~ of determining terms of use as defined within the license agreement.
+  -->
+
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--
       Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
@@ -8,6 +18,7 @@
       is here defined as YouTransactor Intellectual Property for the purposes
       of determining terms of use as defined within the license agreement.
     -->
+    <!-- use this for android > 4.4 -->
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
@@ -19,4 +30,15 @@
         <item name="android:singleLine">true</item>
     </style>
 
+    <!-- use this for android <= 4.4 -->
+    <!--<style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        &lt;!&ndash; Customize your theme here. &ndash;&gt;
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+-->
 </resources>

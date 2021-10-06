@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -28,6 +28,7 @@ import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -36,10 +37,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.youTransactor.uCube.BuildConfig;
-import com.youTransactor.uCube.connexion.BleConnectionManager;
+import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.connexion.ScanError;
 import com.youTransactor.uCube.connexion.ScanListener;
 import com.youTransactor.uCube.connexion.UCubeDevice;
-import com.youTransactor.uCube.connexion.ScanStatus;
 import com.youtransactor.sampleapp.MainActivity;
 import com.youtransactor.sampleapp.R;
 
@@ -93,18 +94,6 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
             return;
         }
 
-        if (MainActivity.connexionManager == null) {
-            Log.e(getClass().getName(), "Error Connexion manager is not initialized");
-            finish();
-            return;
-        }
-
-        if (!(MainActivity.connexionManager instanceof BleConnectionManager)) {
-            Log.e(getClass().getName(), "Error Connexion manager is not an instance of BleConnexionManager");
-            finish();
-            return;
-        }
-
         // Initializes recycle view adapter.
         adapter = new uCubeTouchListAdapter(this, view -> {
             final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);
@@ -151,13 +140,19 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_scan:
                 adapter.clearScanResults();
-                scanLeDevice(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    scanLeDevice(true);
+                }
                 break;
             case R.id.menu_stop:
-                scanLeDevice(false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    scanLeDevice(false);
+                }
                 break;
             case android.R.id.home:
-                scanLeDevice(false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    scanLeDevice(false);
+                }
                 final Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -173,11 +168,9 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
         // Ensures Bluetooth is enabled on the device. If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!mBluetoothAdapter.isEnabled()) {
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                return;
-            }
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            return;
         }
 
         // this is mandatory before doing a BLE scan
@@ -186,7 +179,9 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
             return;
         }
 
-        scanLeDevice(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            scanLeDevice(true);
+        }
     }
 
     @Override
@@ -203,7 +198,9 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        scanLeDevice(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            scanLeDevice(false);
+        }
 
         adapter.clearScanResults();
     }
@@ -302,16 +299,17 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 .setAction(getString(actionStringId), listener).show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void scanLeDevice(boolean enable) {
         try {
             if (enable) {
                 mScanning = true;
                 invalidateOptionsMenu();
 
-                ((BleConnectionManager) MainActivity.connexionManager).startScan(scanFilter,
+                UCubeAPI.getConnexionManager().startScan(scanFilter,
                         new ScanListener() {
                             @Override
-                            public void onError(ScanStatus scanStatus) {
+                            public void onError(ScanError scanStatus) {
                                 Log.e(getClass().getName(), "error to scan BLE : "+ scanStatus);
 
                                 unableToScanBT();
@@ -337,7 +335,9 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
 
                 invalidateOptionsMenu();
 
-                ((BleConnectionManager) MainActivity.connexionManager).stopScan();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    UCubeAPI.getConnexionManager().stopScan();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

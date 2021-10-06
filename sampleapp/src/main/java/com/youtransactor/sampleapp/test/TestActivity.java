@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
+ * Use of this product is contingent on the existence of an executed license
+ * agreement between YouTransactor or one of its sublicensee, and your
+ * organization, which specifies this software's terms of use. This software
+ * is here defined as YouTransactor Intellectual Property for the purposes
+ * of determining terms of use as defined within the license agreement.
+ */
 package com.youtransactor.sampleapp.test;
 
 import android.os.Bundle;
@@ -23,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class TestActivity extends AppCompatActivity implements ILogListener {
-    private static final String TAG = TestActivity.class.getName();
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM HH:mm:ss.SSS", Locale.FRANCE);
 
     private Button startDaemonBtn, stopDaemonBtn;
@@ -33,7 +41,6 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
     private LogsAdapter adapter;
     private TextView ticketDescriptionTextView;
 
-    private Button runLogsBt;
     private Ticket ticketToReproduce;
 
     @Override
@@ -61,7 +68,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
         numberOfRunsEditText = findViewById(R.id.number_of_runs);
         ticketDescriptionTextView = findViewById(R.id.ticket_description);
         rvLogs = findViewById(R.id.logs);
-        runLogsBt = findViewById(R.id.run_logs);
+        Button runLogsBt = findViewById(R.id.run_logs);
 
         logsList = new ArrayList<>();
         adapter = new LogsAdapter(logsList);
@@ -120,17 +127,25 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
 
     @Override
     public void onDebugLogged(String tag, String line) {
-        String currentDate = DATE_FORMAT.format(new Date());
-        logsList.add(currentDate + " " + line);
-        adapter.notifyItemInserted(logsList.size() - 1);
-        rvLogs.scrollToPosition(adapter.getItemCount() - 1);
+        onNewLogReceived(line);
     }
 
     @Override
     public void onErrorLogged(String tag, String line) {
-        String currentDate = DATE_FORMAT.format(new Date());
-        logsList.add(currentDate + " " + line);
-        adapter.notifyItemInserted(logsList.size() - 1);
-        rvLogs.scrollToPosition(adapter.getItemCount() - 1);
+        onNewLogReceived(line);
+    }
+
+    @Override
+    public void onWarningLogged(String tag, String line) {
+        onNewLogReceived(line);
+    }
+
+    private void onNewLogReceived(String line) {
+        runOnUiThread(() -> {
+            String currentDate = DATE_FORMAT.format(new Date());
+            logsList.add(currentDate + " " + line);
+            adapter.notifyItemInserted(logsList.size() - 1);
+            rvLogs.scrollToPosition(adapter.getItemCount() - 1);
+        });
     }
 }

@@ -1,3 +1,13 @@
+<!--
+  ~ Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+  ~
+  ~ Use of this product is contingent on the existence of an executed license
+  ~ agreement between YouTransactor or one of its sublicensee, and your
+  ~ organization, which specifies this software's terms of use. This software
+  ~ is here defined as YouTransactor Intellectual Property for the purposes
+  ~ of determining terms of use as defined within the license agreement.
+  -->
+
 <resources>
     <!--
   Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
@@ -232,4 +242,10 @@
     <string name="retrieve_f5_tag">Retrieve F5 tag</string>
     <string name="run_logs">run logs</string>
     <string name="battery_level">Battery Level :  %1$d %%</string>
+    <string name="getstatus">Get Status</string>
+    <string name="repeat_last_pkt">Repeat last PKT</string>
+    <string name="_15">15</string>
+    <string name="connection_timeout">Timeout</string>
+    <string name="log_level">Log level</string>
+    <string name="enable_sdk_logs">enable SDK Logs</string>
 </resources>

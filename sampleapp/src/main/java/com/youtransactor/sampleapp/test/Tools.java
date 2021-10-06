@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
+ * Use of this product is contingent on the existence of an executed license
+ * agreement between YouTransactor or one of its sublicensee, and your
+ * organization, which specifies this software's terms of use. This software
+ * is here defined as YouTransactor Intellectual Property for the purposes
+ * of determining terms of use as defined within the license agreement.
+ */
 package com.youtransactor.sampleapp.test;
 
 import android.util.Log;
@@ -10,7 +19,6 @@ import com.youTransactor.uCube.api.UCubeLibRpcSendListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
-import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentState;
@@ -39,6 +47,7 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLI
 import static com.youTransactor.uCube.rpc.Constants.INSTALL_FOR_LOAD_COMMAND;
 
 public class Tools {
+    private static final String TAG = Tools.class.getName();
 
     interface Listener {
         void onSent();
@@ -81,8 +90,8 @@ public class Tools {
         new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("GetInfoCommand");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"GetInfoCommand");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -144,8 +153,8 @@ public class Tools {
         new InstallForLoadKeyCommand().execute((event1, params1) -> {
             switch (event1) {
                 case PROGRESS:
-                    LogManager.d("InstallForLoadKeyCommand");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params1[1]).name());
+                    Log.d(TAG,"InstallForLoadKeyCommand");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params1[1]).name());
                     if(params1[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -169,8 +178,8 @@ public class Tools {
         UCubeAPI.sendData(INSTALL_FOR_LOAD_COMMAND, installForLoad, SecurityMode.SIGNED_NOT_CHECKED, SecurityMode.SIGNED, new UCubeLibRpcSendListener() {
             @Override
             public void onProgress(RPCCommandStatus rpcCommandStatus) {
-                LogManager.d("InstallForLoadCommand");
-                LogManager.d("progress state " + rpcCommandStatus.name());
+                Log.d(TAG,"InstallForLoadCommand");
+                Log.d(TAG,"progress state " + rpcCommandStatus.name());
                 if(rpcCommandStatus == RPCCommandStatus.SENT) {
                     listener.onSent();
                 }
@@ -192,8 +201,8 @@ public class Tools {
         new LoadCommand(listLoad).execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("LoadCommand");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"LoadCommand");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -212,12 +221,12 @@ public class Tools {
         UCubeAPI.pay(preparePaymentRequest(), new UCubeLibPaymentServiceListener() {
             @Override
             public void onProgress(PaymentState state, PaymentContext context) {
-                LogManager.d("payment progress : "+ state);
+                Log.d(TAG,"payment progress : "+ state);
             }
 
             @Override
             public void onFinish(PaymentContext context) {
-                LogManager.d("payment finish : "+ context.paymentStatus);
+                Log.d(TAG,"payment finish : "+ context.paymentStatus);
                 listener.onFinish(true);
             }
         });
@@ -230,8 +239,8 @@ public class Tools {
             public void handleEvent(TaskEvent event, Object... params) {
                 switch (event) {
                     case PROGRESS:
-                        LogManager.d("Power off command");
-                        LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                        Log.d(TAG,"Power off command");
+                        Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                         if(params[1] == RPCCommandStatus.SENT) {
                             listener.onSent();
                         }
@@ -294,8 +303,8 @@ public class Tools {
         new ExitSecureSessionCommand().execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("exitSecureSession command");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"exitSecureSession command");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -314,8 +323,8 @@ public class Tools {
         new EnterSecureSessionCommand().execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("enterSecureSession command");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"enterSecureSession command");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -323,12 +332,12 @@ public class Tools {
 
                 case FAILED:
                 case CANCELLED:
-                    LogManager.e("Error! Enter secure session Failed");
+                    Log.e(TAG,"Error! Enter secure session Failed");
                     break;
 
                 case SUCCESS:
                     if(((EnterSecureSessionCommand) params[0]).getKsn() == null) {
-                        LogManager.e("Error! KSN IS NULL");
+                        Log.e(TAG,"Error! KSN IS NULL");
                     }
 
                     listener.onFinish(true);
@@ -338,6 +347,10 @@ public class Tools {
     }
 
     public static void displayMessage(Listener listener) {
+        //02000A15 5040 00 00 05 01 00 01 00 00 00 00
+        //5040 00 00 05 01 00 01 00 00 00 00
+      //  5040 00 00 05 01 00 01 00 00 00   640D03
+
         DisplayMessageCommand cmd = new DisplayMessageCommand("");
         cmd.setTimeout(0);
         cmd.setAbortKey((byte) 0x00);
@@ -346,8 +359,8 @@ public class Tools {
         cmd.execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("display command");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"display command");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }
@@ -372,8 +385,8 @@ public class Tools {
         new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> {
             switch (event) {
                 case PROGRESS:
-                    LogManager.d("GetInfoCommand");
-                    LogManager.d("progress state " + ((RPCCommandStatus) params[1]).name());
+                    Log.d(TAG,"GetInfoCommand");
+                    Log.d(TAG,"progress state " + ((RPCCommandStatus) params[1]).name());
                     if(params[1] == RPCCommandStatus.SENT) {
                         listener.onSent();
                     }

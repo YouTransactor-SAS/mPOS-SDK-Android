@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software

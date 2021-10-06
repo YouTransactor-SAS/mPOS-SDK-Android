@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
-  <p/>
-  Use of this product is contingent on the existence of an executed license
-  agreement between YouTransactor or one of its sublicensee, and your
-  organization, which specifies this software's terms of use. This software
-  is here defined as YouTransactor Intellectual Property for the purposes
-  of determining terms of use as defined within the license agreement.
--->
+  ~ Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+  ~
+  ~ Use of this product is contingent on the existence of an executed license
+  ~ agreement between YouTransactor or one of its sublicensee, and your
+  ~ organization, which specifies this software's terms of use. This software
+  ~ is here defined as YouTransactor Intellectual Property for the purposes
+  ~ of determining terms of use as defined within the license agreement.
+  -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -81,6 +81,7 @@
 
                 <LinearLayout
                     android:id="@+id/scan_section"
+                    android:layout_margin="@dimen/margin"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
@@ -93,6 +94,8 @@
 
                     <EditText
                         android:id="@+id/scanFilter"
+                        android:textAlignment="center"
+                        android:gravity="center"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         />
@@ -105,15 +108,34 @@
                         android:text="@string/scan" />
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/connectBtn"
+                <LinearLayout
+                    android:id="@+id/connection_section"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:layout_gravity="bottom"
-                    android:visibility="gone"
-                    android:text="@string/connect" />
+                    android:layout_margin="@dimen/margin"
+                    android:orientation="vertical">
+                    <TextView
+                        android:text="@string/connection_timeout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                    <EditText
+                        android:id="@+id/connection_timeout_edit_text"
+                        android:textAlignment="center"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:importantForAutofill="no"
+                        android:inputType="number"
+                        android:text="@string/_15"  />
+                    <Button
+                        android:id="@+id/connectBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/connect" />
+                  </LinearLayout>
 
                 <Button
                     android:id="@+id/disconnectBtn"
@@ -168,22 +190,25 @@
 
         <Button
             android:id="@+id/setupBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/setup" />
 
         <include
             layout="@layout/version_name_section_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical" />
 
         <Button
             android:id="@+id/testBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/Test" />
     </LinearLayout>

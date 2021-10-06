@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -13,6 +13,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -21,6 +25,11 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.log.LogManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SetupActivity extends AppCompatActivity {
 
@@ -28,6 +37,8 @@ public class SetupActivity extends AppCompatActivity {
     public static final String NO_DEFAULT = "no_default";
     public static final String DEFAULT_YT_PRODUCT = "default_YT_Product";
     public static final String TEST_MODE_PREF_NAME = "testMode";
+    public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
+    public static final String SDK_LOGS_LEVEL_PREF_NAME = "SDKLogLevel";
     public static final String SETUP_SHARED_PREF_NAME = "setup";
 
     private CardView uCubeCardView;
@@ -47,14 +58,6 @@ public class SetupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         sharedPreferences = getSharedPreferences(SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
-
-        Intent intent = getIntent();
-        if (intent != null && !"true".equals(intent.getStringExtra(NO_DEFAULT))) {
-            try {
-                YTProduct defaultModel = YTProduct.valueOf(sharedPreferences.getString(DEFAULT_YT_PRODUCT, null));
-                startMainActivity(defaultModel);
-            } catch (Exception ignored) {}
-        }
 
         setContentView(R.layout.activity_setup);
 
@@ -81,9 +84,55 @@ public class SetupActivity extends AppCompatActivity {
             selectProduct(YTProduct.uCubeTouch);
         });
 
+
         Switch s = findViewById(R.id.enableTest);
         s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
         s.setOnClickListener(v -> sharedPreferences.edit().putBoolean(TEST_MODE_PREF_NAME, ((Switch) v).isChecked()).apply());
+
+        Switch enableLogSwitch = findViewById(R.id.enableSDKLog);
+        enableLogSwitch.setOnClickListener(v ->  {
+            boolean enable = ((Switch) v).isChecked();
+            sharedPreferences.edit().putBoolean(ENABLE_SDK_LOGS_PREF_NAME, enable).apply();
+            UCubeAPI.enableLogs(enable);
+            findViewById(R.id.logLevelSection).setVisibility(enable? View.VISIBLE : View.GONE);
+        });
+
+        Spinner logLevelSpinner = findViewById(R.id.logLevelSpinner);
+        logLevelSpinner.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                LogManager.LogLevel.values()
+        ));
+
+        logLevelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                sharedPreferences.edit().putInt(SDK_LOGS_LEVEL_PREF_NAME, ((LogManager.LogLevel) logLevelSpinner.getSelectedItem()).getCode()).apply();
+                UCubeAPI.setLogLevel((LogManager.LogLevel) logLevelSpinner.getSelectedItem());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
+        boolean logsEnabled = sharedPreferences.getBoolean(ENABLE_SDK_LOGS_PREF_NAME, false);
+        int level =  sharedPreferences.getInt(SDK_LOGS_LEVEL_PREF_NAME, LogManager.LogLevel.API.getCode());
+        LogManager.LogLevel logLevel = LogManager.LogLevel.valueOf(level);
+        List<LogManager.LogLevel> values = new ArrayList<>(Arrays.asList(LogManager.LogLevel.values()));
+        findViewById(R.id.logLevelSection).setVisibility(logsEnabled ? View.VISIBLE : View.GONE);
+        enableLogSwitch.setChecked(logsEnabled);
+        logLevelSpinner.setSelection(values.indexOf(logLevel));
+        UCubeAPI.setLogLevel(logLevel);
+
+
+        Intent intent = getIntent();
+        if (intent != null && !"true".equals(intent.getStringExtra(NO_DEFAULT))) {
+            try {
+                YTProduct defaultModel = YTProduct.valueOf(sharedPreferences.getString(DEFAULT_YT_PRODUCT, null));
+                startMainActivity(defaultModel);
+            } catch (Exception ignored) {}
+        }
     }
 
     private void selectProduct(YTProduct product) {
@@ -106,13 +155,4 @@ public class SetupActivity extends AppCompatActivity {
 
         startActivity(intent);
     }
-
-    private YTProduct getYtProduct() {
-        try {
-            return YTProduct.valueOf(sharedPreferences.getString(YT_PRODUCT, null));
-        } catch (Exception ignored) {}
-
-        return null;
-    }
-
 }

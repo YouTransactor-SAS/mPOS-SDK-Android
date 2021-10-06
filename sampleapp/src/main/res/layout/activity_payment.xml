@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
-  <p/>
-  Use of this product is contingent on the existence of an executed license
-  agreement between YouTransactor or one of its sublicensee, and your
-  organization, which specifies this software's terms of use. This software
-  is here defined as YouTransactor Intellectual Property for the purposes
-  of determining terms of use as defined within the license agreement.
--->
+  ~ Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+  ~
+  ~ Use of this product is contingent on the existence of an executed license
+  ~ agreement between YouTransactor or one of its sublicensee, and your
+  ~ organization, which specifies this software's terms of use. This software
+  ~ is here defined as YouTransactor Intellectual Property for the purposes
+  ~ of determining terms of use as defined within the license agreement.
+  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -17,6 +17,7 @@
 
 
     <LinearLayout
+        android:id="@+id/test_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -89,6 +90,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/getStatusBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/getstatus" />
+
+            <Button
+                android:id="@+id/getSvppLogL1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/get_logs_l1" />
+
         </LinearLayout>
 
         <View

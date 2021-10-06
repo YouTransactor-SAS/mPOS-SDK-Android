@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -27,20 +27,26 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TLV;
+import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
-import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.CardReaderType;
 import com.youTransactor.uCube.payment.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
-import com.youTransactor.uCube.payment.EMVPaymentStateMachine;
 import com.youTransactor.uCube.payment.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.rpc.command.CancelCommand;
+import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
+import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
+import com.youTransactor.uCube.rpc.command.GetInfosCommand;
+import com.youTransactor.uCube.rpc.command.GetStatusCommand;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
@@ -56,7 +62,6 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class PaymentActivity extends AppCompatActivity {
-
     public static final String TAG = PaymentActivity.class.getName();
 
     private SharedPreferences prefs;
@@ -65,6 +70,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private Button doPaymentBtn;
     private Button cancelPaymentBtn;
+    private Button getLogsL1, getStatusBtn;
     private EditText cardWaitTimeoutFld;
     private Spinner trxTypeChoice;
     private CurrencyEditText amountFld;
@@ -84,7 +90,7 @@ public class PaymentActivity extends AppCompatActivity {
     private int startCancelDelay;
     private PaymentState autoDisconnectState;
     private boolean testModeEnabled = false;
-    private EMVPaymentStateMachine emvPaymentStateMachine;
+    private PaymentService paymentService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +113,7 @@ public class PaymentActivity extends AppCompatActivity {
         super.onResume();
 
         testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
-        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
-        findViewById(R.id.auto_disconnect_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -135,6 +140,8 @@ public class PaymentActivity extends AppCompatActivity {
         skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
         retrieveF5TagSwitch = findViewById(R.id.retrieveF5Tag);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
+        getLogsL1 = findViewById(R.id.getSvppLogL1);
+        getStatusBtn = findViewById(R.id.getStatusBtn);
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
@@ -166,9 +173,6 @@ public class PaymentActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.auto_cancel_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
-
-
         final Spinner disconnectEventSwitch = findViewById(R.id.disconnectEventSwitch);
         disconnectEventSwitch.setAdapter(new PaymentStateAdapter());
         disconnectEventSwitch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -183,7 +187,10 @@ public class PaymentActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.auto_disconnect_pane).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        getLogsL1.setOnClickListener(v -> getSvppLogsL1());
+        getStatusBtn.setOnClickListener(v -> getStatus());
+
+        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
     }
 
     private void startPayment() {
@@ -208,55 +215,61 @@ public class PaymentActivity extends AppCompatActivity {
         trxResultFld.setText("");
 
         try {
-            emvPaymentStateMachine = UCubeAPI.pay(uCubePaymentRequest,
+            paymentService = UCubeAPI.pay(uCubePaymentRequest,
                     new UCubeLibPaymentServiceListener() {
 
                         @Override
                         public void onProgress(PaymentState state, PaymentContext context) {
                             // todo No RPC call here
 
-                            Log.d(TAG, " Payment progress : " + state);
+                            runOnUiThread(() -> {
+                                Log.d(TAG, " Payment progress : " + state);
 
-                            displayProgress(state);
+                                displayProgress(state);
 
-                            if (state == autoCancelState) {
-                                startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
-                                Log.d(TAG, "start cancel delay : "+ startCancelDelay);
+                                if (state == autoCancelState) {
+                                    startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
+                                    Log.d(TAG, "start cancel delay : "+ startCancelDelay);
 
-                                new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
-                            }
+                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
+                                }
 
-                            if (state == autoDisconnectState) {
-                                disconnect();
-                            }
+                                if (state == autoDisconnectState) {
+                                    disconnect();
+                                }
 
-                            if (state == PaymentState.KSN_AVAILABLE) {
-                                Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
-                            }
+                                if (state == PaymentState.KSN_AVAILABLE) {
+                                    Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
+                                }
 
-                            if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
-                                Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
-                            }
+                                if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
+                                    Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
+                                }
 
-                            if(state == PaymentState.CARD_READ_END) {
-                                //DISABLE CANCELLING
-                                cancelPaymentBtn.setVisibility(View.GONE);
-                            }
+                                if(state == PaymentState.CARD_READ_END) {
+                                    //DISABLE CANCELLING
+                                    cancelPaymentBtn.setVisibility(View.GONE);
+                                }
+
+                            });
                         }
 
                         @Override
                         public void onFinish(PaymentContext context) {
-                            if (context == null) {
-                                UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
-                                return;
-                            }
+                            runOnUiThread(() -> {
+                                if (context == null) {
+                                    UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
+                                    return;
+                                }
 
-                            Log.d(TAG, "payment finish status : " + context.paymentStatus);
+                                Log.d(TAG, "payment finish status : " + context.paymentStatus);
 
-                            doPaymentBtn.setVisibility(View.VISIBLE);
-                            cancelPaymentBtn.setVisibility(View.GONE);
+                                doPaymentBtn.setVisibility(View.VISIBLE);
+                                cancelPaymentBtn.setVisibility(View.GONE);
 
-                            parsePaymentResponse(context);
+                                parsePaymentResponse(context);
+                            });
+
                         }
                     });
 
@@ -290,7 +303,7 @@ public class PaymentActivity extends AppCompatActivity {
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
 
         int amount = amountFld.getCleanIntValue();
-        LogManager.d("Amount : "+ amount);
+        Log.d(TAG,"Amount : "+ amount);
 
         List<CardReaderType> readerList = new ArrayList<>();
 
@@ -454,7 +467,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         //todo send this to backend to check the integrity
         if (context.finalizationGetPlainTagsResponse != null)
-            LogManager.d("finalization plain tags response " + Tools.bytesToHex(context.finalizationGetPlainTagsResponse));
+            Log.d(TAG,"finalization plain tags response " + Tools.bytesToHex(context.finalizationGetPlainTagsResponse));
 
         if (context.finalizationPlainTagsValues != null) {
             for (Integer tag : context.finalizationPlainTagsValues.keySet())
@@ -467,11 +480,11 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void cancelPayment() {
-        if (emvPaymentStateMachine != null && emvPaymentStateMachine.isRunning()) {
+        if (paymentService != null && paymentService.isRunning()) {
             Log.d(TAG, "Try to cancel current Payment");
             UIUtils.showProgress(this, "Trying cancellation");
 
-            emvPaymentStateMachine.cancel(status -> {
+            paymentService.cancel(status -> {
                 Log.d(TAG, "cancel value : "+ status);
                 runOnUiThread(() -> {
                     UIUtils.hideProgressDialog();
@@ -490,5 +503,18 @@ public class PaymentActivity extends AppCompatActivity {
         IConnexionManager connexionManager = UCubeAPI.getConnexionManager();
         if (connexionManager != null)
             connexionManager.disconnect(status -> Log.d(TAG, "Disconnected"));
+    }
+
+    private void getSvppLogsL1() {
+        ITaskMonitor iTaskMonitor = (event, params) -> Log.d(TAG,"event: " + event);
+        new CancelCommand().execute(iTaskMonitor);
+        new ExitSecureSessionCommand().execute(iTaskMonitor);
+        new EnterSecureSessionCommand().execute(iTaskMonitor);
+        new GetInfosCommand(Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1).execute(iTaskMonitor);
+        new ExitSecureSessionCommand().execute(iTaskMonitor);
+    }
+
+    private void getStatus() {
+        new GetStatusCommand().execute((event, params) -> Log.d(TAG,"getStatus event:"+ event));
     }
 }

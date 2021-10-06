@@ -1,8 +1,17 @@
+/*
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
+ * Use of this product is contingent on the existence of an executed license
+ * agreement between YouTransactor or one of its sublicensee, and your
+ * organization, which specifies this software's terms of use. This software
+ * is here defined as YouTransactor Intellectual Property for the purposes
+ * of determining terms of use as defined within the license agreement.
+ */
 package com.youtransactor.sampleapp.test;
 
-import androidx.annotation.NonNull;
+import android.util.Log;
 
-import com.youTransactor.uCube.log.LogManager;
+import androidx.annotation.NonNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +21,7 @@ import static com.youtransactor.sampleapp.test.Tools.installForLoad;
 import static com.youtransactor.sampleapp.test.Tools.installForLoadKey;
 
 public class TestDaemon implements Runnable {
+    public static final String TAG = TestDaemon.class.getName();
 
     public enum Step{
         IDLE,
@@ -69,7 +79,7 @@ public class TestDaemon implements Runnable {
     }
 
     public void end() {
-        LogManager.d("Test daemon end");
+        Log.d(TAG,"Test daemon end");
         interrupted = true;
     }
 
@@ -96,11 +106,11 @@ public class TestDaemon implements Runnable {
 
         Step currentStep = remainSequence.poll();
         if(currentStep == null) {
-            LogManager.e("error step is null");
+            Log.e(TAG,"error step is null");
             return;
         }
 
-        LogManager.d("Test daemon Step : " + currentStep);
+        Log.d(TAG,"Test daemon Step : " + currentStep);
 
         switch (currentStep) {
             case IDLE:
@@ -110,7 +120,7 @@ public class TestDaemon implements Runnable {
                 }
 
                 counter++;
-                LogManager.d("Test number "+ counter);
+                Log.d(TAG,"Test number "+ counter);
 
                 loop();
                 break;

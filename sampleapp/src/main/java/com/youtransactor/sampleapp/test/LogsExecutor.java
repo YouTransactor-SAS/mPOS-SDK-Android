@@ -1,11 +1,20 @@
+/*
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
+ * Use of this product is contingent on the existence of an executed license
+ * agreement between YouTransactor or one of its sublicensee, and your
+ * organization, which specifies this software's terms of use. This software
+ * is here defined as YouTransactor Intellectual Property for the purposes
+ * of determining terms of use as defined within the license agreement.
+ */
 package com.youtransactor.sampleapp.test;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibRpcSendListener;
-import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.SecurityMode;
@@ -26,6 +35,7 @@ import static com.youTransactor.uCube.rpc.Constants.*;
 import static com.youTransactor.uCube.rpc.SecurityMode.*;
 
 public class LogsExecutor {
+    private static final String TAG = LogsExecutor.class.getName();
 
     private enum RPCStatus {
         ADisconnectionAtCommand,
@@ -50,7 +60,7 @@ public class LogsExecutor {
             fis = context.openFileInput("logs.txt");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            LogManager.e("getting logs file exception ", e);
+            Log.e(TAG,"getting logs file exception ", e);
             return;
         }
 
@@ -60,11 +70,11 @@ public class LogsExecutor {
             LogsExecutor.parseLogs(fis);
         } catch (Exception e) {
             e.printStackTrace();
-            LogManager.e("exception at logs parsing ", e);
+              Log.e(TAG,"exception at logs parsing ", e);
         }
 
         if(logs.isEmpty() || rpcCommands.isEmpty()) {
-            LogManager.e("parsing result is an empty list of commands");
+              Log.e(TAG,"parsing result is an empty list of commands");
             return;
         }
 
@@ -77,7 +87,7 @@ public class LogsExecutor {
 
         final RPCCommand cmd = remainRpcCommand.poll();
         if(cmd == null) {
-            LogManager.e("Error! Command null");
+              Log.e(TAG,"Error! Command null");
             return;
         }
 
@@ -90,7 +100,7 @@ public class LogsExecutor {
                         return;
 
                     if (status == RPCStatus.ADisconnectionAtCommand) {
-                        LogManager.e("call Disconnect");
+                          Log.e(TAG,"call Disconnect");
                         UCubeAPI.getConnexionManager().disconnect(status1 -> {
                             UCubeAPI.init(context.getApplicationContext());
                             UCubeAPI.setupLogger(null);
@@ -101,11 +111,11 @@ public class LogsExecutor {
 
             @Override
             public void onFinish(boolean status, byte[] response) {
-                LogManager.d("RPC Command status " + status);
+                Log.d(TAG,"RPC Command status " + status);
                 if (!remainRpcCommand.isEmpty()) {
                     executeRpc(context);
                 }else {
-                    LogManager.d("END OF FILE !");
+                    Log.d(TAG,"END OF FILE !");
                 }
             }
         });
@@ -122,7 +132,7 @@ public class LogsExecutor {
         while(line != null){
             if(line.contains(RPC_COMMAND_LOG_IDENTIFIER)) {
                 String message = line.substring(line.lastIndexOf(RPC_COMMAND_LOG_IDENTIFIER) + RPC_COMMAND_LOG_IDENTIFIER.length()).replaceAll(" ", "");
-                LogManager.d( "message to parse " + message);
+                Log.d(TAG, "message to parse " + message);
 
                 byte[] buffer = Tools.hexStringToByteArray(message);
                 cmd  = getRPCCommand(buffer);
@@ -130,26 +140,26 @@ public class LogsExecutor {
                     throw new Exception("Error to parse this line " + line);
 
                 rpcCommands.add(cmd);
-                LogManager.d("command ID: 0x" + Integer.toHexString(cmd.getCommandId()));
-                LogManager.d("command data: 0x" + Tools.bytesToHex(cmd.getPayload()));
+                Log.d(TAG,"command ID: 0x" + Integer.toHexString(cmd.getCommandId()));
+                Log.d(TAG,"command data: 0x" + Tools.bytesToHex(cmd.getPayload()));
 
                 // get command status
                 line = reader.readLine();
                 while (line != null) {
                     if(line.contains(RPC_COMMAND_LOG_IDENTIFIER)) {
-                        LogManager.d("command status : UNKNOWN");
+                        Log.d(TAG,"command status : UNKNOWN");
                         status = RPCStatus.UNKNOWN;
                         logs.put(cmd, status);
                         break;
                     }
                     if(line.contains(DISCONNECTION_LOG_IDENTIFIER)) {
-                        LogManager.d("command status : disconnect");
+                        Log.d(TAG,"command status : disconnect");
                         status = RPCStatus.ADisconnectionAtCommand;
                         secureSession = false;
                         logs.put(cmd, status);
                         break;
                     } else if(line.contains(RPC_RECEIVED_RESPONSE_IDENTIFIER)) {
-                        LogManager.d("command status : response received");
+                        Log.d(TAG,"command status : response received");
                         status = RPCStatus.commandResponseDidReceived;
                         logs.put(cmd, status);
                         break;
@@ -166,7 +176,7 @@ public class LogsExecutor {
             return null;
 
         if(buffer.length < 4 + 3 + 2) {
-            LogManager.e("buffer size < RPC_HEADER_LEN + RPC_FOOTER_LEN + RPC_CMD_ID_LEN");
+              Log.e(TAG,"buffer size < RPC_HEADER_LEN + RPC_FOOTER_LEN + RPC_CMD_ID_LEN");
             return null;
         }
 

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -9,8 +9,10 @@
  */
 package com.youtransactor.sampleapp.payment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
@@ -22,14 +24,14 @@ import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 
 public class RiskManagementTask implements IRiskManagementTask {
 
-	private Activity activity;
+	private final Context context;
 	private ITaskMonitor monitor;
 	private PaymentContext paymentContext;
 	private byte[] tvr;
 	private AlertDialog alertDialog;
 
-	public RiskManagementTask(Activity activity) {
-		this.activity = activity;
+	public RiskManagementTask(Context context) {
+		this.context = context;
 	}
 
 	@Override
@@ -51,8 +53,8 @@ public class RiskManagementTask implements IRiskManagementTask {
 	public void execute(ITaskMonitor monitor) {
 		this.monitor = monitor;
 
-		activity.runOnUiThread(() -> {
-			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		new Handler(Looper.getMainLooper()).post(() -> {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
 			builder.setTitle("Risk management");
 			builder.setCancelable(false);
@@ -80,7 +82,7 @@ public class RiskManagementTask implements IRiskManagementTask {
 		if(alertDialog != null && alertDialog.isShowing())
 			alertDialog.dismiss();
 
-		new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
+		monitor.handleEvent(TaskEvent.CANCELLED);
 		taskCancelListener.onCancelFinish(true);
 	}
 
@@ -104,7 +106,7 @@ public class RiskManagementTask implements IRiskManagementTask {
 			}
 		}
 
-		new Thread(() -> monitor.handleEvent(TaskEvent.SUCCESS)).start();
+		monitor.handleEvent(TaskEvent.SUCCESS);
 	}
 
 

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
@@ -27,9 +26,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.youTransactor.uCube.connexion.BleConnectionManager;
-import com.youTransactor.uCube.connexion.BtClassicConnexionManager;
-import com.youTransactor.uCube.connexion.BtConnectionManager;
+import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youtransactor.sampleapp.MainActivity;
 import com.youtransactor.sampleapp.R;
@@ -110,7 +107,7 @@ public class ListPairedUCubeTouchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        List<UCubeDevice> devices = ((BleConnectionManager) MainActivity.connexionManager).getPairedUCubes(filter);
+        List<UCubeDevice> devices = UCubeAPI.getConnexionManager().getPairedUCubes(filter);
 
         adapter = new uCubeTouchPairedListAdapter(ListPairedUCubeTouchActivity.this, devices, view -> {
             final int childAdapterPosition = recyclerView.getChildAdapterPosition(view);

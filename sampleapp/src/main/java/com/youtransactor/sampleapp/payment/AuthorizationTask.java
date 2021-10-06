@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2020, YouTransactor. All Rights Reserved.
- * <p/>
+ * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ *
  * Use of this product is contingent on the existence of an executed license
  * agreement between YouTransactor or one of its sublicensee, and your
  * organization, which specifies this software's terms of use. This software
@@ -9,30 +9,30 @@
  */
 package com.youtransactor.sampleapp.payment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
-import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
-import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
 
-import java.util.Map;
-
 public class AuthorizationTask implements IAuthorizationTask {
+    private static final String TAG = AuthorizationTask.class.getName();
 
-    private Activity activity;
+    private final Context context;
     private byte[] authResponse;
     private ITaskMonitor monitor;
     private PaymentContext paymentContext;
     private AlertDialog alertDialog;
 
-    public AuthorizationTask(Activity activity) {
-        this.activity = activity;
+    public AuthorizationTask(Context context) {
+        this.context = context;
     }
 
     @Override
@@ -55,28 +55,28 @@ public class AuthorizationTask implements IAuthorizationTask {
         this.monitor = monitor;
 
         if (paymentContext.authorizationSecuredTagsValues != null)
-            LogManager.d("authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
+            Log.d(TAG,"authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
 
         //todo send this to backend to check the integrity
         if (paymentContext.authorizationGetPlainTagsResponse != null)
-            LogManager.d("authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));
+            Log.d(TAG,"authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));
 
         if (paymentContext.authorizationPlainTagsValues != null) {
 
             for (Integer tag : paymentContext.authorizationPlainTagsValues.keySet()) {
-                LogManager.d( String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag))));
+                Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag))));
             }
         }
 
         //todo here you can call the host
-        if(activity == null) {
+        if(context == null) {
             this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x30};
-            new Thread(() -> monitor.handleEvent(TaskEvent.SUCCESS)).start();
+            monitor.handleEvent(TaskEvent.SUCCESS);
             return;
         }
 
-        activity.runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        new Handler(Looper.getMainLooper()).post(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
             builder.setCancelable(true);
             builder.setTitle("Authorization response");
@@ -96,7 +96,7 @@ public class AuthorizationTask implements IAuthorizationTask {
         if(alertDialog != null && alertDialog.isShowing())
             alertDialog.dismiss();
 
-        new Thread(() -> monitor.handleEvent(TaskEvent.CANCELLED)).start();
+        monitor.handleEvent(TaskEvent.CANCELLED);
         taskCancelListener.onCancelFinish(true);
     }
 
@@ -124,11 +124,11 @@ public class AuthorizationTask implements IAuthorizationTask {
                 break;
 
             case 5:
-                new Thread(() -> monitor.handleEvent(TaskEvent.FAILED)).start();
+                monitor.handleEvent(TaskEvent.FAILED);
                 return;
         }
 
-        new Thread(() -> monitor.handleEvent(TaskEvent.SUCCESS)).start();
+        monitor.handleEvent(TaskEvent.SUCCESS);
     }
 
 }
