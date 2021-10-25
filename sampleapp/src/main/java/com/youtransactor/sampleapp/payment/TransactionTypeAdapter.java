@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.youTransactor.uCube.payment.TransactionType;
+import com.youTransactor.uCube.rpc.TransactionType;
 
 
 public class TransactionTypeAdapter extends BaseAdapter {

@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.youTransactor.uCube.payment.Currency;
+import com.youTransactor.uCube.rpc.Currency;
 
 import java.util.ArrayList;
 import java.util.Collections;
