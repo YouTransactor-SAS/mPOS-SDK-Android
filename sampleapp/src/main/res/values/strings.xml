@@ -146,33 +146,47 @@
     <string name="display">Display</string>
     <string name="contact_only">Contact Only</string>
     <string name="display_result_on_ucube">Display result on uCube</string>
-
     <string name="force_authorisation">Force Authorisation</string>
     <string name="cancel_pay">Cancel current payment</string>
-
-
 
     <!--RPC DISPLAY -->
     <string name="display_msg">Display message</string>
     <string name="display_msg_failure">Message display failure</string>
     <string name="display_msg_success">Message displayed successfully</string>
-    <string name="get_info">Get Info</string>
+
     <string name="set_power_off_timeout_value">Set power off timeout</string>
     <string name="set_power_off_timeout_failed"> Set power off timeout failed</string>
     <string name="set_power_off_timeout_cancelled"> Set power off timeout cancelled</string>
     <string name="set_power_off_timeout_success"> Set power off timeout success</string>
+
+    <string name="setup_quick_mode">Setup Quick mode</string>
+    <string name="setup_slow_mode">Setup Slow mode</string>
 
     <string name="get_supported_locales">Get supported locales</string>
     <string name="get_supported_locale_list_failed">Get Supported locale liste failed</string>
     <string name="supported_locale_list_is_empty">Supported locale list is empty</string>
     <string name="set_locale_failed"> set locale failed</string>
     <string name="set_locale_success"> set locale success</string>
+
     <string name="display_qr_code">Display QR CODE</string>
     <string name="display_qr_code_failure">QR CODE display failure</string>
     <string name="display_qr_code_cancelled">QR CODE display cancelled</string>
     <string name="display_qr_code_success">QR CODE displayed successfully</string>
 
+    <string name="enter_secure_session">Enter secure session</string>
+    <string name="enter_secure_session_failure">Enter secure session failure</string>
+    <string name="enter_secure_session_success">Enter secure session successfully</string>
+
+    <string name="exit_secure_session">exit secure session</string>
+    <string name="exit_secure_session_failure">exit secure session failure</string>
+    <string name="exit_secure_session_success">exit secure session successfully</string>
+
+    <string name="get_terminal_state">get terminal state</string>
+    <string name="get_terminal_state_failure">get terminal state failure</string>
+    <string name="get_terminal_state_success">get terminal state successfully</string>
+
     <!-- GET INFO -->
+    <string name="get_info">Get Info</string>
     <string name="terminal_serial_number">Terminal SN : </string>
     <string name="part_number">Terminal PN : </string>
     <string name="automatic_power_off_time_out">Power off Timeout : </string>
@@ -248,4 +262,25 @@
     <string name="connection_timeout">Timeout</string>
     <string name="log_level">Log level</string>
     <string name="enable_sdk_logs">enable SDK Logs</string>
+
+
+    <string name="enter_sec">enter sec</string>
+    <string name="exit_sec">exit sec</string>
+    <string name="get_state">get State</string>
+    <string name="slow_mode">slow mode</string>
+    <string name="quick_mode">Quick mode</string>
+    <string name="enable_rpc_timeout_and_retry">Enable RPC timeout and retry</string>
+    <string name="enable_measures">enable measures</string>
+    <string name="rpc_timeout">RPC Timeout</string>
+    <string name="_3">3</string>
+
+    <string name="measure_start_to_waiting_card">From Start To waiting card: %d</string>
+    <string name="measure_present_card_to_auth">From User Present Card To Authorisation: %d</string>
+    <string name="measure_auth_resp_to_finish">From Authorisation Resp To Finish: %d</string>
+    <string name="measure_present_card_to_enter_pin">From User Insert Card to Enter pin: %d</string>
+    <string name="measure_enter_pin_to_auth">From Enter Pin To Authorisation: %d</string>
+    <string name="u_validate_pin">U validate pin</string>
+    <string name="u_present_card">U present card</string>
+    <string name="cr_enter_pin">CR enter pin</string>
+
 </resources>

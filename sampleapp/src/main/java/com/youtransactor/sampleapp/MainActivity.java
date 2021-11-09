@@ -9,9 +9,12 @@
  */
 package com.youtransactor.sampleapp;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BLE;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
+import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -32,7 +35,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.google.android.material.textfield.TextInputLayout;
+import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.api.UCubeLibState;
@@ -41,13 +49,17 @@ import com.youTransactor.uCube.connexion.BatteryLevelListener;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.connexion.UCubeDevice;
-import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.BinaryUpdate;
+import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
+import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
+import com.youTransactor.uCube.rpc.SecurityMode;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
+import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
+import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeActivity;
@@ -61,11 +73,6 @@ import com.youtransactor.sampleapp.test.TestActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BLE;
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
-import static com.youtransactor.sampleapp.MainActivity.State.*;
-import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class MainActivity extends AppCompatActivity implements BatteryLevelListener {
     private static final String TAG = MainActivity.class.getName();
@@ -206,6 +213,12 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         powerOffTimeoutInputLayout = findViewById(R.id.poweroff_timeout_input_layout);
         Button powerOffTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
         Button setLocaleBtn = findViewById(R.id.set_locale);
+        Button getTerminalState = findViewById(R.id.get_terminal_state);
+        Button enterSecureSession = findViewById(R.id.enter_secure_session);
+        Button exitSecureSession = findViewById(R.id.exit_secure_session);
+        getTerminalState.setOnClickListener(v -> getTerminalState());
+        enterSecureSession.setOnClickListener(v -> enterSecureSession());
+        exitSecureSession.setOnClickListener(v -> exitSecureSession());
         Button testBtn = findViewById(R.id.testBtn);
         //,qrCodeBtn;
         payBtn = findViewById(R.id.payBtn);
@@ -712,11 +725,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         displayMessageCommand.setTimeout(2);
         displayMessageCommand.setClearConfig((byte) 0x05);
 
-        displayMessageCommand.execute(1, (event1, params1) -> runOnUiThread(() -> {
+        displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
                 case PROGRESS:
                     Log.d(TAG,"message display progress state "+ ((RPCCommandStatus) params1[1]).name());
-                    break;
+                    return;
                 case FAILED:
                 case CANCELLED:
                     Log.d(TAG,"display message : "+ event1);
@@ -735,7 +748,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void getInfo() {
-
         final int[] uCubeInfoTagList = {
                 Constants.TAG_ATMEL_SERIAL,
                 Constants.TAG_TERMINAL_PN,
@@ -816,7 +828,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
         setInfoFieldCommand.setPowerTimeout((byte) powerOffValue);
-        setInfoFieldCommand.execute(1, (event1, params1) -> runOnUiThread(() -> {
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
             Log.d(TAG,"set power off timeout : "+ event1);
             progressDlg.dismiss();
         }));
@@ -879,5 +891,111 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 });
             }
         });
+    }
+
+    private void enterSecureSession() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.enter_secure_session));
+
+        new EnterSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() ->  {
+            switch (event1) {
+                case PROGRESS:
+                    Log.d(TAG, "progress state " + ((RPCCommandStatus) params1[1]).name());
+                    return;
+                case FAILED:
+                case CANCELLED:
+                    Log.d(TAG, "enter secure session  : " + event1);
+                    UIUtils.showMessageDialog(this, getString(R.string.enter_secure_session_failure));
+                    break;
+
+                case SUCCESS:
+                    Log.d(TAG, "enter secure session : " + event1);
+                    Toast.makeText(this, getString(R.string.enter_secure_session_success), Toast.LENGTH_LONG).show();
+                    break;
+            }
+            progressDlg.dismiss();
+        }));
+    }
+
+    private void exitSecureSession() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.exit_secure_session));
+
+        new ExitSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() ->  {
+            switch (event1) {
+                case PROGRESS:
+                    Log.d(TAG, "progress state " + ((RPCCommandStatus) params1[1]).name());
+                    return;
+                case FAILED:
+                case CANCELLED:
+                    Log.d(TAG, "exit secure session  : " + event1);
+                    UIUtils.showMessageDialog(this, getString(R.string.exit_secure_session_failure));
+                    break;
+
+                case SUCCESS:
+                    Log.d(TAG, "exit secure session : " + event1);
+                    Toast.makeText(this, getString(R.string.exit_secure_session_success), Toast.LENGTH_LONG).show();
+                    break;
+            }
+            progressDlg.dismiss();
+        }));
+    }
+
+    private void getTerminalState() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_terminal_state));
+
+        new GetInfosCommand(Constants.TAG_TERMINAL_STATE).execute((event1, params1) -> runOnUiThread(() ->  {
+            Log.d(TAG,"Get terminal state  : "+ event1);
+            switch (event1) {
+                case PROGRESS:
+                    break;
+                case FAILED:
+                case CANCELLED:
+                    progressDlg.dismiss();
+                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_terminal_state_failure));
+                    return;
+
+                case SUCCESS:
+                    progressDlg.dismiss();
+
+                    DeviceInfos deviceInfos;
+                    try {
+                        deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
+                    }catch (Exception e) {
+                        Toast.makeText(this, "Terminal State: unknown", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if(deviceInfos.getTerminalState() == null)
+                        Toast.makeText(this, "Terminal State: unknown", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState(), Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }));
+    }
+
+    private void sendCipheredPayload() {
+
+        //todo enter secure session
+        RPCCommand cmd = new RPCCommand();
+        cmd.setInputSecurityMode(SecurityMode.SIGNED_CIPHERED);
+        cmd.setOutputSecurityMode(SecurityMode.SIGNED);
+        cmd.setPayload(Tools.hexStringToByteArray("020000000202462003"));
+        cmd.execute((event1, params1) -> {
+            switch (event1) {
+                case PROGRESS:
+                    Log.d(TAG, "progress state " + ((RPCCommandStatus) params1[1]).name());
+                    return;
+                case FAILED:
+                case CANCELLED:
+                    Log.d(TAG, "unknown cmd  : " + event1);
+                    break;
+
+                case SUCCESS:
+                    Log.d(TAG, "unknown cmd: " + event1);
+                    break;
+            }
+        });
+
+        //todo exit secure session
     }
 }

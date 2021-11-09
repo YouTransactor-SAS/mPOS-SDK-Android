@@ -59,9 +59,46 @@
         android:background="@color/grey_300" />
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/enter_secure_session"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:layout_gravity="center"
+            android:text="@string/enter_sec" />
+
+        <Button
+            android:id="@+id/exit_secure_session"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/exit_sec" />
+
+        <Button
+            android:id="@+id/get_terminal_state"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/get_state" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_300" />
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
         android:layout_gravity="center"
         android:orientation="horizontal">
 
@@ -72,14 +109,13 @@
             app:errorEnabled="true">
             <EditText
                 android:id="@+id/powerTimeoutFld"
-                android:layout_width="80dp"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:ems="4"
                 android:inputType="number"
                 android:text="@string/_180"
                 android:autofillHints="@string/_180" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -91,15 +127,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:text="@string/power_off_timeout_val" />
-
-
+        <Button
+            android:id="@+id/powerTimeoutBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/set_power_off_timeout" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/powerTimeoutBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/set_power_off_timeout" />
 
 </LinearLayout>
