@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.4.26
+###### Release 3.4.37
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -154,6 +154,63 @@ The APIs provided by UCubeAPI are:
 	close()
 	
 	/*
+	* set the ILogger implementation that specify how the logger module should works
+	* this is the ILogger interface definition
+	* public interface ILogger {
+	*   void d(String tag, String message);
+	*   void e(String tag, String message, Exception e);
+	* }
+	*
+	* The SDK has a default impl if the passed param is null this default one will be used
+	* The default impl will print logs on logcat and save them into a log file
+	* there are two level of logs : debug and error
+	* there are maximum 5 log files to save logs
+	* a zip of these all log files can be requested and sent to a distante server
+	* @param logger implementation of ILogger interface
+	* */
+	setupLogger(@Nullable ILogger logger)
+    
+	/*
+	* enable or disable the SDK logs
+	* depends on enable value, the SDK will call or not the d() and e()
+	* functions of ILogger object
+	* @param enable if true SDK print logs, otherwise SDK stop printing logs
+	* by default logs are enabled
+	* */
+	enableLogs(boolean enable) 
+  
+  	/*
+	* returns true if the logs are enabled otherwise returns false
+	* */
+  	isLogsEnabled()
+	
+	/*
+	* set log level, 
+	* The levels are :
+	* 	SYSTEM    = 5
+	* 	CONNECTION = 4
+	* 	RPC       = 3
+	* 	PAYMENT   = 2
+	* 	MDM       = 1
+	* 	API       = 0
+	* Example, if you choose CONNECTION, the SDK will print 
+	* logs of CONNECTION, RPC, PAYMENT, MDM, API layers
+	* @param level value
+	* by default log level is API
+	* */
+	setLogLevel(LogManager.LogLevel level)
+	
+	/*
+	* returns the log level set before
+	* if no level was set, the returned level will be API 
+	* */
+	getLogLevel()
+	
+	registerCrashListener(DeviceCrashListener deviceCrashListener)
+	
+	unregisterCrashListener()
+	
+	/*
 	* pass the connexionManager implementation that should be used to communicate the terminal 
 	* the SDK propose two implementation : BleConnexionManager, BtClassicConnexionManager
 	* the BleConnexionManager should be used if the terminal to connect is the uCube Touch
@@ -180,26 +237,6 @@ The APIs provided by UCubeAPI are:
 	* @return IConnexionManager : null if setConnexionManager not be called yet
 	* */
 	getConnexionManager()
-	
-	/*
-	* set the ILogger implementation that specify how the logger module should works
-	* The SDK has a default impl if the passed param is null this default one will be used
-	* The default impl will print logs on logcat and save them into a log file
-	* there are two level of logs : debug and error 
-	* there are maximum 5 log files to save logs
-	* a zip of these all log files can be requested and sent to a distante server
-	* @param logger implementation of ILogger interface
-	* */
-	setupLogger(@Nullable ILogger logger)
-	
-	/*
-	* enable or disable the SDK logs
-	* depends on enable value, the SDK will call or not the d() and e() 
-	* functions of ILogger object
-	* @param enable if true SDK print logs, otherwise SDK stop printing logs
-	* by default logs are enabled
-	* */
-	enableLogs(boolean enable)
 	
 	/*
 	* get the current sequence number value if a command with inputSecurityMode = SIGNED_CIPHERED need         * to be created and sent to the terminal. Only the one who has the SRED key could cipher and sign
