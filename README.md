@@ -372,6 +372,11 @@ To be able to connect the terminal you need to follow these steps bellow :
 		//Setup logger : if null lib will use it own logger
 		UCubeAPI.setupLogger(null);
 		
+		// enable or disable SDK logs
+	        UCubeAPI.enableLogs(true);
+		
+		// define the log level you want to activate
+		UCubeAPI.setLogLevel(LogManager.LogLevel.RPC)
 		...
 	    }
 		
@@ -379,7 +384,7 @@ To be able to connect the terminal you need to follow these steps bellow :
 	}
 ```
 
-* Second you should set the connection manager to the SDK using `setConnectionManager` API. 
+* Second you should set the connection manager Type to the SDK using `setConnectionManagerType` API. 
 
 ```java
 	IConnectionManager connectionManager;
@@ -387,26 +392,63 @@ To be able to connect the terminal you need to follow these steps bellow :
 	
 	switch (ytProduct) {
             case uCube:
-                connectionManager = new BtClassicConnectionManager();
+	        UCubeAPI.setConnexionManagerType(BT);
                 break;
 
             case uCubeTouch:
-                connectionManager = new BleConnectionManager();
+                UCubeAPI.setConnexionManagerType(BLE);
                 break;
         }
-        ((BtConnectionManager) connectionManager).init(this);
-	
-        UCubeAPI.setConnexionManager(connexionManager);
 	...
 ```
-`BtClassicConnexionManager` and `BleConnectionManager` extend a `BtConnexionManager` which implements IConnexionManager.
+You can use `UCubeAPI.getConnectionManager` API to get the IConnexionManager and call different public APIs : 
 
-* Third you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you want to do a BLE scan. 
+```java
+public interface IConnexionManager {
 
-* Then you should select the device that you want to communicate with.
-	* In the case of uCube, the `BtClassicConnexionManager` provides a `public List<UCubeDevice> getPairedUCubes()` method which returns the list of paired uCube devices.
-	* In the case of uCube Touch, the `BleConnectionManager` provides a `public void scan(Activity activity, ScanListener scanListener)` & `public void stopScan()` methods which allow you to start and stop LE scan.
-In the SampleApp an example of device selection using these methods is provided.
+	List<UCubeDevice> getPairedUCubes(@Nullable String nameFilter);
+
+	List<UCubeDevice> getPairedUCubes(@Nullable Pattern namePattern);
+
+	void startScan(@Nullable String nameFilter, ScanListener scanListener);
+
+	void startScan(@Nullable Pattern pattern, ScanListener scanListener);
+
+	void stopScan();
+
+	void setDevice(UCubeDevice UCubeDevice);
+
+	UCubeDevice getDevice();
+
+	boolean isConnected();
+
+	void connect(ConnectionListener connectionListener);
+
+	void connect(int connectionTimeoutInMills, int connectionTryCount, ConnectionListener connectionListener);
+
+	boolean cancelConnection();
+
+	void disconnect(DisconnectListener disconnectListener);
+
+	void registerDisconnectListener(DisconnectListener disconnectListener);
+
+	void registerConnectionStateListener(ConnectionStateChangeListener connectionStateChangeListener);
+
+	void registerBatteryLevelChangeListener(BatteryLevelListener batteryLevelListener);
+
+	void send(byte[] input, SendCommandListener sendCommandListener);
+
+	void registerResponseListener(ResponseListener responseListener);
+
+	Integer getBatteryLevel();
+
+	void close();
+}
+```
+
+* Third you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` and `BLUETOOTH_SCAN` & `BLUETOOTH_CONNECT` if `Build.VERSION.SDK_INT >= Build.VERSION_CODES.S`.
+
+In the SampleApp examples of device scan, selection and connection using IConnexionManager methods are provided.
 
 #### 6.2 Setup Logger
 
@@ -419,7 +461,7 @@ To setup the log module you should put this instructions below in the onCreate()
 	// if you want to use your Logger impl
         UCubeAPI.setupLogger(new MyLogger());
 ```
-The SDK log can be enabled or disabled using `enableLogs()` method. 
+The SDK log can be enabled or disabled using `enableLogs()` method. And `setLogLevel()` to choose the LogLevel.
 
 #### 6.3 Payment
 
