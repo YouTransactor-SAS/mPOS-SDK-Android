@@ -256,36 +256,15 @@ The APIs provided by UCubeAPI are:
 	######################################## RPC APIs ######################################################
 	
 	/*
-	* During the bluetooth communication with the device, some data could be lost so the 
-	* SDK could be blocked waiting for the command response. 
-	* This is why, the RPC module implements a recovery strategy, which is, during the 
-	* time the sdk is waiting for a terminal response, periodically, each n seconds, call the getStatus command of 
-	* the terminal and a retry if the terminal is in idle state 
-	* This strategy could be enable or disabled using this API. 
-	* By default, it is disabled
-	* @param if true enable the recovery strategy otherwise disable it
-	*  */
-	enableUnlockStateProcessing(boolean enable)
+	* pass the listener object to the SDK, so it will be used
+	* to notify he application when packet are lost
+	* */
+	registerLostPacketListener() 
 	
 	/*
-	* returns true if the recovery strategy is enabled otherwise returns false
+	* remove the lostPacket listener
 	* */
-	isUnlockStateProcessingEnabled()
-	
-	/*
-	* define a global timeout which will be applied to all commands,
-	* the timeout is calculated from connection success event
-	* Once the timeout is attempt, if the recovery mechanism is disabled,
-	* just returns event failed,
-	* otherwise, sdk will retry current command or call repeat command
-	* default value is -1, in hat case the timeout mechanism is disabled
-	* */
-	setRPCExecutionTimeoutInSec() 
-	
-	/*
-	* returns the rpc timeout value
-	* */
-	getRPCExecutionTimeoutInSec()
+	unregisterLostPacketListener()
 	
 	/*
 	* get the current sequence number value if a command with inputSecurityMode = SIGNED_CIPHERED need     
