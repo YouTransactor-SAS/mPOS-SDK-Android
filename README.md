@@ -257,8 +257,7 @@ The APIs provided by UCubeAPI are:
 	######################################## RPC APIs ######################################################
 	
 	/*
-	* pass the listener object to the SDK, so it will be used
-	* to notify the application when some of response packet's are lost
+	* pass the listener object to the SDK to be notified of lost packets
 	* */
 	registerLostPacketListener(LostPacketListener lostPacketListener) 
 	
@@ -1367,9 +1366,9 @@ Note that no MAC if the data is null.
 
 ### 8. Speed Mode
 
-Starting from Firmware version 6.0.0.54, new tag was added `Constants.TAG_FC_SPEED_MODE` which could used to get and set the speed mode.
+Starting with Firmware version 6.0.0.54, a new tag was added `Constants.TAG_FC_SPEED_MODE` to get and set the BLE speed mode.
 
-Using `GetInfoCommand` you will be able to retrieve the current speed mode. Below the example : 
+The `GetInfoCommand` is used to retrieve the current speed mode. Example : 
 
 ```java
     GetInfosCommand command = new GetInfosCommand(Constants.TAG_FC_SPEED_MODE); 
@@ -1390,7 +1389,7 @@ Using `GetInfoCommand` you will be able to retrieve the current speed mode. Belo
         });
 ```
 
-Using the `SetInfoFieldCommand` you will be able to define the speed mode. Below the example : 
+The `SetInfoFieldCommand` is used to define the speed mode. Example : 
 
 ```java
     SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
