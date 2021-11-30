@@ -1361,4 +1361,52 @@ public class RPCMessage {
 Note that no MAC if the data is null.
 
 
+### 8. Speed Mode
+
+Starting from Firmware version 6.0.0.54, new tag was added `Constants.TAG_FC_SPEED_MODE` which could used to get and set the speed mode.
+
+Using `GetInfoCommand` you will be able to retrieve the current speed mode. Below the example : 
+
+```java
+    GetInfosCommand command = new GetInfosCommand(Constants.TAG_FC_SPEED_MODE); 
+    command.execute((event, params) -> {
+            switch (event1) {
+                case PROGRESS:
+                    break;
+		    
+                case FAILED:
+		    break;
+		    
+                case CANCELLED:
+                    break;
+		    
+                case SUCCESS:
+                    break;
+            }
+        });
+```
+
+Using the `SetInfoFieldCommand` you will be able to define the speed mode. Below the example : 
+
+```java
+    SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setMode(SLOW_MODE); // or QUICK_MODE
+        setInfoFieldCommand.execute((event1, params1) -> {
+		switch (event1) {
+		    case PROGRESS:
+			break;
+
+		    case FAILED:
+			break;
+
+		    case CANCELLED:
+			break;
+
+		    case SUCCESS:
+			break;
+		}
+        });
+```
+
+
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
