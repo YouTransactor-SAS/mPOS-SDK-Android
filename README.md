@@ -242,16 +242,16 @@ The APIs provided by UCubeAPI are:
 	getConnectionManager()
 	
 	/*
-	* the SDK has the ability to detect wathever the device crash
+	* the SDK has the ability to detect wathever the svpp restart
 	* pass the listener object to the SDK, so it will be used 
-	* to notify he application when this happened
+	* to notify the application when this happened
 	* */
-	registerCrashListener(DeviceCrashListener deviceCrashListener)
+	registerSVPPRestartListener(SVPPRestartListener svppRestartListener)
 	
 	/*
-	* remove the device crash listener
+	* remove the SVPP restart listener
 	* */
-	unregisterCrashListener()
+	unregisterSVPPRestartListener()
 	
 	######################################## RPC APIs ######################################################
 	
