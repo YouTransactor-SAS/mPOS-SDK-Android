@@ -241,10 +241,11 @@ The APIs provided by UCubeAPI are:
 	* */
 	getConnectionManager()
 	
+	
 	/*
-	* the SDK has the ability to detect wathever the svpp restart
+	* the SDK has the ability to detect the svpp restart
 	* pass the listener object to the SDK, so it will be used 
-	* to notify the application when this happened
+	* to notify the application when this happens
 	* */
 	registerSVPPRestartListener(SVPPRestartListener svppRestartListener)
 	
@@ -257,9 +258,9 @@ The APIs provided by UCubeAPI are:
 	
 	/*
 	* pass the listener object to the SDK, so it will be used
-	* to notify he application when packet are lost
+	* to notify the application when some of response packet's are lost
 	* */
-	registerLostPacketListener() 
+	registerLostPacketListener(LostPacketListener lostPacketListener) 
 	
 	/*
 	* remove the lostPacket listener
