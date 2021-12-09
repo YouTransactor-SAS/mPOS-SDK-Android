@@ -11,7 +11,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.10'
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.guardsquare:proguard-gradle:7.1.1'  // The ProGuard Gradle plugin.
         classpath 'io.fabric.tools:gradle:1.31.2'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

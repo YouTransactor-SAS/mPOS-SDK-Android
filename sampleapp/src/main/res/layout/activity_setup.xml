@@ -8,25 +8,28 @@
   ~ is here defined as YouTransactor Intellectual Property for the purposes
   ~ of determining terms of use as defined within the license agreement.
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
+    android:orientation="vertical"
     tools:context=".MainActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/product_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="false"
-            android:layout_centerVertical="false"
             android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -95,21 +98,35 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/defaultDongleModel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="@string/default_dongle_model" />
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/enableTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="@string/enable_test" />
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/enableMeasures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/enable_measures" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/enableRecoveryMechanism"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/enable_recovery_mechanism" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/enableSDKLog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -125,28 +142,28 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:text="@string/log_level"
-                 />
+                android:layout_weight="1"
+                android:text="@string/log_level" />
+
             <Spinner
                 android:id="@+id/logLevelSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_gravity="center_vertical" />
+                android:layout_gravity="center_vertical"
+                android:layout_weight="2" />
         </LinearLayout>
 
     </LinearLayout>
+    </ScrollView>
 
     <include
         layout="@layout/version_name_section_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:layout_marginBottom="0dp"
         android:orientation="vertical" />
 
-</RelativeLayout>
+</LinearLayout>

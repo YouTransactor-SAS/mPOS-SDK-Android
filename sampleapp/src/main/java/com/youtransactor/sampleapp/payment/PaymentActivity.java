@@ -29,16 +29,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TLV;
+import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.api.UCubeLibControlServiceListener;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
+import com.youTransactor.uCube.control.ControlContext;
+import com.youTransactor.uCube.control.ControlService;
 import com.youTransactor.uCube.rpc.CardReaderType;
+import com.youTransactor.uCube.control.ControlState;
 import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
+import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.CancelCommand;
@@ -84,18 +90,30 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch retrieveF5TagSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
+    private Button uPresentCard;
+    private Button uEnterPin;
+    private Button crEnterPin;
 
     private PaymentState autoCancelState;
     private int startCancelDelay;
     private PaymentState autoDisconnectState;
     private boolean testModeEnabled = false;
+    private boolean measureModeEnabled;
     private PaymentService paymentService;
+    private ControlService controlService;
+
+    private PaymentMeasure paymentMeasure;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
+        measureModeEnabled = prefs.getBoolean(SetupActivity.MEASURES_MODE_PREF_NAME, false);
+        if(measureModeEnabled) {
+            paymentMeasure = new PaymentMeasure();
+        }
 
         setContentView(R.layout.activity_payment);
 
@@ -108,20 +126,20 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
-        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
     public void onBackPressed() {
         super.onBackPressed();
-        cancelPayment();
+
+        if(paymentService != null)
+            cancelPayment();
+        else
+            cancelControl();
     }
 
     private void initView() {
+
+        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        findViewById(R.id.measures_section).setVisibility(measureModeEnabled ? View.VISIBLE : View.GONE);
+
         doPaymentBtn = findViewById(R.id.doPaymentBtn);
         cancelPaymentBtn = findViewById(R.id.cancelPaymentBtn);
         cardWaitTimeoutFld = findViewById(R.id.cardWaitTimeoutFld);
@@ -141,6 +159,9 @@ public class PaymentActivity extends AppCompatActivity {
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         getStatusBtn = findViewById(R.id.getStatusBtn);
+        uPresentCard = findViewById(R.id.u_present_card);
+        uEnterPin = findViewById(R.id.u_enter_pin);
+        crEnterPin = findViewById(R.id.cr_enter_pin);
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
@@ -186,98 +207,21 @@ public class PaymentActivity extends AppCompatActivity {
             }
         });
 
-        getLogsL1.setOnClickListener(v -> getSvppLogsL1());
+        getLogsL1.setOnClickListener(v -> getCBTag());
         getStatusBtn.setOnClickListener(v -> getStatus());
 
-        findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        uPresentCard.setOnClickListener(v -> paymentMeasure.onUserPresentCard());
+        uEnterPin.setOnClickListener(v -> paymentMeasure.onUEnterPin());
+        crEnterPin.setOnClickListener(v -> paymentMeasure.onCREnterPin());
     }
 
     private void startPayment() {
-        UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
-
-//        String msg;
-//        if (uCubePaymentRequest.getAmount() > 0) {
-//            msg = getString(
-//                    R.string.payment_progress_with_amount,
-//                    uCubePaymentRequest.getAmount(),
-//                    uCubePaymentRequest.getCurrency().getLabel()
-//            );
-//        } else {
-//            msg = getString(
-//                    R.string.payment_progress_without_amount,
-//                    uCubePaymentRequest.getCurrency().getLabel()
-//            );
-//        }
-
         doPaymentBtn.setVisibility(View.GONE);
         cancelPaymentBtn.setVisibility(View.VISIBLE);
+        findViewById(R.id.measurement_section).setVisibility(View.GONE);
         trxResultFld.setText("");
 
-        try {
-            paymentService = UCubeAPI.pay(uCubePaymentRequest,
-                    new UCubeLibPaymentServiceListener() {
-
-                        @Override
-                        public void onProgress(PaymentState state, PaymentContext context) {
-                            // todo No RPC call here
-
-                            runOnUiThread(() -> {
-                                Log.d(TAG, " Payment progress : " + state);
-
-                                displayProgress(state);
-
-                                if (state == autoCancelState) {
-                                    startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
-                                    Log.d(TAG, "start cancel delay : "+ startCancelDelay);
-
-                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
-                                }
-
-                                if (state == autoDisconnectState) {
-                                    disconnect();
-                                }
-
-                                if (state == PaymentState.KSN_AVAILABLE) {
-                                    Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
-                                }
-
-                                if (state == PaymentState.SMC_PROCESS_TRANSACTION) {
-                                    Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
-                                }
-
-                                if(state == PaymentState.CARD_READ_END) {
-                                    //DISABLE CANCELLING
-                                    cancelPaymentBtn.setVisibility(View.GONE);
-                                }
-
-                            });
-                        }
-
-                        @Override
-                        public void onFinish(PaymentContext context) {
-                            runOnUiThread(() -> {
-                                if (context == null) {
-                                    UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
-                                    return;
-                                }
-
-                                Log.d(TAG, "payment finish status : " + context.paymentStatus);
-
-                                doPaymentBtn.setVisibility(View.VISIBLE);
-                                cancelPaymentBtn.setVisibility(View.GONE);
-
-                                parsePaymentResponse(context);
-                            });
-
-                        }
-                    });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            doPaymentBtn.setVisibility(View.VISIBLE);
-            cancelPaymentBtn.setVisibility(View.GONE);
-        }
+        pay();
     }
 
     private UCubePaymentRequest preparePaymentRequest() {
@@ -311,15 +255,18 @@ public class PaymentActivity extends AppCompatActivity {
         if (!contactOnly)
             readerList.add(CardReaderType.NFC);
 
+        AuthorizationTask authorizationTask = new AuthorizationTask(this);
+        authorizationTask.setMeasureStatesListener(paymentMeasure);
+
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
-                readerList, new AuthorizationTask(this), Collections.singletonList("en"));
+                readerList, authorizationTask, Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest
                 .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
                 .setForceAuthorisation(forceAuthorisation)
-                .setRiskManagementTask(new RiskManagementTask(this))
+              //  .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
@@ -327,8 +274,77 @@ public class PaymentActivity extends AppCompatActivity {
                 .setSkipStartingSteps(skipStartingSteps)
                 .setRetrieveF5Tag(retrieveF5Tag)
 
+                //CLIENT TAGs
                 .setAuthorizationPlainTags(
-                        TAG_4F_APPLICATION_IDENTIFIER,
+                        0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
+                        0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F)
+
+                .setAuthorizationSecuredTags(
+                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
+                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
+                        TAG_SECURE_56_TRACK_1_DATA,
+                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
+                        0x99,
+                        0x5F2A,
+                        0x9F02,
+                        0x9F03
+                )
+                .setFinalizationPlainTags(0x9F1A, 0x99, 0x5F2A, 0x95, 0x4F, 0x9B, 0x5F34, 0x81, 0x8E, 0x9A, 0xDF37, 0x50)
+                .setFinalizationSecuredTags(
+                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
+                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
+                        TAG_SECURE_56_TRACK_1_DATA,
+                        TAG_SECURE_5F20_CARDHOLDER_NAME,
+                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_SECURE_5F30_SERVICE_CODE,
+                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
+                        TAG_SECURE_9F6B_TRACK_2_DATA
+                );
+      /* complete list of optional tags C1 :
+                        0x9F39
+                        ,0x9F02
+                        ,0x9F03
+                        ,0x9F26
+                        ,0x82
+                        ,0x50
+                        ,0x9F36
+                        ,0x9F09
+                        ,0x9F27
+                        ,0x9F10
+                        ,0x9F34
+                        ,0x9F35
+                        ,0x9F33
+                        ,0x84
+                        ,0x9F1A
+                        ,0x95
+                        ,0x9F53
+                        ,0x5F2A
+                        ,0x9A
+                        ,0x9F21
+                        ,0x9C
+                        ,0x9F37
+                        ,0x9B
+                        ,0x9F66
+                        ,0xDF0C
+                        ,0xDF66
+                        ,0x9F0D
+                        ,0x9F0E
+                        ,0x9F0F
+                        ,0xDF20
+                        ,0xDF21
+                        ,0xDF22
+                        ,0xDF22
+                        ,0xFF50
+                        ,0x82
+                        ,0x9F07
+                        ,0x8E
+                        ,0x94
+                        ,0xDF75)
+                        */
+
+                /*
+                TAG_4F_APPLICATION_IDENTIFIER,
                         TAG_50_APPLICATION_LABEL,
                         TAG_5F2A_TRANSACTION_CURRENCY_CODE,
                         TAG_5F34_APPLICATION_PRIMARY_ACCOUNT_NUMBER_SEQUENCE_NUMBER,
@@ -363,29 +379,8 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_82_APPLICATION_INTERCHANGE_PROFILE,
                         TAG_9F07_APPLICATION_USAGE_CONTROL,
                         TAG_9F37_UNPREDICTABLE_NUMBER
-                )
-
-                .setAuthorizationSecuredTags(
-                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
-                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
-                        TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F20_CARDHOLDER_NAME,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
-                        TAG_SECURE_5F30_SERVICE_CODE,
-                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA
-                )
-
-                .setFinalizationSecuredTags(
-                        TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
-                        TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
-                        TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F20_CARDHOLDER_NAME,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
-                        TAG_SECURE_5F30_SERVICE_CODE,
-                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA
-                )
+                )*/
+/*
 
                 .setFinalizationPlainTags(
                         TAG_4F_APPLICATION_IDENTIFIER,
@@ -423,7 +418,7 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_82_APPLICATION_INTERCHANGE_PROFILE,
                         TAG_9F07_APPLICATION_USAGE_CONTROL,
                         TAG_9F37_UNPREDICTABLE_NUMBER
-                );
+                );*/
 
         return uCubePaymentRequest;
     }
@@ -492,7 +487,25 @@ public class PaymentActivity extends AppCompatActivity {
                     else
                         Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
                 });
-          });
+            });
+        }
+    }
+
+    private void cancelControl() {
+        if (controlService != null && controlService.isRunning()) {
+            Log.d(TAG, "Try to cancel current control");
+            UIUtils.showProgress(this, "Trying cancellation");
+
+            controlService.cancel(status -> {
+                Log.d(TAG, "cancel value : "+ status);
+                runOnUiThread(() -> {
+                    UIUtils.hideProgressDialog();
+                    if(status)
+                        Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
+                });
+            });
         }
     }
 
@@ -504,8 +517,19 @@ public class PaymentActivity extends AppCompatActivity {
             connexionManager.disconnect(status -> Log.d(TAG, "Disconnected"));
     }
 
-    private void getSvppLogsL1() {
-        ITaskMonitor iTaskMonitor = (event, params) -> Log.d(TAG,"event: " + event);
+    private void getCBTag() {
+        ITaskMonitor iTaskMonitor = (event, params) ->  {
+            Log.d(TAG,"event: " + event);
+
+            if(event == TaskEvent.FAILED) {
+                String command = "unknown";
+                if(params[0] != null)
+                    command =  "0x"+Integer.toHexString(((RPCCommand) params[0]).getCommandId());
+
+                String finalCommand = command;
+                runOnUiThread(() -> UIUtils.showMessageDialog(this, getString(R.string.get_cb_command_failed, finalCommand)));
+            }
+        };
         new CancelCommand().execute(iTaskMonitor);
         new ExitSecureSessionCommand().execute(iTaskMonitor);
         new EnterSecureSessionCommand().execute(iTaskMonitor);
@@ -515,5 +539,195 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void getStatus() {
         new GetStatusCommand().execute((event, params) -> Log.d(TAG,"getStatus event:"+ event));
+    }
+
+    private void control() {
+        try {
+            controlService = UCubeAPI.control(30
+                    , (byte) 0x44,
+                    new UCubeLibControlServiceListener() {
+                        @Override
+                        public void onProgress(ControlState state, ControlContext context) {
+
+                            runOnUiThread(() -> {
+                                Log.d(TAG, " Control progress : " + state);
+
+                                trxResultFld.setText(state.name());
+                            });
+                        }
+
+                        @Override
+                        public void onFinish(ControlContext controlContext, String token) {
+                            runOnUiThread(() -> {
+                                Log.d(TAG, "control finish, status: "
+                                        + controlContext.controlStatus
+                                        + " token : " + token);
+
+                                doPaymentBtn.setVisibility(View.VISIBLE);
+                                cancelPaymentBtn.setVisibility(View.GONE);
+                                trxResultFld.setText("control finish, status: "
+                                        + controlContext.controlStatus
+                                        + " token : " + token);
+                            });
+                        }
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            doPaymentBtn.setVisibility(View.VISIBLE);
+            cancelPaymentBtn.setVisibility(View.GONE);
+        }
+    }
+
+    private void pay() {
+
+        try {
+            UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
+            paymentService = UCubeAPI.pay(uCubePaymentRequest,
+                    new UCubeLibPaymentServiceListener() {
+
+                        @Override
+                        public void onProgress(PaymentState state, PaymentContext context) {
+                            // todo No RPC call here
+
+                            runOnUiThread(() -> {
+                                Log.d(TAG, " Payment progress : " + state);
+
+                                displayProgress(state);
+
+                                switch (state) {
+                                    case ENTER_SECURE_SESSION:
+                                        if(paymentMeasure != null)
+                                            paymentMeasure.onStart();
+                                        break;
+
+                                    case KSN_AVAILABLE:
+                                        Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
+                                        break;
+
+                                    case START_TRANSACTION:
+                                        if(paymentMeasure != null)
+                                            paymentMeasure.onWaitingCard();
+                                        break;
+
+                                    case AUTHORIZATION:
+                                        if(paymentMeasure != null)
+                                            paymentMeasure.onAuthorizationCalled();
+                                        break;
+
+                                    case OFFLINE_PIN:
+                                    case ONLINE_PIN:
+                                        if(paymentMeasure != null)
+                                            paymentMeasure.onCREnterPin();
+                                        break;
+
+                                    case SMC_PROCESS_TRANSACTION:
+                                        Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
+                                        break;
+
+                                    case CARD_READ_END:
+                                        //DISABLE CANCELLING
+                                        cancelPaymentBtn.setVisibility(View.GONE);
+                                        break;
+                                }
+
+                                if (state == autoCancelState) {
+                                    startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
+                                    Log.d(TAG, "start cancel delay : "+ startCancelDelay);
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
+                                }
+
+                                if (state == autoDisconnectState) {
+                                    disconnect();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFinish(PaymentContext context) {
+                            runOnUiThread(() -> {
+                                if (context == null) {
+                                    UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
+                                    return;
+                                }
+
+                                Log.d(TAG, "payment finish status : " + context.paymentStatus);
+
+                                doPaymentBtn.setVisibility(View.VISIBLE);
+                                cancelPaymentBtn.setVisibility(View.GONE);
+
+                                if(paymentMeasure != null) {
+                                    paymentMeasure.onFinish();
+                                    displayMeasures(context);
+                                }
+
+                                parsePaymentResponse(context);
+                            });
+
+                        }
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            doPaymentBtn.setVisibility(View.VISIBLE);
+            cancelPaymentBtn.setVisibility(View.GONE);
+        }
+    }
+
+    private void displayMeasures(PaymentContext context) {
+        findViewById(R.id.measurement_section).setVisibility(View.VISIBLE);
+        TextView measureStartToCardWait= findViewById(R.id.measure_start_to_waiting_card);
+        TextView measurePresentToAuth= findViewById(R.id.measure_present_card_to_auth);
+        TextView measureAuthToFinish= findViewById(R.id.measure_auth_resp_to_finish);
+        TextView measureEnterPinToAuth= findViewById(R.id.measure_user_enter_pin_to_auth);
+        TextView measurePresentCardToEnterPin= findViewById(R.id.measure_present_card_to_cr_enter_pin);
+
+        String measurement;
+        if(context.activatedReader == CardReaderType.NFC.getCode()) {
+            measureStartToCardWait.setText(getString(R.string.measure_start_to_waiting_card,
+                    paymentMeasure.calculateMeasureStartToWaitingCard()));
+            measurePresentToAuth.setText(getString(R.string.measure_present_card_to_auth,
+                    paymentMeasure.calculateMeasureUPresentCardToAuthorization()));
+            measureAuthToFinish.setText(getString(R.string.measure_auth_resp_to_finish,
+                    paymentMeasure.calculateMeasureAuthorisationRpToFinish()));
+
+            measureStartToCardWait.setVisibility(View.VISIBLE);
+            measurePresentToAuth.setVisibility(View.VISIBLE);
+            measureAuthToFinish.setVisibility(View.VISIBLE);
+            measureEnterPinToAuth.setVisibility(View.GONE);
+            measurePresentCardToEnterPin.setVisibility(View.GONE);
+
+            measurement = "Measurement : \n"
+                    + "\n From Start To waiting card: " + paymentMeasure.calculateMeasureStartToWaitingCard()
+                    + "\n From UPresentCard To Authorization: " + paymentMeasure.calculateMeasureUPresentCardToAuthorization()
+                    + "\n From Authorisation Rp To Finish: " + paymentMeasure.calculateMeasureAuthorisationRpToFinish();
+        }else {
+            measureStartToCardWait.setText(getString(R.string.measure_start_to_waiting_card,
+                    paymentMeasure.calculateMeasureStartToWaitingCard()));
+            measurePresentCardToEnterPin.setText(getString(R.string.measure_present_card_to_enter_pin,
+                    paymentMeasure.calculateMeasureUPresentCardToCREnterPin()));
+            measureEnterPinToAuth.setText(getString(R.string.measure_enter_pin_to_auth,
+                    paymentMeasure.calculateMeasureUEnterPinToAuthorization()));
+            measureAuthToFinish.setText(getString(R.string.measure_auth_resp_to_finish,
+                    paymentMeasure.calculateMeasureAuthorisationRpToFinish()));
+
+            measureStartToCardWait.setVisibility(View.VISIBLE);
+            measurePresentToAuth.setVisibility(View.GONE);
+            measureAuthToFinish.setVisibility(View.VISIBLE);
+            measureEnterPinToAuth.setVisibility(View.VISIBLE);
+            measurePresentCardToEnterPin.setVisibility(View.VISIBLE);
+
+            measurement = "Measurement : \n"
+                    + "\n From Start To waiting card: " + paymentMeasure.calculateMeasureStartToWaitingCard()
+                    + "\n From UPresentCard To CR Enter Pin: " + paymentMeasure.calculateMeasureUPresentCardToCREnterPin()
+                    + "\n From U Enter Pin To Authorisation: " + paymentMeasure.calculateMeasureUEnterPinToAuthorization()
+                    + "\n From Authorisation Rp To Finish: " + paymentMeasure.calculateMeasureAuthorisationRpToFinish();
+        }
+
+        Log.d(TAG, measurement);
+        findViewById(R.id.measurement_section).setVisibility(View.VISIBLE);
     }
 }

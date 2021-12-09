@@ -122,6 +122,84 @@
             android:background="@color/grey_300" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/measures_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/u_present_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/u_present_card" />
+
+            <Button
+                android:id="@+id/cr_enter_pin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/margin"
+                android:text="CR Enter PIN" />
+
+                <Button
+                    android:id="@+id/u_enter_pin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/margin"
+                    android:text="@string/u_present_card" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/measurement_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/measure_start_to_waiting_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/measure_present_card_to_auth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/measure_present_card_to_cr_enter_pin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/measure_user_enter_pin_to_auth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/measure_auth_resp_to_finish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/margin"
+            android:background="@color/grey_300" />
+    </LinearLayout>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -228,6 +306,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
+                android:checked="true"
         android:text="@string/skip_card_removal"/>
 
     <Switch
@@ -235,6 +314,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
+        android:checked="true"
         android:text="@string/skip_starting_steps"/>
 
     <LinearLayout
@@ -255,7 +335,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="end"
-            android:maxLength="15"
+            android:maxLength="12"
             android:importantForAutofill="no"
             android:text="1,00 "
             android:inputType="numberDecimal" />
@@ -299,6 +379,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:gravity="center|center_horizontal" />
+
         </LinearLayout>
     </ScrollView>
 

@@ -26,6 +26,7 @@ public class AuthorizationTask implements IAuthorizationTask {
     private static final String TAG = AuthorizationTask.class.getName();
 
     private final Context context;
+    private MeasureStatesListener measureStatesListener;
     private byte[] authResponse;
     private ITaskMonitor monitor;
     private PaymentContext paymentContext;
@@ -33,6 +34,10 @@ public class AuthorizationTask implements IAuthorizationTask {
 
     public AuthorizationTask(Context context) {
         this.context = context;
+    }
+
+    public void setMeasureStatesListener(MeasureStatesListener measureStatesListener) {
+        this.measureStatesListener = measureStatesListener;
     }
 
     @Override
@@ -128,6 +133,8 @@ public class AuthorizationTask implements IAuthorizationTask {
                 return;
         }
 
+        if (measureStatesListener != null)
+            measureStatesListener.onAuthorizationResponse();
         monitor.handleEvent(TaskEvent.SUCCESS);
     }
 

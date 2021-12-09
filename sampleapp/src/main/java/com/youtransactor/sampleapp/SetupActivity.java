@@ -16,16 +16,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.log.LogManager;
+import com.youTransactor.uCube.rpc.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,13 +40,15 @@ public class SetupActivity extends AppCompatActivity {
     public static final String NO_DEFAULT = "no_default";
     public static final String DEFAULT_YT_PRODUCT = "default_YT_Product";
     public static final String TEST_MODE_PREF_NAME = "testMode";
+    public static final String MEASURES_MODE_PREF_NAME = "measuresMode";
+    public static final String RECOVERY_MODE_PERF_NAME = "recoveryMode";
     public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
     public static final String SDK_LOGS_LEVEL_PREF_NAME = "SDKLogLevel";
     public static final String SETUP_SHARED_PREF_NAME = "setup";
 
     private CardView uCubeCardView;
     private CardView uCubeTouchCardView;
-    private Switch defaultModelSwitch;
+    private SwitchMaterial defaultModelSwitch;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -85,13 +90,29 @@ public class SetupActivity extends AppCompatActivity {
         });
 
 
-        Switch s = findViewById(R.id.enableTest);
+        SwitchMaterial s = findViewById(R.id.enableTest);
         s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
-        s.setOnClickListener(v -> sharedPreferences.edit().putBoolean(TEST_MODE_PREF_NAME, ((Switch) v).isChecked()).apply());
+        s.setOnCheckedChangeListener((compoundButton, b) ->
+                sharedPreferences.edit().putBoolean(TEST_MODE_PREF_NAME, compoundButton.isChecked()).apply());
 
-        Switch enableLogSwitch = findViewById(R.id.enableSDKLog);
-        enableLogSwitch.setOnClickListener(v ->  {
-            boolean enable = ((Switch) v).isChecked();
+        SwitchMaterial e = findViewById(R.id.enableMeasures);
+        e.setChecked(sharedPreferences.getBoolean(MEASURES_MODE_PREF_NAME, false));
+        e.setOnCheckedChangeListener((compoundButton, b) ->
+                sharedPreferences.edit().putBoolean(MEASURES_MODE_PREF_NAME, compoundButton.isChecked()).apply());
+
+        SwitchMaterial d = findViewById(R.id.enableRecoveryMechanism);
+        d.setOnCheckedChangeListener((compoundButton, b) -> {
+            boolean enable = compoundButton.isChecked();
+            sharedPreferences
+                    .edit()
+                    .putBoolean(RECOVERY_MODE_PERF_NAME, enable)
+                    .apply();
+            UCubeAPI.enableRecoveryMechanism(enable);
+        });
+
+        SwitchMaterial enableLogSwitch = findViewById(R.id.enableSDKLog);
+        enableLogSwitch.setOnCheckedChangeListener((compoundButton, b) ->  {
+            boolean enable = compoundButton.isChecked();
             sharedPreferences.edit().putBoolean(ENABLE_SDK_LOGS_PREF_NAME, enable).apply();
             UCubeAPI.enableLogs(enable);
             findViewById(R.id.logLevelSection).setVisibility(enable? View.VISIBLE : View.GONE);
@@ -124,6 +145,7 @@ public class SetupActivity extends AppCompatActivity {
         enableLogSwitch.setChecked(logsEnabled);
         logLevelSpinner.setSelection(values.indexOf(logLevel));
         UCubeAPI.setLogLevel(logLevel);
+        d.setChecked(sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false));
 
 
         Intent intent = getIntent();

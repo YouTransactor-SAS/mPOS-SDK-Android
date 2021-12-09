@@ -22,7 +22,5 @@ public class App extends MultiDexApplication {
 
         //Setup logger : if null lib will use it own logger
         UCubeAPI.setupLogger(null);
-
-        UCubeAPI.enableTerminalMonitoring(true);
     }
 }

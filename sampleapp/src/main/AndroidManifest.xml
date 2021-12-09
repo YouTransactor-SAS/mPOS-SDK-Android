@@ -12,10 +12,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.youtransactor.sampleapp">
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:name=".App"
@@ -32,20 +37,19 @@
 
         <activity android:name=".test.TestActivity"/>
 
-        <activity android:name=".SetupActivity">
+        <activity android:name=".SetupActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="io.fabric.ApiKey"
+        <meta-data android:name="io.fabric.ApiKey"
             android:value="ae2664c7159b72049a1d19c857806a34504ff75e" />
 
         <activity android:name=".connexion.ListPairedUCubeActivity"/>
         <activity android:name=".connexion.ListPairedUCubeTouchActivity"/>
         <activity android:name=".connexion.UCubeTouchScanActivity"/>
     </application>
-
 </manifest>

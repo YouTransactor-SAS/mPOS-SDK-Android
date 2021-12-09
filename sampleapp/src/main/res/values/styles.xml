@@ -29,16 +29,4 @@
         <item name="buttonStyle" tools:targetApi="m">@android:style/Widget.Material.Button.Colored</item>
         <item name="android:singleLine">true</item>
     </style>
-
-    <!-- use this for android <= 4.4 -->
-    <!--<style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
-        &lt;!&ndash; Customize your theme here. &ndash;&gt;
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowNoTitle">true</item>
-    </style>
--->
 </resources>

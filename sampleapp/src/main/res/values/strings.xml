@@ -269,7 +269,7 @@
     <string name="get_state">get State</string>
     <string name="slow_mode">slow mode</string>
     <string name="quick_mode">Quick mode</string>
-    <string name="enable_rpc_timeout_and_retry">Enable RPC timeout and retry</string>
+    <string name="enable_recovery_mechanism">Enable recovery mechanism</string>
     <string name="enable_measures">enable measures</string>
     <string name="rpc_timeout">RPC Timeout</string>
     <string name="_3">3</string>
@@ -282,5 +282,11 @@
     <string name="u_validate_pin">U validate pin</string>
     <string name="u_present_card">U present card</string>
     <string name="cr_enter_pin">CR enter pin</string>
+
+    <string name="device_get_stuck">Device get stuck, SVPP Restart!</string>
+    <string name="lost_packet">Lost packet!</string>
+    <string name="set">set</string>
+    <string name="configure">configure</string>
+    <string name="get_cb_command_failed"> Get CB Tag:\n %s Failed !</string>
 
 </resources>

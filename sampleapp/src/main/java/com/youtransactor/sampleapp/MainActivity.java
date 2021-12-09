@@ -9,12 +9,9 @@
  */
 package com.youtransactor.sampleapp;
 
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BLE;
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
-import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
-import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -35,11 +32,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
 import com.google.android.material.textfield.TextInputLayout;
+import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
@@ -48,14 +42,16 @@ import com.youTransactor.uCube.api.UCubeLibTaskListener;
 import com.youTransactor.uCube.connexion.BatteryLevelListener;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
+import com.youTransactor.uCube.connexion.SVPPRestartListener;
 import com.youTransactor.uCube.connexion.UCubeDevice;
-import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.Config;
+import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
+import com.youTransactor.uCube.rpc.LostPacketListener;
 import com.youTransactor.uCube.rpc.SecurityMode;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
@@ -74,7 +70,13 @@ import com.youtransactor.sampleapp.test.TestActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BatteryLevelListener {
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BLE;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
+import static com.youTransactor.uCube.rpc.Constants.QUICK_MODE;
+import static com.youtransactor.sampleapp.MainActivity.State.*;
+import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
+
+public class MainActivity extends AppCompatActivity implements BatteryLevelListener, SVPPRestartListener, LostPacketListener {
     private static final String TAG = MainActivity.class.getName();
     private static final String SHARED_PREF_NAME = "main";
 
@@ -113,6 +115,18 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         Log.d(TAG,String.format(getString(R.string.battery_level), newLevel));
     }
 
+    @Override
+    public void onSVPPRestart() {
+        runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.device_get_stuck)));
+        Log.d(TAG, "Notification of SVPP Restart event !");
+    }
+
+    @Override
+    public void onPacketLost() {
+        runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.lost_packet)));
+        Log.d(TAG, "Notification of lost packet !");
+    }
+
     enum State {
         NO_DEVICE_SELECTED,
         DEVICE_NOT_CONNECTED,
@@ -142,7 +156,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         }
 
         UCubeAPI.setConnexionManagerType(ytProduct == YTProduct.uCubeTouch ? BLE: BT);
+
         UCubeAPI.getConnexionManager().registerBatteryLevelChangeListener(this);
+        UCubeAPI.registerSVPPRestartListener(this);
+        UCubeAPI.registerLostPacketListener(this);
 
         if (getDevice() != null) {
             UCubeAPI.getConnexionManager().setDevice(getDevice());
@@ -169,6 +186,13 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             // if user app will use YT TMS use this to get MDM Manager state & then update UI
             updateMDMUI(UCubeAPI.isMdmManagerReady() ? MDMState.DEVICE_REGISTERED : MDMState.DEVICE_NOT_REGISTERED);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        UCubeAPI.unregisterSVPPRestartListener();
+        UCubeAPI.unregisterLostPacketListener();
+        super.onDestroy();
     }
 
     @Override
@@ -220,6 +244,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         enterSecureSession.setOnClickListener(v -> enterSecureSession());
         exitSecureSession.setOnClickListener(v -> exitSecureSession());
         Button testBtn = findViewById(R.id.testBtn);
+        Button quickModeBtn = findViewById(R.id.quick_mode);
+        Button slowModeBtn = findViewById(R.id.slow_mode);
         //,qrCodeBtn;
         payBtn = findViewById(R.id.payBtn);
         mdmRegisterBtn = findViewById(R.id.registerBtn);
@@ -274,6 +300,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         mdmCheckUpdateBtn.setOnClickListener(v -> mdmCheckUpdate());
         mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
         testBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TestActivity.class)));
+        quickModeBtn.setOnClickListener(v -> enableQuickMode());
+        slowModeBtn.setOnClickListener(v -> enableSlowMode());
 
         SharedPreferences setupSharedPref = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
         boolean testModeEnabled = setupSharedPref.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
@@ -776,7 +804,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 Constants.TAG_EMV_L2_CHECKSUM,
                 Constants.TAG_BLE_FIRMWARE_VERSION,
                 Constants.TAG_RESOURCE_FILE_VERSION,
-                Constants.TAG_FB_CHARGING_STATUS
+                Constants.TAG_FB_CHARGING_STATUS,
+                Constants.TAG_FC_SPEED_MODE
         };
 
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_info));
@@ -830,6 +859,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         setInfoFieldCommand.setPowerTimeout((byte) powerOffValue);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
             Log.d(TAG,"set power off timeout : "+ event1);
+            if(event1 == TaskEvent.FAILED) {
+                Toast.makeText(this, "Set power off timeout failed! ", Toast.LENGTH_LONG).show();
+            } else if(event1 == TaskEvent.SUCCESS) {
+                Toast.makeText(this, "Set power off timeout SUCCESS! ", Toast.LENGTH_LONG).show();
+            }
             progressDlg.dismiss();
         }));
     }
@@ -956,16 +990,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 case SUCCESS:
                     progressDlg.dismiss();
 
-                    DeviceInfos deviceInfos;
-                    try {
-                        deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
-                    }catch (Exception e) {
-                        Toast.makeText(this, "Terminal State: unknown", Toast.LENGTH_LONG).show();
-                        return;
-                    }
+                    DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
 
-                    if(deviceInfos.getTerminalState() == null)
-                        Toast.makeText(this, "Terminal State: unknown", Toast.LENGTH_LONG).show();
+                    if(deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
+                        Toast.makeText(this, "Terminal State: SECURED", Toast.LENGTH_LONG).show();
                     else
                         Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState(), Toast.LENGTH_LONG).show();
                     break;
@@ -997,5 +1025,33 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         });
 
         //todo exit secure session
+    }
+
+    private void enableQuickMode() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_quick_mode));
+        progressDlg.setCancelable(false);
+
+        SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setMode(QUICK_MODE);
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            if(event1 == TaskEvent.PROGRESS)
+                return;
+
+            progressDlg.dismiss();
+        }));
+    }
+
+    private void enableSlowMode() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_slow_mode));
+        progressDlg.setCancelable(false);
+
+        SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setMode(0);
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            if(event1 == TaskEvent.PROGRESS)
+                return;
+
+            progressDlg.dismiss();
+        }));
     }
 }

@@ -13,6 +13,8 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
+
 import androidx.appcompat.widget.AppCompatEditText;
 
 import java.text.NumberFormat;
@@ -149,10 +151,12 @@ public class CurrencyEditText extends AppCompatEditText {
         int value = 0;
 
         String cleanString = editText.getText().toString().replaceAll("[$,.]", "").replaceAll(Currency, "").replaceAll("\\s+", "");
+        Log.d("currencyEditText", "AMOUNT Str "+ cleanString);
         try {
             value = Integer.parseInt(cleanString);
         } catch (NumberFormatException e) {
-
+            e.printStackTrace();
+            value = Integer.MAX_VALUE;
         }
 
         return value;
