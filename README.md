@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.4.26
+###### Release 3.4.37
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -8,16 +8,16 @@
 
 This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling diffrent available commands. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
 
-The SDK contains several modules: Connexion, RPC, MDM, Payment, Log.
-* The connexion module provides an interface 'IconnexionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
-* The RPC module use the IconnexionManager implementation to send/receive, RPC command/response from card terminal. It provides an implementation of all RPC Commands you will see next how to use that in your application.
+The SDK contains several modules: Connection, RPC, MDM, Payment, Log.
+* The connection module provides an interface 'IconnectionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
+* The RPC module use the IconnectionManager implementation to send/receive, RPC command/response from card terminal. It provides an implementation of all RPC Commands you will see next how to use that in your application.
 * The MDM module is an implementation of all YouTransactor's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the YouTransactor one.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
 * The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use your own implementation of ILogger. 
 
-All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnexionManager, setup Logger, do a payment, do an update using Our TMS...
+All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnectionManager, setup Logger, do a payment, do an update using Our TMS...
 
-The SDK do not save any connexion or transaction or update data. 
+The SDK do not save any connection or transaction or update data. 
 
 For more information about YouTransactor developer products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
 
@@ -34,7 +34,7 @@ The uCube Touch is a new version of the uCube. There are some hardware differenc
 * The uCube provide a magstripe reader but not the uCube Touch
 * ...
 
-For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connexion Manager, and if you intergrate the uCube, you should setup a classic bluetooth connexion manager. So the RPC module will use to send/receive data from terminal. 
+For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connection Manager, and if you intergrate the uCube, you should setup a classic bluetooth connection manager. So the RPC module will use to send/receive data from terminal. 
 
 ### 2. uCube
 
@@ -87,7 +87,7 @@ To be functional, in the scope of PCI PTS requirement, and SRED key shall be loa
 
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the payment module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
-The uCube Touch can be lights up exactly like the uCube, but also by using ` connect`  method of the connexion manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
+The uCube Touch can be lights up exactly like the uCube, but also by using ` connect`  method of the connection manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
 
 #### 6.3 Update
 
@@ -135,6 +135,7 @@ The SDK is in the format “.aar” library. You have to copy-paste it in your a
 The APIs provided by UCubeAPI are:
 
 ```java
+        ######################################## Initialisation APIs ######################################################
 	/*
 	* set the Android application context
 	* the SDK will save this context in a static attribute and use it if need
@@ -153,15 +154,74 @@ The APIs provided by UCubeAPI are:
 	* */
 	close()
 	
+	######################################## Logger APIs ######################################################
 	/*
-	* pass the connexionManager implementation that should be used to communicate the terminal 
-	* the SDK propose two implementation : BleConnexionManager, BtClassicConnexionManager
-	* the BleConnexionManager should be used if the terminal to connect is the uCube Touch
-	* the BtClassicConnexionManager should be used if the terminal to connect is the uCube  
-	* @param connexionManager the implementation of the IConnexionManager the application want to use
-	* 
-	* This is the IConnexionManager interface definition :
-	* public interface IConnexionManager {
+	* set the ILogger implementation that specify how the logger module should works
+	* this is the ILogger interface definition
+	* public interface ILogger {
+	*   void d(String tag, String message);
+	*   void e(String tag, String message, Exception e);
+	* }
+	*
+	* The SDK has a default impl if the passed param is null this default one will be used
+	* The default impl will print logs on logcat and save them into a log file
+	* there are two level of logs : debug and error
+	* there are maximum 5 log files to save logs
+	* a zip of these all log files can be requested and sent to a distante server
+	* @param logger implementation of ILogger interface
+	* */
+	setupLogger(@Nullable ILogger logger)
+    
+	/*
+	* enable or disable the SDK logs
+	* depends on enable value, the SDK will call or not the d() and e()
+	* functions of ILogger object
+	* @param enable if true SDK print logs, otherwise SDK stop printing logs
+	* by default logs are enabled
+	* */
+	enableLogs(boolean enable) 
+  
+  	/*
+	* returns true if the logs are enabled otherwise returns false
+	* */
+  	isLogsEnabled()
+	
+	/*
+	* set log level, 
+	* The levels are :
+	* 	SYSTEM     = 5
+	* 	CONNECTION = 4
+	* 	RPC        = 3
+	* 	PAYMEN T   = 2
+	* 	MDM        = 1
+	* 	API        = 0
+	* Example, if you choose CONNECTION, the SDK will print 
+	* logs of CONNECTION, RPC, PAYMENT, MDM, API layers
+	* @param level value
+	* by default log level is API
+	* */
+	setLogLevel(LogManager.LogLevel level)
+	
+	/*
+	* returns the log level set before
+	* if no level was set, the returned level will be API 
+	* */
+	getLogLevel()
+	
+	######################################## Connection API ######################################################
+	
+	/*
+	* pass the connection manager type that will define how to communicate with the device
+	* the sdk will create an instance of IConnectionManager class depends on the chosen type 
+	* The different ConnectionManagerType values are :
+	*  enum ConnectionManagerType {
+	*    BT, // uCube model
+	*    BLE_4_1, // uCube Touch model & phone with bluetooth v4.1
+	*    BLE // uCube Touch model & phone with bluetooth v4.2+
+	*  }
+	*
+	* This is the IConnectionManager interface definition :
+	* public interface IConnectionManager {
 	*   void setDevice(UCubeDevice UCubeDevice);
 	*   UCubeDevice getDevice();
 	*   boolean isConnected();
@@ -172,43 +232,48 @@ The APIs provided by UCubeAPI are:
 	*   void close();
 	* }
 	* */
-	setConnexionManager(@NonNull IConnexionManager connexionManager)
+	setConnectionManagerType(@NonNull ConnectionService.ConnectionManagerType connectionManagerType)
 	
 	/*
-	* get the IConnexionManager object instance set before and 
+	* get the IConnectionManager instance
 	* used by the SDK to communicate with the terminal 
-	* @return IConnexionManager : null if setConnexionManager not be called yet
+	* @return IConnectionManager : null if setConnectionManagerType() not be called yet
 	* */
-	getConnexionManager()
+	getConnectionManager()
+	
 	
 	/*
-	* set the ILogger implementation that specify how the logger module should works
-	* The SDK has a default impl if the passed param is null this default one will be used
-	* The default impl will print logs on logcat and save them into a log file
-	* there are two level of logs : debug and error 
-	* there are maximum 5 log files to save logs
-	* a zip of these all log files can be requested and sent to a distante server
-	* @param logger implementation of ILogger interface
+	* the SDK has the ability to detect the svpp restart
+	* pass the listener object to the SDK, so it will be used 
+	* to notify the application when this happens
 	* */
-	setupLogger(@Nullable ILogger logger)
+	registerSVPPRestartListener(SVPPRestartListener svppRestartListener)
 	
 	/*
-	* enable or disable the SDK logs
-	* depends on enable value, the SDK will call or not the d() and e() 
-	* functions of ILogger object
-	* @param enable if true SDK print logs, otherwise SDK stop printing logs
-	* by default logs are enabled
+	* remove the SVPP restart listener
 	* */
-	enableLogs(boolean enable)
+	unregisterSVPPRestartListener()
+	
+	######################################## RPC APIs ######################################################
 	
 	/*
-	* get the current sequence number value if a command with inputSecurityMode = SIGNED_CIPHERED need         * to be created and sent to the terminal. Only the one who has the SRED key could cipher and sign
+	* pass the listener object to the SDK to be notified of lost packets
+	* */
+	registerLostPacketListener(LostPacketListener lostPacketListener) 
+	
+	/*
+	* remove the lostPacket listener
+	* */
+	unregisterLostPacketListener()
+	
+	/*
+	* get the current sequence number value if a command with inputSecurityMode = SIGNED_CIPHERED need     
+	* to be created and sent to the terminal. Only the one who has the SRED key could cipher and sign
 	* the data, in the header of the command the current_sequence_number + 1 need to be add. 
 	* Ref : PED Interface section 5.5.1 
 	* @return int : the current sequence number value 
 	* */
 	getCurrentSequenceNumber()
-	
 	
 	/*
 	* used this api when the application need to send RPC command to the terminal
@@ -218,7 +283,7 @@ The APIs provided by UCubeAPI are:
 	* outputSecurityMode and saved in RPCMessage object structure.
 	* Ref : PED interface documentation section 6.1 describe all commands & section 3.2 describe
 	* in which terminal state the command can be called
-	* @param commandID : the is of command e.g. 0x5040
+	* @param commandID : the id of command e.g. 0x5040
 	* @param data : the payload of command
 	* @param inputSecurityMode : the security mode of the RPCCommand data
 	* @param outputSecurityMode : the securityMode of the RPCCommand response 
@@ -233,8 +298,7 @@ The APIs provided by UCubeAPI are:
 	* @param uCubeLibRpcSendListener : listener to implement to get callback with the send 
 	* progress and finish 
 	*  */
-	sendData(@NonNull Activity activity,
-				short commandId,
+	sendData(short commandId,
 				@NonNull byte[] data,
 				SecurityMode inputSecurityMode,
 				SecurityMode outputSecurityMode,
@@ -250,7 +314,10 @@ The APIs provided by UCubeAPI are:
 	* from the begin of the transaction, they can be updated during that and all output variable 
 	* are set during and at the end of the transaction. 
 	* */			
-	EMVPaymentStateMachine pay(@NonNull Activity activity, @NonNull UCubePaymentRequest uCubePaymentRequest, @NonNull UCubeLibPaymentServiceListener listener)
+	EMVPaymentStateMachine pay(@NonNull UCubePaymentRequest uCubePaymentRequest, 
+						@NonNull UCubeLibPaymentServiceListener listener)
+	
+	######################################## Localisation APIs ######################################################
 	
         setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
     
@@ -258,15 +325,32 @@ The APIs provided by UCubeAPI are:
     
         getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
-	/* YouTransactor TMS APIs*/
+	######################################## MDM APIs ######################################################
+	
 	mdmSetup(@NonNull Context context)
-	mdmRegister(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
+	mdmRegister(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
 	mdmUnregister(@NonNull Context context)
+	
 	isMdmManagerReady()
-	mdmCheckUpdate(@NonNull Activity activity, boolean forceUpdate, boolean checkOnlyFirmwareVersion, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
-	mdmUpdate(@NonNull Activity activity, final @NonNull List<BinaryUpdate> updateList, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
-	mdmSendLogs(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
-	mdmGetConfig(@NonNull Activity activity, @Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
+	mdmCheckUpdate(boolean forceUpdate, 
+				boolean checkOnlyFirmwareVersion, 
+				@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener
+	)
+	
+	mdmUpdate(final @NonNull List<BinaryUpdate> updateList, 
+			@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener
+	)
+	
+	mdmSendLogs(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
+	mdmGetConfig(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
+	#######################################################################################################
+	
+	
 ```
 
 * You can use the sample app provided in this repository as a reference
@@ -288,6 +372,11 @@ To be able to connect the terminal you need to follow these steps bellow :
 		//Setup logger : if null lib will use it own logger
 		UCubeAPI.setupLogger(null);
 		
+		// enable or disable SDK logs
+	        UCubeAPI.enableLogs(true);
+		
+		// define the log level you want to activate
+		UCubeAPI.setLogLevel(LogManager.LogLevel.RPC)
 		...
 	    }
 		
@@ -295,34 +384,71 @@ To be able to connect the terminal you need to follow these steps bellow :
 	}
 ```
 
-* Second you should set the connexion manager to the SDK using `setConnexionManager` API. 
+* Second you should set the connection manager Type to the SDK using `setConnectionManagerType` API. 
 
 ```java
-	IConnexionManager connexionManager;
+	IConnectionManager connectionManager;
 	...
 	
 	switch (ytProduct) {
             case uCube:
-                connexionManager = new BtClassicConnexionManager();
+	        UCubeAPI.setConnexionManagerType(BT);
                 break;
 
             case uCubeTouch:
-                connexionManager = new BleConnectionManager();
+                UCubeAPI.setConnexionManagerType(BLE);
                 break;
         }
-        ((BtConnectionManager) connexionManager).init(this);
-	
-        UCubeAPI.setConnexionManager(connexionManager);
 	...
 ```
-`BtClassicConnexionManager` and `BleConnectionManager` extend a `BtConnexionManager` which implements IConnexionManager.
+You can use `UCubeAPI.getConnectionManager` API to get the IConnexionManager and call different public APIs : 
 
-* Third you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if you integrate uCube Touch and you want to do a BLE scan. 
+```java
+public interface IConnexionManager {
 
-* Then you should select the device that you want to communicate with.
-	* In the case of uCube, the `BtClassicConnexionManager` provides a `public List<UCubeDevice> getPairedUCubes()` method which returns the list of paired uCube devices.
-	* In the case of uCube Touch, the `BleConnectionManager` provides a `public void scan(Activity activity, ScanListener scanListener)` & `public void stopScan()` methods which allow you to start and stop LE scan.
-In the SampleApp an example of device selection using these methods is provided.
+	List<UCubeDevice> getPairedUCubes(@Nullable String nameFilter);
+
+	List<UCubeDevice> getPairedUCubes(@Nullable Pattern namePattern);
+
+	void startScan(@Nullable String nameFilter, ScanListener scanListener);
+
+	void startScan(@Nullable Pattern pattern, ScanListener scanListener);
+
+	void stopScan();
+
+	void setDevice(UCubeDevice UCubeDevice);
+
+	UCubeDevice getDevice();
+
+	boolean isConnected();
+
+	void connect(ConnectionListener connectionListener);
+
+	void connect(int connectionTimeoutInMills, int connectionTryCount, ConnectionListener connectionListener);
+
+	boolean cancelConnection();
+
+	void disconnect(DisconnectListener disconnectListener);
+
+	void registerDisconnectListener(DisconnectListener disconnectListener);
+
+	void registerConnectionStateListener(ConnectionStateChangeListener connectionStateChangeListener);
+
+	void registerBatteryLevelChangeListener(BatteryLevelListener batteryLevelListener);
+
+	void send(byte[] input, SendCommandListener sendCommandListener);
+
+	void registerResponseListener(ResponseListener responseListener);
+
+	Integer getBatteryLevel();
+
+	void close();
+}
+```
+
+* Third you should enable Bluetooth and request `ACCESS_COARSE_LOCATION`permission if `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` and `BLUETOOTH_SCAN` & `BLUETOOTH_CONNECT` if `Build.VERSION.SDK_INT >= Build.VERSION_CODES.S`.
+
+In the SampleApp examples of device scan, selection and connection using IConnexionManager methods are provided.
 
 #### 6.2 Setup Logger
 
@@ -335,7 +461,7 @@ To setup the log module you should put this instructions below in the onCreate()
 	// if you want to use your Logger impl
         UCubeAPI.setupLogger(new MyLogger());
 ```
-The SDK log can be enabled or disabled using `enableLogs()` method. 
+The SDK log can be enabled or disabled using `enableLogs()` method. And `setLogLevel()` to choose the LogLevel.
 
 #### 6.3 Payment
 
@@ -635,10 +761,15 @@ You will receive the onProgress() callback for each new state. This is the whole
 	ENTER_SECURE_SESSION,
 	KSN_AVAILABLE,
 	START_TRANSACTION,
+	WAITING_CARD,
 	CARD_READ_END,
 
 	//Authorization
 	AUTHORIZATION,
+	
+	//PIN
+	ONLINE_PIN,
+	OFFLINE_PIN,
 
 	//END
 	GET_FINALIZATION_SECURED_TAGS,
@@ -657,14 +788,12 @@ You will receive the onProgress() callback for each new state. This is the whole
 	SMC_RISK_MANAGEMENT,
 	SMC_PROCESS_TRANSACTION,
 	SMC_GET_AUTHORIZATION_SECURED_TAGS,
-	SMC_GET_AUTHORIZATION_PLAIN_TAGS,
 	SMC_FINALIZE_TRANSACTION,
 	SMC_REMOVE_CARD,
 
 	/* NFC STATES*/
 	START_NFC,
 	NFC_GET_AUTHORIZATION_SECURED_TAGS,
-	NFC_GET_AUTHORIZATION_PLAIN_TAGS,
 	NFC_SIMPLIFIED_ONLINE_PIN,
 	NFC_COMPLETE_TRANSACTION,
 ```
@@ -1233,6 +1362,54 @@ public class RPCMessage {
 	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
 
 Note that no MAC if the data is null.
+
+
+### 8. Speed Mode
+
+Starting with Firmware version 6.0.0.54, a new tag was added `Constants.TAG_FC_SPEED_MODE` to get and set the BLE speed mode.
+
+The `GetInfoCommand` is used to retrieve the current speed mode. Example : 
+
+```java
+    GetInfosCommand command = new GetInfosCommand(Constants.TAG_FC_SPEED_MODE); 
+    command.execute((event, params) -> {
+            switch (event1) {
+                case PROGRESS:
+                    break;
+		    
+                case FAILED:
+		    break;
+		    
+                case CANCELLED:
+                    break;
+		    
+                case SUCCESS:
+                    break;
+            }
+        });
+```
+
+The `SetInfoFieldCommand` is used to define the speed mode. Example : 
+
+```java
+    SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setMode(SLOW_MODE); // or QUICK_MODE
+        setInfoFieldCommand.execute((event1, params1) -> {
+		switch (event1) {
+		    case PROGRESS:
+			break;
+
+		    case FAILED:
+			break;
+
+		    case CANCELLED:
+			break;
+
+		    case SUCCESS:
+			break;
+		}
+        });
+```
 
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
