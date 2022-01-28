@@ -288,5 +288,6 @@
     <string name="set">set</string>
     <string name="configure">configure</string>
     <string name="get_cb_command_failed"> Get CB Tag:\n %s Failed !</string>
+    <string name="speed_mode">speed mode</string>
 
 </resources>

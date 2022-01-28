@@ -9,6 +9,9 @@
  */
 package com.youtransactor.sampleapp.rpc;
 
+import static com.youTransactor.uCube.rpc.Constants.QUICK_MODE;
+import static com.youTransactor.uCube.rpc.Constants.SLOW_MODE;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -20,10 +23,6 @@ import androidx.fragment.app.DialogFragment;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
-
-//import org.apache.commons.lang3.StringUtils;
-
-import java.util.Objects;
 
 public class FragmentDialogGetInfo extends DialogFragment {
 
@@ -67,6 +66,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView merchantLocale = rootView.findViewById(R.id.merchant_locale);
         TextView supportedLocaleList = rootView.findViewById(R.id.supported_locale_list);
         TextView chargingState = rootView.findViewById(R.id.charging_state);
+        TextView speedMode = rootView.findViewById(R.id.speed_mode);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -125,6 +125,14 @@ public class FragmentDialogGetInfo extends DialogFragment {
         if(deviceInfos.getMerchantLocale() != null) {
             String tmp = deviceInfos.getMerchantLocale();
             merchantLocale.setText(tmp);
+        }
+
+        if(deviceInfos.getSpeedMode() == SLOW_MODE) {
+            speedMode.setText("SLOW MODE");
+        } else if(deviceInfos.getSpeedMode() == QUICK_MODE) {
+            speedMode.setText("QUICK MODE");
+        } else {
+            speedMode.setText("Unknown MODE");
         }
 
         if(deviceInfos.getSupportedLocaleList() != null && !deviceInfos.getSupportedLocaleList().isEmpty()) {
