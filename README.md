@@ -132,7 +132,7 @@ The SDK is in the format “.aar” library. You have to copy-paste it in your a
 		implementation files('libs/libApp.aar')
 ```
 
-And these one : 
+And these ones : 
 
 ```groovy
 		implementation 'org.apache.commons:commons-lang3:3.11'
