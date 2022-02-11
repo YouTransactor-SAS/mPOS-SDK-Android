@@ -129,6 +129,17 @@ For more information about AndroidX and how to migrate see Google AndroidX Docum
 The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. So if you want to use his public APIs you will need to get into your app-level Build.Gradle to add this dependency:
 
 		implementation files('libs/libApp.aar')
+		
+And these one : 
+		implementation 'org.apache.commons:commons-lang3:3.11'
+		implementation 'org.apache.commons:commons-compress:1.20'
+		implementation 'com.google.code.gson:gson:2.8.6'
+		implementation 'org.apache.commons:commons-io:1.3.2'
+		implementation 'commons-codec:commons-codec:1.15'
+		implementation 'androidx.annotation:annotation:1.2.0'
+		implementation 'com.google.guava:guava:30.0-jre'
+		implementation 'org.slf4j:slf4j-api:1.7.30'
+		implementation 'com.github.tony19:logback-android:1.3.0-2'
 
 ### 6. UCubeAPI
 
