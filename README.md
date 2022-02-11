@@ -124,12 +124,14 @@ To embed the SDK, you have to be sure of certain things in your settings.
 3. The `Android plugin for Gradle` must be at 3.3.0 or later.
 For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
-### 5. Dependency
+### 5. Dependencies
 
 The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. So if you want to use his public APIs you will need to get into your app-level Build.Gradle to add this dependency:
 
+```groovy
 		implementation files('libs/libApp.aar')
-		
+```
+
 And these one : 
 
 ```groovy
