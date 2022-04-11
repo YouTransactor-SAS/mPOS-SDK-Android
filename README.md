@@ -26,7 +26,7 @@ For more information about YouTransactor developer products, please refer to our
 ### 1. Introduction
 
 YouTransactor mPOS card terminals are : 
-* uCube ( with differents models )
+* uCube ( with differents versions )
 * uCube Touch
 
 The uCube Touch is a new version of the uCube. There are some hardware differences, like: 
