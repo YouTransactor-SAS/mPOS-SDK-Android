@@ -93,7 +93,7 @@ The uCube Touch can be lights up exactly like the uCube, but also by using ` con
 
 During the life of the terminal, the firmware could be updated (to get bug fix, evolutions..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how these updates can be done and which RPC to use to do that.
 
-If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & intall the binary update.
+If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & install the binary update.
 
 #### 6.4 System logs
 
@@ -1027,7 +1027,11 @@ To check if the SSL certificate exit, use this method :
 ```
 #### Update
 
-The update can be done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
+The update is done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
+
+The mdmCheckUpdate's onFinish() callback returns two list : 
+- params[0] : List<Config> : the server's configuration
+- params[1] : List<BinaryUpdate> : After comparing the terminal's current configuration to the the server's configuration this is the result. It will be the input of the mdmUpdate method.
 
 ```java 
 boolean checkOnlyFirmwareVersion = false;
@@ -1043,9 +1047,9 @@ UCubeAPI.mdmCheckUpdate(activity, forceUpdate, checkOnlyFirmwareVersion,
 		@Override
 		public void onFinish(boolean status, Object... params) {
 		if (status) {
-		    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[0];
-		    List<Config> cfgList = (List<Config>) params[1];
-
+		    List<Config> cfgList = (List<Config>) params[0];
+		  
+		    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[1];
 		    if (updateList.size() == 0) {
 			Toast.makeText(this, "Terminal up to date" , Toast.LENGTH_SHORT).show();
 		     } else {
