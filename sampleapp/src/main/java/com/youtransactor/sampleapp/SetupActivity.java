@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp;
 
@@ -16,7 +29,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,7 +40,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.log.LogManager;
-import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.mdm.MDMServices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +56,13 @@ public class SetupActivity extends AppCompatActivity {
     public static final String RECOVERY_MODE_PERF_NAME = "recoveryMode";
     public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
     public static final String SDK_LOGS_LEVEL_PREF_NAME = "SDKLogLevel";
+    public static final String MDM_URL_PREF_NAME = "mdmUrl";
     public static final String SETUP_SHARED_PREF_NAME = "setup";
 
     private CardView uCubeCardView;
     private CardView uCubeTouchCardView;
     private SwitchMaterial defaultModelSwitch;
+    private EditText mdmUrlEditText;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -78,7 +92,6 @@ public class SetupActivity extends AppCompatActivity {
         uCubeCardView.setOnClickListener(v -> {
             uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
             uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-
             selectProduct(YTProduct.uCube);
         });
 
@@ -88,7 +101,6 @@ public class SetupActivity extends AppCompatActivity {
 
             selectProduct(YTProduct.uCubeTouch);
         });
-
 
         SwitchMaterial s = findViewById(R.id.enableTest);
         s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
@@ -148,6 +160,13 @@ public class SetupActivity extends AppCompatActivity {
         d.setChecked(sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false));
 
 
+        String url = sharedPreferences.getString(MDM_URL_PREF_NAME, MDMServices.DEFAULT_URL);
+        mdmUrlEditText = findViewById(R.id.mdm_url_edit_text);
+        mdmUrlEditText.setText(url);
+
+        UCubeAPI.mdmSetup(this.getApplicationContext());
+        MDMServices.changeServerUrl(this.getApplicationContext(), url);
+
         Intent intent = getIntent();
         if (intent != null && !"true".equals(intent.getStringExtra(NO_DEFAULT))) {
             try {
@@ -158,6 +177,10 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void selectProduct(YTProduct product) {
+        String url = mdmUrlEditText.getText().toString();
+        MDMServices.changeServerUrl(this.getApplicationContext(), url);
+        sharedPreferences.edit().putString(MDM_URL_PREF_NAME, url).apply();
+
         sharedPreferences.edit().putString(YT_PRODUCT, product.name()).apply();
 
         if (defaultModelSwitch != null) {
@@ -167,7 +190,6 @@ public class SetupActivity extends AppCompatActivity {
                 sharedPreferences.edit().remove(DEFAULT_YT_PRODUCT).apply();
             }
         }
-
         startMainActivity(product);
     }
 

@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp.rpc;
 
@@ -26,8 +39,8 @@ import com.youtransactor.sampleapp.YTProduct;
 
 public class FragmentDialogGetInfo extends DialogFragment {
 
-    private DeviceInfos deviceInfos;
-    private YTProduct ytProduct;
+    private final DeviceInfos deviceInfos;
+    private final YTProduct ytProduct;
 
     public FragmentDialogGetInfo(DeviceInfos deviceInfos, YTProduct ytProduct) {
         this.deviceInfos = deviceInfos;
@@ -67,6 +80,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView supportedLocaleList = rootView.findViewById(R.id.supported_locale_list);
         TextView chargingState = rootView.findViewById(R.id.charging_state);
         TextView speedMode = rootView.findViewById(R.id.speed_mode);
+        TextView buildConfiguration = rootView.findViewById(R.id.build_configuration);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -160,6 +174,10 @@ public class FragmentDialogGetInfo extends DialogFragment {
             default:
                 chargingState.setText("Unknown");
                 break;
+        }
+
+        if(deviceInfos.getBuildConfiguration() != null) {
+            buildConfiguration.setText(deviceInfos.getBuildConfiguration());
         }
 
         b.setView(rootView);

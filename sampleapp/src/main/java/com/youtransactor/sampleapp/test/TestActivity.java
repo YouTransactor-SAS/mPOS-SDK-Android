@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp.test;
 
@@ -41,7 +54,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
     private LogsAdapter adapter;
     private TextView ticketDescriptionTextView;
 
-    private Ticket ticketToReproduce;
+    private Test testToReproduce;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,19 +95,19 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
         stopDaemonBtn.setOnClickListener(v -> stopTestDaemon());
 
         final Spinner ticketSwitch = findViewById(R.id.ticketSwitch);
-        ticketSwitch.setAdapter(new TicketAdapter());
+        ticketSwitch.setAdapter(new TestAdapter());
         ticketSwitch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                ticketToReproduce = (Ticket) ticketSwitch.getSelectedItem();
+                testToReproduce = (Test) ticketSwitch.getSelectedItem();
 
-                ticketDescriptionTextView.setText(ticketToReproduce.getDescription());
-                startRunDelayEditText.setText(String.valueOf(ticketToReproduce.getDelay()));
+                ticketDescriptionTextView.setText(testToReproduce.getDescription());
+                startRunDelayEditText.setText(String.valueOf(testToReproduce.getDelay()));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                ticketToReproduce = null;
+                testToReproduce = null;
             }
         });
 
@@ -107,7 +120,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
         int startRunDelay = Integer.parseInt(startRunDelayEditText.getText().toString());
         int numberOfRuns = Integer.parseInt(numberOfRunsEditText.getText().toString());
 
-        DAEMON = new TestDaemon(ticketToReproduce, startRunDelay, numberOfRuns);
+        DAEMON = new TestDaemon(testToReproduce, startRunDelay, numberOfRuns);
 
         new Thread(DAEMON).start();
 

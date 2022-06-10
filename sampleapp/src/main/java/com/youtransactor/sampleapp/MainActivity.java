@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp;
 
@@ -26,9 +39,11 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +61,7 @@ import com.youTransactor.uCube.connexion.SVPPRestartListener;
 import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.BinaryUpdate;
+import com.youTransactor.uCube.mdm.MDMServices;
 import com.youTransactor.uCube.mdm.ServiceState;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
@@ -155,8 +171,17 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             return;
         }
 
-        UCubeAPI.setConnexionManagerType(ytProduct == YTProduct.uCubeTouch ? BLE: BT);
+        switch (ytProduct) {
+            case uCube:
+                UCubeAPI.setConnexionManagerType(BT);
+                break;
 
+            case uCubeTouch:
+                UCubeAPI.setConnexionManagerType(BLE);
+                break;
+        }
+
+        UCubeAPI.enableRecoveryMechanism(false);
         UCubeAPI.getConnexionManager().registerBatteryLevelChangeListener(this);
         UCubeAPI.registerSVPPRestartListener(this);
         UCubeAPI.registerLostPacketListener(this);
@@ -164,8 +189,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         if (getDevice() != null) {
             UCubeAPI.getConnexionManager().setDevice(getDevice());
         }
-
-        UCubeAPI.mdmSetup(this);
 
         initView();
     }
@@ -295,6 +318,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         });
         powerOffTimeoutBtn.setOnClickListener(v -> powerOffTimeout());
         setLocaleBtn.setOnClickListener(v -> setLocale());
+
         mdmRegisterBtn.setOnClickListener(v -> mdmRegister());
         mdmGetConfigBtn.setOnClickListener(v -> mdmGetConfig());
         mdmCheckUpdateBtn.setOnClickListener(v -> mdmCheckUpdate());
@@ -318,30 +342,18 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                 connectionSection.setVisibility(View.GONE);
                 disconnectBtn.setVisibility(View.GONE);
-
-                payBtn.setEnabled(false);
-                getInfoBtn.setEnabled(false);
-                displayBtn.setEnabled(false);
                 break;
 
             case DEVICE_NOT_CONNECTED:
 
                 connectionSection.setVisibility(View.VISIBLE);
                 disconnectBtn.setVisibility(View.GONE);
-
-                payBtn.setEnabled(true);
-                getInfoBtn.setEnabled(true);
-                displayBtn.setEnabled(true);
                 break;
 
             case DEVICE_CONNECTED:
 
                 connectionSection.setVisibility(View.GONE);
                 disconnectBtn.setVisibility(View.VISIBLE);
-
-                payBtn.setEnabled(true);
-                getInfoBtn.setEnabled(true);
-                displayBtn.setEnabled(true);
                 break;
         }
     }
@@ -365,7 +377,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         switch (state) {
             case IDLE:
                 mdmRegisterBtn.setVisibility(View.VISIBLE);
-                mdmRegisterBtn.setEnabled(false);
 
                 mdmGetConfigBtn.setVisibility(View.GONE);
                 mdmCheckUpdateBtn.setVisibility(View.GONE);
@@ -374,7 +385,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
             case DEVICE_NOT_REGISTERED:
                 mdmRegisterBtn.setVisibility(View.VISIBLE);
-                mdmRegisterBtn.setEnabled(true);
 
                 mdmGetConfigBtn.setVisibility(View.GONE);
                 mdmCheckUpdateBtn.setVisibility(View.GONE);
@@ -805,7 +815,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 Constants.TAG_BLE_FIRMWARE_VERSION,
                 Constants.TAG_RESOURCE_FILE_VERSION,
                 Constants.TAG_FB_CHARGING_STATUS,
-                Constants.TAG_FC_SPEED_MODE
+                Constants.TAG_FC_SPEED_MODE,
+                Constants.TAG_F3_BUILD_CONFIGURATION
         };
 
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_info));

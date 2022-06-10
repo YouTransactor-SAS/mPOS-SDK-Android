@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp.payment;
 
@@ -88,6 +101,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch skipCardRemovalSwitch;
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
+    private Switch tipSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
     private Button uPresentCard;
@@ -156,6 +170,7 @@ public class PaymentActivity extends AppCompatActivity {
         skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalSwitch);
         skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
         retrieveF5TagSwitch = findViewById(R.id.retrieveF5Tag);
+        tipSwitch = findViewById(R.id.tipSwitch);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         getStatusBtn = findViewById(R.id.getStatusBtn);
@@ -243,9 +258,11 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean skipStartingSteps = skipStartingStepsSwitch.isChecked();
 
+        boolean tipRequired = tipSwitch.isChecked();
+
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
 
-        int amount = amountFld.getCleanIntValue();
+        long amount = amountFld.getCleanIntValue();
         Log.d(TAG,"Amount : "+ amount);
 
         List<CardReaderType> readerList = new ArrayList<>();
@@ -273,6 +290,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setSkipCardRemoval(skipCardRemoval)
                 .setSkipStartingSteps(skipStartingSteps)
                 .setRetrieveF5Tag(retrieveF5Tag)
+                .setTipRequired(tipRequired)
 
                 //CLIENT TAGs
                 .setAuthorizationPlainTags(
@@ -534,7 +552,18 @@ public class PaymentActivity extends AppCompatActivity {
         new ExitSecureSessionCommand().execute(iTaskMonitor);
         new EnterSecureSessionCommand().execute(iTaskMonitor);
         new GetInfosCommand(Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1).execute(iTaskMonitor);
-        new ExitSecureSessionCommand().execute(iTaskMonitor);
+        new ExitSecureSessionCommand().execute(new ITaskMonitor() {
+            @Override
+            public void handleEvent(TaskEvent event, Object... params) {
+                if(event == TaskEvent.FAILED) {
+                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
+                            getString(R.string.get_cb_command_failed, "0x5102")));
+                } else if(event == TaskEvent.SUCCESS) {
+                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
+                            getString(R.string.get_cb_command_success)));
+                }
+            }
+        });
     }
 
     private void getStatus() {
@@ -544,7 +573,7 @@ public class PaymentActivity extends AppCompatActivity {
     private void control() {
         try {
             controlService = UCubeAPI.control(30
-                    , (byte) 0x44,
+                    , (byte) 0x44, null,
                     new UCubeLibControlServiceListener() {
                         @Override
                         public void onProgress(ControlState state, ControlContext context) {

@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp.payment;
 
@@ -23,7 +36,7 @@ import java.util.Locale;
 public class CurrencyEditText extends AppCompatEditText {
 
     private String current = "";
-    private CurrencyEditText editText = CurrencyEditText.this;
+    private final CurrencyEditText editText = CurrencyEditText.this;
 
     //properties
     private String Currency = "";
@@ -147,16 +160,16 @@ public class CurrencyEditText extends AppCompatEditText {
         return value;
     }
 
-    public int getCleanIntValue() {
-        int value = 0;
+    public Long getCleanIntValue() {
+        long value;
 
         String cleanString = editText.getText().toString().replaceAll("[$,.]", "").replaceAll(Currency, "").replaceAll("\\s+", "");
         Log.d("currencyEditText", "AMOUNT Str "+ cleanString);
         try {
-            value = Integer.parseInt(cleanString);
+            value = Long.parseLong(cleanString);
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            value = Integer.MAX_VALUE;
+            value = Long.MAX_VALUE;
         }
 
         return value;

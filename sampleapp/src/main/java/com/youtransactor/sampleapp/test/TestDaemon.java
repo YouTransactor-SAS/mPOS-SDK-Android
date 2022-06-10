@@ -1,11 +1,24 @@
 /*
- * Copyright (C) 2011-2021, YouTransactor. All Rights Reserved.
+ * ============================================================================
  *
- * Use of this product is contingent on the existence of an executed license
- * agreement between YouTransactor or one of its sublicensee, and your
- * organization, which specifies this software's terms of use. This software
- * is here defined as YouTransactor Intellectual Property for the purposes
- * of determining terms of use as defined within the license agreement.
+ * Copyright (c) 2022 YouTransactor
+ *
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of YouTransactor
+ * ("Confidential Information"). You  shall not disclose or redistribute such
+ * Confidential Information and shall use it only in accordance with the terms of
+ * the license agreement you entered into with YouTransactor.
+ *
+ * This software is provided by YouTransactor AS IS, and YouTransactor
+ * makes no representations or warranties about the suitability of the software,
+ * either express or implied, including but not limited to the implied warranties
+ * of merchantability, fitness for a particular purpose or non-infringement.
+ * YouTransactor shall not be liable for any direct, indirect, incidental,
+ * special, exemplary, or consequential damages suffered by licensee as the
+ * result of using, modifying or distributing this software or its derivatives.
+ *
+ * ==========================================================================
  */
 package com.youtransactor.sampleapp.test;
 
@@ -41,13 +54,13 @@ public class TestDaemon implements Runnable {
     }
 
     int counter = 0;
-    private int delayToStart;
-    private int numberOfRuns;
+    private final int delayToStart;
+    private final int numberOfRuns;
     private boolean interrupted = false;
-    private List<Step> sequence;
+    private final List<Step> sequence;
     private LinkedList<Step> remainSequence;
 
-    private Listener finishListener = new Listener() {
+    private final Listener finishListener = new Listener() {
         @Override
         public void onSent() {//ignore
         }
@@ -61,7 +74,7 @@ public class TestDaemon implements Runnable {
         }
     };
 
-    private Listener sentListener = new Listener() {
+    private final Listener sentListener = new Listener() {
         @Override
         public void onSent() {
             loop();
@@ -72,10 +85,10 @@ public class TestDaemon implements Runnable {
         }
     };
 
-    public TestDaemon(@NonNull Ticket ticket, int delayToStart, int numberOfRuns) {
+    public TestDaemon(@NonNull Test test, int delayToStart, int numberOfRuns) {
         this.delayToStart = delayToStart;
         this.numberOfRuns = numberOfRuns;
-        this.sequence = ticket.getSequence();
+        this.sequence = test.getSequence();
     }
 
     public void end() {
