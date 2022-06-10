@@ -1,6 +1,6 @@
 # YouTransactor mPOS SDK - Android
 
-###### Release 3.4.37
+###### Release 3.4.38
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -26,7 +26,7 @@ For more information about YouTransactor developer products, please refer to our
 ### 1. Introduction
 
 YouTransactor mPOS card terminals are : 
-* uCube ( with differents models )
+* uCube ( with differents versions )
 * uCube Touch
 
 The uCube Touch is a new version of the uCube. There are some hardware differences, like: 
@@ -93,7 +93,7 @@ The uCube Touch can be lights up exactly like the uCube, but also by using ` con
 
 During the life of the terminal, the firmware could be updated (to get bug fix, evolutions..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how these updates can be done and which RPC to use to do that.
 
-If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & intall the binary update.
+If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & install the binary update.
 
 #### 6.4 System logs
 
@@ -124,11 +124,27 @@ To embed the SDK, you have to be sure of certain things in your settings.
 3. The `Android plugin for Gradle` must be at 3.3.0 or later.
 For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
-### 5. Dependency
+### 5. Dependencies
 
 The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. So if you want to use his public APIs you will need to get into your app-level Build.Gradle to add this dependency:
 
+```groovy
 		implementation files('libs/libApp.aar')
+```
+
+And these ones : 
+
+```groovy
+		implementation 'org.apache.commons:commons-lang3:3.11'
+		implementation 'org.apache.commons:commons-compress:1.20'
+		implementation 'com.google.code.gson:gson:2.8.6'
+		implementation 'org.apache.commons:commons-io:1.3.2'
+		implementation 'commons-codec:commons-codec:1.15'
+		implementation 'androidx.annotation:annotation:1.2.0'
+		implementation 'com.google.guava:guava:30.0-jre'
+		implementation 'org.slf4j:slf4j-api:1.7.30'
+		implementation 'com.github.tony19:logback-android:1.3.0-2'
+```
 
 ### 6. UCubeAPI
 
@@ -1011,7 +1027,11 @@ To check if the SSL certificate exit, use this method :
 ```
 #### Update
 
-The update can be done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
+The update is done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
+
+The mdmCheckUpdate's onFinish() callback returns two list : 
+- params[0] : List<Config> : the server's configuration
+- params[1] : List<BinaryUpdate> : After comparing the terminal's current configuration to the the server's configuration this is the result. It will be the input of the mdmUpdate method.
 
 ```java 
 boolean checkOnlyFirmwareVersion = false;
@@ -1027,9 +1047,9 @@ UCubeAPI.mdmCheckUpdate(activity, forceUpdate, checkOnlyFirmwareVersion,
 		@Override
 		public void onFinish(boolean status, Object... params) {
 		if (status) {
-		    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[0];
-		    List<Config> cfgList = (List<Config>) params[1];
-
+		    List<Config> cfgList = (List<Config>) params[0];
+		  
+		    List<BinaryUpdate> updateList = (List<BinaryUpdate>) params[1];
 		    if (updateList.size() == 0) {
 			Toast.makeText(this, "Terminal up to date" , Toast.LENGTH_SHORT).show();
 		     } else {
