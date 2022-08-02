@@ -6,7 +6,7 @@
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
 </p>
 
-This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling different available commands. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
+This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling different available commands. The SDK is designed to provides different level of abstraction. The lowest level is "sendData" API and the highest levels are: payment, key injection, firmware & configurations update and set localization. Moreover, the SDK integrates a logger module that print and save the SDK logs. 
 
 The SDK contains several modules: Connection, RPC, MDM, Payment, Log.
 * The connection module provides an interface 'IconnectionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
