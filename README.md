@@ -343,7 +343,7 @@ The UCubeAPI methods are listed below:
 	* this api is used to inject the DUKPT keys; SRED & PIN
 	* It can be used only in the Preso & Ready states of the terminal
 	* */
-	public static void injectKeys(byte[] sredMode, byte[] pinMode,
+	injectKeys(byte[] sredMode, byte[] pinMode,
                                                 UCubeLibRKIServiceListener uCubeLibRKIServiceListener)
 	
 
