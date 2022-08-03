@@ -106,9 +106,9 @@ So you can setup the log module to use the default implementation or you create 
 
 ### 1. General Architecture
 
-The diagram below describes the SDK's architecture. The Application has access to the Payment, MDM, RKI and connection modules using the uCubeAPI interface. The RPC module is public so the application has a direct access to it. 
+The diagram below describes the SDK's architecture. The Application has access to the Payment, MDM, RKI and connection modules using the uCubeAPI interface. The RPC module is public so the application has a direct access to it.
 
-![mpos_sdk_architecture](https://user-images.githubusercontent.com/59020462/182620165-68703274-06ae-4ecb-9504-3d5a37ea7676.png)
+![sdk_archi](https://user-images.githubusercontent.com/59020462/182624011-97dc3bba-961b-499d-a57e-defda5184762.png)
 
 ### 2. Transaction Flow : Contact
 
