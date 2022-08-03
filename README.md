@@ -335,14 +335,17 @@ The UCubeAPI methods are listed below:
 	* */			
 	EMVPaymentStateMachine pay(@NonNull UCubePaymentRequest uCubePaymentRequest, 
 						@NonNull UCubeLibPaymentServiceListener listener)
+						
+						
+	######################################## RKI API ######################################################
 	
-	######################################## Localisation APIs ######################################################
+	/*
+	* this api is used to inject the DUKPT keys; SRED & PIN
+	* It can be used only in the Preso & Ready states of the terminal
+	* */
+	public static void injectKeys(byte[] sredMode, byte[] pinMode,
+                                                UCubeLibRKIServiceListener uCubeLibRKIServiceListener)
 	
-        setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
-    
-        getLocale(UCubeLibTaskListener uCubeLibTaskListener)
-    
-        getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
 	######################################## MDM APIs ######################################################
 	
@@ -366,6 +369,15 @@ The UCubeAPI methods are listed below:
 	mdmSendLogs(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	
 	mdmGetConfig(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
+	
+	
+	######################################## Localisation APIs ######################################################
+	
+        setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
+    
+        getLocale(UCubeLibTaskListener uCubeLibTaskListener)
+    
+        getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 	
 	#######################################################################################################
 	
@@ -988,7 +1000,25 @@ During the transaction, Customer may need to cancel payment. This is only possib
 	   emvPaymentStateMachine.cancel(ITaskCancelListener taskCancelListener);
 ```   
 
-#### 6.4 MDM 
+#### 6.4 RKI
+
+The SDK encapsulate the different communication with the terminal and the backend in order to facilitate your integration. You only have to use the injectkeys API like the following example :
+
+```java
+	UCubeAPI.injectKeys(TDES, TDES, new UCubeLibRKIServiceListener() {
+            @Override
+            public void onProgress(RKIServiceState state) {
+	        // update the UI here
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+                // Check status and update UI
+            }
+        });
+```
+
+#### 6.5 MDM 
 
 #### Setup 
 
