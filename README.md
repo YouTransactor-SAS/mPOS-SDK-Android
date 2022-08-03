@@ -8,16 +8,17 @@
 
 This repository provides a step by step documentation for JPS's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling different available commands. The SDK is designed to provides different level of abstraction. The lowest level is "sendData" API and the highest levels are: payment, key injection, firmware & configurations update and set localization. Moreover, the SDK integrates a logger module that print and save the SDK logs. 
 
-The SDK contains several modules: Connection, RPC, MDM, Payment, Log.
+The SDK contains several modules: Connection, RPC, MDM, Payment, RKI, Log.
 * The connection module provides an interface 'IconnectionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
 * The RPC module use the IconnectionManager implementation to send/receive, RPC command/response from card terminal. It provides an implementation of all RPC Commands you will see next how to use that in your application.
 * The MDM module is an implementation of all JPS's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the JPS one.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
+* The RKI module implements the remote key injection process. JPS provides the RKI backend, the SDK API and the terminal RPC to remotely inject the DUKPUT keys.
 * The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use your own implementation of ILogger. 
 
-All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnectionManager, setup Logger, do a payment, do an update using Our TMS...
+All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use for instance to setup ConnectionManager, setup Logger, do a payment, do an update using Our TMS...etc
 
-The SDK do not save any connection or transaction or update data. 
+The SDK dont save any connection, transaction, keys or update data. 
 
 For more information about JPS products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
 
