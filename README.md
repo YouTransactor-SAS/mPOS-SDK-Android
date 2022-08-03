@@ -93,7 +93,7 @@ The YT-Touch can be light up exactly like the uCube, but also by using ` connect
 
 #### 6.3 Update
 
-During the life cycle of the terminal, the firmware could be updated (e.g To get bug fix, evolutions..etc), the contact and contactless configuration also could be updated. The Terminal's documentation describes how these updates can be done and which RPC to use to do that.
+During the life cycle of the terminal, the firmware can be updated (e.g To get bug fix, evolutions..etc), the contact and contactless configuration also can be updated. The Terminal's documentation describes how these updates can be done and which RPC to use to do that.
 
 If you will use our MDM, this can be done transparently by calling first the `mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the `mdmUpdate`  to download & install the new binaries.
 
@@ -294,7 +294,7 @@ The UCubeAPI methods are listed below:
 	
 	/*
 	* used this api when the application need to send RPC command to the terminal
-	* Note that the SDK implements an RPC module where each command is a task and could be
+	* Note that the SDK implements an RPC module where each command is a task and can be
 	* instantiated and executed. So the SDK create the data based on the variable in input,
 	* the terminal state and the inputSecurityMode. Then the response is parsed base on the
 	* outputSecurityMode and saved in RPCMessage object structure.
@@ -557,7 +557,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	* Amount of the transaction, as defined in [EMV-2]. 
 	* If the Currency exponent is set to 2, and Amount is 100, 
 	* the transaction price will be 1,00
-	* the amount could maximun have 12 digit
+	* the amount can have maximun 12 digit
 	* default value is -1 means no amount will be passed byt the application
 	* and the terminal will request the amount at the begin of the transaction 
 	* */
@@ -659,7 +659,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	
 	/*
 	* if true, the SDK will retrieve the 0xF4 and 0xCC tags at the end of the transaction
-	* this flag could be enabled by the application during one of the tasks for instance the 
+	* this flag can be enabled by the application during one of the tasks for instance the 
 	* authorisationTask if the backend decide to decline the transaction.
 	* */
 	public boolean getSystemFailureInfoL2 = false;
@@ -1331,7 +1331,7 @@ TransactionFinalizationCommand.java
 	});
 ```
 
-In which state of the terminal command could be called is described in the PED Interfaces document section 3.2. 
+In which state of the terminal command can be called ? This is described in the PED Interfaces document section 6.2. 
 * If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
 	* None
 	* Signed but the uCube don't check the signature // Only for input
