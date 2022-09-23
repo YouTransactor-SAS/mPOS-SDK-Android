@@ -1,4 +1,4 @@
-# JPS mPOS SDK - Android
+# JPS SDK - Android
 
 ###### Release 3.4.42
 
