@@ -1,4 +1,4 @@
-# YouTransactor mPOS SDK - Android
+# JPS SDK - Android
 
 ###### Release 3.4.49
 
@@ -6,35 +6,36 @@
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
 </p>
 
-This repository provides a step by step documentation for YouTransactor's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling diffrent available commands. The main function of the SDK is to send RPC commands to the card terminal in order to drive it. The SDK provides also a payment, update and log APIs. 
+This repository provides a step by step documentation for JPS's native Android SDK, that enables you to integrate our proprietary card terminal(s) to accept credit and debit card payments (incl. VISA, MasterCard, American Express and more). The relation between the mobile device and the card terminal is a Master-Slave relation, so the mobile device drives the card terminal by calling different available commands. The SDK is designed to provides different level of abstraction. The lowest level is "sendData" API and the highest levels are: payment, key injection, firmware & configurations update and set localization. Moreover, the SDK integrates a logger module that print and save the SDK logs.
 
-The SDK contains several modules: Connection, RPC, MDM, Payment, Log.
+The SDK contains several modules: Connection, RPC, MDM, Payment, RKI, Log.
 * The connection module provides an interface 'IconnectionManager' so you can use your implementation and also it provides a Bluetooth implementaions (classic Bluetooth and BLE).
 * The RPC module use the IconnectionManager implementation to send/receive, RPC command/response from card terminal. It provides an implementation of all RPC Commands you will see next how to use that in your application.
-* The MDM module is an implementation of all YouTransactor's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the YouTransactor one.
+* The MDM module is an implementation of all JPS's TMS services. The TMS server is mainly used to manage the version of firmware and ICC / NFC configurations of card terminal. So the SDK allows you to transparently update of the card terminal using our TMS. This module is useless if you decide to use another TMS not the JPS one.
 * The payment module implements the transaction processing for contact and contactless. For every payment, a UCubePaymentRequest instance should be provided as input to configure the current payment and durring the transaction a callback is returned for every step. At the end of transaction a PaymentContext instance is returned which contains all necessary data to save the transaction. An example of Payment call is provided next.
-* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use your own implementation of ILogger. 
+* The RKI module implements the remote key injection process. JPS provides the RKI backend, the SDK API and the terminal RPC to remotely inject the DUKPUT keys.
+* The SDK provide an ILogger interface and a default implementation to manage logs. Your application has the choice between using the default implementation which print the logs in a file that can be sent to our TMS server or you can use your own implementation of ILogger.
 
-All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use to setup ConnectionManager, setup Logger, do a payment, do an update using Our TMS...
+All this functions are resumed in one Class which is UCubeAPI. This class provides public static methods that your application can use for instance to setup ConnectionManager, setup Logger, do a payment, do an update using Our TMS...etc
 
-The SDK do not save any connection or transaction or update data. 
+The SDK dont save any connection, transaction, keys or update data.
 
-For more information about YouTransactor developer products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
+For more information about JPS products, please refer to our website. Visite [youtransactor.com!](https://www.youtransactor.com)
 
-## I. General overview 
+## I. General overview
 
 ### 1. Introduction
 
-YouTransactor mPOS card terminals are : 
+mPOS card terminals are :
 * uCube ( with differents versions )
-* uCube Touch
+* YT-Touch
 
-The uCube Touch is a new version of the uCube. There are some hardware differences, like: 
-* The uCube use the Classic Bluetooth and the uCube Touch use the Bluetooth Low Energy (BLE)
-* The uCube provide a magstripe reader but not the uCube Touch
+The YT-Touch is a new version of the uCube. There are some hardware differences, like:
+* The uCube use the Classic Bluetooth and the YT-Touch use the Bluetooth Low Energy (BLE)
+* The uCube provide a magstripe reader but not the YT-Touch
 * ...
 
-For the SDK, there is no difference betwen all YouTransactor's card terminals. For example, if you integrate the uCube Touch, at the beginning you should use UCubeAPI to setup a BLE Connection Manager, and if you intergrate the uCube, you should setup a classic bluetooth connection manager. So the RPC module will use to send/receive data from terminal. 
+The support of these different products is totally transparent for the application. For example, if you integrate the YT-Touch, at the beginning you should use UCubeAPI to setup a BLE Connection Manager, and if you intergrate the uCube, you should setup a classic bluetooth connection manager. So the RPC module will use to send/receive data from terminal.
 
 ### 2. uCube
 
@@ -44,9 +45,9 @@ The uCube is a lightweight and compact payment dongle. It can turn a tablet or a
   <img width="200" height="250" src="https://user-images.githubusercontent.com/59020462/76528252-cd32e180-6470-11ea-9182-742faca82167.png">
 </p>
 
-### 3. uCube Touch
+### 3. YT-Touch
 
-The uCube Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
+The YT-Touch is a lightweight and compact payment dongle. It can turn a tablet or a mobile device, Android or iOS, into a point of sale, via a BLE connection to enable acceptance of contactless and smart payment cards.
 
 <p align="center">
   <img width="250" height="250" src="https://user-images.githubusercontent.com/59020462/77367842-437df080-6d5b-11ea-8e3a-423c3bc6b96b.png">
@@ -69,44 +70,45 @@ The Payment module integrates our SDK, which is delivered as a library, and comp
 
 ### 5. The Management System
 
-The management system can be administered by YouTransactor and offers the following services:
-* Management of the uCube fleet
-* Deployment of software updates
-* Deployment of payment parameters
-* Other services
+The management system can be administered by JPS and offers the following services:
+* Remote fleet management
+* Remote software update
+* Remote Bank parameters update
+* Users management
+* ...etc
 
-The MDM module of SDK implements all our management system services and the UCubeAPI provides methods to call this implementation. Examples are provided next in this documentation.
+The MDM module of SDK implements all our management system services and the UCubeAPI provides methods to invoke these services. Examples are provided next in this documentation.
 
 ### 6. Terminal management
 
-#### 6.1 Initial configuration  
+#### 6.1 Initial configuration
 
-To be functional, in the scope of PCI PTS requirement, and SRED key shall be loaded securely in the device. This key is loaded locally by YouTransactor tools. The initial SALT is injected in the same way.
+To be functional, in the scope of PCI PTS requirement, SRED & Pin keys shall be loaded securely in the device. During the personalisation process JPS tools inject the certification chain. After that SRED & Pin keys can be loaded locally Or remotely using JPS Tools.
 
 #### 6.2 Switching On/Off
 
 The uCube lights up by pressing the "ON / OFF" button for three seconds. Once the device is on, the payment module can detect it, and initiate the payment process. The uCube switches off either by pressing the "ON / OFF" button or after X* minutes of inactivity (* X = OFF timeout).
 
-The uCube Touch can be lights up exactly like the uCube, but also by using ` connect`  method of the connection manager. When connection established, the SDK checks the terminal's state, if it 's power off, it turns it ON. 
+The YT-Touch can be light up exactly like the uCube, but also by using ` connect`  method of the connection manager. The BLE connection will automatically power on the device if it is powered off.
 
 #### 6.3 Update
 
-During the life of the terminal, the firmware could be updated (to get bug fix, evolutions..), the contact and contactless configuration also could be updated. The Terminal's documentation describe how these updates can be done and which RPC to use to do that.
+During the life cycle of the terminal, the firmware can be updated (e.g To get bug fix, evolutions..etc), the contact and contactless configuration also can be updated. The Terminal's documentation describes how these updates can be done and which RPC to use to do that.
 
-If you will use our TMS, this can be done transparentlly by calling first the ` mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the ` mdmUpdate`  to download & install the binary update.
+If you will use our MDM, this can be done transparently by calling first the `mdmCheckUpdate`  method to get the TMS configuration and compare it with current versions, then the `mdmUpdate`  to download & install the new binaries.
 
 #### 6.4 System logs
 
-The SDK prints logs in logcat at runtime. The log module use a default ILogger implementation that prints these logs in a file which can be sent afterwards to a remote server. Our TMS provides a WS to receive a zip of log files.
-So you can setup the log module to use the default implementation or your own implementation. 
+The SDK prints logs in logcat at runtime. The log module use a default ILogger implementation that prints these logs in a file which can be sent afterwards to a remote server. Our MDM exposes a web service 'sendLogs' in order to receive a zip of log files.
+So you can setup the log module to use the default implementation or you create your own implementation and use it.
 
 ## II. Technical Overview
 
 ### 1. General Architecture
 
-This diagrams describes the general YouTransactor MPOS Android SDK architecture. The Application could access to the Payment, MDM, connection modules using the uCubeAPI interface. The RPC module is public so the application could call it directly. 
+The diagram below describes the SDK's architecture. The Application has access to the Payment, MDM, RKI and connection modules using the uCubeAPI interface. The RPC module is public so the application has a direct access to it.
 
-![Capture du 2021-06-03 19-27-14](https://user-images.githubusercontent.com/59020462/120686940-cc390600-c4a1-11eb-9ec6-bca640c9da0c.png)
+![sdk_archi](https://user-images.githubusercontent.com/59020462/182624011-97dc3bba-961b-499d-a57e-defda5184762.png)
 
 ### 2. Transaction Flow : Contact
 
@@ -122,17 +124,17 @@ To embed the SDK, you have to be sure of certain things in your settings.
 1. The `minSDKVersion` must be at 21 or later to works properly.
 2. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
 3. The `Android plugin for Gradle` must be at 3.3.0 or later.
-For more information about AndroidX and how to migrate see Google AndroidX Documentation.
+   For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
 ### 5. Dependencies
 
-The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. So if you want to use his public APIs you will need to get into your app-level Build.Gradle to add this dependency:
+The SDK is in the format “.aar” library. You have to copy-paste it in your app/libs package. Then, you need to get into your app-level Build.Gradle to add this dependency:
 
 ```groovy
 		implementation files('libs/libApp.aar')
 ```
 
-And these ones : 
+And also these dependencies :
 
 ```groovy
 		implementation 'org.apache.commons:commons-lang3:3.11'
@@ -148,7 +150,7 @@ And these ones :
 
 ### 6. UCubeAPI
 
-The APIs provided by UCubeAPI are:
+The UCubeAPI methods are listed below:
 
 ```java
         ######################################## Initialisation APIs ######################################################
@@ -179,11 +181,11 @@ The APIs provided by UCubeAPI are:
 	*   void e(String tag, String message, Exception e);
 	* }
 	*
-	* The SDK has a default impl if the passed param is null this default one will be used
-	* The default impl will print logs on logcat and save them into a log file
-	* there are two level of logs : debug and error
-	* there are maximum 5 log files to save logs
-	* a zip of these all log files can be requested and sent to a distante server
+	* The SDK has a default implementation which will be used if the passed parameter is null
+	* The default logger print logs on logcat and save them into a log file
+	* there are two kinds of logs : debug and error
+	* the maximum log files that will be created in the internal storage is 5
+	* The SDK creates a zip file of all created log files, which will be ready to extract
 	* @param logger implementation of ILogger interface
 	* */
 	setupLogger(@Nullable ILogger logger)
@@ -203,12 +205,12 @@ The APIs provided by UCubeAPI are:
   	isLogsEnabled()
 	
 	/*
-	* set log level, 
+	* set verbosity level, 
 	* The levels are :
 	* 	SYSTEM     = 5
 	* 	CONNECTION = 4
 	* 	RPC        = 3
-	* 	PAYMEN T   = 2
+	* 	PAYMENT    = 2
 	* 	MDM        = 1
 	* 	API        = 0
 	* Example, if you choose CONNECTION, the SDK will print 
@@ -232,8 +234,7 @@ The APIs provided by UCubeAPI are:
 	* The different ConnectionManagerType values are :
 	*  enum ConnectionManagerType {
 	*    BT, // uCube model
-	*    BLE_4_1, // uCube Touch model & phone with bluetooth v4.1
-	*    BLE // uCube Touch model & phone with bluetooth v4.2+
+	*    BLE // YT-Touch model
 	*  }
 	*
 	* This is the IConnectionManager interface definition :
@@ -273,7 +274,7 @@ The APIs provided by UCubeAPI are:
 	######################################## RPC APIs ######################################################
 	
 	/*
-	* pass the listener object to the SDK to be notified of lost packets
+	* provide the listener instance to the SDK to be notified of lost packets
 	* */
 	registerLostPacketListener(LostPacketListener lostPacketListener) 
 	
@@ -293,7 +294,7 @@ The APIs provided by UCubeAPI are:
 	
 	/*
 	* used this api when the application need to send RPC command to the terminal
-	* Note that the SDK implements an RPC module where each command is a task and could be
+	* Note that the SDK implements an RPC module where each command is a task and can be
 	* instantiated and executed. So the SDK create the data based on the variable in input,
 	* the terminal state and the inputSecurityMode. Then the response is parsed base on the
 	* outputSecurityMode and saved in RPCMessage object structure.
@@ -320,6 +321,8 @@ The APIs provided by UCubeAPI are:
 				SecurityMode outputSecurityMode,
 				@NonNull UCubeLibRpcSendListener uCubeLibRpcSendListener)
 				
+	######################################## Payment API ######################################################
+				
 	/*
 	* use this api when you need to start a transaction
 	* the SDK implements the contact and the contactless transaction flow
@@ -332,14 +335,17 @@ The APIs provided by UCubeAPI are:
 	* */			
 	EMVPaymentStateMachine pay(@NonNull UCubePaymentRequest uCubePaymentRequest, 
 						@NonNull UCubeLibPaymentServiceListener listener)
+						
+						
+	######################################## RKI API ######################################################
 	
-	######################################## Localisation APIs ######################################################
+	/*
+	* this api is used to inject the DUKPT keys; SRED & PIN
+	* It can be used only in the Preso & Ready states of the terminal
+	* */
+	injectKeys(byte[] sredMode, byte[] pinMode,
+                                                UCubeLibRKIServiceListener uCubeLibRKIServiceListener)
 	
-        setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
-    
-        getLocale(UCubeLibTaskListener uCubeLibTaskListener)
-    
-        getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
 
 	######################################## MDM APIs ######################################################
 	
@@ -364,6 +370,15 @@ The APIs provided by UCubeAPI are:
 	
 	mdmGetConfig(@Nonnull UCubeLibMDMServiceListener uCubeLibMDMServiceListener)
 	
+	
+	######################################## Localisation APIs ######################################################
+	
+        setLocale(String locale, UCubeLibTaskListener uCubeLibTaskListener)
+    
+        getLocale(UCubeLibTaskListener uCubeLibTaskListener)
+    
+        getSupportedLocaleList(UCubeLibTaskListener uCubeLibTaskListener)
+	
 	#######################################################################################################
 	
 	
@@ -373,7 +388,7 @@ The APIs provided by UCubeAPI are:
 
 #### 6.1 Connect Terminal
 
-To be able to connect the terminal you need to follow these steps bellow : 
+To be able to connect the terminal you need to follow these steps bellow :
 
 * First in App class you should init the `uCubeAPI`
 ```java
@@ -400,7 +415,7 @@ To be able to connect the terminal you need to follow these steps bellow :
 	}
 ```
 
-* Second you should set the connection manager Type to the SDK using `setConnectionManagerType` API. 
+* Second you should set the connection manager Type to the SDK using `setConnectionManagerType` API.
 
 ```java
 	IConnectionManager connectionManager;
@@ -411,13 +426,13 @@ To be able to connect the terminal you need to follow these steps bellow :
 	        UCubeAPI.setConnexionManagerType(BT);
                 break;
 
-            case uCubeTouch:
+            case YTTouch:
                 UCubeAPI.setConnexionManagerType(BLE);
                 break;
         }
 	...
 ```
-You can use `UCubeAPI.getConnectionManager` API to get the IConnexionManager and call different public APIs : 
+You can use `UCubeAPI.getConnectionManager` API to get the IConnexionManager and call different public APIs :
 
 ```java
 public interface IConnexionManager {
@@ -468,7 +483,7 @@ In the SampleApp examples of device scan, selection and connection using IConnex
 
 #### 6.2 Setup Logger
 
-To setup the log module you should put this instructions below in the onCreate() function of your App class or MainActivity class. 
+To setup the log module you should put this instructions below in the onCreate() function of your App class or MainActivity class.
 
 ```java
  	// if you want to use the default Logger
@@ -484,7 +499,7 @@ The SDK log can be enabled or disabled using `enableLogs()` method. And `setLogL
 The SDK implement the payment state machine, both contact and contactless. You configure you transaction using the uCubePaymentRequest object by specifing a value for each attribut, for instance, the transaction amount, currency, type, ...
 
 #### pay API
-Here is the API need to be called to start a payment : 
+Here is the API need to be called to start a payment :
 
 ```java
   UCubeAPI.pay(this, paymentRequest, new UCubeLibPaymentServiceListener() {
@@ -554,7 +569,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	* Amount of the transaction, as defined in [EMV-2]. 
 	* If the Currency exponent is set to 2, and Amount is 100, 
 	* the transaction price will be 1,00
-	* the amount could maximun have 12 digit
+	* the amount can have maximun 12 digit
 	* default value is -1 means no amount will be passed byt the application
 	* and the terminal will request the amount at the begin of the transaction 
 	* */
@@ -656,7 +671,7 @@ The PaymentContext is the object that evoluate for each step of the payment and 
 	
 	/*
 	* if true, the SDK will retrieve the 0xF4 and 0xCC tags at the end of the transaction
-	* this flag could be enabled by the application during one of the tasks for instance the 
+	* this flag can be enabled by the application during one of the tasks for instance the 
 	* authorisationTask if the backend decide to decline the transaction.
 	* */
 	public boolean getSystemFailureInfoL2 = false;
@@ -765,8 +780,8 @@ The PaymentContext is the object that evoluate for each step of the payment and 
     	public byte[] tagF5; // svpp logs level 2 Tag F5
 ```
 
-#### PaymentState 
-You will receive the onProgress() callback for each new state. This is the whole list of payment states : 
+#### PaymentState
+You will receive the onProgress() callback for each new state. This is the whole list of payment states :
 
 ```java
 	/* COMMON STATES*/
@@ -973,8 +988,8 @@ public class AuthorizationTask implements IAuthorizationTask {
     ERROR_WRONG_NFC_OUTCOME, // Transaction has been failed : when terminal returns wrong values in the nfc outcome byte array
 }
 ```
-#### Cancel Payment 
-During the transaction, Customer may need to cancel payment. This is only possible before terminal reads card with success, in other words the GPO of card was successfully read. The cancel method returns a callback with status of cancellation. Here is a figure that resume the two kind of states, blue ones the cancellation is possoble the red ones the cancellation not possible. Note that at the end of startTransaction state, if the reader interface was NFC, so the card  was successfully read. The startTransaction step do the wait card and the read card for contactless and only the wait card for contact.  
+#### Cancel Payment
+During the transaction, Customer may need to cancel payment. This is only possible before terminal reads card with success, in other words the GPO of card was successfully read. The cancel method returns a callback with status of cancellation. Here is a figure that resume the two kind of states, blue ones the cancellation is possoble the red ones the cancellation not possible. Note that at the end of startTransaction state, if the reader interface was NFC, so the card  was successfully read. The startTransaction step do the wait card and the read card for contactless and only the wait card for contact.
 
 ![payment states](https://user-images.githubusercontent.com/59020462/110348022-7e8f3780-8031-11eb-96a3-35c67997a7e2.png)
 
@@ -985,18 +1000,36 @@ During the transaction, Customer may need to cancel payment. This is only possib
 	   emvPaymentStateMachine.cancel(ITaskCancelListener taskCancelListener);
 ```   
 
-#### 6.4 MDM 
+#### 6.4 RKI
 
-#### Setup 
+The SDK encapsulate the different communication with the terminal and the backend in order to facilitate your integration. You only have to use the injectkeys API like the following example :
+
+```java
+	UCubeAPI.injectKeys(TDES, TDES, new UCubeLibRKIServiceListener() {
+            @Override
+            public void onProgress(RKIServiceState state) {
+	        // update the UI here
+            }
+
+            @Override
+            public void onFinish(boolean status, Object... params) {
+                // Check status and update UI
+            }
+        });
+```
+
+#### 6.5 MDM
+
+#### Setup
 
 The main function of MDM module is the update of firmware and configurations of terminal to do that you have to setup this module :
 
- * First The MDM module need to be setup by you application context using this UCUbeAPI method :
+* First The MDM module need to be setup by you application context using this UCUbeAPI method :
 
 ```java
 	UCubeAPI.mdmSetup(this);
 ```
- * Second the terminal have to be registred on the TMS server using this code below : 
+* Second the terminal have to be registred on the TMS server using this code below :
 ```java
  UCubeAPI.mdmRegister(this, new UCubeLibMDMServiceListener() {
             @Override
@@ -1011,7 +1044,7 @@ The main function of MDM module is the update of firmware and configurations of 
             }
         });
 ```
-At the register process the SDK send the public certificate of terminal to the TMS, so the server can verifie the YouTransactor signature and then generate and return an SSL certificate unique by terminal. This SSL certificate is used to call the rest of web services.
+At the register process the SDK send the public certificate of terminal to the TMS, so the server can verifie the JPS signature and then generate and return an SSL certificate unique by terminal. This SSL certificate is used to call the rest of web services.
 Note that the register should be done only once, at the selection of terminal. the SDK save the SSL certificate and to be removed you have to call this method below.
 
 ```java
@@ -1020,7 +1053,7 @@ Note that the register should be done only once, at the selection of terminal. t
 		Log.e(TAG, "FATAL Error! error to unregister current device");
 	}
 ```
-To check if the SSL certificate exit, use this method : 
+To check if the SSL certificate exit, use this method :
 
 ```java 
 	UCubeAPI.isMdmManagerReady() 
@@ -1029,7 +1062,7 @@ To check if the SSL certificate exit, use this method :
 
 The update is done in two steps, check the TMS configuration and compare it with current versions this is performed by the `mdmCheckUpdate` method and then download the binary(ies) from TMS server and install them and this can be done by the `mdmUpdate` method.
 
-The mdmCheckUpdate's onFinish() callback returns two list : 
+The mdmCheckUpdate's onFinish() callback returns two list :
 - params[0] : List<Config> : the server's configuration
 - params[1] : List<BinaryUpdate> : After comparing the terminal's current configuration to the the server's configuration this is the result. It will be the input of the mdmUpdate method.
 
@@ -1076,7 +1109,7 @@ UCubeAPI.mdmCheckUpdate(activity, forceUpdate, checkOnlyFirmwareVersion,
 
 #### Send Logs
 
-Sending Logs to the server is useful in case of debug. the TMS server provides a web service to receive these log files and the SDK implement the call of this ws. 
+Sending Logs to the server is useful in case of debug. the TMS server provides a web service to receive these log files and the SDK implement the call of this ws.
 
 ```java 
 UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
@@ -1094,9 +1127,9 @@ UCubeAPI.mdmSendLogs(this, new UCubeLibMDMServiceListener() {
 
 ### 7. RPC Commands
 
-Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. Al commands are described in details in the PED Interfaces document section 6. 
+Once the connexionManager set and the device selected. You can call any RPC commands implemented in the SDK. Al commands are described in details in the PED Interfaces document section 6.
 
-This is the list of RPC Commands class: 
+This is the list of RPC Commands class:
 
 ```java
 /************************************ System & Drivers ************************************/
@@ -1302,7 +1335,7 @@ TransactionProcessCommand.java
 TransactionFinalizationCommand.java
 ```
 
-* This is an example of command call: 
+* This is an example of command call:
 
 ```java
 	DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand(msg);
@@ -1328,15 +1361,15 @@ TransactionFinalizationCommand.java
 	});
 ```
 
-In which state of the terminal command could be called is described in the PED Interfaces document section 3.2. 
-* If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level : 
+In which state of the terminal command can be called ? This is described in the PED Interfaces document section 6.2.
+* If the device is in secured state, the input / output data may be protected by a specific security level. The terminal documentation describe how input data and output data are protected for every command in each different security state. There are four different protection level :
 	* None
 	* Signed but the uCube don't check the signature // Only for input
 	* Signed
-	* Signed and ciphered 
+	* Signed and ciphered
 
-* In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData(). 
-	
+* In the case of Input, for the two fist levels, you can use the RPC commands classes. SDK will manage the creation of the payload you have juste to set different values in different attribut of class. But, if the level is signed or signed and ciphered the whole of the command data should be created by the HSM server. Then your application should call UCubeAPI.sendData().
+
 This is an example :
 
 ```java 
@@ -1362,7 +1395,7 @@ This is an example :
 ```
 Note : In the secure session there is  a sequence number managed by the SDK and incremented at every RPC call, If you need to know what is the current sequence number you cann get it using `getCurrentSequenceNumber` API.
 
-* In the case of output, the SDK create e RPCMessage to store response. 
+* In the case of output, the SDK create e RPCMessage to store response.
 
 ```java
 public class RPCMessage {
@@ -1372,14 +1405,14 @@ public class RPCMessage {
 	private byte[] data;
 	private byte[] data_mac; /* The MAC when secured */
 	private byte[] data_ciphered; /* The Ciphered data with the crypto header when secured ( but without the MAC ) */
-	private byte[] buffer; /* contains the whole response of ucube without parsing */ 
-	
+	private byte[] buffer; /* contains the whole response of ucube without parsing */
+
 }	
 ```
-* Switch case of protection level, the parse of response will be different : 
+* Switch case of protection level, the parse of response will be different :
 	* In the case of none, it will be the same parse as Ready state, only `commandId, status & data` contain values.
-	* In the case of signed, `commandId, status, data & data_mac` contain values. 
-	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values. 
+	* In the case of signed, `commandId, status, data & data_mac` contain values.
+	* In the case of signed and ciphered, `commandId, status, data, data_mac & data_ciphered` contain values.
 
 Note that no MAC if the data is null.
 
@@ -1388,47 +1421,47 @@ Note that no MAC if the data is null.
 
 Starting with Firmware version 6.0.0.54, a new tag was added `Constants.TAG_FC_SPEED_MODE` to get and set the BLE speed mode.
 
-The `GetInfoCommand` is used to retrieve the current speed mode. Example : 
+The `GetInfoCommand` is used to retrieve the current speed mode. Example :
 
 ```java
-    GetInfosCommand command = new GetInfosCommand(Constants.TAG_FC_SPEED_MODE); 
-    command.execute((event, params) -> {
-            switch (event1) {
-                case PROGRESS:
-                    break;
-		    
-                case FAILED:
-		    break;
-		    
-                case CANCELLED:
-                    break;
-		    
-                case SUCCESS:
-                    break;
-            }
-        });
+    GetInfosCommand command = new GetInfosCommand(Constants.TAG_FC_SPEED_MODE);
+		command.execute((event, params) -> {
+		switch (event1) {
+		case PROGRESS:
+		break;
+
+		case FAILED:
+		break;
+
+		case CANCELLED:
+		break;
+
+		case SUCCESS:
+		break;
+		}
+		});
 ```
 
-The `SetInfoFieldCommand` is used to define the speed mode. Example : 
+The `SetInfoFieldCommand` is used to define the speed mode. Example :
 
 ```java
     SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
-        setInfoFieldCommand.setMode(SLOW_MODE); // or QUICK_MODE
-        setInfoFieldCommand.execute((event1, params1) -> {
+		setInfoFieldCommand.setMode(SLOW_MODE); // or QUICK_MODE
+		setInfoFieldCommand.execute((event1, params1) -> {
 		switch (event1) {
-		    case PROGRESS:
-			break;
+		case PROGRESS:
+		break;
 
-		    case FAILED:
-			break;
+		case FAILED:
+		break;
 
-		    case CANCELLED:
-			break;
+		case CANCELLED:
+		break;
 
-		    case SUCCESS:
-			break;
+		case SUCCESS:
+		break;
 		}
-        });
+		});
 ```
 
 
