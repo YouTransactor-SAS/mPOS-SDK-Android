@@ -51,7 +51,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
-                .setTitle("uCube Informations")
+                .setTitle("uCube Information")
                 .setPositiveButton("ok", (dialog, whichButton) -> dialog.dismiss());
 
         setCancelable(false);
@@ -63,6 +63,10 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView terminalState = rootView.findViewById(R.id.terminal_state);
         TextView batteryState = rootView.findViewById(R.id.battery_state);
         TextView svppVersion = rootView.findViewById(R.id.SVPP_version);
+        TextView constFileVersion = rootView.findViewById(R.id.const_file);
+        TextView additionalFileContactVersion = rootView.findViewById(R.id.additional_file_contact);
+        TextView additionaFileClessVersion = rootView.findViewById(R.id.additional_file_contactless);
+        TextView nonSecureFWVersion = rootView.findViewById(R.id.non_secure_fw_version);
         TextView partNumber = rootView.findViewById(R.id.part_number);
         TextView OSVersion = rootView.findViewById(R.id.OS_version);
         TextView NFCModuleState = rootView.findViewById(R.id.NFC_Module_state);
@@ -81,6 +85,9 @@ public class FragmentDialogGetInfo extends DialogFragment {
         TextView chargingState = rootView.findViewById(R.id.charging_state);
         TextView speedMode = rootView.findViewById(R.id.speed_mode);
         TextView buildConfiguration = rootView.findViewById(R.id.build_configuration);
+        TextView enhancedSREDConfig = rootView.findViewById(R.id.enhanced_sred_config);
+        TextView nfcCardDetectConfig = rootView.findViewById(R.id.nfc_card_detect);
+        TextView nsfLogs = rootView.findViewById(R.id.nsf_logs);
 
         if(ytProduct == YTProduct.uCubeTouch) {
             rootView.findViewById(R.id.nfc_section).setVisibility(View.GONE);
@@ -95,7 +102,7 @@ public class FragmentDialogGetInfo extends DialogFragment {
                 NFCFirmwareVersion.setText(deviceInfos.getNfcFirmware());
                 EMVL1_CLESS_LIB_VERSION.setText(deviceInfos.getEmvL1ClessLibVersion());
             } else {
-                NFCCapability.setText("NONE");
+                NFCCapability.setVisibility(View.GONE);
                 NFCFirmwareState.setVisibility(View.GONE);
                 NFCFirmwareVersion.setVisibility(View.GONE);
                 EMVL1_CLESS_LIB_VERSION.setVisibility(View.GONE);
@@ -104,10 +111,23 @@ public class FragmentDialogGetInfo extends DialogFragment {
         }
 
         terminalSerialNumber.setText(deviceInfos.getSerial());
-        terminalState.setText(deviceInfos.getTerminalState());
-        svppVersion.setText(deviceInfos.getSvppFirmware());
+
+        if(deviceInfos.getTerminalState() != null)
+            terminalState.setText(deviceInfos.getTerminalState());
+        if(deviceInfos.getSvppFirmware() != null)
+            svppVersion.setText( deviceInfos.getSvppFirmware());
+        if(deviceInfos.getConstFileVersion() != null)
+            constFileVersion.setText( deviceInfos.getConstFileVersion());
+        if(deviceInfos.getContactAdditionalFileVersion() != null)
+            additionalFileContactVersion.setText( deviceInfos.getContactAdditionalFileVersion());
+        if(deviceInfos.getContactlessAdditionalFileVersion() != null)
+            additionaFileClessVersion.setText(deviceInfos.getContactlessAdditionalFileVersion());
+        if(deviceInfos.getNonSecureFirmwareVersion() != null)
+            nonSecureFWVersion.setText(deviceInfos.getNonSecureFirmwareVersion());
+
         partNumber.setText(deviceInfos.getPartNumber());
         OSVersion.setText(deviceInfos.getOsVersion());
+
         if(deviceInfos.getBleFirmwareVersion()== null) {
             rootView.findViewById(R.id.ble_section).setVisibility(View.GONE);
         }else {
@@ -122,18 +142,17 @@ public class FragmentDialogGetInfo extends DialogFragment {
             resourcesVersion.setText(deviceInfos.getResourcesVersion());
         }
 
-        emvConfigurationVersion.setText(deviceInfos.getIccEmvConfigVersion());
-        emvClessConfigurationVersion.setText(deviceInfos.getNfcEmvConfigVersion());
+        if(deviceInfos.getIccEmvConfigVersion() != null)
+            emvConfigurationVersion.setText(deviceInfos.getIccEmvConfigVersion());
+        if(deviceInfos.getNfcEmvConfigVersion() != null)
+            emvClessConfigurationVersion.setText(deviceInfos.getNfcEmvConfigVersion());
+
         USBCapability.setText(deviceInfos.isUsbCapability() ? "USB Capability" : "NO USB Capability");
 
-        if(deviceInfos.getBatteryState() < 0)
-            batteryState.setText("unknown");
-        else
+        if(deviceInfos.getBatteryState() >= 0)
             batteryState.setText(deviceInfos.getBatteryState()+ "%");
 
-        if(deviceInfos.getAutoPowerOffTimeout() < 0)
-            automaticPowerOffTimeOut.setText("unknown");
-        else
+        if(deviceInfos.getAutoPowerOffTimeout() >= 0)
             automaticPowerOffTimeOut.setText(deviceInfos.getAutoPowerOffTimeout() + " Sec");
 
         if(deviceInfos.getMerchantLocale() != null) {
@@ -145,8 +164,6 @@ public class FragmentDialogGetInfo extends DialogFragment {
             speedMode.setText("SLOW MODE");
         } else if(deviceInfos.getSpeedMode() == QUICK_MODE) {
             speedMode.setText("QUICK MODE");
-        } else {
-            speedMode.setText("Unknown MODE");
         }
 
         if(deviceInfos.getSupportedLocaleList() != null && !deviceInfos.getSupportedLocaleList().isEmpty()) {
@@ -170,14 +187,30 @@ public class FragmentDialogGetInfo extends DialogFragment {
             case 0x03:
                 chargingState.setText("Battery is Full");
                 break;
-
-            default:
-                chargingState.setText("Unknown");
-                break;
         }
 
         if(deviceInfos.getBuildConfiguration() != null) {
             buildConfiguration.setText(deviceInfos.getBuildConfiguration());
+        }
+
+        if(deviceInfos.getNfcCardDetectConfiguration()  >= 0) {
+            switch (deviceInfos.getNfcCardDetectConfiguration()) {
+                case 0 :
+                    nfcCardDetectConfig.setText("NFC card detect OFF");
+                    break;
+                case 1:
+                    nfcCardDetectConfig.setText("NFC card detect ON");
+                    break;
+            }
+        }
+
+        if(deviceInfos.isEnhancedSredOn())
+            enhancedSREDConfig.setText("enhanced SRED ON");
+        else
+            enhancedSREDConfig.setText("SRED is NOT enhanced");
+
+        if(deviceInfos.getNsfLogs() != null && deviceInfos.getNsfLogs().length > 0) {
+            nsfLogs.setText("Available");
         }
 
         b.setView(rootView);

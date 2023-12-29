@@ -136,7 +136,7 @@ public class AuthorizationTask implements IAuthorizationTask {
                 break;
 
             case 2:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x37, 0x30};
+                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x37, 0x30, (byte) 0xDF, 0x76, 0x01, 0x01};
                 break;
 
             case 3:

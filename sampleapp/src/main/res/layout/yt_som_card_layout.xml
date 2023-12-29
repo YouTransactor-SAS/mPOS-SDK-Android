@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ ============================================================================
+  ~
+  ~ Copyright (c) 2022 YouTransactor
+  ~
+  ~ All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of YouTransactor
+  ~ ("Confidential Information"). You  shall not disclose or redistribute such
+  ~ Confidential Information and shall use it only in accordance with the terms of
+  ~ the license agreement you entered into with YouTransactor.
+  ~
+  ~ This software is provided by YouTransactor AS IS, and YouTransactor
+  ~ makes no representations or warranties about the suitability of the software,
+  ~ either express or implied, including but not limited to the implied warranties
+  ~ of merchantability, fitness for a particular purpose or non-infringement.
+  ~ YouTransactor shall not be liable for any direct, indirect, incidental,
+  ~ special, exemplary, or consequential damages suffered by licensee as the
+  ~ result of using, modifying or distributing this software or its derivatives.
+  ~
+  ~ ==========================================================================
+  -->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardBackgroundColor="@android:color/white"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardElevation="5dp"
+    card_view:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:src="@drawable/yt_som"
+            android:tag="image_tag" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="12dp"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/device_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/device_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

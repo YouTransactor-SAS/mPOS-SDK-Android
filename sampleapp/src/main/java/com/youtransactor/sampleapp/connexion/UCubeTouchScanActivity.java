@@ -29,10 +29,8 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,8 +47,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.youTransactor.uCube.BuildConfig;
 import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.connexion.ConnectionService;
 import com.youTransactor.uCube.connexion.ScanError;
 import com.youTransactor.uCube.connexion.ScanListener;
 import com.youTransactor.uCube.connexion.UCubeDevice;
@@ -68,7 +66,7 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
     private boolean mScanning;
     private String scanFilter;
 
-    private static final int REQUEST_LOCATION_PERMISSION = 0;
+    private static final int REQUEST_PERMISSION = 0;
     private static final int REQUEST_ENABLE_BT = 1;
 
 
@@ -241,124 +239,88 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(getClass().getName(), "onRequestPermissionsResult()");
 
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
-                Log.d(getClass().getName(), "User interaction was cancelled.");
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_PERMISSION) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(getClass().getName(), "Permission granted");
             } else {
-                showSnackBar("Location Permission is necessary!",
-                        R.string.settings, view -> {
-                            // Build intent that displays the App settings screen.
-                            Intent intent = new Intent();
-                            intent.setAction(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            Uri uri = Uri.fromParts("package",
-                                    BuildConfig.LIBRARY_PACKAGE_NAME, null);
-                            intent.setData(uri);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        });
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    requestPermissionAndroid12();
+                else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    requestPermission();
             }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     private boolean checkPermissionAndroid12() {
-        int coarsePermissionState = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-        int finePermissionState = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
         int  btScanPermissionState = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_SCAN);
         int  btConnectPermissionState = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_CONNECT);
-        return coarsePermissionState == PackageManager.PERMISSION_GRANTED &&
-                finePermissionState == PackageManager.PERMISSION_GRANTED &&
-                btScanPermissionState == PackageManager.PERMISSION_GRANTED &&
-                btConnectPermissionState == PackageManager.PERMISSION_GRANTED;
+
+        int  fineLocationPermissionState = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        return btScanPermissionState == PackageManager.PERMISSION_GRANTED &&
+                btConnectPermissionState == PackageManager.PERMISSION_GRANTED &&
+                fineLocationPermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean checkPermission() {
         int coarsePermissionState = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-        int finePermissionState = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        return coarsePermissionState == PackageManager.PERMISSION_GRANTED &&
-                finePermissionState == PackageManager.PERMISSION_GRANTED;
+        return coarsePermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     private void requestPermissionAndroid12() {
+
+        String[] permissions = new String[]{
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        };
         boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
                         ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_SCAN) &&
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT);
+                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT) &&
+                                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
         if (shouldProvideRationale) {
             Log.d(getClass().getName(), "Displaying permission rationale to " +
                     "provide additional context.");
 
-            showSnackBar("Location Permission is necessary!",
+            showSnackBar("Permissions are necessary!",
                     android.R.string.ok, view -> {
-                        // Request permission
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.BLUETOOTH_SCAN,
-                                        Manifest.permission.BLUETOOTH_CONNECT
-                                },
-                                REQUEST_LOCATION_PERMISSION);
+                        ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
                     });
         } else {
-            Log.d(getClass().getName(), "Requesting permission");
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                    },
-                    REQUEST_LOCATION_PERMISSION);
+            Log.d(getClass().getName(), "Requesting permissions");
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void requestPermission() {
-            boolean shouldProvideRationale =
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
-                            ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        String[] permissions = new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION
+        };
 
-            if (shouldProvideRationale) {
-                Log.d(getClass().getName(), "Displaying permission rationale to " +
-                        "provide additional context.");
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
-                showSnackBar("Location Permission is necessary!",
-                        android.R.string.ok, view -> {
-                            // Request permission
-                            ActivityCompat.requestPermissions(this,
-                                    new String[]{
-                                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                                            Manifest.permission.ACCESS_FINE_LOCATION
-                                    },
-                                    REQUEST_LOCATION_PERMISSION);
-                        });
-            } else {
-                Log.d(getClass().getName(), "Requesting permission");
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                        },
-                        REQUEST_LOCATION_PERMISSION);
-            }
-
+        if (shouldProvideRationale) {
+            Log.d(getClass().getName(), "Displaying permission rationale to " +
+                    "provide additional context.");
+            showSnackBar("Location Permission is necessary!",
+                    android.R.string.ok, view -> ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION));
+        } else {
+            Log.d(getClass().getName(), "Requesting permission");
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
+        }
     }
 
     private void showSnackBar(final String message, final int actionStringId,
@@ -377,7 +339,8 @@ public class UCubeTouchScanActivity extends AppCompatActivity {
                 mScanning = true;
                 invalidateOptionsMenu();
 
-                UCubeAPI.getConnexionManager().startScan(scanFilter,
+                ConnectionService.getInstance().setRSSILimit(65);
+                UCubeAPI.getConnexionManager().startScan(scanFilter, 5000,
                         new ScanListener() {
                             @Override
                             public void onError(ScanError scanStatus) {

@@ -34,6 +34,7 @@
     <string name="app_name">mPOS SDK Sample App </string>
 
     <string name="versionName">V %s</string>
+    <string name="USB_not_supported">USB is not supported</string>
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="bluetooth_not_supported">Bluetooth is not supported.</string>
     <string name="init">Init</string>
@@ -297,7 +298,9 @@
     <string name="cr_enter_pin">CR enter pin</string>
 
     <string name="device_get_stuck">Device get stuck, SVPP Restart!</string>
+    <string name="F4_tag_is_empty">F4 tag is empty!</string>
     <string name="lost_packet">Lost packet!</string>
+    <string name="rpc_com_issue">RPC Communication issue ! Please check RPC logs</string>
     <string name="set">set</string>
     <string name="configure">configure</string>
     <string name="get_cb_command_failed"> Get CB Tag:\n %s Failed !</string>
@@ -305,5 +308,34 @@
     <string name="speed_mode">speed mode</string>
     <string name="build_configuration">Build Configuration:</string>
     <string name="test_case">Test case</string>
+    <string name="rki">Remote Key Injection</string>
 
+    <string name="remote_keys_injection">remote key injection…</string>
+    <string name="remote_keys_injection_failed">remote key injection failed</string>
+    <string name="remote_keys_injection_success">remote key injection success</string>
+
+    <string name="get_rtc">get RTC</string>
+    <string name="get_rtc_failed">get rtc failed</string>
+    <string name="get_rtc_success">get rtc success %s</string>
+
+    <string name="echo_failed">echo failed</string>
+    <string name="echo_success">echo success %s</string>
+
+    <string name="get_pub_key_failed">get public key failed</string>
+    <string name="get_pub_key_success">get public key success</string>
+
+    <string name="get_key_info_failed">get key info failed</string>
+    <string name="get_key_info_success">get key info success %s</string>
+
+    <string name="set_rtc">set RTC</string>
+    <string name="set_rtc_failed">set rtc failed</string>
+    <string name="set_rtc_success">set rtc success</string>
+    <string name="non_secure_fw_version">Non Secure FW version:</string>
+    <string name="nsf_logs">NSF Logs</string>
+    <string name="echo">ECHO</string>
+    <string name="get_public_key">Get Public Key</string>
+    <string name="get_key_info">Get Key Info</string>
+    <string name="reboot">Reboot</string>
+    <string name="reboot_event">Reboot %s</string>
+    <string name="reset_event">Reset %s</string>
 </resources>

@@ -102,6 +102,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
     private Switch tipSwitch;
+    private Switch sdseSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
     private Button uPresentCard;
@@ -117,6 +118,8 @@ public class PaymentActivity extends AppCompatActivity {
     private ControlService controlService;
 
     private PaymentMeasure paymentMeasure;
+
+    private boolean forceDebug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,9 +147,9 @@ public class PaymentActivity extends AppCompatActivity {
         super.onBackPressed();
 
         if(paymentService != null)
-            cancelPayment();
+            cancelPayment(false);
         else
-            cancelControl();
+            cancelControl(false);
     }
 
     private void initView() {
@@ -177,6 +180,7 @@ public class PaymentActivity extends AppCompatActivity {
         uPresentCard = findViewById(R.id.u_present_card);
         uEnterPin = findViewById(R.id.u_enter_pin);
         crEnterPin = findViewById(R.id.cr_enter_pin);
+        sdseSwitch = findViewById(R.id.sdseSwitch);
 
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
@@ -190,7 +194,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         doPaymentBtn.setOnClickListener(v -> startPayment());
 
-        cancelPaymentBtn.setOnClickListener(v -> cancelPayment());
+        cancelPaymentBtn.setOnClickListener(v -> cancelPayment(true));
         cancelPaymentBtn.setVisibility(View.GONE);
 
 
@@ -252,7 +256,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean contactOnly = contactOnlySwitch.isChecked();
 
-        boolean forceDebug = forceDebugSwitch.isChecked();
+        forceDebug = forceDebugSwitch.isChecked();
 
         boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
 
@@ -285,12 +289,15 @@ public class PaymentActivity extends AppCompatActivity {
                 .setForceAuthorisation(forceAuthorisation)
               //  .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
-                .setSystemFailureInfo2(false)
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)
                 .setSkipStartingSteps(skipStartingSteps)
                 .setRetrieveF5Tag(retrieveF5Tag)
                 .setTipRequired(tipRequired)
+                .setPinRequestLabel("Pin ?")
+                .setPinRequestLabelFont(1)
+                .setPinRequestLabelXPosition((byte) 0xFF)
+                .setDataEncryptionMechanism(sdseSwitch.isChecked() ? 1 : -1)
 
                 //CLIENT TAGs
                 .setAuthorizationPlainTags(
@@ -319,135 +326,12 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
                         TAG_SECURE_9F6B_TRACK_2_DATA
                 );
-      /* complete list of optional tags C1 :
-                        0x9F39
-                        ,0x9F02
-                        ,0x9F03
-                        ,0x9F26
-                        ,0x82
-                        ,0x50
-                        ,0x9F36
-                        ,0x9F09
-                        ,0x9F27
-                        ,0x9F10
-                        ,0x9F34
-                        ,0x9F35
-                        ,0x9F33
-                        ,0x84
-                        ,0x9F1A
-                        ,0x95
-                        ,0x9F53
-                        ,0x5F2A
-                        ,0x9A
-                        ,0x9F21
-                        ,0x9C
-                        ,0x9F37
-                        ,0x9B
-                        ,0x9F66
-                        ,0xDF0C
-                        ,0xDF66
-                        ,0x9F0D
-                        ,0x9F0E
-                        ,0x9F0F
-                        ,0xDF20
-                        ,0xDF21
-                        ,0xDF22
-                        ,0xDF22
-                        ,0xFF50
-                        ,0x82
-                        ,0x9F07
-                        ,0x8E
-                        ,0x94
-                        ,0xDF75)
-                        */
-
-                /*
-                TAG_4F_APPLICATION_IDENTIFIER,
-                        TAG_50_APPLICATION_LABEL,
-                        TAG_5F2A_TRANSACTION_CURRENCY_CODE,
-                        TAG_5F34_APPLICATION_PRIMARY_ACCOUNT_NUMBER_SEQUENCE_NUMBER,
-                        TAG_81_AMOUNT_AUTHORISED,
-                        TAG_8E_CARDHOLDER_VERIFICATION_METHOD_LIST,
-                        TAG_95_TERMINAL_VERIFICATION_RESULTS,
-                        TAG_9B_TRANSACTION_STATUS_INFORMATION,
-                        TAG_99_TRANSACTION_PERSONAL_IDENTIFICATION_NUMBER_DATA,
-                        TAG_9A_TRANSACTION_DATE,
-                        TAG_9C_TRANSACTION_TYPE,
-                        TAG_9F06_APPLICATION_IDENTIFIER__TERMINAL,
-                        TAG_9F10_ISSUER_APPLICATION_DATA,
-                        TAG_9F1A_TERMINAL_COUNTRY_CODE,
-                        TAG_9F26_APPLICATION_CRYPTOGRAM,
-                        TAG_9F27_CRYPTOGRAM_INFORMATION_DATA,
-                        TAG_9F33_TERMINAL_CAPABILITIES,
-                        TAG_9F34_CARDHOLDER_VERIFICATION_METHOD_RESULTS,
-                        TAG_9F36_APPLICATION_TRANSACTION_COUNTER,
-                        TAG_DF02_PEK_VERSION_NUMBER,
-                        TAG_84_APPLICATION_ID,
-                        TAG_9F12_APPLICATION_PREFERRED_NAME,
-                        TAG_9F39_POINT_OF_SERVICE_ENTRY_MODE,
-                        TAG_8A_AUTHORIZATION_RESPONSE_CODE,
-                        TAG_91_ISSUER_AUTHENTICATION_DATA,
-                        TAG_71_ISSUER_SCRIPT_TEMPLATE1,
-                        TAG_72_ISSUER_SCRIPT_TEMPLATE2,
-                        TAG_9F6E_NFC_FORM_FORMAT,
-                        TAG_5F34_PAN_SEQUENCE_NUMBER,
-                        TAG_DF37_SELECTED_CARDHOLDER_LANGUAGE,
-                        TAG_9F08_APPLICATION_VERSION_NUMBER,
-                        TAG_5F25_APPLICATION_EFFECTIVE_DATE,
-                        TAG_82_APPLICATION_INTERCHANGE_PROFILE,
-                        TAG_9F07_APPLICATION_USAGE_CONTROL,
-                        TAG_9F37_UNPREDICTABLE_NUMBER
-                )*/
-/*
-
-                .setFinalizationPlainTags(
-                        TAG_4F_APPLICATION_IDENTIFIER,
-                        TAG_50_APPLICATION_LABEL,
-                        TAG_5F2A_TRANSACTION_CURRENCY_CODE,
-                        TAG_5F34_APPLICATION_PRIMARY_ACCOUNT_NUMBER_SEQUENCE_NUMBER,
-                        TAG_81_AMOUNT_AUTHORISED,
-                        TAG_8E_CARDHOLDER_VERIFICATION_METHOD_LIST,
-                        TAG_95_TERMINAL_VERIFICATION_RESULTS,
-                        TAG_9B_TRANSACTION_STATUS_INFORMATION,
-                        TAG_99_TRANSACTION_PERSONAL_IDENTIFICATION_NUMBER_DATA,
-                        TAG_9A_TRANSACTION_DATE,
-                        TAG_9C_TRANSACTION_TYPE,
-                        TAG_9F06_APPLICATION_IDENTIFIER__TERMINAL,
-                        TAG_9F10_ISSUER_APPLICATION_DATA,
-                        TAG_9F1A_TERMINAL_COUNTRY_CODE,
-                        TAG_9F26_APPLICATION_CRYPTOGRAM,
-                        TAG_9F27_CRYPTOGRAM_INFORMATION_DATA,
-                        TAG_9F33_TERMINAL_CAPABILITIES,
-                        TAG_9F34_CARDHOLDER_VERIFICATION_METHOD_RESULTS,
-                        TAG_9F36_APPLICATION_TRANSACTION_COUNTER,
-                        TAG_DF02_PEK_VERSION_NUMBER,
-                        TAG_84_APPLICATION_ID,
-                        TAG_9F12_APPLICATION_PREFERRED_NAME,
-                        TAG_9F39_POINT_OF_SERVICE_ENTRY_MODE,
-                        TAG_8A_AUTHORIZATION_RESPONSE_CODE,
-                        TAG_91_ISSUER_AUTHENTICATION_DATA,
-                        TAG_71_ISSUER_SCRIPT_TEMPLATE1,
-                        TAG_72_ISSUER_SCRIPT_TEMPLATE2,
-                        TAG_9F6E_NFC_FORM_FORMAT,
-                        TAG_5F34_PAN_SEQUENCE_NUMBER,
-                        TAG_DF37_SELECTED_CARDHOLDER_LANGUAGE,
-                        TAG_9F08_APPLICATION_VERSION_NUMBER,
-                        TAG_5F25_APPLICATION_EFFECTIVE_DATE,
-                        TAG_82_APPLICATION_INTERCHANGE_PROFILE,
-                        TAG_9F07_APPLICATION_USAGE_CONTROL,
-                        TAG_9F37_UNPREDICTABLE_NUMBER
-                );*/
 
         return uCubePaymentRequest;
     }
 
     private void displayProgress(PaymentState state) {
         String msg = state.name();
-
-//        if (testModeEnabled) {
-//            msg += "\n" + trxResultFld.getText();
-//        }
-
         trxResultFld.setText(msg);
     }
 
@@ -489,40 +373,57 @@ public class PaymentActivity extends AppCompatActivity {
         if (context.finalizationSecuredTagsValues != null)
             Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.finalizationSecuredTagsValues));
 
+        if (context.pinKsn != null) {
+            Log.d(TAG, "pin KSN: " + Tools.bytesToHex(context.pinKsn));
+        }
+
+        if (context.onlinePinBlock != null) {
+            Log.d(TAG, "pin block: " + Tools.bytesToHex(context.onlinePinBlock));
+        }
+
+        Log.d(TAG, "contains Online Pin Challenge Response: " + context.containsOnlinePinChallengeResponse);
     }
 
-    private void cancelPayment() {
+    private void cancelPayment(boolean displayUI) {
+
         if (paymentService != null && paymentService.isRunning()) {
             Log.d(TAG, "Try to cancel current Payment");
-            UIUtils.showProgress(this, "Trying cancellation");
+            if(displayUI)
+                UIUtils.showProgress(this, "Trying cancellation");
 
             paymentService.cancel(status -> {
                 Log.d(TAG, "cancel value : "+ status);
-                runOnUiThread(() -> {
-                    UIUtils.hideProgressDialog();
-                    if(status)
-                        Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
-                    else
-                        Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
-                });
+                if(displayUI) {
+                    runOnUiThread(() -> {
+                        UIUtils.hideProgressDialog();
+
+                        if (status)
+                            Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
+                    });
+                }
             });
         }
     }
 
-    private void cancelControl() {
+    private void cancelControl(boolean displayUI) {
         if (controlService != null && controlService.isRunning()) {
             Log.d(TAG, "Try to cancel current control");
-            UIUtils.showProgress(this, "Trying cancellation");
+            if(displayUI)
+                UIUtils.showProgress(this, "Trying cancellation");
 
             controlService.cancel(status -> {
                 Log.d(TAG, "cancel value : "+ status);
-                runOnUiThread(() -> {
-                    UIUtils.hideProgressDialog();
-                    if(status)
-                        Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
-                    else
-                        Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
-                });
+                if(displayUI) {
+                    runOnUiThread(() -> {
+                        UIUtils.hideProgressDialog();
+                        if (status)
+                            Toast.makeText(PaymentActivity.this, "Cancellation success", Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(PaymentActivity.this, "Cancellation failed", Toast.LENGTH_LONG).show();
+                    });
+                }
             });
         }
     }
@@ -552,16 +453,13 @@ public class PaymentActivity extends AppCompatActivity {
         new ExitSecureSessionCommand().execute(iTaskMonitor);
         new EnterSecureSessionCommand().execute(iTaskMonitor);
         new GetInfosCommand(Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1).execute(iTaskMonitor);
-        new ExitSecureSessionCommand().execute(new ITaskMonitor() {
-            @Override
-            public void handleEvent(TaskEvent event, Object... params) {
-                if(event == TaskEvent.FAILED) {
-                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
-                            getString(R.string.get_cb_command_failed, "0x5102")));
-                } else if(event == TaskEvent.SUCCESS) {
-                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
-                            getString(R.string.get_cb_command_success)));
-                }
+        new ExitSecureSessionCommand().execute((event, params) -> {
+            if(event == TaskEvent.FAILED) {
+                runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
+                        getString(R.string.get_cb_command_failed, "0x5102")));
+            } else if(event == TaskEvent.SUCCESS) {
+                runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
+                        getString(R.string.get_cb_command_success)));
             }
         });
     }
@@ -665,7 +563,7 @@ public class PaymentActivity extends AppCompatActivity {
                                     startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
                                     Log.d(TAG, "start cancel delay : "+ startCancelDelay);
 
-                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(), startCancelDelay);
+                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(true), startCancelDelay);
                                 }
 
                                 if (state == autoDisconnectState) {
@@ -690,6 +588,10 @@ public class PaymentActivity extends AppCompatActivity {
                                 if(paymentMeasure != null) {
                                     paymentMeasure.onFinish();
                                     displayMeasures(context);
+                                }
+
+                                if(forceDebug & (context.tagF4 == null || context.tagF4.length <= 21)) {
+                                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.F4_tag_is_empty)));
                                 }
 
                                 parsePaymentResponse(context);

@@ -163,9 +163,12 @@
         android:id="@+id/logs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
         android:layout_above="@+id/footer"
-        android:layout_below="@+id/seperator"/>
+        android:layout_below="@+id/seperator"
+        android:layout_marginStart="@dimen/margin"
+        android:layout_marginTop="@dimen/margin"
+        android:layout_marginEnd="@dimen/margin"
+        android:layout_marginBottom="@dimen/margin" />
 
     <include
         android:id="@+id/footer"

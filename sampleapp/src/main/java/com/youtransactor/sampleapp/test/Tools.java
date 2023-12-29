@@ -284,7 +284,6 @@ public class Tools {
                 .setTransactionDate(new Date())
                 .setForceAuthorisation(false)
                 .setCardWaitTimeout(30)
-                .setSystemFailureInfo2(false)
                 .setForceDebug(false)
                 .setSkipCardRemoval(true)
 

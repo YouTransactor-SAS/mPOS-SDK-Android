@@ -61,6 +61,8 @@ public class SetupActivity extends AppCompatActivity {
 
     private CardView uCubeCardView;
     private CardView uCubeTouchCardView;
+    private CardView simulatorCardView;
+    private CardView ytSOMCardView;
     private SwitchMaterial defaultModelSwitch;
     private EditText mdmUrlEditText;
     private SharedPreferences sharedPreferences;
@@ -82,6 +84,8 @@ public class SetupActivity extends AppCompatActivity {
 
         uCubeCardView = findViewById(R.id.ucube_card_view);
         uCubeTouchCardView = findViewById(R.id.ucube_touch_card_view);
+        simulatorCardView = findViewById(R.id.simulator_view);
+        ytSOMCardView = findViewById(R.id.yt_som_card_view);
         defaultModelSwitch = findViewById(R.id.defaultDongleModel);
         defaultModelSwitch.setChecked(sharedPreferences.getString(DEFAULT_YT_PRODUCT, null) != null);
 
@@ -92,14 +96,37 @@ public class SetupActivity extends AppCompatActivity {
         uCubeCardView.setOnClickListener(v -> {
             uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
             uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+
             selectProduct(YTProduct.uCube);
         });
 
         uCubeTouchCardView.setOnClickListener(v -> {
             uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
             uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray));
 
             selectProduct(YTProduct.uCubeTouch);
+        });
+
+        simulatorCardView.setOnClickListener(v -> {
+            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+
+            selectProduct(YTProduct.simulator);
+        });
+
+        ytSOMCardView.setOnClickListener(v -> {
+            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+
+            selectProduct(YTProduct.YT_SOM);
         });
 
         SwitchMaterial s = findViewById(R.id.enableTest);

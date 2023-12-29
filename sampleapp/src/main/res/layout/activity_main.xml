@@ -184,6 +184,8 @@
 
             <include layout="@layout/mdm_section_layout" />
 
+            <include layout="@layout/rki_section_layout" />
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

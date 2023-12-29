@@ -102,7 +102,7 @@ public class TestActivity extends AppCompatActivity implements ILogListener {
                 testToReproduce = (Test) ticketSwitch.getSelectedItem();
 
                 ticketDescriptionTextView.setText(testToReproduce.getDescription());
-                startRunDelayEditText.setText(String.valueOf(testToReproduce.getDelay()));
+                startRunDelayEditText.setText(String.valueOf(testToReproduce.getDelayInMilleseconds()));
             }
 
             @Override
