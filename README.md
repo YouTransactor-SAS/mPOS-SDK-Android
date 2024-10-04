@@ -235,6 +235,10 @@ The UCubeAPI methods are listed below:
 	*  enum ConnectionManagerType {
 	*    BT, // uCube model
 	*    BLE // YT-Touch model
+        *    USB, // YT-KEY100 model
+        *    SOCKET, // Simulator
+        *    SOCKET_JSON, // Development environment
+        *    PAYMENT_SERVICE; // Blade model
 	*  }
 	*
 	* This is the IConnectionManager interface definition :
@@ -428,6 +432,10 @@ To be able to connect the terminal you need to follow these steps bellow :
 
             case YTTouch:
                 UCubeAPI.setConnexionManagerType(BLE);
+                break;
+
+            case AndroidPOS:
+                UCubeAPI.setConnexionManagerType(PAYMENT_SERVICE);
                 break;
         }
 	...
@@ -1417,7 +1425,157 @@ public class RPCMessage {
 Note that no MAC if the data is null.
 
 
-### 8. Speed Mode
+### 8. Display events
+
+For Android product, the secure Firmware will send display events to notify Android application about transaction view updates.
+
+You must register to the DisplayEventListener to receive display events.
+
+```java
+    /*
+     * pass the listener object to the SDK to be notified if display events occurs
+     * */
+    public static void setDisplayEventListener(EventListener listener)
+```
+
+You have to pass an EventListener defined as follow:
+
+```java
+	public interface EventListener {
+	    void onEvent(EventCommand event);
+	}
+```
+
+You will receive some EventCommand objects:
+
+```java
+	public abstract class EventCommand extends RPCCommand {
+	    protected Event e;
+	
+	    public Event getEvent() {
+	        return this.e;
+	    }
+	
+	    public EventCommand(short commandId, SecurityMode inputSecurityMode, SecurityMode outputSecurityMode) {
+	        super(commandId, inputSecurityMode, outputSecurityMode);
+	    }
+	}
+```
+
+The events are defined by the Event enum type:
+```java
+	public enum Event {
+	    dsp_wait_card,
+	    dsp_payment_result,
+	    dsp_update_cless_LED,
+	    dsp_read_card,
+	    dsp_authorisation,
+	    dsp_update_KDB_change,
+	    dsp_listbox,
+	    dsp_idle;
+	}
+```
+
+Each event has an appropriate class. You can get event properties from it.
+
+#### 8.1 WaitCard event
+
+```java
+	public class EventDspWaitCard extends EventCommand {
+	    private int[] f;
+	    private String g;
+	    private String h;
+	
+	    public int[] getInterfaces() {
+	        return this.f;
+	    }
+	
+	    public String getAmount() {
+	        return this.g;
+	    }
+	
+	    public String getMessage() {
+	        return this.h;
+	    }
+	}
+```
+
+#### 8.2 PaymentResult event
+
+```java
+	public class EventDspPaymentRslt extends EventCommand {
+	    private String f;
+	    private int g;
+	
+	    public String getMessage() {
+	        return this.f;
+	    }
+	
+	    public int getResult() {
+	        return this.g;
+	    }
+	}
+```
+
+#### 8.3 UpdateClessLed event
+
+```java
+	public class EventDspUpdateClessLed extends EventCommand {
+	    private int f = 0;
+	    private int g = 0;
+	    private int h = 0;
+	    private int i = 0;
+	
+	    public int getStatusLed1() {
+	        return this.f;
+	    }
+	
+	    public int getStatusLed2() {
+	        return this.g;
+	    }
+	
+	    public int getStatusLed3() {
+	        return this.h;
+	    }
+	
+	    public int getStatusLed4() {
+	        return this.i;
+	    }
+```
+
+#### 8.4 ReadCard event
+
+```java
+	public class EventDspReadCard extends EventCommand {
+	    private String f;
+	
+	    public String getMessage() {
+	        return this.f;
+	    }
+	}
+```
+
+#### 8.5 Authorisation event
+
+```java
+	public class EventDspAuthorisation extends EventCommand {
+	    private String f;
+	
+	    public String getMessage() {
+	        return this.f;
+	    }
+	}
+```
+
+#### 8.6 Listbox event
+
+Not yet implemented.
+
+#### 8.7 Idle event
+
+No parameters.
+
+### 9. Speed Mode
 
 Starting with Firmware version 6.0.0.54, a new tag was added `Constants.TAG_FC_SPEED_MODE` to get and set the BLE speed mode.
 
