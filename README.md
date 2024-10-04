@@ -1,6 +1,6 @@
 # JPS SDK - Android
 
-###### Release 3.4.49
+###### Release 3.4.53
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">
@@ -1450,10 +1450,10 @@ You will receive some EventCommand objects:
 
 ```java
 	public abstract class EventCommand extends RPCCommand {
-	    protected Event e;
+	    protected Event event;
 	
 	    public Event getEvent() {
-	        return this.e;
+	        return this.event;
 	    }
 	
 	    public EventCommand(short commandId, SecurityMode inputSecurityMode, SecurityMode outputSecurityMode) {
@@ -1482,20 +1482,18 @@ Each event has an appropriate class. You can get event properties from it.
 
 ```java
 	public class EventDspWaitCard extends EventCommand {
-	    private int[] f;
-	    private String g;
-	    private String h;
+	    private int[] interfaces;
+	    private String amount;
+	    private String message;
 	
 	    public int[] getInterfaces() {
-	        return this.f;
+	        return this.interfaces;
 	    }
-	
 	    public String getAmount() {
-	        return this.g;
+	        return this.amount;
 	    }
-	
 	    public String getMessage() {
-	        return this.h;
+	        return this.message;
 	    }
 	}
 ```
@@ -1504,15 +1502,16 @@ Each event has an appropriate class. You can get event properties from it.
 
 ```java
 	public class EventDspPaymentRslt extends EventCommand {
-	    private String f;
-	    private int g;
+	    private String message;
+	
+	    private int result;
 	
 	    public String getMessage() {
-	        return this.f;
+	        return this.message;
 	    }
 	
 	    public int getResult() {
-	        return this.g;
+	        return this.result;
 	    }
 	}
 ```
@@ -1521,25 +1520,25 @@ Each event has an appropriate class. You can get event properties from it.
 
 ```java
 	public class EventDspUpdateClessLed extends EventCommand {
-	    private int f = 0;
-	    private int g = 0;
-	    private int h = 0;
-	    private int i = 0;
+	    private int statusLed1 = 0;
+	    private int statusLed2 = 0;
+	    private int statusLed3 = 0;
+	    private int statusLed4 = 0;
 	
 	    public int getStatusLed1() {
-	        return this.f;
+	        return this.statusLed1;
 	    }
 	
 	    public int getStatusLed2() {
-	        return this.g;
+	        return this.statusLed2;
 	    }
 	
 	    public int getStatusLed3() {
-	        return this.h;
+	        return this.statusLed3;
 	    }
 	
 	    public int getStatusLed4() {
-	        return this.i;
+	        return this.statusLed4;
 	    }
 ```
 
@@ -1547,10 +1546,10 @@ Each event has an appropriate class. You can get event properties from it.
 
 ```java
 	public class EventDspReadCard extends EventCommand {
-	    private String f;
+	    private String message;
 	
 	    public String getMessage() {
-	        return this.f;
+	        return this.message;
 	    }
 	}
 ```
@@ -1559,10 +1558,10 @@ Each event has an appropriate class. You can get event properties from it.
 
 ```java
 	public class EventDspAuthorisation extends EventCommand {
-	    private String f;
+	    private String message;
 	
 	    public String getMessage() {
-	        return this.f;
+	        return this.message;
 	    }
 	}
 ```
