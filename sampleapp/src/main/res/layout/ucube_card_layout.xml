@@ -47,14 +47,14 @@
                 android:id="@+id/imageView"
                 android:tag="image_tag"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="100dp"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:src="@drawable/ucube"/>
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="match_parent"
                 android:layout_marginTop="12dp"
                 android:layout_weight="2"
                 android:orientation="vertical"
@@ -66,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="eded"
+                    android:text="name"
                     android:textAppearance="?android:attr/textAppearanceLarge"/>
 
                 <TextView
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="eded"
+                    android:text="address"
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
             </LinearLayout>

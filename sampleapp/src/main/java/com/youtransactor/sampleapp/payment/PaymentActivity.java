@@ -83,9 +83,7 @@ public class PaymentActivity extends AppCompatActivity {
     public static final String TAG = PaymentActivity.class.getName();
 
     private SharedPreferences prefs;
-    /* Device */
     private YTProduct ytProduct = YTProduct.uCubeTouch;
-
     private Button doPaymentBtn;
     private Button cancelPaymentBtn;
     private Button getLogsL1, getStatusBtn;
@@ -384,7 +382,7 @@ public class PaymentActivity extends AppCompatActivity {
         Log.d(TAG, "contains Online Pin Challenge Response: " + context.containsOnlinePinChallengeResponse);
     }
 
-    private void cancelPayment(boolean displayUI) {
+    public void cancelPayment(boolean displayUI) {
 
         if (paymentService != null && paymentService.isRunning()) {
             Log.d(TAG, "Try to cancel current Payment");
@@ -508,104 +506,107 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void pay() {
+        new Thread(() -> {
+            try {
+                UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
+                paymentService = UCubeAPI.pay(uCubePaymentRequest,
+                        new UCubeLibPaymentServiceListener() {
 
-        try {
-            UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
-            paymentService = UCubeAPI.pay(uCubePaymentRequest,
-                    new UCubeLibPaymentServiceListener() {
+                            @Override
+                            public void onProgress(PaymentState state, PaymentContext context) {
+                                // todo No RPC call here
 
-                        @Override
-                        public void onProgress(PaymentState state, PaymentContext context) {
-                            // todo No RPC call here
+                                runOnUiThread(() -> {
+                                    Log.d(TAG, " Payment progress : " + state);
 
-                            runOnUiThread(() -> {
-                                Log.d(TAG, " Payment progress : " + state);
+                                    displayProgress(state);
 
-                                displayProgress(state);
+                                    switch (state) {
+                                        case ENTER_SECURE_SESSION:
+                                            if (paymentMeasure != null)
+                                                paymentMeasure.onStart();
+                                            break;
 
-                                switch (state) {
-                                    case ENTER_SECURE_SESSION:
-                                        if(paymentMeasure != null)
-                                            paymentMeasure.onStart();
-                                        break;
+                                        case KSN_AVAILABLE:
+                                            Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
+                                            break;
 
-                                    case KSN_AVAILABLE:
-                                        Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
-                                        break;
+                                        case START_TRANSACTION:
+                                            if (paymentMeasure != null)
+                                                paymentMeasure.onWaitingCard();
+                                            break;
 
-                                    case START_TRANSACTION:
-                                        if(paymentMeasure != null)
-                                            paymentMeasure.onWaitingCard();
-                                        break;
+                                        case AUTHORIZATION:
+                                            if (paymentMeasure != null)
+                                                paymentMeasure.onAuthorizationCalled();
+                                            break;
 
-                                    case AUTHORIZATION:
-                                        if(paymentMeasure != null)
-                                            paymentMeasure.onAuthorizationCalled();
-                                        break;
+                                        case OFFLINE_PIN:
+                                        case ONLINE_PIN:
+                                            if (paymentMeasure != null)
+                                                paymentMeasure.onCREnterPin();
+                                            break;
 
-                                    case OFFLINE_PIN:
-                                    case ONLINE_PIN:
-                                        if(paymentMeasure != null)
-                                            paymentMeasure.onCREnterPin();
-                                        break;
+                                        case SMC_PROCESS_TRANSACTION:
+                                            Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
+                                            break;
 
-                                    case SMC_PROCESS_TRANSACTION:
-                                        Log.d(TAG, "init data : " + Arrays.toString(context.transactionInitData));
-                                        break;
+                                        case CARD_READ_END:
+                                            //DISABLE CANCELLING
+                                            cancelPaymentBtn.setVisibility(View.GONE);
+                                            break;
+                                    }
 
-                                    case CARD_READ_END:
-                                        //DISABLE CANCELLING
-                                        cancelPaymentBtn.setVisibility(View.GONE);
-                                        break;
-                                }
+                                    if (state == autoCancelState) {
+                                        startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
+                                        Log.d(TAG, "start cancel delay : " + startCancelDelay);
 
-                                if (state == autoCancelState) {
-                                    startCancelDelay = Integer.parseInt(startCancelDelayEditText.getText().toString());
-                                    Log.d(TAG, "start cancel delay : "+ startCancelDelay);
+                                        new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(true), startCancelDelay);
+                                    }
 
-                                    new Handler(Looper.getMainLooper()).postDelayed(() -> cancelPayment(true), startCancelDelay);
-                                }
+                                    if (state == autoDisconnectState) {
+                                        disconnect();
+                                    }
+                                });
+                            }
 
-                                if (state == autoDisconnectState) {
-                                    disconnect();
-                                }
-                            });
-                        }
+                            @Override
+                            public void onFinish(PaymentContext context) {
+                                runOnUiThread(() -> {
+                                    if (context == null) {
+                                        UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
+                                        return;
+                                    }
 
-                        @Override
-                        public void onFinish(PaymentContext context) {
-                            runOnUiThread(() -> {
-                                if (context == null) {
-                                    UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.payment_failed));
-                                    return;
-                                }
+                                    Log.d(TAG, "payment finish status : " + context.paymentStatus);
 
-                                Log.d(TAG, "payment finish status : " + context.paymentStatus);
+                                    doPaymentBtn.setVisibility(View.VISIBLE);
+                                    cancelPaymentBtn.setVisibility(View.GONE);
 
-                                doPaymentBtn.setVisibility(View.VISIBLE);
-                                cancelPaymentBtn.setVisibility(View.GONE);
+                                    if (paymentMeasure != null) {
+                                        paymentMeasure.onFinish();
+                                        displayMeasures(context);
+                                    }
 
-                                if(paymentMeasure != null) {
-                                    paymentMeasure.onFinish();
-                                    displayMeasures(context);
-                                }
+                                    if (forceDebug & (context.tagF4 == null || context.tagF4.length <= 21)) {
+                                        runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.F4_tag_is_empty)));
+                                    }
 
-                                if(forceDebug & (context.tagF4 == null || context.tagF4.length <= 21)) {
-                                    runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this, getString(R.string.F4_tag_is_empty)));
-                                }
+                                    parsePaymentResponse(context);
+                                });
 
-                                parsePaymentResponse(context);
-                            });
+                            }
+                        });
 
-                        }
-                    });
+            } catch (Exception e) {
+                e.printStackTrace();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            doPaymentBtn.setVisibility(View.VISIBLE);
-            cancelPaymentBtn.setVisibility(View.GONE);
-        }
+                runOnUiThread(() -> {
+                    doPaymentBtn.setVisibility(View.VISIBLE);
+                    cancelPaymentBtn.setVisibility(View.GONE);
+                });
+            }
+        }).start();
     }
 
     private void displayMeasures(PaymentContext context) {

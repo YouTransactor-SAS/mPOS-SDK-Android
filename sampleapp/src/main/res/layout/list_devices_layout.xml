@@ -21,32 +21,50 @@
   ~
   ~ ==========================================================================
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/grey_300"
-    >
+    android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/progress_bar"
-        android:layout_centerInParent="true"
-        android:scrollbars="vertical"/>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:visibility="gone"
-        />
+        android:orientation="horizontal">
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_ucube_touch_filter" />
+
+        <EditText
+            android:id="@+id/scanFilter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAlignment="center" />
+
+        <ImageButton
+            android:id="@+id/clearFilterBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@android:drawable/ic_notification_clear_all" />
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/margin"
+        android:background="@color/grey_300"/>
+
+    <ListView
+        android:id="@+id/device_list_fld"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical" />
+
+</LinearLayout>

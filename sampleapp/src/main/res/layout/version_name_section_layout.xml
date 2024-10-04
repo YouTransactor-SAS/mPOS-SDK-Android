@@ -25,11 +25,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
         <ImageView
             android:layout_width="100dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:adjustViewBounds="false"
             android:contentDescription="@string/logo_YT_description"
             android:src="@drawable/ic_yt_logo" />

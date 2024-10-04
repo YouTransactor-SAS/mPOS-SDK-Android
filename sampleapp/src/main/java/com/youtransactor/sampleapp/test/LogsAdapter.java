@@ -67,7 +67,7 @@ public class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
         return logs.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView logTextView;
 
         public ViewHolder(View itemView) {
@@ -81,4 +81,5 @@ public class LogsAdapter extends RecyclerView.Adapter<LogsAdapter.ViewHolder> {
         logs.clear();
         notifyItemRangeRemoved(0, size);
     }
+
 }

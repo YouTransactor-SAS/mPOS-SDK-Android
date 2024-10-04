@@ -89,13 +89,13 @@
     <string name="send_log_success">Send Logs success</string>
 
     <!--connect message-->
-    <string name="connect_progress">Connect progress…</string>
-    <string name="connect_failed">Connect failed Msg : %s Code : %d</string>
+    <string name="connecting">Connecting ...</string>
+    <string name="connect_failed">Connect failed Msg : %1$s Code : %2$d</string>
     <string name="connect_success">Connect success</string>
     <string name="connection_cancelled">Connection cancelled</string>
 
     <!-- disconnect message-->
-    <string name="disconnect_progress">Disconnect progress…</string>
+    <string name="disconnecting">Disconnecting ...</string>
     <string name="disconnect_failed">Disconnect failed</string>
     <string name="disconnect_success">Disconnect success</string>
 
@@ -129,7 +129,7 @@
     <!-- ucube info -->
     <string name="ucube_model">Model: %s</string>
     <string name="ucube_name">Name: %s</string>
-    <string name="ucube_address">Address: %s</string>
+    <string name="ucube_address">MAC: %s</string>
     <string name="ucube_serial_num">Serial Number: %s</string>
     <string name="ucube_part_number">Part Number: %s</string>
     <string name="ucube_firmware_version">SVPP version: %s</string>
@@ -154,7 +154,7 @@
     <string name="start_payment">Pay</string>
     <string name="_00_00">00.00</string>
     <string name="_1_00">1.00</string>
-    <string name="payment_progress_with_amount">Make payment of %.2f %s</string>
+    <string name="payment_progress_with_amount">Make payment of %1$.2f %2$s</string>
     <string name="payment_progress_without_amount">Make payment in %s</string>
     <string name="payment_failed">Please Check the input parameters, Payment failed!</string>
     <string name="display">Display</string>
@@ -276,7 +276,7 @@
     <string name="connection_timeout">Timeout</string>
     <string name="log_level">Log level</string>
     <string name="enable_sdk_logs">enable SDK Logs</string>
-
+    <string name="enable_simulator_mode">enable simulator mode</string>
 
     <string name="enter_sec">enter sec</string>
     <string name="exit_sec">exit sec</string>
@@ -338,4 +338,31 @@
     <string name="reboot">Reboot</string>
     <string name="reboot_event">Reboot %s</string>
     <string name="reset_event">Reset %s</string>
+
+    <string name="local_update">Local update</string>
+    <string name="selectFile">Select file</string>
+    <string name="addFile">Add</string>
+    <string name="removeFile">Remove</string>
+    <string name="sig_not_found_msg">Signature not found for %s</string>
+    <string name="readFile">Read file</string>
+    <string name="read_file_error">Read file error</string>
+    <string name="update_item_already_selected">Update item already selected</string>
+    <string name="menu_scan_in_progress">Scan in progress</string>
+    <string name="ble_scan_fail">BLE scan failed</string>
+    <string name="bt_scan_error">Bluetooth scan error</string>
+    <string name="title_select_device">Select device</string>
+    <string name="scan_devices_error">Scan devices error</string>
+    <string name="yt_key">YT-key</string>
+    <string name="no_device_selected">No device selected</string>
+    <string name="simulator_url">Simulator url</string>
+    <string name="host">Host</string>
+    <string name="port">Port</string>
+    <string name="echo_msg">Message to display</string>
+    <string name="key_slot">Key slot</string>
+    <string name="power_off_timeout">Power off timeout</string>
+    <string name="connection_type">Connection</string>
+
+    <string name="wait_card_present_card">Tap or insert card</string>
+    <string name="wait_card_cancel">cancel</string>
+    <string name="wait_card_logo">Wait Card logo</string>
 </resources>

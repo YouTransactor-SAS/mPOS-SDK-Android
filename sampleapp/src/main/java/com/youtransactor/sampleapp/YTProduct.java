@@ -25,8 +25,9 @@ package com.youtransactor.sampleapp;
 public enum YTProduct {
     uCube("uCube"),
     uCubeTouch("uCubeTouch"),
-    simulator("simulator"),
-    YT_SOM("SOM");
+    YT_Key("YT_Key"),
+    YT_SOM("YT_SOM"),
+    AndroidPOS("AndroidPOS");
 
     private final String name;
 

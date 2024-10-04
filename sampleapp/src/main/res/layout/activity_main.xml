@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ ============================================================================
   ~
-  ~ Copyright (c) 2022 YouTransactor
+  ~ Copyright (c) 2024 YouTransactor
   ~
   ~ All Rights Reserved.
   ~
@@ -20,26 +20,17 @@
   ~
   ~ ==========================================================================
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context=".MainActivity">
-
-    <View
-        android:id="@+id/start"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/grey_300" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/start"
-        android:layout_above="@+id/footer"
-        >
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,185 +38,159 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/ucube_section"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin"
-                android:layout_gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/ucube_model"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:textStyle="bold"
-                    android:text="@string/model"/>
-
-                <TextView
-                    android:id="@+id/ucube_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/ucube_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="@dimen/margin"
-                android:background="@color/grey_300" />
-
-            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="3"
-                android:gravity="center"
-                android:layout_margin="@dimen/margin"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/scan_section"
-                    android:layout_margin="@dimen/margin"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <ImageButton
+                    android:id="@+id/forgetButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_delete" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/margin"
+                    android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
-                        android:text="@string/scan_ucube_touch_filter"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <EditText
-                        android:id="@+id/scanFilter"
-                        android:textAlignment="center"
-                        android:gravity="center"
-                        android:layout_width="match_parent"
+                        android:id="@+id/ucube_name"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        />
+                        android:layout_gravity="start"
+                        android:textStyle="bold" />
 
-                    <Button
-                        android:id="@+id/scanBtn"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/ucube_address"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/scan" />
+                        android:layout_gravity="start"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/connection_section"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <Button
+                    android:id="@+id/connectBtn"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin"
-                    android:orientation="vertical">
-                    <TextView
-                        android:text="@string/connection_timeout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                    <EditText
-                        android:id="@+id/connection_timeout_edit_text"
-                        android:textAlignment="center"
-                        android:gravity="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:text="@string/_15"  />
-                    <Button
-                        android:id="@+id/connectBtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/connect" />
-                  </LinearLayout>
+                    android:layout_gravity="center"
+                    android:elegantTextHeight="true"
+                    android:longClickable="true"
+                    android:text="@string/connect" />
 
                 <Button
                     android:id="@+id/disconnectBtn"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:layout_gravity="bottom"
-                    android:visibility="gone"
-                    android:text="@string/disconnect" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/grey_300" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/payBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/pay" />
-
+                    android:layout_gravity="center"
+                    android:text="@string/disconnect"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <include layout="@layout/rpc_section_layout" />
-
-            <include layout="@layout/mdm_section_layout" />
-
-            <include layout="@layout/rki_section_layout" />
-
-            <Space
+            <LinearLayout
+                android:id="@+id/actionPanel"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <LinearLayout
+                        android:id="@+id/connection_section"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/margin"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connection_timeout" />
+
+                        <EditText
+                            android:id="@+id/connection_timeout_edit_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:gravity="center"
+                            android:importantForAutofill="no"
+                            android:inputType="number"
+                            android:text="@string/_15"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/grey_300" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/payBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pay" />
+
+                    <Button
+                        android:id="@+id/localUpdateBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/local_update" />
+                </LinearLayout>
+
+                <include layout="@layout/rpc_section_layout" />
+
+                <include layout="@layout/mdm_section_layout" />
+
+                <include layout="@layout/rki_section_layout" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
         </LinearLayout>
-
     </ScrollView>
 
     <LinearLayout
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
         android:layout_marginBottom="0dp"
+        android:gravity="center"
         android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/setupBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/setup" />
 
         <include
             layout="@layout/version_name_section_layout"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:orientation="vertical" />
 
         <Button
             android:id="@+id/testBtn"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/Test" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

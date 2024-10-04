@@ -99,6 +99,11 @@ public class AuthorizationTask implements IAuthorizationTask {
             return;
         }
 
+        if (paymentContext.isBypassAuthorization()) {
+            end(0);
+            return;
+        }
+
         new Handler(Looper.getMainLooper()).post(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
 

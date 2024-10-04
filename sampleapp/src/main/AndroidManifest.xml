@@ -22,8 +22,7 @@
   ~ ==========================================================================
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.youtransactor.sampleapp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
     <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
@@ -34,6 +33,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
 
     <application
         android:name=".App"
@@ -50,16 +51,36 @@
 
         <activity android:name=".test.TestActivity"/>
 
+        <activity android:name=".transactionView.WaitCard"/>
+        <activity android:name=".transactionView.DisplayMsg"/>
+
         <activity android:name=".SetupActivity"
-            android:exported="true">
+            android:exported="true"
+            android:taskAffinity="com.youtransactor.maintask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".connexion.ListPairedUCubeActivity"/>
-        <activity android:name=".connexion.ListPairedUCubeTouchActivity"/>
-        <activity android:name=".connexion.UCubeTouchScanActivity"/>
+
+        <activity android:name=".DemoActivity"
+            android:exported="true"
+            android:icon="@drawable/blade"
+            android:label="Sample Demo"
+            android:taskAffinity="com.youtransactor.demotask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data android:name="io.fabric.ApiKey"
+            android:value="ae2664c7159b72049a1d19c857806a34504ff75e" />
+
+        <activity android:name=".connexion.DeviceScanActivity" />
+
+        <activity
+            android:name=".localUpdate.LocalUpdateActivity"
+            android:exported="false" />
     </application>
 </manifest>

@@ -22,6 +22,8 @@
  */
 package com.youtransactor.sampleapp;
 
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,6 +41,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.connexion.ConnectionService;
 import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.mdm.MDMServices;
 
@@ -55,17 +58,46 @@ public class SetupActivity extends AppCompatActivity {
     public static final String MEASURES_MODE_PREF_NAME = "measuresMode";
     public static final String RECOVERY_MODE_PERF_NAME = "recoveryMode";
     public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
+    public static final String COMMUNICATION_TYPE_PREF_NAME = "communicationType";
     public static final String SDK_LOGS_LEVEL_PREF_NAME = "SDKLogLevel";
     public static final String MDM_URL_PREF_NAME = "mdmUrl";
     public static final String SETUP_SHARED_PREF_NAME = "setup";
 
+    private CardView ytkeyCardView;
     private CardView uCubeCardView;
     private CardView uCubeTouchCardView;
-    private CardView simulatorCardView;
+    private CardView androidPOSCardView;
     private CardView ytSOMCardView;
     private SwitchMaterial defaultModelSwitch;
     private EditText mdmUrlEditText;
     private SharedPreferences sharedPreferences;
+    private  View.OnClickListener productSelectionListener = (v) -> {
+        ytkeyCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+        uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+        uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+        androidPOSCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+        ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
+
+        ((CardView) v).setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
+
+        switch (v.getId()) {
+            case R.id.ytkey_card_view:
+                selectProduct(YTProduct.YT_Key);
+                break;
+            case R.id.ucube_card_view:
+                selectProduct(YTProduct.uCube);
+                break;
+            case R.id.ucube_touch_card_view:
+                selectProduct(YTProduct.uCubeTouch);
+                break;
+            case R.id.androidPOS_view:
+                selectProduct(YTProduct.AndroidPOS);
+                break;
+            case R.id.yt_som_card_view:
+                selectProduct(YTProduct.YT_SOM);
+                break;
+        }
+    };
 
     @Override
     protected void onDestroy() {
@@ -82,10 +114,37 @@ public class SetupActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_setup);
 
+        ytkeyCardView = findViewById(R.id.ytkey_card_view);
         uCubeCardView = findViewById(R.id.ucube_card_view);
         uCubeTouchCardView = findViewById(R.id.ucube_touch_card_view);
-        simulatorCardView = findViewById(R.id.simulator_view);
+        androidPOSCardView = findViewById(R.id.androidPOS_view);
         ytSOMCardView = findViewById(R.id.yt_som_card_view);
+
+        ArrayAdapter<ConnectionService.ConnectionManagerType> connectionTypeAdapater = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                ConnectionService.ConnectionManagerType.values()
+        );
+
+        Spinner connectionTypeSpinner = findViewById(R.id.connectionTypeSpinner);
+        connectionTypeSpinner.setAdapter(connectionTypeAdapater);
+
+        try {
+            connectionTypeSpinner.setSelection(connectionTypeAdapater.getPosition(ConnectionService.ConnectionManagerType.valueOf(sharedPreferences.getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, BT.name()))));
+        } catch (Exception ignored) {}
+
+
+        connectionTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                sharedPreferences.edit().putString(COMMUNICATION_TYPE_PREF_NAME, ((ConnectionService.ConnectionManagerType) connectionTypeSpinner.getSelectedItem()).name()).apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
         defaultModelSwitch = findViewById(R.id.defaultDongleModel);
         defaultModelSwitch.setChecked(sharedPreferences.getString(DEFAULT_YT_PRODUCT, null) != null);
 
@@ -93,41 +152,11 @@ public class SetupActivity extends AppCompatActivity {
         TextView versionNametv = findViewById(R.id.version_name);
         versionNametv.setText(getString(R.string.versionName, versionName));
 
-        uCubeCardView.setOnClickListener(v -> {
-            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-
-            selectProduct(YTProduct.uCube);
-        });
-
-        uCubeTouchCardView.setOnClickListener(v -> {
-            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray));
-
-            selectProduct(YTProduct.uCubeTouch);
-        });
-
-        simulatorCardView.setOnClickListener(v -> {
-            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-
-            selectProduct(YTProduct.simulator);
-        });
-
-        ytSOMCardView.setOnClickListener(v -> {
-            uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            simulatorCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
-            ytSOMCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.darker_gray));
-
-            selectProduct(YTProduct.YT_SOM);
-        });
+        ytkeyCardView.setOnClickListener(productSelectionListener);
+        uCubeCardView.setOnClickListener(productSelectionListener);
+        uCubeTouchCardView.setOnClickListener(productSelectionListener);
+        androidPOSCardView.setOnClickListener(productSelectionListener);
+        ytSOMCardView.setOnClickListener(productSelectionListener);
 
         SwitchMaterial s = findViewById(R.id.enableTest);
         s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
