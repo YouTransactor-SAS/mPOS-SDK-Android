@@ -121,9 +121,9 @@ The diagram below describes the SDK's architecture. The Application has access t
 ### 4. Prerequisites
 
 To embed the SDK, you have to be sure of certain things in your settings.
-1. The `minSDKVersion` must be at 21 or later to works properly.
-2. The `targetSDKversion` 28 or later (as a consequence of the migration to AndroidX).
-3. The `Android plugin for Gradle` must be at 3.3.0 or later.
+1. The `minSDKVersion` must be at 23 or later to works properly.
+2. The `targetSDKversion` 33 or later (as a consequence of the migration to AndroidX).
+3. The `Android plugin for Gradle` must be at 7.4.2 or later.
    For more information about AndroidX and how to migrate see Google AndroidX Documentation.
 
 ### 5. Dependencies
