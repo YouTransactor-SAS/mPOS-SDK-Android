@@ -536,6 +536,7 @@ The input parameter of Pay API is the uCubePaymentRequest. This class contains a
   int timeout = 30;
   boolean forceOnlinePin = false; 
   boolean forceAuthorisation = false; 
+  boolean byPassAuthorisation = false; 
   boolean forceDebug = false;
   boolean skipCardRemoval = true;
   boolean retrieveF5Tag = false; 
@@ -553,6 +554,7 @@ The input parameter of Pay API is the uCubePaymentRequest. This class contains a
 	.setForceOnlinePin(forceOnlinePin)
 	.setTransactionDate(new Date())
 	.setForceAuthorisation(forceAuthorisation)
+	.setBypassAuthorisation(byPassAuthorisation)
 	.setRiskManagementTask(new RiskManagementTask(this))
 	.setCardWaitTimeout(timeout)
 	.setForceDebug(true)
