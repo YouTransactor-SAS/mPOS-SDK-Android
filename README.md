@@ -1622,6 +1622,44 @@ The `SetInfoFieldCommand` is used to define the speed mode. Example :
 		}
 		});
 ```
+### 10. Firmware update
 
+```java
+	UpdateItem item = new UpdateItem()
+	                    .label(“firmware ”) /* free label */
+	                    .data(<InputStream>) /* binary data */
+	                    .signature(<InputStream>); /* binary data signature */
+```
+
+
+```java
+	final List<UpdateItem> updateList = new ArrayList<>();
+	
+	/* add all needed UpdateItem to the list */
+	updateList.add(item)
+	
+	final ITaskMonitor monitor = (event, params) -> {
+	            if ( event != TaskEvent.PROGRESS) {
+	                updateInProgress = false;
+			/* update ended either success or failed depending on the TaskEvent */
+	            }
+	
+			/* param contains the associated UpdateItem */
+	            String msg = params.length > 0 && params[0] instanceof ServiceState
+	                    ? ((ServiceState) params[0]).name()
+	                    : event.name();
+	
+			/* do whatever needed with event param */
+	            displayState(msg, event == TaskEvent.PROGRESS);
+	        };
+	
+	        Executors.newSingleThreadExecutor().execute(() -> {
+	            LocalUpdateService lus = new LocalUpdateService();
+	            lus.execute(updateList, monitor);
+	        });
+	
+	LocalUpdateService lus = new LocalUpdateService();
+	lus.execute(updateList, monitor);
+```
 
 ![Cptr_logoYT](https://user-images.githubusercontent.com/59020462/71242500-663cdb00-230e-11ea-9a07-3ee5240c6a68.jpeg)
