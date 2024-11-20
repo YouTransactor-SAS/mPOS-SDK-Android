@@ -30,6 +30,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -51,6 +52,7 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.control.ControlContext;
 import com.youTransactor.uCube.control.ControlService;
+import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.control.ControlState;
 import com.youTransactor.uCube.rpc.Currency;
@@ -80,6 +82,8 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 public class PaymentActivity extends AppCompatActivity {
+    public static final String SDSE_MODE_PREF_NAME = "SDSE mode";
+
     public static final String TAG = PaymentActivity.class.getName();
 
     private SharedPreferences prefs;
@@ -100,13 +104,12 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
     private Switch tipSwitch;
-    private Switch sdseSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
     private Button uPresentCard;
     private Button uEnterPin;
     private Button crEnterPin;
-
+    private Spinner sdse_mode_spinner;
     private PaymentState autoCancelState;
     private int startCancelDelay;
     private PaymentState autoDisconnectState;
@@ -116,7 +119,39 @@ public class PaymentActivity extends AppCompatActivity {
     private ControlService controlService;
 
     private PaymentMeasure paymentMeasure;
+    public enum pay_sdse_mode {
+        SRED("SRED", 0),
+        SDSE_RFU("RFU", 1),
+        VOLTAGE("VOLTAGE", 2);
+        private final int code;
+        private final String label;
 
+        pay_sdse_mode(String label, int code) {
+            this.label = label;
+            this.code = code;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static pay_sdse_mode valueOf(int code) {
+            switch (code) {
+                case 0:
+                    return SRED;
+                case 1:
+                    return SDSE_RFU;
+                case 2:
+                    return VOLTAGE;
+            }
+            return SRED;
+        }
+    }
+    private static pay_sdse_mode sdse_mode= pay_sdse_mode.VOLTAGE;
     private boolean forceDebug;
 
     @Override
@@ -178,8 +213,25 @@ public class PaymentActivity extends AppCompatActivity {
         uPresentCard = findViewById(R.id.u_present_card);
         uEnterPin = findViewById(R.id.u_enter_pin);
         crEnterPin = findViewById(R.id.cr_enter_pin);
-        sdseSwitch = findViewById(R.id.sdseSwitch);
+        sdse_mode_spinner = findViewById(R.id.sdse_mode_spinner);
 
+        sdse_mode_spinner.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                pay_sdse_mode.values()
+        ));
+
+        sdse_mode_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                prefs.edit().putInt(SDSE_MODE_PREF_NAME, ((pay_sdse_mode)sdse_mode_spinner.getSelectedItem()).getCode()).apply();
+                sdse_mode= (pay_sdse_mode) sdse_mode_spinner.getSelectedItem();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_USD);
@@ -295,7 +347,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setPinRequestLabel("Pin ?")
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
-                .setDataEncryptionMechanism(sdseSwitch.isChecked() ? 1 : -1)
+                .setDataEncryptionMechanism(sdse_mode.getCode())
 
                 //CLIENT TAGs
                 .setAuthorizationPlainTags(

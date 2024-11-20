@@ -11,15 +11,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspUpdateClessLed;
-import com.youtransactor.sampleapp.DemoActivity;
 import com.youtransactor.sampleapp.R;
 
 import java.util.Objects;
 
 public class WaitCard extends TransactionViewBase {
 
+    private PaymentService paymentService;
     public static final String INTENT_EXTRA_WAIT_CARD_AMOUNT = "INTENT_EXTRA_WAIT_CARD_AMOUNT";
     public static final String INTENT_EXTRA_WAIT_CARD_MSG = "INTENT_EXTRA_WAIT_CARD_MSG";
     public static final String INTENT_EXTRA_WAIT_CARD_ITF = "INTENT_EXTRA_WAIT_CARD_ITF";
@@ -31,6 +32,8 @@ public class WaitCard extends TransactionViewBase {
 
         setContentView(R.layout.activity_wait_card);
         Objects.requireNonNull(getSupportActionBar()).hide();
+
+        paymentService = PaymentService.INSTANCE;
 
         TextView textViewAmount = findViewById(R.id.textViewAmount);
         TextView textViewMsg = findViewById(R.id.textViewMsg);
@@ -106,7 +109,6 @@ public class WaitCard extends TransactionViewBase {
     }
 
     private void cancel() {
-        Intent intent = new Intent(this, DemoActivity.class);
-        startActivity(intent);
+        paymentService.cancel(status -> {});
     }
 }

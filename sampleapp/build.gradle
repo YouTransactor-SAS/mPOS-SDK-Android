@@ -25,11 +25,19 @@ plugins {
     id 'com.android.application'
 }
 
+Properties localProps = new Properties()
+localProps.load(rootProject.file('local.properties').newDataInputStream())
+
 android {
     namespace "com.youtransactor.sampleapp"
 
     signingConfigs {
-        release
+        release {
+            storeFile = project.file(localProps.getProperty("sign.keystore.path"))
+            storePassword = localProps.getProperty("sign.keystore.password")
+            keyAlias = localProps.getProperty("sign.key.alias")
+            keyPassword = localProps.getProperty("sign.key.password")
+        }
     }
 
     compileSdkVersion 33
@@ -37,9 +45,10 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 3453
-        versionName "3.4.53"
+        versionCode 3456
+        versionName "3.4.56"
         multiDexEnabled true
+        archivesBaseName = "SampleApp-$versionName"
     }
 
     buildTypes {
@@ -68,28 +77,6 @@ android {
 
 }
 
-Properties props = new Properties()
-def propFile = rootProject.file('local.properties')
-if (propFile.canRead()) {
-    props.load(new FileInputStream(propFile))
-
-    if (props != null && props.containsKey('KEYSTORE_FILE')
-            && props.containsKey('KEYSTORE_PASSWORD')
-            && props.containsKey('KEY_ALIAS')
-            && props.containsKey('KEY_PASSWORD')) {
-        android.signingConfigs.release.storeFile = file(props['KEYSTORE_FILE'])
-        android.signingConfigs.release.storePassword = props['KEYSTORE_PASSWORD']
-        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
-        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
-    } else {
-        println 'local.properties found but some keystore entries are missing'
-        android.buildTypes.release.signingConfig = null
-    }
-} else {
-    println 'local.properties not found'
-    android.buildTypes.release.signingConfig = null
-}
-
 dependencies {
     /* uCube lib dependencies */
     implementation 'org.apache.commons:commons-lang3:3.11'
@@ -99,7 +86,7 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'com.google.guava:guava:30.0-jre'
-    implementation files('libs/JPS_libApp_3.4.53.aar')
+    implementation files('libs/JPS_libApp_3.4.56.aar')
 
     implementation 'com.google.android.material:material:1.5.0' //use this when android version > 4.4
     implementation 'androidx.appcompat:appcompat:1.4.1'

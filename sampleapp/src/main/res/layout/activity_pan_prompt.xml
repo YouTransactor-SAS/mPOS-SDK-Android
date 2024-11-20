@@ -33,85 +33,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <GridLayout
+        <Space
             android:layout_column="0"
             android:layout_columnWeight="1"
             android:layout_row="0"
-            android:layout_rowWeight="1" >
-
-            <Space
-                android:layout_column="0"
-                android:layout_columnWeight="3"
-                android:layout_row="0"
-                android:layout_rowWeight="1" />
-
-            <TextView
-                android:text="NFC"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:textColor="@color/black"
-                android:gravity="center|bottom"
-                android:textAlignment="gravity"
-                android:layout_column="1"
-                android:layout_row="0"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1" />
-
-            <TextView
-                android:text="SMC"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:textColor="@color/black"
-                android:gravity="center|bottom"
-                android:textAlignment="gravity"
-                android:layout_column="3"
-                android:layout_row="0"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1" />
-
-            <TextView
-                android:text="MSR"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:textColor="@color/black"
-                android:gravity="center|bottom"
-                android:textAlignment="gravity"
-                android:layout_column="5"
-                android:layout_row="0"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="2" />
-
-            <CheckBox
-                android:id="@+id/checkBoxInterfaceNFC"
-                android:layout_gravity="center|top"
-                android:layout_column="1"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_rowWeight="1" />
-
-            <CheckBox
-                android:id="@+id/checkBoxInterfaceSMC"
-                android:layout_gravity="center|top"
-                android:layout_column="3"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_rowWeight="1" />
-
-            <CheckBox
-                android:id="@+id/checkBoxInterfaceMSR"
-                android:layout_gravity="center|top"
-                android:layout_column="5"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_rowWeight="1" />
-
-            <Space
-                android:layout_column="6"
-                android:layout_columnWeight="3"
-                android:layout_row="0"
-                android:layout_rowWeight="1" />
-
-        </GridLayout>
+            android:layout_rowWeight="1" />
 
         <GridLayout
             android:layout_column="0"
@@ -126,8 +52,8 @@
                 android:layout_rowWeight="1" />
 
             <TextView
-                android:id="@+id/textViewAmount"
-                android:text="@string/demo_amount"
+                android:id="@+id/textViewPanMsg"
+                android:text="Enter PAN"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:textColor="@color/black"
@@ -160,8 +86,8 @@
                 android:layout_rowWeight="1" />
 
             <TextView
-                android:id="@+id/textViewEnterAmount"
-                android:text="Enter amount"
+                android:id="@+id/textViewPan"
+                android:text=""
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:autoSizeTextType="uniform"
@@ -188,7 +114,7 @@
             android:layout_column="0"
             android:layout_columnWeight="1"
             android:layout_row="4"
-            android:layout_rowWeight="7" >
+            android:layout_rowWeight="8" >
 
             <Space
                 android:layout_column="0"
@@ -203,7 +129,7 @@
                 android:layout_rowWeight="4" />
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/buttonPan1"
                 android:layout_column="1"
                 android:layout_columnWeight="2"
                 android:layout_row="1"
@@ -223,7 +149,7 @@
                 android:layout_rowWeight="2" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/buttonPan2"
                 android:layout_column="3"
                 android:layout_columnWeight="2"
                 android:layout_row="1"
@@ -242,7 +168,7 @@
                 android:layout_rowWeight="2" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/buttonPan3"
                 android:layout_column="5"
                 android:layout_columnWeight="2"
                 android:layout_row="1"
@@ -266,7 +192,7 @@
                 android:layout_row="2"
                 android:layout_rowWeight="1" />
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/buttonPan4"
                 android:layout_column="1"
                 android:layout_columnWeight="2"
                 android:layout_row="3"
@@ -279,7 +205,7 @@
                 android:autoSizeTextType="uniform" />
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/buttonPan5"
                 android:layout_column="3"
                 android:layout_columnWeight="2"
                 android:layout_row="3"
@@ -299,7 +225,7 @@
                 android:layout_rowWeight="2" />
 
             <Button
-                android:id="@+id/button6"
+                android:id="@+id/buttonPan6"
                 android:layout_column="5"
                 android:layout_columnWeight="2"
                 android:layout_row="3"
@@ -317,7 +243,7 @@
                 android:layout_rowWeight="1" />
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/buttonPan7"
                 android:layout_column="1"
                 android:layout_columnWeight="2"
                 android:layout_row="5"
@@ -336,7 +262,7 @@
                 android:layout_rowWeight="2" />
 
             <Button
-                android:id="@+id/button8"
+                android:id="@+id/buttonPan8"
                 android:layout_column="3"
                 android:layout_columnWeight="2"
                 android:layout_row="5"
@@ -355,7 +281,7 @@
                 android:layout_rowWeight="2" />
 
             <Button
-                android:id="@+id/button9"
+                android:id="@+id/buttonPan9"
                 android:layout_column="5"
                 android:layout_columnWeight="2"
                 android:layout_row="5"
@@ -373,18 +299,38 @@
                 android:layout_row="6"
                 android:layout_rowWeight="1" />
 
-            <Button
-                android:id="@+id/button0"
+            <GridLayout
                 android:layout_column="1"
                 android:layout_columnWeight="2"
                 android:layout_row="7"
-                android:layout_rowWeight="4"
-                android:text="0"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:textColor="@color/black"
-                android:autoSizeTextType="uniform" />
+                android:layout_rowWeight="9" >
+
+                <Space
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_rowWeight="2" />
+
+                <Button
+                    android:id="@+id/buttonPanX"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="1"
+                    android:layout_rowWeight="3"
+                    android:text="X"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:textColor="@color/black"
+                    android:autoSizeTextType="uniform" />
+
+                <Space
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="2"
+                    android:layout_rowWeight="2" />
+
+            </GridLayout>
 
             <Space
                 android:layout_column="2"
@@ -392,18 +338,46 @@
                 android:layout_row="7"
                 android:layout_rowWeight="2" />
 
-            <Button
-                android:id="@+id/button00"
+            <GridLayout
                 android:layout_column="3"
                 android:layout_columnWeight="2"
                 android:layout_row="7"
-                android:layout_rowWeight="4"
-                android:text="00"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:textColor="@color/black"
-                android:autoSizeTextType="uniform" />
+                android:layout_rowWeight="4" >
+
+                <Button
+                    android:id="@+id/buttonPan0"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_rowWeight="6"
+                    android:text="0"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:textColor="@color/black"
+                    android:autoSizeTextType="uniform" />
+
+                <Space
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="1"
+                    android:layout_rowWeight="1" />
+
+                <Button
+                    android:id="@+id/buttonPanDel"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="2"
+                    android:layout_rowWeight="6"
+                    android:text="D"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:textColor="@color/black"
+                    android:autoSizeTextType="uniform" />
+
+            </GridLayout>
+
 
             <Space
                 android:layout_column="4"
@@ -411,18 +385,38 @@
                 android:layout_row="7"
                 android:layout_rowWeight="2" />
 
-            <Button
-                android:id="@+id/buttonDel"
+            <GridLayout
                 android:layout_column="5"
                 android:layout_columnWeight="2"
                 android:layout_row="7"
-                android:layout_rowWeight="4"
-                android:text="-"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:textColor="@color/black"
-                android:autoSizeTextType="uniform" />
+                android:layout_rowWeight="4" >
+
+                <Space
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_rowWeight="2" />
+
+                <Button
+                    android:id="@+id/buttonPanValidate"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="1"
+                    android:layout_rowWeight="3"
+                    android:text="V"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:textColor="@color/black"
+                    android:autoSizeTextType="uniform" />
+
+                <Space
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:layout_row="2"
+                    android:layout_rowWeight="2" />
+
+            </GridLayout>
 
             <Space
                 android:layout_column="6"
@@ -435,48 +429,6 @@
                 android:layout_columnWeight="1"
                 android:layout_row="8"
                 android:layout_rowWeight="2" />
-
-        </GridLayout>
-
-        <GridLayout
-            android:layout_column="0"
-            android:layout_columnWeight="1"
-            android:layout_row="5"
-            android:layout_rowWeight="2" >
-
-            <Space
-                android:layout_column="0"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_rowWeight="1" />
-
-            <Button
-                android:id="@+id/buttonPay"
-                android:background="@drawable/button_round"
-                android:text="pay"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:autoSizeTextType="uniform"
-                android:textAlignment="center"
-                android:paddingBottom="10dp"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:layout_column="1"
-                android:layout_row="1"
-                android:layout_columnWeight="7"
-                android:layout_rowWeight="3" />
-
-            <Space
-                android:layout_column="2"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_rowWeight="1" />
-
-            <Space
-                android:layout_column="0"
-                android:layout_columnWeight="1"
-                android:layout_row="3"
-                android:layout_rowWeight="3" />
 
         </GridLayout>
 

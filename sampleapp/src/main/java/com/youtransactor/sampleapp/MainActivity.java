@@ -56,7 +56,6 @@ import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibMDMServiceListener;
 import com.youTransactor.uCube.api.UCubeLibRKIServiceListener;
-import com.youTransactor.uCube.api.UCubeLibRpcSendListener;
 import com.youTransactor.uCube.api.UCubeLibState;
 import com.youTransactor.uCube.api.UCubeLibTaskListener;
 import com.youTransactor.uCube.api.YTMPOSProduct;
@@ -77,7 +76,6 @@ import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.LostPacketListener;
 import com.youTransactor.uCube.rpc.RPCCommunicationErrorListener;
-import com.youTransactor.uCube.rpc.SecurityMode;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EchoCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
@@ -95,6 +93,7 @@ import com.youtransactor.sampleapp.connexion.ListPairedUCubeScanner;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchScanner;
 import com.youtransactor.sampleapp.connexion.YTKeyScanner;
 import com.youtransactor.sampleapp.connexion.YTSOMScanner;
+import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
@@ -423,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         findViewById(R.id.reboot).setOnClickListener(v-> reboot());
         findViewById(R.id.rkiButton).setOnClickListener(v -> doRemoteKeyInjection());
         findViewById(R.id.localUpdateBtn).setOnClickListener(v -> localUpdate());
+        findViewById(R.id.emvParamUpdBtn).setOnClickListener(v -> emvParamUpd());
 
         boolean testModeEnabled = setupSharedPref.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
         Button testBtn = findViewById(R.id.testBtn);
@@ -712,6 +712,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void localUpdate() {
         Intent paymentIntent = new Intent(this, LocalUpdateActivity.class);
         startActivity(paymentIntent);
+    }
+
+    private void emvParamUpd() {
+        Intent emvParamUpdIntent = new Intent(this, EmvParamUpdateActivity.class);
+        startActivity(emvParamUpdIntent);
     }
 
     private void mdmRegister() {
@@ -1049,10 +1054,16 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         }
 
         Integer tag = remainingTags.poll();
-        Log.d(TAG, "Retrieve Tag " + tag);
+        assert tag != null;
+        String tagAsHex = String.format("%04X", tag & 0xFFFF);
+        Log.d(TAG, "Retrieve Tag " + tagAsHex);
+
+        UIUtils.setProgressMessage(getString(R.string.get_info_progress, tagAsHex));
 
         new GetInfosCommand(tag).execute((event, params) -> {
             Log.d(TAG, "Retrieve tag event: " + event);
+
+            if (event == TaskEvent.PROGRESS) return;
 
             if (event == TaskEvent.SUCCESS) {
                 tlvParts.add(((GetInfosCommand) params[0]).getResponseData());

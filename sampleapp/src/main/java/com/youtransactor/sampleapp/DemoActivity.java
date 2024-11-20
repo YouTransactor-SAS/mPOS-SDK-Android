@@ -31,7 +31,6 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLI
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
-
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -89,13 +88,21 @@ public class DemoActivity extends TransactionViewBase {
     @Override
     protected void onDestroy() {
         UCubeAPI.close();
-
         super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.amountStr = "";
+        this.amountUpdate();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.setHomeActivity(this.getClass());
 
         setContentView(R.layout.activity_demo);
         getSupportActionBar().hide();
@@ -151,12 +158,7 @@ public class DemoActivity extends TransactionViewBase {
         checkBoxInterfaceSMC = findViewById(R.id.checkBoxInterfaceSMC);
         checkBoxInterfaceSMC.setChecked(true);
         checkBoxInterfaceMSR = findViewById(R.id.checkBoxInterfaceMSR);
-        checkBoxInterfaceMSR.setClickable(false);
-    }
-
-    @Override
-    protected void onEventViewUpdate(EventCommand event) {
-
+        checkBoxInterfaceMSR.setClickable(true);
     }
 
     private void amountAppendStr(String str) {
@@ -169,7 +171,7 @@ public class DemoActivity extends TransactionViewBase {
     }
 
     private void amountDeleteChar() {
-        if (amountStr != null && amountStr.length() > 0) {
+        if (amountStr != null && !amountStr.isEmpty()) {
             amountStr = amountStr.substring(0, amountStr.length() - 1);
         }
         amountUpdate();
@@ -255,6 +257,7 @@ public class DemoActivity extends TransactionViewBase {
                 .setPinRequestLabel("Pin ?")
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
+                .setDataEncryptionMechanism(2)
 //                .setDataEncryptionMechanism(sdseSwitch.isChecked() ? 1 : -1)
 
                 //CLIENT TAGs

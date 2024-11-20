@@ -22,7 +22,10 @@
  */
 package com.youtransactor.sampleapp.localUpdate;
 
-import android.content.SharedPreferences;
+import android.content.ClipData;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -37,6 +40,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
@@ -54,15 +58,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class LocalUpdateActivity extends AppCompatActivity {
 
     private static final String TAG = LocalUpdateActivity.class.getSimpleName();
-
-    private static final String SHARE_PREF_NAME = "LocalUpdate";
-    private static final String LAST_SELECTION_PATH = "LAST_SELECTION_PATH";
+    private static final int PICK_FILE = 1;
 
     private UpdateItemAdapter updateItemListAdapter;
     private File lastSelectedFile = null;
@@ -167,6 +173,16 @@ public class LocalUpdateActivity extends AppCompatActivity {
     }
 
     private void selectFile() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+
+            startActivityForResult(intent, PICK_FILE);
+            return;
+        }
+
         new ChooserDialog(LocalUpdateActivity.this)
                 .withFilterRegex(false, true, ".*\\.(bin)")
                 .withStartFile(lastSelectedFile != null ? lastSelectedFile.getAbsolutePath() : "")
@@ -181,6 +197,68 @@ public class LocalUpdateActivity extends AppCompatActivity {
                 .withOnCancelListener(dialog -> dialog.cancel())
                 .build()
                 .show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == PICK_FILE) {
+            if (resultData == null) {
+                return;
+            }
+
+            ClipData clipData = resultData.getClipData();
+            if (clipData != null) {
+                Set<String> labels = new HashSet<>();
+                Map<String, Uri> uriByNames = new HashMap<>();
+
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    ClipData.Item item = clipData.getItemAt(i);
+                    Uri uri = item.getUri();
+
+                    DocumentFile file = DocumentFile.fromSingleUri(LocalUpdateActivity.this, uri);
+                    assert file != null;
+                    String filename = file.getName();
+                    assert filename != null;
+                    String label = filename.substring(0, filename.lastIndexOf('.'));
+                    labels.add(label);
+                    uriByNames.put(filename, uri);
+                }
+
+               for (String label : labels) {
+                   Uri binUri = uriByNames.get(label + ".bin");
+                   Uri sigUri = uriByNames.get(label + ".sig");
+
+                   if (updateItemListAdapter.contains(label)
+                        || binUri == null || sigUri == null) {
+                       continue;
+                   }
+
+                   try (InputStream binIn = getContentResolver().openInputStream(binUri);
+                        InputStream sigIn = getContentResolver().openInputStream(sigUri))
+                   {
+                       assert binIn != null;
+                       assert sigIn != null;
+
+                       final UpdateItem item = new UpdateItem()
+                               .label(label)
+                               .data(IOUtils.toByteArray(binIn))
+                               .signature(IOUtils.toByteArray(sigIn));
+
+                       runOnUiThread(() -> {
+                           updateItemListAdapter.add(item);
+                           invalidateOptionsMenu();
+                       });
+
+                       displayState("", false);
+                   }
+                   catch (Exception e) {
+                       Log.w(TAG, "load '" + label + "' error'", e);
+                       displayState(getResources().getString(R.string.read_file_error), true);
+                   }
+               }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, resultData);
     }
 
     private void onFileSelect(File file) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_select_file_emv_par_upd"
+        android:title="@string/selectFile"
+        app:showAsAction="ifRoom"
+        android:checkable="false"
+        android:icon="@android:drawable/sym_contact_card"
+        android:orderInCategory="1" />
+
+    <item
+        android:id="@+id/menu_remove_selected_emv_par_upd"
+        android:title="@string/removeFile"
+        android:visible="false"
+        app:showAsAction="always"
+        android:checkable="false"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:orderInCategory="2" />
+
+    <item
+        android:id="@+id/menu_start_update_emv_par_upd"
+        android:checkable="false"
+        android:visible="false"
+        android:icon="@android:drawable/ic_media_play"
+        android:orderInCategory="3"
+        android:title="@string/update"
+        app:showAsAction="always" />
+
+</menu>

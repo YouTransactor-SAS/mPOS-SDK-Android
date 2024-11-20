@@ -337,12 +337,25 @@
         android:layout_margin="@dimen/margin"
         android:text="Tip" />
 
-    <Switch
-        android:id="@+id/sdseSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="SDSE" />
+            <LinearLayout
+                android:id="@+id/auto_sdse_mode_pane"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:textStyle="bold"
+                    android:text="SDSE_mode" />
+
+                <Spinner
+                    android:id="@+id/sdse_mode_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin" />
+            </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

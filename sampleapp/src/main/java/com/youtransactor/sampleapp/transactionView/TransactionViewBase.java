@@ -17,15 +17,12 @@
 
 package com.youtransactor.sampleapp.transactionView;
 
-import static com.youtransactor.sampleapp.transactionView.DisplayMsg.DISPLAY_MSG_ID_WAITING;
-
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspWaitCard;
-import com.youtransactor.sampleapp.DemoActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +30,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class TransactionViewBase extends AppCompatActivity {
+
+    private static Class<?> homeActivity = null;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -50,14 +49,24 @@ public abstract class TransactionViewBase extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        UCubeAPI.removeDisplayEventListener();
         super.onPause();
+        UCubeAPI.removeDisplayEventListener();
     }
 
     @Override
     protected void onDestroy() {
-        UCubeAPI.close();
         super.onDestroy();
+    }
+
+    public void setHomeActivity(Class<?> homeActivity) {
+        this.homeActivity = homeActivity;
+    }
+
+    private void finishTransactionView() {
+        if (this.homeActivity != this.getClass()) {
+            // do not close home view
+            this.finish();
+        }
     }
 
     protected void onEventViewUpdate(EventCommand event) {
@@ -73,14 +82,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_MSG, ((EventDspWaitCard) eventCmd).getMessage());
                 intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_ITF, ((EventDspWaitCard) eventCmd).getInterfaces());
                 startActivity(intent);
-                break;
-
-            case dsp_pin_prompt:
-                // Todo
-                break;
-
-            case dsp_pan_prompt:
-                // Todo
+                this.finishTransactionView();
                 break;
 
             case dsp_payment_result:
@@ -88,20 +90,23 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspPaymentRslt) eventCmd).getMessage());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, ((EventDspPaymentRslt) eventCmd).getResult());
                 startActivity(intent);
+                this.finishTransactionView();
                 break;
 
             case dsp_authorisation:
                 intent = new Intent(this, DisplayMsg.class);
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspAuthorisation) eventCmd).getMessage());
-                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DISPLAY_MSG_ID_WAITING);
+                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DisplayMsg.DISPLAY_MSG_ID_WAITING);
                 startActivity(intent);
+                this.finishTransactionView();
                 break;
 
             case dsp_read_card:
                 intent = new Intent(this, DisplayMsg.class);
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspReadCard) eventCmd).getMessage());
-                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DISPLAY_MSG_ID_WAITING);
+                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DisplayMsg.DISPLAY_MSG_ID_WAITING);
                 startActivity(intent);
+                this.finishTransactionView();
                 break;
 
             case dsp_listbox:
@@ -109,8 +114,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 break;
 
             case dsp_idle:
-                intent = new Intent(this, DemoActivity.class);
-                startActivity(intent);
+                this.finishTransactionView();
                 break;
 
             default:

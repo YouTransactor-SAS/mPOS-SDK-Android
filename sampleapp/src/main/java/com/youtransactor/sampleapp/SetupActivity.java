@@ -106,6 +106,20 @@ public class SetupActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private void setupLogs(boolean is_enabled){
+        sharedPreferences.edit().putBoolean(ENABLE_SDK_LOGS_PREF_NAME, is_enabled).apply();
+        UCubeAPI.enableLogs(is_enabled);
+        findViewById(R.id.logLevelSection).setVisibility(is_enabled? View.VISIBLE : View.GONE);
+    }
+
+    private void setupRecoveryMechanism(boolean is_enabled){
+        sharedPreferences
+                .edit()
+                .putBoolean(RECOVERY_MODE_PERF_NAME, is_enabled)
+                .apply();
+        UCubeAPI.enableRecoveryMechanism(is_enabled);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,19 +185,13 @@ public class SetupActivity extends AppCompatActivity {
         SwitchMaterial d = findViewById(R.id.enableRecoveryMechanism);
         d.setOnCheckedChangeListener((compoundButton, b) -> {
             boolean enable = compoundButton.isChecked();
-            sharedPreferences
-                    .edit()
-                    .putBoolean(RECOVERY_MODE_PERF_NAME, enable)
-                    .apply();
-            UCubeAPI.enableRecoveryMechanism(enable);
+            setupRecoveryMechanism(enable);
         });
 
         SwitchMaterial enableLogSwitch = findViewById(R.id.enableSDKLog);
         enableLogSwitch.setOnCheckedChangeListener((compoundButton, b) ->  {
             boolean enable = compoundButton.isChecked();
-            sharedPreferences.edit().putBoolean(ENABLE_SDK_LOGS_PREF_NAME, enable).apply();
-            UCubeAPI.enableLogs(enable);
-            findViewById(R.id.logLevelSection).setVisibility(enable? View.VISIBLE : View.GONE);
+            setupLogs(enable);
         });
 
         Spinner logLevelSpinner = findViewById(R.id.logLevelSpinner);
@@ -211,11 +219,13 @@ public class SetupActivity extends AppCompatActivity {
         List<LogManager.LogLevel> values = new ArrayList<>(Arrays.asList(LogManager.LogLevel.values()));
         findViewById(R.id.logLevelSection).setVisibility(logsEnabled ? View.VISIBLE : View.GONE);
         enableLogSwitch.setChecked(logsEnabled);
+        setupLogs(logsEnabled);
         logLevelSpinner.setSelection(values.indexOf(logLevel));
         UCubeAPI.setLogLevel(logLevel);
         d.setChecked(sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false));
 
-
+        boolean recoMechanismEnabled = sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false);
+        setupRecoveryMechanism(recoMechanismEnabled);
         String url = sharedPreferences.getString(MDM_URL_PREF_NAME, MDMServices.DEFAULT_URL);
         mdmUrlEditText = findViewById(R.id.mdm_url_edit_text);
         mdmUrlEditText.setText(url);

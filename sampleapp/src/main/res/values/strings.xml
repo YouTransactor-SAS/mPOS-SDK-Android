@@ -201,6 +201,8 @@
 
     <!-- GET INFO -->
     <string name="get_info">Get Info</string>
+    <string name="get_info_progress">Get Info (tag %s)</string>
+    <string name="get_info_failed">Get Info Failed</string>
     <string name="terminal_serial_number">Terminal SN : </string>
     <string name="part_number">Terminal PN : </string>
     <string name="automatic_power_off_time_out">Power off Timeout : </string>
@@ -224,8 +226,6 @@
     <string name="battery_state">Battery Level : </string>
     <string name="SVPP_version">SVPP version : </string>
     <string name="BLE_version">BLE version : </string>
-    <string name="get_info_progress">Get Info Failed</string>
-    <string name="get_info_failed">Get Info Failed</string>
     <string name="refresh">Refresh</string>
     <string name="model">Model</string>
     <string name="mdm_register">MDM Register</string>
@@ -340,6 +340,7 @@
     <string name="reset_event">Reset %s</string>
 
     <string name="local_update">Local update</string>
+    <string name="emv_param_update">EMV param update</string>
     <string name="selectFile">Select file</string>
     <string name="addFile">Add</string>
     <string name="removeFile">Remove</string>
@@ -362,6 +363,7 @@
     <string name="power_off_timeout">Power off timeout</string>
     <string name="connection_type">Connection</string>
 
+    <string name="demo_amount">USD 0.00</string>
     <string name="wait_card_present_card">Tap or insert card</string>
     <string name="wait_card_cancel">cancel</string>
     <string name="wait_card_logo">Wait Card logo</string>
