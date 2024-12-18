@@ -80,6 +80,7 @@ import java.util.List;
 
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
+import static com.youtransactor.sampleapp.payment.PaymentActivity.pay_sdse_mode.VOLTAGE;
 
 public class PaymentActivity extends AppCompatActivity {
     public static final String SDSE_MODE_PREF_NAME = "SDSE mode";
@@ -151,7 +152,7 @@ public class PaymentActivity extends AppCompatActivity {
             return SRED;
         }
     }
-    private static pay_sdse_mode sdse_mode= pay_sdse_mode.VOLTAGE;
+    private static pay_sdse_mode sdse_mode= VOLTAGE;
     private boolean forceDebug;
 
     @Override
@@ -214,12 +215,12 @@ public class PaymentActivity extends AppCompatActivity {
         uEnterPin = findViewById(R.id.u_enter_pin);
         crEnterPin = findViewById(R.id.cr_enter_pin);
         sdse_mode_spinner = findViewById(R.id.sdse_mode_spinner);
-
         sdse_mode_spinner.setAdapter(new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
                 pay_sdse_mode.values()
         ));
+        sdse_mode_spinner.setSelection(2);
 
         sdse_mode_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

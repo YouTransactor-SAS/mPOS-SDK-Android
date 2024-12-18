@@ -45,8 +45,8 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 3456
-        versionName "3.4.56"
+        versionCode 3457
+        versionName "3.4.57"
         multiDexEnabled true
         archivesBaseName = "SampleApp-$versionName"
     }
@@ -86,7 +86,7 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'com.google.guava:guava:30.0-jre'
-    implementation files('libs/JPS_libApp_3.4.56.aar')
+    implementation files('libs/JPS_libApp_3.4.57.aar')
 
     implementation 'com.google.android.material:material:1.5.0' //use this when android version > 4.4
     implementation 'androidx.appcompat:appcompat:1.4.1'

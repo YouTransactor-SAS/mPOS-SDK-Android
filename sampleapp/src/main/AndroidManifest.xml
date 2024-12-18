@@ -54,6 +54,7 @@
         <activity android:name=".test.TestActivity"/>
 
         <activity android:name=".transactionView.WaitCard"/>
+        <activity android:name=".transactionView.WaitCard_stick"/>
         <activity android:name=".transactionView.DisplayMsg"/>
 
         <activity android:name=".SetupActivity"
