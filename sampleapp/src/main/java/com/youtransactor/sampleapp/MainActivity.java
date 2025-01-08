@@ -172,7 +172,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     @Override
     public void onCommunicationError() {
-        runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.rpc_com_issue)));
+        runOnUiThread(() -> {
+            UIUtils.hideProgressDialog();
+            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.rpc_com_issue));
+        });
         Log.d(TAG, "Notification of RPC Com issue !");
     }
 

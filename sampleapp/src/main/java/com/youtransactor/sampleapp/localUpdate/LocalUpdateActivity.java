@@ -344,9 +344,14 @@ public class LocalUpdateActivity extends AppCompatActivity {
                 invalidateOptionsMenu();
             }
 
-            String msg = params.length > 0 && params[0] instanceof ServiceState
-                    ? ((ServiceState) params[0]).name()
-                    : event.name();
+            String msg;
+            if (params.length > 1 && params[1] instanceof String) {
+                msg = (String) params[1];
+            } else if (params.length > 0 && params[0] instanceof ServiceState) {
+                msg = ((ServiceState) params[0]).name();
+            } else {
+                msg = event.name();
+            }
 
             displayState(msg, event == TaskEvent.PROGRESS);
         };

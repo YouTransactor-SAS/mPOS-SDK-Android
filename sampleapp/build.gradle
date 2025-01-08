@@ -45,8 +45,8 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 3457
-        versionName "3.4.57"
+        versionCode 3458
+        versionName "3.4.58"
         multiDexEnabled true
         archivesBaseName = "SampleApp-$versionName"
     }
