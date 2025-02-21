@@ -31,6 +31,7 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLI
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
+
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -49,11 +50,10 @@ import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.rpc.TransactionType;
-import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youtransactor.sampleapp.payment.AuthorizationTask;
 import com.youtransactor.sampleapp.payment.PaymentMeasure;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
-
+import com.youtransactor.sampleapp.payment.Localization;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -114,6 +114,7 @@ public class DemoActivity extends TransactionViewBase {
         UCubeAPI.setLogLevel(SYSTEM);
         UCubeAPI.setYTmPOSProduct(YTMPOSProduct.AndroidPOS);
         UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.PAYMENT_SERVICE);
+        Localization.Localization_init(UCubeAPI.getContext());
         UCubeAPI.getConnexionManager().connect(
                 10 * 1000,
                 3,
@@ -213,7 +214,6 @@ public class DemoActivity extends TransactionViewBase {
             }
         }).start();
     }
-
 
     private UCubePaymentRequest preparePaymentRequest() {
         int timeout = 1000;

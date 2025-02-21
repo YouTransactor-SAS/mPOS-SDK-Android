@@ -15,6 +15,7 @@ import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspUpdateClessLed;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.payment.Localization;
 
 import java.util.Objects;
 
@@ -24,6 +25,9 @@ public class WaitCard extends TransactionViewBase {
     public static final String INTENT_EXTRA_WAIT_CARD_AMOUNT = "INTENT_EXTRA_WAIT_CARD_AMOUNT";
     public static final String INTENT_EXTRA_WAIT_CARD_MSG = "INTENT_EXTRA_WAIT_CARD_MSG";
     public static final String INTENT_EXTRA_WAIT_CARD_ITF = "INTENT_EXTRA_WAIT_CARD_ITF";
+    public static final String INTENT_EXTRA_WAIT_CARD_MSG_TAG = "INTENT_EXTRA_WAIT_CARD_MSG_TAG";
+
+
     private ImageView led1, led2, led3, led4;
 
     @Override
@@ -62,9 +66,8 @@ public class WaitCard extends TransactionViewBase {
             if (intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_AMOUNT) != null) {
                 textViewAmount.setText(intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_AMOUNT));
             }
-            if (intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG) != null) {
-                textViewMsg.setText(intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG));
-            }
+            textViewMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_WAIT_CARD_MSG_TAG, -1),
+                        intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG)));
             int[] interfaces = intent.getIntArrayExtra(INTENT_EXTRA_WAIT_CARD_ITF);
             if (interfaces != null) {
                 for (int anInterface : interfaces) {

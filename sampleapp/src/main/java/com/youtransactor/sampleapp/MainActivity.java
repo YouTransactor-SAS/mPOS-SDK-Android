@@ -231,15 +231,17 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         lastConnectionType = UCubeAPI.getConnexionManagerType();
         connectionTypeName = setupSharedPref.getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, BT.name());
-
+        ConnectionService.ConnectionManagerType currentConnexionType;
         try {
             /* protect again invalid connection type name */
-            UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.valueOf(connectionTypeName));
+           currentConnexionType = ConnectionService.ConnectionManagerType.valueOf(connectionTypeName);
         }
         catch (Exception e) {
             setupSharedPref.edit().remove(SetupActivity.COMMUNICATION_TYPE_PREF_NAME).apply();
-            UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.BT);
+            currentConnexionType = ConnectionService.ConnectionManagerType.BT;
         }
+
+        UCubeAPI.setConnexionManagerType(currentConnexionType);
 
         UCubeAPI.getConnexionManager().registerBatteryLevelChangeListener(this);
         UCubeAPI.registerSVPPRestartListener(this);
@@ -250,11 +252,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         if (lastProduct != null
                 && (lastProduct != UCubeAPI.getYtmposProduct()
-                || (lastConnectionType != null && !lastConnectionType.name().equals(connectionTypeName)))) {
+                || (lastConnectionType != null && lastConnectionType != currentConnexionType))) {
             /* Avoid connect with last address if another product is chosen or another connection mode */
             forgetDevice(lastProduct.toString());
         }
-        selectedDeviceChangedd(getDevice());
+
+        selectedDeviceChanged(currentConnexionType == PAYMENT_SERVICE
+                ? UCubeAPI.getConnexionManager().getDevice()
+                : getDevice());
     }
 
     @Override
@@ -301,6 +306,12 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.getItem(0).setVisible(ConnectionService.getInstance().getConnectionManagerType() != PAYMENT_SERVICE);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -443,7 +454,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             return;
         }
 
-        forgetButton.setVisibility(View.VISIBLE);
+        forgetButton.setVisibility(
+                ConnectionService.getInstance().getConnectionManagerType() != PAYMENT_SERVICE
+                ? View.VISIBLE
+                : View.GONE);
         displayDeviceInfos(UCubeAPI.getConnexionManager().getDevice());
 
         switch (state) {
@@ -508,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 return new Gson().fromJson(val, UCubeDevice.class);
             }
             catch (Exception e) {
-                Log.d(TAG, "invalid stored devce infos");
+                Log.d(TAG, "invalid stored device infos");
                 forgetDevice();
             }
         }
@@ -522,10 +536,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 .putString(ytProduct.getName(), new Gson().toJson(device))
                 .apply();
 
-        selectedDeviceChangedd(device);
+        selectedDeviceChanged(device);
     }
 
-    private void selectedDeviceChangedd(UCubeDevice device) {
+    private void selectedDeviceChanged(UCubeDevice device) {
         UCubeAPI.getConnexionManager().setDevice(device);
         displayDeviceInfos(device);
         connect();
@@ -601,10 +615,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         String cnxType = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE).getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, null);
 
-        if (SOCKET.name().equals(cnxType) || PAYMENT_SERVICE.name().equals(cnxType)) {
+        if (SOCKET.name().equals(cnxType)) {
             selectSocketURL(SocketConnectionManager.DEFAULT_HOST, SocketConnectionManager.DEFAULT_PORT);
             return;
         }
+
         if (SOCKET_JSON.name().equals(cnxType)) {
             selectSocketURL(SocketJSONConnectionManager.DEFAULT_HOST, SocketJSONConnectionManager.DEFAULT_PORT);
             return;

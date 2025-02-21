@@ -14,13 +14,14 @@
  *
  * @author: Thomas JEANNETTE (thomas_jeannette@jabil.com)
  */
-
 package com.youtransactor.sampleapp.transactionView;
 
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.dsp_msg;
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.wait_card;
 
-import com.youTransactor.uCube.api.UCubeAPI;
+import com.youTransactor.uCube.rpc.EventListener;
+import com.youTransactor.uCube.rpc.RPCManager;
+import com.youTransactor.uCube.rpc.RPCService;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
@@ -42,6 +43,11 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     private static Class<?> homeActivity = null;
     private product_id prod_id;
     private List<Intent> intents;
+    private final EventListener eventListener = event -> {
+        onEventViewCreate(event);
+        onEventViewUpdate(event);
+    };
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,16 +60,13 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        UCubeAPI.setDisplayEventListener(event -> {
-            onEventViewCreate(event);
-            onEventViewUpdate(event);
-        });
+        RPCManager.getInstance().registerSvppEventListener(eventListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        UCubeAPI.removeDisplayEventListener();
+        RPCManager.getInstance().unregisterSvppEventListener(eventListener);
     }
 
     @Override
@@ -90,10 +93,11 @@ public abstract class TransactionViewBase extends AppCompatActivity {
         Intent intent;
         switch (eventCmd.getEvent()) {
             case dsp_wait_card:
-                intent = intents.get(wait_card.ordinal());
+                intent = new Intent(this, WaitCard.class);
                 intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_AMOUNT, ((EventDspWaitCard) eventCmd).getAmount());
                 intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_MSG, ((EventDspWaitCard) eventCmd).getMessage());
                 intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_ITF, ((EventDspWaitCard) eventCmd).getInterfaces());
+                intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_MSG_TAG, ((EventDspWaitCard) eventCmd).getMessageTag());
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
@@ -102,6 +106,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 intent = intents.get(dsp_msg.ordinal());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspPaymentRslt) eventCmd).getMessage());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, ((EventDspPaymentRslt) eventCmd).getResult());
+                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_TAG, ((EventDspPaymentRslt) eventCmd).getResultTag());
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
@@ -110,6 +115,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 intent = intents.get(dsp_msg.ordinal());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspAuthorisation) eventCmd).getMessage());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DisplayMsg.DISPLAY_MSG_ID_WAITING);
+                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_TAG, ((EventDspAuthorisation) eventCmd).getMessageTag());
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
@@ -118,6 +124,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 intent = intents.get(dsp_msg.ordinal());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspReadCard) eventCmd).getMessage());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_RSLT, DisplayMsg.DISPLAY_MSG_ID_WAITING);
+                intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_TAG, ((EventDspReadCard) eventCmd).getMessageTag());
                 startActivity(intent);
                 this.finishTransactionView();
                 break;

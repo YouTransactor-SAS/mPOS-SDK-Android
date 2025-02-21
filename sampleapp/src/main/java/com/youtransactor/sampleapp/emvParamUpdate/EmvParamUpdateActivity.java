@@ -39,11 +39,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.youTransactor.uCube.emv.EmvParamFmt1;
 import com.youTransactor.uCube.emv.EmvParamYTModel;
 import com.youTransactor.uCube.mdm.EmvParamUpdate1by1FSM;
 import com.youTransactor.uCube.mdm.UpdateItem;
-import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youtransactor.sampleapp.BuildConfig;
 import com.youtransactor.sampleapp.R;
 
@@ -159,7 +157,7 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
         }
         // TODO: sort the file access issue on Android lesser than 14
         onFileSelect(new File("/data/data/com.youtransactor.sampleapp/" +
-                "emvParam/20231031-emv_config CERT US 20231006_purchase_and_goods.txt"));
+                "files/emv/20231031-emv_config CERT US 20231006_purchase_and_goods_all_tac_0_compatible_som_v2.txt"));
     }
 
     @Override

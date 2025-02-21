@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.payment.Localization;
 
 import java.util.Objects;
 
@@ -15,6 +16,8 @@ public class DisplayMsg extends TransactionViewBase {
 
     public static final String INTENT_EXTRA_DISPLAY_MSG_RSLT = "INTENT_EXTRA_DISPLAY_MSG_RSLT";
     public static final String INTENT_EXTRA_DISPLAY_MSG_MSG = "INTENT_EXTRA_DISPLAY_MSG_MSG";
+    public static final String INTENT_EXTRA_DISPLAY_MSG_TAG = "INTENT_EXTRA_DISPLAY_MSG_TAG";
+
     public static final int DISPLAY_MSG_ID_FAILED = 0;
     public static final int DISPLAY_MSG_ID_APPROVED = 1;
     public static final int DISPLAY_MSG_ID_UNSUPPORTED = 2;
@@ -53,10 +56,8 @@ public class DisplayMsg extends TransactionViewBase {
                 default:
                     imageViewResult.setVisibility(View.GONE);
             }
-
-            if (intent.getStringExtra(INTENT_EXTRA_DISPLAY_MSG_MSG) != null) {
-                textViewMsg.setText(intent.getStringExtra(INTENT_EXTRA_DISPLAY_MSG_MSG));
-            }
+            textViewMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_DISPLAY_MSG_TAG, -1),
+                    intent.getStringExtra(INTENT_EXTRA_DISPLAY_MSG_MSG)));
         }
     }
 }
