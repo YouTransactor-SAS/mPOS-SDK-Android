@@ -27,7 +27,8 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical"
-    tools:context=".DemoActivity">
+    tools:context=".transactionView.PinPrompt"
+    android:gravity="center_horizontal">
 
     <Space
         android:layout_width="match_parent"
@@ -35,12 +36,12 @@
         android:layout_weight="1"/>
 
     <TextView
-        android:id="@+id/textViewSdseMsg"
+        android:id="@+id/textViewPinMsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoSizeTextType="uniform"
         android:padding="16dp"
-        android:text="Enter PAN"
+        android:text="Please enter PIN"
         android:textAlignment="center" />
 
     <Space
@@ -49,14 +50,14 @@
         android:layout_weight="1"/>
 
     <TextView
-        android:id="@+id/textViewPan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="6"
-        android:letterSpacing="1"
+        android:id="@+id/textViewPIN"
         android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:textSize="16dp" />
+        android:textSize="24sp"
+        android:ems="6"
+        android:letterSpacing="0.5" />
 
     <Space
         android:layout_width="match_parent"

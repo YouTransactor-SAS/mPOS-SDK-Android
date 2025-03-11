@@ -56,7 +56,9 @@
         <activity android:name=".transactionView.WaitCard"/>
         <activity android:name=".transactionView.WaitCard_stick"/>
         <activity android:name=".transactionView.DisplayMsg"/>
-
+        <activity android:name=".transactionView.PinPrompt"/>
+        <activity android:name=".transactionView.SdsePrompt"/>
+        <activity android:name=".SdseActivity"/>
         <activity android:name=".SetupActivity"
             android:exported="true"
             android:taskAffinity="com.youtransactor.maintask">

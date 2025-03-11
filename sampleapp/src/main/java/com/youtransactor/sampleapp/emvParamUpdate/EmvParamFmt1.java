@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Iterator;
+import java.util.List;
 
 public class EmvParamFmt1 {
     static protected EmvParamDOL get_tlv_dol(
@@ -69,16 +70,19 @@ public class EmvParamFmt1 {
     }
 
     protected static int getNbAIDProfileForKernel(
-            JSONArray clAIDList, String kernel_tok) throws JSONException {
+            JSONArray clAIDList, List<String> kernel_tok_l) throws JSONException {
         int nbAIDForKrnl = 0;
         // parse param a first time to retrieve how many AID profiles for each kernel
         for(int i = 0; i < clAIDList.length(); i++){
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             String aid_krnl_tok = curJsonAidLst.getString("appLabel");
             // when AID token partially or fully matches the analyzed kernel token
-            int index = aid_krnl_tok.indexOf(kernel_tok);
-            if(index != -1){
-                nbAIDForKrnl++;
+            for(String kernel_tok : kernel_tok_l) {
+                int index = aid_krnl_tok.indexOf(kernel_tok);
+                if (index != -1) {
+                    nbAIDForKrnl++;
+                    break;
+                }
             }
         }
         return nbAIDForKrnl;
@@ -92,6 +96,7 @@ public class EmvParamFmt1 {
             // Contactless parameter translation
             JSONObject clJson = jsonD.getJSONObject("contactless");
             EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(clJson, model);
+            EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(clJson, model);
         } catch (Exception e) {
             LogManager.e("EMV model from FMT1 conversion fail", e);
         }

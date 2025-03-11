@@ -159,7 +159,30 @@
                         android:layout_height="wrap_content"
                         android:text="@string/emv_param_update" />
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
 
+                    <Button
+                        android:id="@+id/setPanBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set PAN" />
+
+                    <Button
+                        android:id="@+id/setCvvBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set CVV" />
+
+                    <Button
+                        android:id="@+id/setExpDateBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set Expiration Date" />
+                </LinearLayout>
                 <include layout="@layout/rpc_section_layout" />
 
                 <include layout="@layout/mdm_section_layout" />

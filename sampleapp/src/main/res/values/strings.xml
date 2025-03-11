@@ -439,4 +439,19 @@
     <string name="SCR_CT_APPROVED_SIG_TEXT">Approved with signature</string>
     <string name="SCR_CT_CANCELED_TEXT">Canceled</string>
     <string name="SCR_CT_REMOVE_CARD_TEXT">Remove card</string>
+
+    <!-- Set PAN message -->
+    <string name="set_pan">Set PAN</string>
+    <string name="set_pan_success">Set PAN success</string>
+    <string name="set_pan_failed">Set PAN failed</string>
+
+    <!-- Set CVV message -->
+    <string name="set_cvv">Set CVV</string>
+    <string name="set_cvv_success">Set CVV success</string>
+    <string name="set_cvv_failed">Set CVV failed</string>
+
+    <!-- Set Expiration date message -->
+    <string name="set_exp_date">Set Expiration date</string>
+    <string name="set_exp_date_success">Set Expiration date success</string>
+    <string name="set_exp_date_failed">Set Expiration date failed</string>
 </resources>

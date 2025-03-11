@@ -23,6 +23,7 @@
 package com.youtransactor.sampleapp.payment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,14 +54,15 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.control.ControlContext;
 import com.youTransactor.uCube.control.ControlService;
-import com.youTransactor.uCube.log.LogManager;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.control.ControlState;
 import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
+import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCCommand;
+import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.TransactionType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.CancelCommand;
@@ -67,10 +70,17 @@ import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.GetStatusCommand;
+import com.youTransactor.uCube.rpc.command.event.EventCommand;
+import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
 import com.youtransactor.sampleapp.YTProduct;
+import com.youtransactor.sampleapp.product_manager.product_id;
+import com.youtransactor.sampleapp.product_manager.product_manager;
+import com.youtransactor.sampleapp.transactionView.PinPrompt;
+import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
+import com.jps.secureService.api.entity.ViewIdentifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,6 +128,10 @@ public class PaymentActivity extends AppCompatActivity {
     private boolean measureModeEnabled;
     private PaymentService paymentService;
     private ControlService controlService;
+    private final EventListener eventListener = event -> {
+        onEventViewCreate(event);
+    };
+    private List<Intent> intents;
 
     private PaymentMeasure paymentMeasure;
     public enum pay_sdse_mode {
@@ -172,8 +186,14 @@ public class PaymentActivity extends AppCompatActivity {
             if (getIntent().hasExtra(YT_PRODUCT))
                 ytProduct = YTProduct.valueOf(getIntent().getStringExtra(YT_PRODUCT));
         }
-
+        intents = view_manager.getApplicableIntents(this, product_manager.id);
         initView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RPCManager.getInstance().registerSvppEventListener(eventListener);
     }
 
     @Override
@@ -294,6 +314,30 @@ public class PaymentActivity extends AppCompatActivity {
         pay();
     }
 
+    private void onEventViewCreate(EventCommand eventCmd) {
+        Intent intent;
+        switch (eventCmd.getEvent()) {
+            case dsp_wait_card:
+                displayProgress(PaymentState.WAITING_CARD);
+                break;
+
+            case ppt_pin:
+                intent = intents.get(pin.ordinal());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG, ((EventPptPin) eventCmd).getMessage());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_AMOUNT, ((EventPptPin) eventCmd).getAmount());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG_TAG, ((EventPptPin) eventCmd).getMessageId());
+                startActivity(intent);
+                break;
+
+            case dsp_listbox:
+                // Todo
+                break;
+
+            default:
+                break;
+        }
+    }
+
     private UCubePaymentRequest preparePaymentRequest() {
         int timeout = Integer.parseInt(cardWaitTimeoutFld.getText().toString());
 
@@ -349,8 +393,8 @@ public class PaymentActivity extends AppCompatActivity {
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
                 .setDataEncryptionMechanism(sdse_mode.getCode())
-
-                //CLIENT TAGs
+                .withViewDelegate(ViewIdentifier.PIN_PROMPT)
+        //CLIENT TAGs
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,

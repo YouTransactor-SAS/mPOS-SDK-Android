@@ -24,5 +24,7 @@ package com.youtransactor.sampleapp.transactionView.view_factory;
 
 public enum View_index {
     wait_card,
-    dsp_msg
+    dsp_msg,
+    pin,
+    sdse,
 }

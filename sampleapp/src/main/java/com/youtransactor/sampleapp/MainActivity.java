@@ -88,6 +88,7 @@ import com.youTransactor.uCube.rpc.command.RTCSetCommand;
 import com.youTransactor.uCube.rpc.command.RebootCommand;
 import com.youTransactor.uCube.rpc.command.ResetCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
+import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youtransactor.sampleapp.connexion.DeviceScanActivity;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeScanner;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchScanner;
@@ -97,6 +98,7 @@ import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
+import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
@@ -146,6 +148,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private Button mdmCheckUpdateBtn;
     private Button mdmSendLogBtn;
     private Button mdmGetConfigBtn;
+    private Button setPan;
+    private Button setCvv;
+    private Button setExpDate;
     private YTProduct ytProduct;
     private boolean checkOnlyFirmwareVersion = false;
     private boolean forceUpdate = false;
@@ -188,9 +193,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
 
         setContentView(R.layout.activity_main);
-
         SharedPreferences setupSharedPref = getSharedPreferences(
                 SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        Localization.Localization_init(UCubeAPI.getContext());
 
         if (getIntent() != null && getIntent().hasExtra(YT_PRODUCT)) {
             ytProduct = YTProduct.valueOf(getIntent().getStringExtra(YT_PRODUCT));
@@ -363,6 +368,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         mdmSendLogBtn = findViewById(R.id.sendLogBtn);
         mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
 
+        setPan = findViewById(R.id.setPanBtn);
+        setPan.setOnClickListener(v -> setPan());
+
+        setCvv = findViewById(R.id.setCvvBtn);
+        setCvv.setOnClickListener(v -> setCvv());
+
+        setExpDate = findViewById(R.id.setExpDateBtn);
+        setExpDate.setOnClickListener(v -> setExpDate());
         TextView versionFld = findViewById(R.id.version_name);
         versionFld.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME));
 
@@ -978,6 +991,24 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
             progressDlg.dismiss();
         }));
+    }
+
+    private void setPan() {
+        Intent sdseIntent = new Intent(this, SdseActivity.class);
+        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 1);
+        startActivity(sdseIntent);
+    }
+
+    private void setCvv() {
+        Intent sdseIntent = new Intent(this, SdseActivity.class);
+        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 2);
+        startActivity(sdseIntent);
+    }
+
+    private void setExpDate() {
+        Intent sdseIntent = new Intent(this, SdseActivity.class);
+        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 3);
+        startActivity(sdseIntent);
     }
 
     private void getInfo() {

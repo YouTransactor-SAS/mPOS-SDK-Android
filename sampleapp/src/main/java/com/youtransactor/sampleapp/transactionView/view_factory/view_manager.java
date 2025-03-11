@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.youtransactor.sampleapp.transactionView.SdsePrompt;
 import com.youtransactor.sampleapp.transactionView.DisplayMsg;
+import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.WaitCard;
 import com.youtransactor.sampleapp.product_manager.product_id;
 import com.youtransactor.sampleapp.transactionView.WaitCard_stick;
@@ -28,6 +30,10 @@ public class view_manager {
                         new Intent(context, WaitCard.class));
                 addIntentAtIndex(intents, View_index.dsp_msg,
                         new Intent(context, DisplayMsg.class));
+                addIntentAtIndex(intents, View_index.pin,
+                        new Intent(context, PinPrompt.class));
+                addIntentAtIndex(intents, View_index.sdse,
+                        new Intent(context, SdsePrompt.class));
                 break;
 
             case stick:
@@ -35,6 +41,10 @@ public class view_manager {
                         new Intent(context, WaitCard_stick.class));
                 addIntentAtIndex(intents, View_index.dsp_msg,
                         new Intent(context, DisplayMsg.class));
+                addIntentAtIndex(intents, View_index.pin,
+                        new Intent(context, PinPrompt.class));
+                addIntentAtIndex(intents, View_index.sdse,
+                        new Intent(context, SdsePrompt.class));
                 break;
            default:
                Log.e(TAG, "Worng product family");

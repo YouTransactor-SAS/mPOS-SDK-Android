@@ -37,6 +37,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.jps.secureService.api.entity.ViewIdentifier;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
@@ -286,7 +287,8 @@ public class DemoActivity extends TransactionViewBase {
                         TAG_SECURE_5F30_SERVICE_CODE,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
                         TAG_SECURE_9F6B_TRACK_2_DATA
-                );
+                )
+                .withViewDelegate(ViewIdentifier.PIN_PROMPT);
 
         return uCubePaymentRequest;
     }

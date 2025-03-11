@@ -16,23 +16,22 @@
  */
 package com.youtransactor.sampleapp.transactionView;
 
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.dsp_msg;
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.wait_card;
-
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
-import com.youTransactor.uCube.rpc.RPCService;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspWaitCard;
+import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
 import com.youtransactor.sampleapp.product_manager.product_id;
 import com.youtransactor.sampleapp.product_manager.product_manager;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -41,7 +40,6 @@ import java.util.List;
 public abstract class TransactionViewBase extends AppCompatActivity {
 
     private static Class<?> homeActivity = null;
-    private product_id prod_id;
     private List<Intent> intents;
     private final EventListener eventListener = event -> {
         onEventViewCreate(event);
@@ -51,10 +49,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        product_manager prod_manager = new product_manager();
-        prod_manager.update_id();
-        prod_id = prod_manager.product_get_id();
-        intents = view_manager.getApplicableIntents(this, prod_id);
+        intents = view_manager.getApplicableIntents(this,product_manager.id);
     }
 
     @Override
@@ -86,7 +81,7 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     }
 
     protected void onEventViewUpdate(EventCommand event) {
-
+        Log.d("onEventViewUpdate", "onEventViewUpdate");
     }
 
     private void onEventViewCreate(EventCommand eventCmd) {
@@ -129,6 +124,13 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 this.finishTransactionView();
                 break;
 
+            case ppt_pin:
+                intent = intents.get(pin.ordinal());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG, ((EventPptPin) eventCmd).getMessage());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_AMOUNT, ((EventPptPin) eventCmd).getAmount());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG_TAG, ((EventPptPin) eventCmd).getMessageId());
+                startActivity(intent);
+                break;
             case dsp_listbox:
                 // Todo
                 break;

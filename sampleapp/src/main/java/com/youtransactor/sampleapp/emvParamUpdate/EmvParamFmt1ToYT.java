@@ -43,7 +43,10 @@ public final class EmvParamFmt1ToYT {
         return emvCLessVISATagDict;
     }
 
-    public static String get_mcl_visa_tag_from_id(String id_str){
+    public static Dictionary<String, String> get_cless_mcl_tag_dict(){
+        return emvCLessMCLTagDict;
+    }
+    public static String get_mcl_tag_from_id(String id_str){
         return emvCLessMCLTagDict.get(id_str);
     }
 
