@@ -47,8 +47,8 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 3502
-        versionName "3.5.02"
+        versionCode 3504
+        versionName "3.5.04"
         multiDexEnabled true
         archivesBaseName = "SampleApp-$versionName"
     }
@@ -87,8 +87,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.7.1'
     implementation 'com.google.guava:guava:30.0-jre'
     implementation 'org.zeromq:jeromq:0.5.1'
-    implementation files('libs/SecureServiceAPI-1.2.3-release.aar')
-    implementation files('libs/libApp-3.5.02-release.aar')
+    implementation files('libs/SecureServiceAPI-1.2.5-release.aar')
+    implementation files('libs/libApp-3.5.04-release.aar')
     /* end aar dependencies */
 
 

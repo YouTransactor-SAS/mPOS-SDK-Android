@@ -51,6 +51,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.jps.secureService.api.entity.ViewIdentifier;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.api.UCubeAPI;
@@ -63,7 +64,9 @@ import com.youTransactor.uCube.connexion.BatteryLevelListener;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionService;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
+import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.connexion.SVPPRestartListener;
+import com.youTransactor.uCube.connexion.SecureServiceConnectionManager;
 import com.youTransactor.uCube.connexion.SocketConnectionManager;
 import com.youTransactor.uCube.connexion.SocketJSONConnectionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
@@ -78,6 +81,7 @@ import com.youTransactor.uCube.rpc.LostPacketListener;
 import com.youTransactor.uCube.rpc.RPCCommunicationErrorListener;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EchoCommand;
+import com.youTransactor.uCube.rpc.command.EnterDEVModeCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
@@ -102,6 +106,8 @@ import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
+import com.youtransactor.sampleapp.transactionView.WaitCard;
+import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -151,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private Button setPan;
     private Button setCvv;
     private Button setExpDate;
+    private Button dtebut;
+
     private YTProduct ytProduct;
     private boolean checkOnlyFirmwareVersion = false;
     private boolean forceUpdate = false;
@@ -376,6 +384,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         setExpDate = findViewById(R.id.setExpDateBtn);
         setExpDate.setOnClickListener(v -> setExpDate());
+
+        dtebut = findViewById(R.id.dteButton);
+        dtebut.setOnClickListener(v -> startdte());
+
         TextView versionFld = findViewById(R.id.version_name);
         versionFld.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME));
 
@@ -447,6 +459,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         });
         findViewById(R.id.reset).setOnClickListener(v -> reset());
         findViewById(R.id.reboot).setOnClickListener(v-> reboot());
+        findViewById(R.id.enter_dev_mode).setOnClickListener(v-> enterDevMode());
         findViewById(R.id.rkiButton).setOnClickListener(v -> doRemoteKeyInjection());
         findViewById(R.id.localUpdateBtn).setOnClickListener(v -> localUpdate());
         findViewById(R.id.emvParamUpdBtn).setOnClickListener(v -> emvParamUpd());
@@ -1011,8 +1024,16 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         startActivity(sdseIntent);
     }
 
+    private void startdte() {
+        IConnexionManager cnxManager = ConnectionService.getInstance().getActiveManager();
+        ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
+        Intent dteIntent = new Intent(this, WaitCard_Dte.class);
+        startActivity(dteIntent);
+    }
+
     private void getInfo() {
         final int[] uCubeInfoTagList = {
+                TAG_SECURE_MOD,
                 TAG_CB,
                 TAG_TERMINAL_PN,
                 TAG_TERMINAL_SN,
@@ -1596,6 +1617,28 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                         UIUtils.hideProgressDialog();
 
                         UIUtils.showMessageDialog(MainActivity.this, getString(R.string.reset_event, event));
+                    });
+                    break;
+            }
+        });
+    }
+
+    private void enterDevMode() {
+        UIUtils.showProgress(MainActivity.this, getString(R.string.enter_dev_mode));
+
+        EnterDEVModeCommand enterDEVModeCommand = new EnterDEVModeCommand();
+        enterDEVModeCommand.execute((event, params) -> {
+            switch (event) {
+                case PROGRESS:
+                    return;
+                case FAILED:
+                case CANCELLED:
+                case SUCCESS:
+                    Log.i(TAG, "Enter dev mode command : " + event);
+                    runOnUiThread(() -> {
+                        UIUtils.hideProgressDialog();
+
+                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.enter_dev_mode_event, event));
                     });
                     break;
             }

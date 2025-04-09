@@ -27,4 +27,6 @@ public enum View_index {
     dsp_msg,
     pin,
     sdse,
+    txt,
+    list
 }

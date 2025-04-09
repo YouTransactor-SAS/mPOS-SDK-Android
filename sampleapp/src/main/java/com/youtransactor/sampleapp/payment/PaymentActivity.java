@@ -76,11 +76,11 @@ import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
 import com.youtransactor.sampleapp.YTProduct;
-import com.youtransactor.sampleapp.product_manager.product_id;
-import com.youtransactor.sampleapp.product_manager.product_manager;
 import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
 import com.jps.secureService.api.entity.ViewIdentifier;
+
+import com.jps.secureService.api.product_manager.ProductManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,7 +186,7 @@ public class PaymentActivity extends AppCompatActivity {
             if (getIntent().hasExtra(YT_PRODUCT))
                 ytProduct = YTProduct.valueOf(getIntent().getStringExtra(YT_PRODUCT));
         }
-        intents = view_manager.getApplicableIntents(this, product_manager.id);
+        intents = view_manager.getApplicableIntents(this, ProductManager.id);
         initView();
     }
 
@@ -194,6 +194,12 @@ public class PaymentActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         RPCManager.getInstance().registerSvppEventListener(eventListener);
+    }
+
+    @Override
+    protected void onPause() {
+        RPCManager.getInstance().unregisterSvppEventListener(eventListener);
+        super.onPause();
     }
 
     @Override
@@ -398,7 +404,8 @@ public class PaymentActivity extends AppCompatActivity {
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
-                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F)
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
+                        0x8F, 0x9F02, 0x9F03, 0x9F09,  0x9F1E)
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,

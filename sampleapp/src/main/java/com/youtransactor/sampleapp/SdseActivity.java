@@ -31,12 +31,12 @@ import android.os.Bundle;
 
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptSdse;
-import com.youtransactor.sampleapp.product_manager.product_id;
-import com.youtransactor.sampleapp.product_manager.product_manager;
 import com.youtransactor.sampleapp.transactionView.SdsePrompt;
 import com.youtransactor.sampleapp.transactionView.StartSdseSession;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
+
+import com.jps.secureService.api.product_manager.ProductManager;
 
 import java.util.List;
 
@@ -45,14 +45,13 @@ public class SdseActivity extends TransactionViewBase {
     private static final String TAG = SdseActivity.class.getSimpleName();
     public static final String INTENT_EXTRA_SDSE_TYPE = "INTENT_EXTRA_SDSE_TYPE";
     private int Sdse_type;
-    private product_id prod_id;
     private List<Intent> intents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        intents = view_manager.getApplicableIntents(this, product_manager.id);
+        intents = view_manager.getApplicableIntents(this, ProductManager.id);
         Sdse_type = (byte) intent.getIntExtra(INTENT_EXTRA_SDSE_TYPE, -1);
         new StartSdseSession(this, (byte)Sdse_type).execute();
     }

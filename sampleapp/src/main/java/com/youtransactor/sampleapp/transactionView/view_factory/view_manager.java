@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.youtransactor.sampleapp.transactionView.DisplayList;
+import com.youtransactor.sampleapp.transactionView.DisplayTxt;
 import com.youtransactor.sampleapp.transactionView.SdsePrompt;
 import com.youtransactor.sampleapp.transactionView.DisplayMsg;
 import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.WaitCard;
-import com.youtransactor.sampleapp.product_manager.product_id;
 import com.youtransactor.sampleapp.transactionView.WaitCard_stick;
+
+import com.jps.secureService.api.product_manager.ProductIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ public class view_manager {
         intents.add(index, intent);
     }
 
-    public static List<Intent> getApplicableIntents(Context context, product_id id) {
+    public static List<Intent> getApplicableIntents(Context context, ProductIdentifier id) {
         List<Intent> intents = new ArrayList<>();
         switch (id) {
             case blade:
@@ -34,6 +37,10 @@ public class view_manager {
                         new Intent(context, PinPrompt.class));
                 addIntentAtIndex(intents, View_index.sdse,
                         new Intent(context, SdsePrompt.class));
+                addIntentAtIndex(intents, View_index.txt,
+                        new Intent(context, DisplayTxt.class));
+                addIntentAtIndex(intents, View_index.list,
+                    new Intent(context, DisplayList.class));
                 break;
 
             case stick:
@@ -45,6 +52,10 @@ public class view_manager {
                         new Intent(context, PinPrompt.class));
                 addIntentAtIndex(intents, View_index.sdse,
                         new Intent(context, SdsePrompt.class));
+                addIntentAtIndex(intents, View_index.txt,
+                        new Intent(context, DisplayTxt.class));
+                addIntentAtIndex(intents, View_index.list,
+                        new Intent(context, DisplayList.class));
                 break;
            default:
                Log.e(TAG, "Worng product family");

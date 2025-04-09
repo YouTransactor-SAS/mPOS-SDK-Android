@@ -48,6 +48,7 @@
     <string name="ucube">uCube</string>
     <string name="settings">Settings</string>
     <string name="reset">reset</string>
+    <string name="enter_dev_mode">Enter dev mode</string>
     <string name="progress">%s progress…</string>
     <string name="scan">Scan</string>
     <string name="setup">Setup</string>
@@ -338,6 +339,7 @@
     <string name="reboot">Reboot</string>
     <string name="reboot_event">Reboot %s</string>
     <string name="reset_event">Reset %s</string>
+    <string name="enter_dev_mode_event">Enter dev mode %s</string>
 
     <string name="local_update">Local update</string>
     <string name="emv_param_update">EMV param update</string>

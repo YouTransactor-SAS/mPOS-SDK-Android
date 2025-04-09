@@ -16,19 +16,8 @@
  */
 package com.youtransactor.sampleapp.transactionView;
 
-import com.youTransactor.uCube.rpc.EventListener;
-import com.youTransactor.uCube.rpc.RPCManager;
-import com.youTransactor.uCube.rpc.command.event.EventCommand;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspWaitCard;
-import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
-import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
-
-import com.jps.secureService.api.product_manager.ProductManager;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.dsp_msg;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.pin;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,9 +25,20 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.youTransactor.uCube.rpc.EventListener;
+import com.youTransactor.uCube.rpc.RPCManager;
+import com.youTransactor.uCube.rpc.command.event.EventCommand;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
+import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
+import com.jps.secureService.api.product_manager.ProductManager;
+import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
+
 import java.util.List;
 
-public abstract class TransactionViewBase extends AppCompatActivity {
+public abstract class TransactionViewBaseDte extends AppCompatActivity {
 
     private static Class<?> homeActivity = null;
     private List<Intent> intents;
@@ -51,7 +51,6 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         intents = view_manager.getApplicableIntents(this, ProductManager.id);
-        getSupportActionBar().hide();
     }
 
     @Override
@@ -62,8 +61,8 @@ public abstract class TransactionViewBase extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        RPCManager.getInstance().unregisterSvppEventListener(eventListener);
         super.onPause();
+        RPCManager.getInstance().unregisterSvppEventListener(eventListener);
     }
 
     @Override
@@ -89,16 +88,6 @@ public abstract class TransactionViewBase extends AppCompatActivity {
     private void onEventViewCreate(EventCommand eventCmd) {
         Intent intent;
         switch (eventCmd.getEvent()) {
-            case dsp_wait_card:
-                intent = new Intent(this, WaitCard.class);
-                intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_AMOUNT, ((EventDspWaitCard) eventCmd).getAmount());
-                intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_MSG, ((EventDspWaitCard) eventCmd).getMessage());
-                intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_ITF, ((EventDspWaitCard) eventCmd).getInterfaces());
-                intent.putExtra(WaitCard.INTENT_EXTRA_WAIT_CARD_MSG_TAG, ((EventDspWaitCard) eventCmd).getMessageTag());
-                startActivity(intent);
-                this.finishTransactionView();
-                break;
-
             case dsp_payment_result:
                 intent = intents.get(dsp_msg.ordinal());
                 intent.putExtra(DisplayMsg.INTENT_EXTRA_DISPLAY_MSG_MSG, ((EventDspPaymentRslt) eventCmd).getMessage());
@@ -127,19 +116,27 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 break;
 
             case ppt_pin:
-                intent = intents.get(pin.ordinal());
+                intent = new Intent(this, PinPromptDte.class);
                 intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG, ((EventPptPin) eventCmd).getMessage());
                 intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_AMOUNT, ((EventPptPin) eventCmd).getAmount());
                 intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG_TAG, ((EventPptPin) eventCmd).getMessageId());
+                intent.putExtra(PinPrompt.INTENT_EXTRA_UPDATE_KEYPAD_TAG, false);
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
-            case dsp_listbox:
-                // Todo
+
+            case dsp_txt:
+                this.finishTransactionView();
+                if (homeActivity == WaitCard_Dte.class) {
+                    WaitCard_Dte.getInstance().update_text(((EventDspTxt) eventCmd).getMessage());
+                }
                 break;
 
             case dsp_idle:
                 this.finishTransactionView();
+                if (homeActivity == WaitCard_Dte.class) {
+                    WaitCard_Dte.getInstance().update_text("");
+                }
                 break;
 
             default:

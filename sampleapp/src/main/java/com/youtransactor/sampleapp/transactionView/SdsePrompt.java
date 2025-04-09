@@ -22,7 +22,6 @@
  */
 package com.youtransactor.sampleapp.transactionView;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,13 +33,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.youTransactor.uCube.payment.PaymentUtils;
-import com.youtransactor.sampleapp.MainActivity;
+import com.youTransactor.uCube.rpc.Constants;
 import com.youtransactor.sampleapp.R;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
-import com.youtransactor.sampleapp.product_manager.product_id;
-import com.youtransactor.sampleapp.product_manager.product_manager;
+
+import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
+import com.jps.secureService.api.ISecureLogicServiceConnectCallback;
+import com.jps.secureService.api.SecureLogicServiceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,18 @@ public class SdsePrompt extends TransactionViewBase {
     private ArrayList<Pair<Button, Integer>> kbdButtonList;
     private List<UpdateKeypad.KBDButton> KBDMapping = new ArrayList<>();
 
+    private SecureLogicServiceManager mSecureLogicSvcMgr = SecureLogicServiceManager.getInstance();;
+    private ISecureLogicServiceConnectCallback mSecureLogicConnectionCallback =
+            new ISecureLogicServiceConnectCallback() {
+                @Override
+                public void onServiceConnected() {
+                    mSecureLogicSvcMgr.disableSystemBars(true);
+                }
+                @Override
+                public void onServiceDisconnected() {
+                }
+            };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,21 +79,22 @@ public class SdsePrompt extends TransactionViewBase {
         textViewSdseMsg = findViewById(R.id.textViewSdseMsg);
         textViewSdse= findViewById(R.id.textViewPan);
         kbdButtonList = new ArrayList<>();
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button0), 0x00));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button1), 0x01));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button2), 0x02));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button3), 0x03));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button4), 0x04));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button5), 0x05));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button6), 0x06));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button7), 0x07));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button8), 0x08));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.button9), 0x09));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonConfirm), 0xF1));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonCancel), 0xF2));
-        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonClear), 0xF3));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button0), Constants.KEYPAD_BUTTON_0));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button1), Constants.KEYPAD_BUTTON_1));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button2), Constants.KEYPAD_BUTTON_2));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button3), Constants.KEYPAD_BUTTON_3));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button4), Constants.KEYPAD_BUTTON_4));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button5), Constants.KEYPAD_BUTTON_5));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button6), Constants.KEYPAD_BUTTON_6));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button7), Constants.KEYPAD_BUTTON_7));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button8), Constants.KEYPAD_BUTTON_8));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.button9), Constants.KEYPAD_BUTTON_9));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonConfirm), Constants.KEYPAD_BUTTON_CONFIRM));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonCancel), Constants.KEYPAD_BUTTON_ESC));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonDel), Constants.KEYPAD_BUTTON_CLEAR));
+        kbdButtonList.add(new Pair<>(findViewById(R.id.buttonClear), Constants.KEYPAD_BUTTON_CLEAR));
 
-        if (product_manager.id == product_id.stick) {
+        if (ProductManager.id == ProductIdentifier.stick) {
              findViewById(R.id.pinGrid).setVisibility(View.GONE);
         }
 
@@ -94,6 +109,22 @@ public class SdsePrompt extends TransactionViewBase {
         }).start();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSecureLogicSvcMgr.setServiceConnectCallback(mSecureLogicConnectionCallback);
+        if (mSecureLogicSvcMgr.isServiceDisconnected()) {
+            mSecureLogicSvcMgr.bindService(getApplicationContext());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        mSecureLogicSvcMgr.disableSystemBars(false);
+        mSecureLogicSvcMgr.setServiceConnectCallback(null);
+        super.onPause();
+    }
+
     private void starThread() {
         final int[] buttonsProcessed = {0};
 
@@ -106,7 +137,7 @@ public class SdsePrompt extends TransactionViewBase {
                     buttonsProcessed[0]++;
                     if ((buttonsProcessed[0] == kbdButtonList.size()) &&
                             (kbdButtonList.size() != 0)){
-                        if(product_manager.id == product_id.blade) {
+                        if(ProductManager.id == ProductIdentifier.blade) {
                             sendMapping();
                         }
                     }
@@ -144,10 +175,6 @@ public class SdsePrompt extends TransactionViewBase {
         });
     }
 
-    private void onError() {
-        finish();
-    }
-
     @Override
     protected void onEventViewUpdate(EventCommand event) {
         switch (event.getEvent()) {
@@ -156,25 +183,15 @@ public class SdsePrompt extends TransactionViewBase {
             case kbd_press:
             case kbd_del_one_char:
             case kbd_del_all_char:
-                updateSdse(((EventKbd) event).getPosition(), ((EventKbd) event).getValue());
-                break;
-            default:
-                onError();
+                updateSdse(((EventKbd) event).getNbPressedDigit(), ((EventKbd) event).getValue());
                 break;
         }
     }
-    private void updateSdse(byte position, byte value) {
-        if (value != 0xF2) {
-            StringBuffer pinStr = new StringBuffer();
-            for (int i = 0; i < position; i++) {
-                pinStr.append('*');
-            }
-            runOnUiThread(() -> textViewSdse.setText(pinStr));
+    private void updateSdse(byte nb_digit, byte value) {
+        StringBuffer pinStr = new StringBuffer();
+        for (int i = 0; i < nb_digit; i++) {
+            pinStr.append('*');
         }
-        else {
-            onError();
-        }
+        runOnUiThread(() -> textViewSdse.setText(pinStr));
     }
-
 }
-

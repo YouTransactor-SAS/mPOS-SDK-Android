@@ -25,26 +25,24 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jps.secureService.api.SecureLogicServiceManager;
+import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
-import com.youTransactor.uCube.rpc.command.event.ppt.*;
+import com.youTransactor.uCube.rpc.command.event.ppt.EventPptResult;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.payment.Localization;
-
-import com.jps.secureService.api.product_manager.ProductIdentifier;
-import com.jps.secureService.api.product_manager.ProductManager;
-import com.jps.secureService.api.ISecureLogicServiceConnectCallback;
-import com.jps.secureService.api.SecureLogicServiceManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PinPrompt extends TransactionViewBase {
+public class PinPromptDte extends TransactionViewBaseDte {
 
-    private static final String TAG = PinPrompt.class.getSimpleName();
+    private static final String TAG = PinPromptDte.class.getSimpleName();
     public static final String INTENT_EXTRA_PIN_AMOUNT = "INTENT_EXTRA_PIN_AMOUNT";
     public static final String INTENT_EXTRA_PIN_MSG = "INTENT_EXTRA_PIN_MSG";
     public static final String INTENT_EXTRA_PIN_MSG_TAG = "INTENT_EXTRA_PIN_MSG_TAG";
@@ -55,32 +53,16 @@ public class PinPrompt extends TransactionViewBase {
     private TextView textViewPinMsg;
     private boolean Is_Keypad_Update;
 
-    private SecureLogicServiceManager mSecureLogicSvcMgr = SecureLogicServiceManager.getInstance();;
-    private ISecureLogicServiceConnectCallback mSecureLogicConnectionCallback =
-            new ISecureLogicServiceConnectCallback() {
-                @Override
-                public void onServiceConnected() {
-                    mSecureLogicSvcMgr.disableSystemBars(true);
-                }
-                @Override
-                public void onServiceDisconnected() {
-                }
-            };
 
     @Override
     protected void onResume() {
         super.onResume();
-        mSecureLogicSvcMgr.setServiceConnectCallback(mSecureLogicConnectionCallback);
-        if (mSecureLogicSvcMgr.isServiceDisconnected()) {
-            mSecureLogicSvcMgr.bindService(getApplicationContext());
-        }
     }
 
     @Override
-    protected void onPause() {
-        mSecureLogicSvcMgr.disableSystemBars(false);
-        mSecureLogicSvcMgr.setServiceConnectCallback(null);
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop");
     }
 
     @Override
@@ -133,12 +115,13 @@ public class PinPrompt extends TransactionViewBase {
             case ppt_pin_blocked:
                 textViewPinMsg.setText(Localization.getMsg(((EventPptResult)event).getTag(),
                         ((EventPptResult) event).getText()));
-                PinPrompt.this.runOnUiThread(PinPrompt.this::finish);
+                PinPromptDte.this.runOnUiThread(PinPromptDte.this::finish);
                 break;
             case ppt_pin_wrong:
                 textViewPinMsg.setText(Localization.getMsg(((EventPptResult)event).getTag(),
                         ((EventPptResult) event).getText()));
                 break;
+
             default:
                 break;
         }

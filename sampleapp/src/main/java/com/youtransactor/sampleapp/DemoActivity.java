@@ -106,7 +106,6 @@ public class DemoActivity extends TransactionViewBase {
         this.setHomeActivity(this.getClass());
 
         setContentView(R.layout.activity_demo);
-        getSupportActionBar().hide();
 
         String versionName = BuildConfig.VERSION_NAME;
         TextView versionNametv = findViewById(R.id.version_name);
@@ -217,7 +216,7 @@ public class DemoActivity extends TransactionViewBase {
     }
 
     private UCubePaymentRequest preparePaymentRequest() {
-        int timeout = 1000;
+        int timeout = 30;
         Currency currency = UCubePaymentRequest.CURRENCY_USD;
         TransactionType trxType = TransactionType.PURCHASE;
         boolean forceOnlinePin = false;
@@ -265,7 +264,8 @@ public class DemoActivity extends TransactionViewBase {
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
-                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F)
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F,
+                        0x9F02, 0x9F03, 0x9F09,  0x9F1E)
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
