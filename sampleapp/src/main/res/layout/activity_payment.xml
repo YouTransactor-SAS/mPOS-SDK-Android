@@ -329,7 +329,12 @@
         android:layout_margin="@dimen/margin"
         android:checked="true"
         android:text="@string/skip_starting_steps"/>
-
+    <Switch
+        android:id="@+id/MsrSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="MSR activate" />
     <Switch
         android:id="@+id/tipSwitch"
         android:layout_width="match_parent"
@@ -337,25 +342,25 @@
         android:layout_margin="@dimen/margin"
         android:text="Tip" />
 
-            <LinearLayout
-                android:id="@+id/auto_sdse_mode_pane"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+    <LinearLayout
+        android:id="@+id/auto_sdse_mode_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin"
-                    android:textStyle="bold"
-                    android:text="SDSE_mode" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:textStyle="bold"
+        android:text="SDSE_mode" />
 
-                <Spinner
-                    android:id="@+id/sdse_mode_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin" />
-            </LinearLayout>
+    <Spinner
+        android:id="@+id/sdse_mode_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

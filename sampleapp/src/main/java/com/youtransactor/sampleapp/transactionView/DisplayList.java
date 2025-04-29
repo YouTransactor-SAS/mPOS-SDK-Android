@@ -45,12 +45,7 @@ public class DisplayList extends TransactionViewBase {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Get the clicked item
-                if (position == 0) {
-                    return; // the first item is the Title
-                }
                 String clickedItem = (String) parent.getItemAtPosition(position);
-
                 Toast.makeText(DisplayList.this, "Clicked: " + clickedItem, Toast.LENGTH_SHORT).show();
                 PaymentUtils.Evt_Selected_item(EVT_APP_LISTBOX, position, (event, params) -> {
                     switch (event) {

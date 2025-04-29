@@ -62,6 +62,8 @@
     <string name="mandatory">(Mandatory)</string>
     <string name="cancel">Cancel</string>
     <string name="logo_YT_description">Logo YT</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 
     <string name="title_scan_devices">uCube Touch Devices Discovery</string>
     <string name="title_list_devices">Paired Devices</string>

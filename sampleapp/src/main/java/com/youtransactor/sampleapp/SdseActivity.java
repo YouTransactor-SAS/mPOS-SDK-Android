@@ -79,6 +79,7 @@ public class SdseActivity extends TransactionViewBase {
                 }
                 sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_TYPE, Sdse_type);
                 startActivity(sdseIntent);
+                this.finish();
                 break;
             default:
                 onError();

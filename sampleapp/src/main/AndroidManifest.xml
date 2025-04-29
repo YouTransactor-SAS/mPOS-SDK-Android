@@ -59,10 +59,12 @@
         <activity android:name=".transactionView.DisplayMsg"/>
         <activity android:name=".transactionView.PinPrompt"/>
         <activity android:name=".transactionView.PinPromptDte"/>
+        <activity android:name=".transactionView.TestPinPrompt"/>
         <activity android:name=".transactionView.SdsePrompt"/>
         <activity android:name=".transactionView.DisplayTxt"/>
         <activity android:name=".transactionView.DisplayList"/>
         <activity android:name=".SdseActivity"/>
+        <activity android:name=".OnlinePinTestActivity"/>
         <activity android:name=".SetupActivity"
             android:exported="true"
             android:taskAffinity="com.youtransactor.maintask">

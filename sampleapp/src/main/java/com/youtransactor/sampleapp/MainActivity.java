@@ -92,7 +92,6 @@ import com.youTransactor.uCube.rpc.command.RTCSetCommand;
 import com.youTransactor.uCube.rpc.command.RebootCommand;
 import com.youTransactor.uCube.rpc.command.ResetCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
-import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youtransactor.sampleapp.connexion.DeviceScanActivity;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeScanner;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchScanner;
@@ -106,7 +105,6 @@ import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
-import com.youtransactor.sampleapp.transactionView.WaitCard;
 import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
 
 import java.text.SimpleDateFormat;
@@ -158,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private Button setCvv;
     private Button setExpDate;
     private Button dtebut;
-
+    private Button testPinbut;
     private YTProduct ytProduct;
     private boolean checkOnlyFirmwareVersion = false;
     private boolean forceUpdate = false;
@@ -387,6 +385,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         dtebut = findViewById(R.id.dteButton);
         dtebut.setOnClickListener(v -> startdte());
+
+        testPinbut = findViewById(R.id.TestPinButton);
+        testPinbut.setOnClickListener(v -> startTestPin());
 
         TextView versionFld = findViewById(R.id.version_name);
         versionFld.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME));
@@ -1029,6 +1030,13 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
         Intent dteIntent = new Intent(this, WaitCard_Dte.class);
         startActivity(dteIntent);
+    }
+
+    private void startTestPin() {
+        IConnexionManager cnxManager = ConnectionService.getInstance().getActiveManager();
+        ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
+        Intent TestPinIntent = new Intent(this, OnlinePinTestActivity.class);
+        startActivity(TestPinIntent);
     }
 
     private void getInfo() {

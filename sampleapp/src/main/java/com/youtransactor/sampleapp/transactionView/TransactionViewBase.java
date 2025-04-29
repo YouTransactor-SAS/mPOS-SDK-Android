@@ -20,6 +20,7 @@ import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListbox;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
@@ -135,7 +136,10 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 this.finishTransactionView();
                 break;
             case dsp_listbox:
-                // Todo
+                intent = intents.get(list.ordinal());
+                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListbox) eventCmd).getChoiceList());
+                startActivity(intent);
+                this.finishTransactionView();
                 break;
 
             case dsp_idle:
