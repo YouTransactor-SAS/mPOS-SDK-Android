@@ -24,8 +24,12 @@ package com.youtransactor.sampleapp;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
+import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youtransactor.sampleapp.test.TestPinSession;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBasePinTest;
 
@@ -33,7 +37,10 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
 
     private Button startBtn;
     private boolean testOngoing = false;
+    private boolean testStarted = false;
     private static int TIME_BETWEEN_ONLINE_PIN = 3000;
+    private Spinner onlinePinBlockFormatChoice;
+    private TestPinSession testPinSessionInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +48,30 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
         this.setHomeActivity(this.getClass());
         setContentView(R.layout.activity_online_pin_test);
         startBtn = findViewById(R.id.startOnlinePinTestButton);
-        startBtn.setOnClickListener(v -> startTest());
+        startBtn.setOnClickListener(v -> {
+            startTest();
+            testStarted = true;
+        });
+        onlinePinBlockFormatChoice = findViewById(R.id.onlinePinBlockFormatTestChoice);
+        onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                OnlinePinBlockFormatType.values()
+        ));
+        onlinePinBlockFormatChoice.setSelection(1);
+        // Todo: remove when all format are supported
+        onlinePinBlockFormatChoice.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        testStarted = false;
         startBtn.setClickable(true);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (testOngoing) startTest();
+                if (testOngoing && !testStarted) startTest();
             }
         }, TIME_BETWEEN_ONLINE_PIN);
     }
@@ -61,10 +81,18 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
         testOngoing = true;
         startBtn.setOnClickListener(v -> stopTest());
         runOnUiThread(() -> startBtn.setText(R.string.stop));
-        new TestPinSession(this).execute();
+        testPinSessionInstance = new TestPinSession(this, (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem());
+        testPinSessionInstance.setStopTestInterface(new TestPinSession.StopTestInterface() {
+            @Override
+            public void stopTestSession() {
+                stopTest();
+            }
+        });
+        testPinSessionInstance.execute();
     }
 
     private void stopTest() {
+        testStarted = false;
         testOngoing = false;
         startBtn.setOnClickListener(v -> startTest());
         runOnUiThread(() -> startBtn.setText(R.string.start));

@@ -61,6 +61,7 @@ import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.rpc.EventListener;
+import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.TransactionType;
@@ -107,6 +108,7 @@ public class PaymentActivity extends AppCompatActivity {
     private CurrencyEditText amountFld;
     private Spinner currencyChooser;
     private Switch forceOnlinePINBtn;
+    private Spinner onlinePinBlockFormatChoice;
     private Switch forceAuthorisationBtn;
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
@@ -222,6 +224,12 @@ public class PaymentActivity extends AppCompatActivity {
         cancelPaymentBtn = findViewById(R.id.cancelPaymentBtn);
         cardWaitTimeoutFld = findViewById(R.id.cardWaitTimeoutFld);
         trxTypeChoice = findViewById(R.id.trxTypeChoice);
+        onlinePinBlockFormatChoice = findViewById(R.id.onlinePinBlockFormatChoice);
+        onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                OnlinePinBlockFormatType.values()
+        ));
         amountFld = findViewById(R.id.amountFld);
         currencyChooser = findViewById(R.id.currencyChooser);
         forceOnlinePINBtn = findViewById(R.id.forceOnlinePINSwitch);
@@ -355,6 +363,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         boolean forceOnlinePin = forceOnlinePINBtn.isChecked(); // only for NFC & MSR
 
+        OnlinePinBlockFormatType onlinePinBlockFormat = (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem();
+
         boolean forceAuthorisation = forceAuthorisationBtn.isChecked();
 
         boolean contactOnly = contactOnlySwitch.isChecked();
@@ -394,6 +404,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
                 .setForceAuthorisation(forceAuthorisation)
+                .setOnlinePinBlockFormat(onlinePinBlockFormat)
               //  .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setForceDebug(forceDebug)

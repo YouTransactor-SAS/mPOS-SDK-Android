@@ -1153,7 +1153,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             }
 
             int offset = 0;
-            byte[] tlv = new byte[MAX_RPC_PACKET_SIZE];
+            byte[] tlv = new byte[MAX_RPC_PACKET_SIZE*2];
 
             for (byte[] part: tlvParts) {
                 System.arraycopy(part, 0, tlv, offset, part.length);

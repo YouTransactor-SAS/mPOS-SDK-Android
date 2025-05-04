@@ -48,6 +48,29 @@
         android:layout_height="wrap_content"
         android:layout_weight="5"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/online_pin_block_format" />
+
+        <Spinner
+            android:id="@+id/onlinePinBlockFormatTestChoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
     <Button
         android:id="@+id/startOnlinePinTestButton"
         android:layout_width="wrap_content"

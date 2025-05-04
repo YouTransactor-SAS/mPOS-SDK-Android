@@ -22,7 +22,6 @@
  */
 package com.youtransactor.sampleapp.test;
 
-
 import static com.youTransactor.uCube.payment.TestPinState.START_DISPLAY_PIN;
 import static com.youTransactor.uCube.payment.TestPinState.START_ENTER_SECURE_SESSION;
 import static com.youTransactor.uCube.payment.TestPinState.START_EXIT_SECURE_SESSION;
@@ -38,22 +37,32 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.payment.TestPinState;
-import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.command.SimplifiedOnlinePINCommand;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
 
     private Handler handler = new Handler(Looper.getMainLooper());
     private Context context;
     private PaymentContext pay_context = new PaymentContext();
+    private OnlinePinBlockFormatType onlinePinBlockFormatType;
+    private StopTestInterface stopTestInterface;
 
-    public TestPinSession(Context context){
+    public interface StopTestInterface {
+        void stopTestSession();
+    }
+
+    public TestPinSession(Context context, OnlinePinBlockFormatType onlinePinBlockFormatType){
         this.context = context;
+        this.onlinePinBlockFormatType = onlinePinBlockFormatType;
+    }
+
+    public void setStopTestInterface(StopTestInterface stopTestInterface) {
+        this.stopTestInterface = stopTestInterface;
     }
 
     private void  sendMapping() {
@@ -104,9 +113,9 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
         PaymentUtils.update_keypad(KBDMapping, (event, params) -> {
             switch (event) {
                 case FAILED:
+                    if (this.stopTestInterface != null) stopTestInterface.stopTestSession();
                     handler.post(() -> {
-                        // Code qui sera exécuté sur le thread principal (UI thread)
-                        Toast.makeText(context, "Update Keyboard ", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Update Keyboard failure", Toast.LENGTH_LONG).show();
                     });
                     break;
                 case SUCCESS:
@@ -129,9 +138,9 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
                 PaymentUtils.enterSecureSession(PayContext, (event, params) -> {
                     switch (event) {
                         case FAILED:
+                            if (this.stopTestInterface != null) stopTestInterface.stopTestSession();
                             handler.post(() -> {
-                                // Code qui sera exécuté sur le thread principal (UI thread)
-                                Toast.makeText(context, "Enter secure session", Toast.LENGTH_LONG).show();
+                                Toast.makeText(context, "Enter secure session failure", Toast.LENGTH_LONG).show();
                             });
                             break;
                         case SUCCESS:
@@ -149,17 +158,21 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
             case START_DISPLAY_PIN:
                 pay_context.currency = UCubePaymentRequest.CURRENCY_USD;
                 pay_context.amount = 1;
-                pay_context.onlinePinBlockFormat = Constants.PIN_BLOCK_ISO9564_FORMAT_1;
+                pay_context.setOnlinePinBlockFormat(onlinePinBlockFormatType);
                 PaymentUtils.doSimplifiedOnlinePin(pay_context, (event, params) -> {
                     switch (event) {
                         case FAILED:
+                        case CANCELLED:
+                            if (this.stopTestInterface != null) stopTestInterface.stopTestSession();
                             handler.post(() -> {
-                                // Code qui sera exécuté sur le thread principal (UI thread)
                                 Toast.makeText(context, "Failed PIN", Toast.LENGTH_LONG).show();
                             });
                             startSetting(START_EXIT_SECURE_SESSION);
                             break;
                         case SUCCESS:
+                            handler.post(() -> {
+                                Toast.makeText(context, "PIN Success", Toast.LENGTH_LONG).show();
+                            });
                             pay_context.pinKsn =  ((SimplifiedOnlinePINCommand) params[0]).getPinKSN();
                             pay_context.onlinePinBlock = ((SimplifiedOnlinePINCommand) params[0]).getEncryptedPinBlock();
                             startSetting(START_EXIT_SECURE_SESSION);
