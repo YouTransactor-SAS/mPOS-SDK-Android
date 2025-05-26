@@ -25,7 +25,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/testPinLayout">
 
     <View
         android:layout_width="match_parent"
@@ -34,7 +35,7 @@
         android:background="@color/grey_300" />
 
     <Button
-        android:id="@+id/TestPinButton"
+        android:id="@+id/testPinButton"
         android:layout_gravity="center"
         android:layout_width="200dp"
         android:layout_height="wrap_content"

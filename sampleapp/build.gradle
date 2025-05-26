@@ -47,8 +47,8 @@ android {
         applicationId "com.youtransactor.sampleapp"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 3506
-        versionName "3.5.06"
+        versionCode 3507
+        versionName "3.5.07"
         multiDexEnabled true
         archivesBaseName = "SampleApp-$versionName"
     }
@@ -56,13 +56,12 @@ android {
     buildTypes {
         debug {
             debuggable true
-            versionNameSuffix "-debug-${gitInfos.gitHash}"
             signingConfig signingConfigs.release
         }
 
         internal {
             initWith debug
-            versionNameSuffix "-test-${gitInfos.gitHash}"
+            versionNameSuffix "-01"
             signingConfig signingConfigs.release
         }
 
@@ -73,6 +72,12 @@ android {
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "SampleApp-${variant.versionName}-${variant.buildType.name}.apk"
+        }
     }
 
 }
@@ -87,8 +92,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.7.1'
     implementation 'com.google.guava:guava:30.0-jre'
     implementation 'org.zeromq:jeromq:0.5.1'
-    implementation files('libs/SecureServiceAPI-1.2.6-release.aar')
-    implementation files('libs/libApp-3.5.06-release.aar')
+    implementation files('libs/SecureServiceAPI-1.2.8-release.aar')
+    implementation files('libs/libApp-3.5.07-release.aar')
     /* end aar dependencies */
 
 

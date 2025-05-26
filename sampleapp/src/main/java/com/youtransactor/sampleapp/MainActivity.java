@@ -81,7 +81,6 @@ import com.youTransactor.uCube.rpc.LostPacketListener;
 import com.youTransactor.uCube.rpc.RPCCommunicationErrorListener;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EchoCommand;
-import com.youTransactor.uCube.rpc.command.EnterDEVModeCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
@@ -97,6 +96,7 @@ import com.youtransactor.sampleapp.connexion.ListPairedUCubeScanner;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchScanner;
 import com.youtransactor.sampleapp.connexion.YTKeyScanner;
 import com.youtransactor.sampleapp.connexion.YTSOMScanner;
+import com.youtransactor.sampleapp.emvParamUpdate.EmvParamEnableDisableAIDActivity;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         dtebut = findViewById(R.id.dteButton);
         dtebut.setOnClickListener(v -> startdte());
 
-        testPinbut = findViewById(R.id.TestPinButton);
+        testPinbut = findViewById(R.id.testPinButton);
         testPinbut.setOnClickListener(v -> startTestPin());
 
         TextView versionFld = findViewById(R.id.version_name);
@@ -396,9 +396,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         findViewById(R.id.enter_secure_session).setOnClickListener(v -> enterSecureSession());
         findViewById(R.id.exit_secure_session).setOnClickListener(v -> exitSecureSession());
         findViewById(R.id.payBtn).setOnClickListener(v -> payment());
-        findViewById(R.id.displayBtn).setOnClickListener(v -> displayHelloWorld());
+        Button displayBtn = findViewById(R.id.displayBtn);
+        displayBtn.setOnClickListener(v -> displayHelloWorld());
         findViewById(R.id.getInfoBtn).setOnClickListener(v -> getInfo());
-        findViewById(R.id.echo_btn).setOnClickListener(v-> {
+        Button echoBtn = findViewById(R.id.echo_btn);
+        echoBtn.setOnClickListener(v-> {
             final View customLayout = getLayoutInflater().inflate(R.layout.echo_msg_layout, null);
             final EditText echoData = customLayout.findViewById(R.id.echoDataFld);
 
@@ -413,7 +415,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     .setView(customLayout)
                     .show();
         });
-        findViewById(R.id.powerTimeoutBtn).setOnClickListener(v -> {
+        Button powerTimeoutBtn = findViewById(R.id.powerTimeoutBtn);
+        powerTimeoutBtn.setOnClickListener(v -> {
             final View customLayout = getLayoutInflater().inflate(R.layout.poweroff_timeout_dlg, null);
             final EditText timeoutFld = customLayout.findViewById(R.id.poweroff_timeout_fld);
 
@@ -438,8 +441,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     .show();
         });
         findViewById(R.id.set_locale).setOnClickListener(v -> setLocale());
-        findViewById(R.id.quick_mode).setOnClickListener(v -> enableQuickMode());
-        findViewById(R.id.slow_mode).setOnClickListener(v -> enableSlowMode());
+        Button quickModeBtn = findViewById(R.id.quick_mode);
+        quickModeBtn.setOnClickListener(v -> enableQuickMode());
+        Button slowModeBtn = findViewById(R.id.slow_mode);
+        slowModeBtn.setOnClickListener(v -> enableSlowMode());
         findViewById(R.id.get_rtc).setOnClickListener(v -> getRtc());
         findViewById(R.id.set_rtc).setOnClickListener(v -> setRtc());
         findViewById(R.id.get_pub_key).setOnClickListener(v-> getPubKey());
@@ -460,15 +465,30 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         });
         findViewById(R.id.reset).setOnClickListener(v -> reset());
         findViewById(R.id.reboot).setOnClickListener(v-> reboot());
-        findViewById(R.id.enter_dev_mode).setOnClickListener(v-> enterDevMode());
-        findViewById(R.id.rkiButton).setOnClickListener(v -> doRemoteKeyInjection());
+        Button rkiButton = findViewById(R.id.rkiButton);
+        rkiButton.setOnClickListener(v -> doRemoteKeyInjection());
         findViewById(R.id.localUpdateBtn).setOnClickListener(v -> localUpdate());
         findViewById(R.id.emvParamUpdBtn).setOnClickListener(v -> emvParamUpd());
+        findViewById(R.id.emvParamEnableDisableAID).setOnClickListener(v -> emvParamEnableDisableAID());
 
         boolean testModeEnabled = setupSharedPref.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
         Button testBtn = findViewById(R.id.testBtn);
         testBtn.setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
         testBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TestActivity.class)));
+
+        boolean certifModeEnabled = setupSharedPref.getBoolean(SetupActivity.CERTIF_MODE_PREF_NAME, false);
+        View dteLaout = findViewById(R.id.dteLayout);
+        dteLaout.setVisibility(certifModeEnabled ? View.VISIBLE : View.GONE);
+
+        if (ytProduct == YTProduct.AndroidPOS) {
+            displayBtn.setVisibility(View.GONE);
+            echoBtn.setVisibility(View.GONE);
+            powerTimeoutBtn.setVisibility(View.GONE);
+            quickModeBtn.setVisibility(View.GONE);
+            slowModeBtn.setVisibility(View.GONE);
+            mdmRegisterBtn.setVisibility(View.GONE);
+            rkiButton.setVisibility(View.GONE);
+        }
     }
 
     private void updateConnectionUI(State state) {
@@ -515,15 +535,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void updateMDMUI(MDMState state) {
         switch (state) {
             case IDLE:
-                mdmRegisterBtn.setVisibility(View.VISIBLE);
-
-                mdmGetConfigBtn.setVisibility(View.GONE);
-                mdmCheckUpdateBtn.setVisibility(View.GONE);
-                mdmSendLogBtn.setVisibility(View.GONE);
-                break;
-
             case DEVICE_NOT_REGISTERED:
-                mdmRegisterBtn.setVisibility(View.VISIBLE);
+                if (ytProduct != YTProduct.AndroidPOS ) mdmRegisterBtn.setVisibility(View.VISIBLE);
                 mdmGetConfigBtn.setVisibility(View.GONE);
                 mdmCheckUpdateBtn.setVisibility(View.GONE);
                 mdmSendLogBtn.setVisibility(View.GONE);
@@ -762,6 +775,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void emvParamUpd() {
         Intent emvParamUpdIntent = new Intent(this, EmvParamUpdateActivity.class);
         startActivity(emvParamUpdIntent);
+    }
+
+    private void emvParamEnableDisableAID() {
+        Intent emvParamEnableDisableAIDIntent = new Intent(this, EmvParamEnableDisableAIDActivity.class);
+        startActivity(emvParamEnableDisableAIDIntent);
     }
 
     private void mdmRegister() {
@@ -1625,28 +1643,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                         UIUtils.hideProgressDialog();
 
                         UIUtils.showMessageDialog(MainActivity.this, getString(R.string.reset_event, event));
-                    });
-                    break;
-            }
-        });
-    }
-
-    private void enterDevMode() {
-        UIUtils.showProgress(MainActivity.this, getString(R.string.enter_dev_mode));
-
-        EnterDEVModeCommand enterDEVModeCommand = new EnterDEVModeCommand();
-        enterDEVModeCommand.execute((event, params) -> {
-            switch (event) {
-                case PROGRESS:
-                    return;
-                case FAILED:
-                case CANCELLED:
-                case SUCCESS:
-                    Log.i(TAG, "Enter dev mode command : " + event);
-                    runOnUiThread(() -> {
-                        UIUtils.hideProgressDialog();
-
-                        UIUtils.showMessageDialog(MainActivity.this, getString(R.string.enter_dev_mode_event, event));
                     });
                     break;
             }

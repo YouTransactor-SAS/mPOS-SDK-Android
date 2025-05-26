@@ -36,7 +36,9 @@ import java.util.Locale;
 
 public class EmvParamFmt1CLVisa extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
-            JSONObject clJson, EmvParamYTModel model) throws JSONException {
+            JSONObject jsonD, EmvParamYTModel model) throws JSONException {
+        JSONObject clJson = jsonD.getJSONObject("contactless");
+        JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
         // contact AID array
         JSONArray clAIDList = clJson.getJSONArray("aids");
@@ -48,6 +50,7 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
         int nbVisaAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, visaAppTokenL);
         EmvParamDOL clVISAalltagDol = new EmvParamDOL();
+        model.setClParamID(EmvParamFmt1.getClParamID(common));
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =

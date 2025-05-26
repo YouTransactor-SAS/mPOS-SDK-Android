@@ -23,6 +23,7 @@
 package com.youtransactor.sampleapp;
 
 import static com.youTransactor.uCube.log.LogManager.LogLevel.SYSTEM;
+import static com.youTransactor.uCube.rpc.Constants.CHIP_CARD_READ_WRITE_RELIABLE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
@@ -258,6 +259,7 @@ public class DemoActivity extends TransactionViewBase {
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
                 .setDataEncryptionMechanism(2)
+                .setPosEntryMode(CHIP_CARD_READ_WRITE_RELIABLE)
 //                .setDataEncryptionMechanism(sdseSwitch.isChecked() ? 1 : -1)
 
                 //CLIENT TAGs

@@ -33,6 +33,7 @@ import org.json.JSONObject;
 public class emvParamFmt1Contact extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(JSONObject jsonD, EmvParamYTModel model) throws JSONException {
         JSONObject commonJson = jsonD.getJSONObject("common");
+        model.setCtParamID(EmvParamFmt1.getCtParamID(commonJson));
         // Fill EMV model contact AID table
         EmvParamDOL commonLst = get_tlv_dol(commonJson,
                 EmvParamFmt1ToYT.get_contact_tag_dict());

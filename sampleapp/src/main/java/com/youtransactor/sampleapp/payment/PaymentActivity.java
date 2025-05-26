@@ -104,6 +104,8 @@ public class PaymentActivity extends AppCompatActivity {
     private Button cancelPaymentBtn;
     private Button getLogsL1, getStatusBtn;
     private EditText cardWaitTimeoutFld;
+    private EditText posEntryModeFld;
+    private EditText dukpt_key_slotFld;
     private Spinner trxTypeChoice;
     private CurrencyEditText amountFld;
     private Spinner currencyChooser;
@@ -113,6 +115,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch amountSrcSwitch;
     private Switch contactOnlySwitch;
     private Switch forceDebugSwitch;
+    private Switch allowPinBypassSwitch;
     private Switch skipCardRemovalSwitch;
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
@@ -171,6 +174,7 @@ public class PaymentActivity extends AppCompatActivity {
     }
     private static pay_sdse_mode sdse_mode= VOLTAGE;
     private boolean forceDebug;
+    private boolean isPinBypassAllowed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,6 +227,9 @@ public class PaymentActivity extends AppCompatActivity {
         doPaymentBtn = findViewById(R.id.doPaymentBtn);
         cancelPaymentBtn = findViewById(R.id.cancelPaymentBtn);
         cardWaitTimeoutFld = findViewById(R.id.cardWaitTimeoutFld);
+        posEntryModeFld = findViewById(R.id.posEntryModeFld);
+        dukpt_key_slotFld = findViewById(R.id.dukpt_slotFld);
+
         trxTypeChoice = findViewById(R.id.trxTypeChoice);
         onlinePinBlockFormatChoice = findViewById(R.id.onlinePinBlockFormatChoice);
         onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
@@ -237,6 +244,7 @@ public class PaymentActivity extends AppCompatActivity {
         contactOnlySwitch = findViewById(R.id.contactOnlySwitch);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationSwitch);
         forceDebugSwitch = findViewById(R.id.forceDebugSwitch);
+        allowPinBypassSwitch = findViewById(R.id.allowPinBypassSwitch);
         trxResultFld = findViewById(R.id.trxResultFld);
         startCancelDelayEditText = findViewById(R.id.start_cancel_delay);
         skipCardRemovalSwitch = findViewById(R.id.skipCardRemovalSwitch);
@@ -370,6 +378,7 @@ public class PaymentActivity extends AppCompatActivity {
         boolean contactOnly = contactOnlySwitch.isChecked();
 
         forceDebug = forceDebugSwitch.isChecked();
+        isPinBypassAllowed = allowPinBypassSwitch.isChecked();
 
         boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
 
@@ -395,7 +404,8 @@ public class PaymentActivity extends AppCompatActivity {
 
         AuthorizationTask authorizationTask = new AuthorizationTask(this);
         authorizationTask.setMeasureStatesListener(paymentMeasure);
-
+        int posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
+        int dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
                 readerList, authorizationTask, Collections.singletonList("en"));
 
@@ -413,11 +423,14 @@ public class PaymentActivity extends AppCompatActivity {
                 .setRetrieveF5Tag(retrieveF5Tag)
                 .setTipRequired(tipRequired)
                 .setPinRequestLabel("Pin ?")
+                .setPinBypassAuthorisation(isPinBypassAllowed)
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
                 .setDataEncryptionMechanism(sdse_mode.getCode())
                 .withViewDelegate(ViewIdentifier.PIN_PROMPT)
                 .setMsrActivate(msrIsActivate)
+                .setPosEntryMode(posEntryMode)
+                .setDukptSlotKey(dukpt_key_slot)
         //CLIENT TAGs
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
@@ -435,7 +448,12 @@ public class PaymentActivity extends AppCompatActivity {
                         0x9F02,
                         0x9F03
                 )
-                .setFinalizationPlainTags(0x9F1A, 0x99, 0x5F2A, 0x95, 0x4F, 0x9B, 0x5F34, 0x81, 0x8E, 0x9A, 0xDF37, 0x50, 0xDF36)
+                .setFinalizationPlainTags(
+                        0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
+                        0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
+                        0x8F, 0x9F02, 0x9F03, 0x9F09,  0x9F1E, 0xDF63)
+
                 .setFinalizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,

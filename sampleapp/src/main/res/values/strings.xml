@@ -48,7 +48,6 @@
     <string name="ucube">uCube</string>
     <string name="settings">Settings</string>
     <string name="reset">reset</string>
-    <string name="enter_dev_mode">Enter dev mode</string>
     <string name="progress">%s progress…</string>
     <string name="scan">Scan</string>
     <string name="setup">Setup</string>
@@ -143,6 +142,9 @@
 
     <!--Payment -->
     <string name="card_wait_timeout">Card wait timeout</string>
+    <string name= "pos_entry_mode"> POS Entry Mode</string>
+    <string name= "dukpt_key_slot"> DUKPT Key Slot (1..20)</string>
+
     <string name="_30">30</string>
     <string name="s">(s)</string>
     <string name="date">Date</string>
@@ -219,6 +221,7 @@
     <string name="ACE_Layer_Version">ACE Layer Version : </string>
     <string name="default_dongle_model">Use as default</string>
     <string name="enable_test">Enable test</string>
+    <string name="enable_certif">Enable certification mode</string>
     <string name="GPI_Version"> GPI Version: </string>
     <string name="EMLV3_Version"> EMLV3 Version : </string>
     <string name="USB_capability">USB Capability : </string>
@@ -243,6 +246,7 @@
     <string name="get_logs_l1_failure">Get Logs L1 failed</string>
     <string name="get_logs_l1_success">Get Logs L1 Success</string>
     <string name="force_debug">Force debug</string>
+    <string name="allow_pin_bypass">PIN bypass OK</string>
     <string name="_0">0</string>
     <string name="start_cancel_after">start cancel after :</string>
     <string name="ms">ms</string>
@@ -342,11 +346,14 @@
     <string name="reboot">Reboot</string>
     <string name="reboot_event">Reboot %s</string>
     <string name="reset_event">Reset %s</string>
-    <string name="enter_dev_mode_event">Enter dev mode %s</string>
 
     <string name="local_update">Local update</string>
     <string name="emv_param_update">EMV param update</string>
     <string name="selectFile">Select file</string>
+    <string name="AID">AID:</string>
+    <string name="terminal_parameter">Terminal parameter:</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
     <string name="addFile">Add</string>
     <string name="removeFile">Remove</string>
     <string name="sig_not_found_msg">Signature not found for %s</string>

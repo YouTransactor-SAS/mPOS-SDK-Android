@@ -17,6 +17,7 @@ import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 public class GetInfoDialog extends DialogFragment {
     private final DeviceInfos deviceInfos;
@@ -31,7 +32,7 @@ public class GetInfoDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
-                .setTitle("uCube Information")
+                .setTitle("Secure Module Information")
                 .setPositiveButton("ok", (dialog, whichButton) -> dialog.dismiss());
 
         setCancelable(false);
@@ -62,12 +63,22 @@ public class GetInfoDialog extends DialogFragment {
                 continue;
             }
 
+            if ((value == null) ||
+                    (value instanceof List && ((List<?>) value).size() == 0) ||
+                    (value instanceof String && value.equals("")) ||
+                    (value instanceof Byte && (byte) value == -1) ||
+                    (value instanceof Integer && (int) value == -1)) {
+                continue;
+            }
+
             String displayedValue = "";
             if ((value instanceof String && !((String) value).isEmpty()) ||
                     value instanceof Integer || value instanceof Boolean) {
                 displayedValue = String.valueOf(value);
             } else if (value instanceof byte[]) {
                 displayedValue = Tools.bytesToHex((byte[]) value);
+            } else if (value instanceof List) {
+                displayedValue = value.toString();
             }
 
                 LinearLayout layout = new LinearLayout(getActivity());

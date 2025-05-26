@@ -245,6 +245,13 @@
                 android:text="@string/enable_test" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/enableCertif"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/enable_certif" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/enableMeasures"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

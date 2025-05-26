@@ -94,9 +94,8 @@ public class EmvParamFmt1 {
             JSONObject jsonD = new JSONObject(IOUtils.toString(input));
             emvParamFmt1Contact.getEmvModelFromFmt1Input(jsonD, model);
             // Contactless parameter translation
-            JSONObject clJson = jsonD.getJSONObject("contactless");
-            EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(clJson, model);
-            EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(clJson, model);
+            EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(jsonD, model);
         } catch (Exception e) {
             LogManager.e("EMV model from FMT1 conversion fail", e);
         }
@@ -108,4 +107,24 @@ public class EmvParamFmt1 {
         return model;
     }
 
+    public static String getCtParamID(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("settingsVersion");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve contact ID", e);
+            ret = "";
+        }
+        return ret;
+    }
+    public static String getClParamID(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("settingsVersion");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve contact ID", e);
+            ret = "";
+        }
+        return ret;
+    }
 }

@@ -97,5 +97,9 @@
         <activity
             android:name=".emvParamUpdate.EmvParamUpdateActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".emvParamUpdate.EmvParamEnableDisableAIDActivity"
+            android:exported="false" />
     </application>
 </manifest>

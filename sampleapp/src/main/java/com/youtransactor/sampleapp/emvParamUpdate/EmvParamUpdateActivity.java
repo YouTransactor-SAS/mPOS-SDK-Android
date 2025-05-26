@@ -157,7 +157,7 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
         }
         // TODO: sort the file access issue on Android lesser than 14
         onFileSelect(new File("/data/data/com.youtransactor.sampleapp/" +
-                "files/emv/20231031-emv_config CERT US 20231006_purchase_and_goods_all_tac_0_compatible_som_v2.txt"));
+                "files/20231031-emv_config CERT US 20231006_.txt"));
     }
 
     @Override

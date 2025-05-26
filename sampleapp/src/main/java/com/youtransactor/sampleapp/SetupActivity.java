@@ -56,6 +56,7 @@ public class SetupActivity extends AppCompatActivity {
     public static final String NO_DEFAULT = "no_default";
     public static final String DEFAULT_YT_PRODUCT = "default_YT_Product";
     public static final String TEST_MODE_PREF_NAME = "testMode";
+    public static final String CERTIF_MODE_PREF_NAME = "certifMode";
     public static final String MEASURES_MODE_PREF_NAME = "measuresMode";
     public static final String RECOVERY_MODE_PERF_NAME = "recoveryMode";
     public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
@@ -177,6 +178,11 @@ public class SetupActivity extends AppCompatActivity {
         s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
         s.setOnCheckedChangeListener((compoundButton, b) ->
                 sharedPreferences.edit().putBoolean(TEST_MODE_PREF_NAME, compoundButton.isChecked()).apply());
+
+        SwitchMaterial c = findViewById(R.id.enableCertif);
+        c.setChecked(sharedPreferences.getBoolean(CERTIF_MODE_PREF_NAME, false));
+        c.setOnCheckedChangeListener((compoundButton, b) ->
+                sharedPreferences.edit().putBoolean(CERTIF_MODE_PREF_NAME, compoundButton.isChecked()).apply());
 
         SwitchMaterial e = findViewById(R.id.enableMeasures);
         e.setChecked(sharedPreferences.getBoolean(MEASURES_MODE_PREF_NAME, false));
