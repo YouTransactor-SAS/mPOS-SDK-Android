@@ -33,6 +33,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
+import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentUtils;
@@ -144,7 +146,12 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
                             });
                             break;
                         case SUCCESS:
-                            startSetting(START_UPDATE_KEY_PAD);
+                            if(ProductManager.id == ProductIdentifier.blade) {
+                                startSetting(START_UPDATE_KEY_PAD);
+                            }
+                            else{
+                                startSetting(START_DISPLAY_PIN);
+                            }
                             break;
                         default:
                             break;

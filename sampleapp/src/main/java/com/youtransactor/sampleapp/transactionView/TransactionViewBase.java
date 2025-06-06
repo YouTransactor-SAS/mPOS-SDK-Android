@@ -16,15 +16,16 @@
  */
 package com.youtransactor.sampleapp.transactionView;
 
+import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListbox;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListSelectLang;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
-import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspWaitCard;
+import com.youTransactor.uCube.rpc.command.event.pay.EventPaySelectAid;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
@@ -37,6 +38,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class TransactionViewBase extends AppCompatActivity {
@@ -87,6 +89,11 @@ public abstract class TransactionViewBase extends AppCompatActivity {
         Log.d("onEventViewUpdate", "onEventViewUpdate");
     }
 
+    private ArrayList<byte[]> update_cless_aid_list(ArrayList<byte[]> aid_list) {
+        //here to add your code and update aid list
+        return aid_list;
+    }
+
     private void onEventViewCreate(EventCommand eventCmd) {
         Intent intent;
         switch (eventCmd.getEvent()) {
@@ -135,13 +142,27 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
-            case dsp_listbox:
+            case dsp_listbox_select_lang:
                 intent = intents.get(list.ordinal());
-                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListbox) eventCmd).getChoiceList());
+                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListSelectLang) eventCmd).getChoiceList());
                 startActivity(intent);
                 this.finishTransactionView();
                 break;
 
+            case pay_select_aid:
+                // TO ADD: update the received list and tlv value
+                byte[] tlv = new byte[0];
+                PaymentUtils.send_event_filter_cless_aid(
+                        update_cless_aid_list(((EventPaySelectAid) eventCmd).getAidList()),
+                        tlv, (event, params) -> {
+                    switch (event) {
+                        case FAILED:
+                            break;
+                        case SUCCESS:
+                            break;
+                    }
+                });
+                break;
             case dsp_idle:
                 this.finishTransactionView();
                 break;

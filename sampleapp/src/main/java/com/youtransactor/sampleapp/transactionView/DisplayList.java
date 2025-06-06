@@ -1,6 +1,6 @@
 package com.youtransactor.sampleapp.transactionView;
 
-import static com.youTransactor.uCube.rpc.Constants.EVT_APP_LISTBOX;
+import static com.youTransactor.uCube.rpc.Constants.EVT_APP_SELECT_LANG;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,7 +47,7 @@ public class DisplayList extends TransactionViewBase {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String clickedItem = (String) parent.getItemAtPosition(position);
                 Toast.makeText(DisplayList.this, "Clicked: " + clickedItem, Toast.LENGTH_SHORT).show();
-                PaymentUtils.Evt_Selected_item(EVT_APP_LISTBOX, position, (event, params) -> {
+                PaymentUtils.evtSelectedItem(EVT_APP_SELECT_LANG, position, (event, params) -> {
                     switch (event) {
                         case FAILED:
                             break;

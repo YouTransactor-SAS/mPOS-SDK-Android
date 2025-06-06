@@ -202,6 +202,7 @@
                 <include layout="@layout/rki_section_layout" />
                 <include layout="@layout/dte_section_layout" />
                 <include layout="@layout/test_pin_section_layout" />
+                <include layout="@layout/contact_certif_section_layout" />
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

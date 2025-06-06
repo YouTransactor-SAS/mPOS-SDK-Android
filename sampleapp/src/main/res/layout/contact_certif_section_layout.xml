@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ ============================================================================
+  ~
+  ~ Copyright (c) 2022 YouTransactor
+  ~
+  ~ All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of YouTransactor
+  ~ ("Confidential Information"). You  shall not disclose or redistribute such
+  ~ Confidential Information and shall use it only in accordance with the terms of
+  ~ the license agreement you entered into with YouTransactor.
+  ~
+  ~ This software is provided by YouTransactor AS IS, and YouTransactor
+  ~ makes no representations or warranties about the suitability of the software,
+  ~ either express or implied, including but not limited to the implied warranties
+  ~ of merchantability, fitness for a particular purpose or non-infringement.
+  ~ YouTransactor shall not be liable for any direct, indirect, incidental,
+  ~ special, exemplary, or consequential damages suffered by licensee as the
+  ~ result of using, modifying or distributing this software or its derivatives.
+  ~
+  ~ ==========================================================================
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/contactCertifLayout">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/margin"
+        android:background="@color/grey_300" />
+
+    <Button
+        android:id="@+id/contactCertifButton"
+        android:layout_gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:text="Contact Certif" />
+</LinearLayout>

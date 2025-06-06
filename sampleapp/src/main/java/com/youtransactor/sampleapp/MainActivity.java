@@ -75,6 +75,7 @@ import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.BinaryUpdate;
 import com.youTransactor.uCube.mdm.ServiceState;
 import com.youTransactor.uCube.rki.RKIServiceState;
+import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
 import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.LostPacketListener;
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private Button setExpDate;
     private Button dtebut;
     private Button testPinbut;
+    private Button contactCertifBut;
     private YTProduct ytProduct;
     private boolean checkOnlyFirmwareVersion = false;
     private boolean forceUpdate = false;
@@ -389,6 +391,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         testPinbut = findViewById(R.id.testPinButton);
         testPinbut.setOnClickListener(v -> startTestPin());
 
+        contactCertifBut= findViewById(R.id.contactCertifButton);
+        contactCertifBut.setOnClickListener(v -> startcontactCertif());
+
         TextView versionFld = findViewById(R.id.version_name);
         versionFld.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME));
 
@@ -479,7 +484,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         boolean certifModeEnabled = setupSharedPref.getBoolean(SetupActivity.CERTIF_MODE_PREF_NAME, false);
         View dteLaout = findViewById(R.id.dteLayout);
         dteLaout.setVisibility(certifModeEnabled ? View.VISIBLE : View.GONE);
-
+        View contactCertifLaout = findViewById(R.id.contactCertifLayout);
+        contactCertifLaout.setVisibility(certifModeEnabled ? View.VISIBLE : View.GONE);
         if (ytProduct == YTProduct.AndroidPOS) {
             displayBtn.setVisibility(View.GONE);
             echoBtn.setVisibility(View.GONE);
@@ -1048,6 +1054,15 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
         Intent dteIntent = new Intent(this, WaitCard_Dte.class);
         startActivity(dteIntent);
+    }
+
+    private void startcontactCertif() {
+        IConnexionManager cnxManager = ConnectionService.getInstance().getActiveManager();
+        ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
+        Intent contactCertifIntent = new Intent(this, WaitCard_Dte.class);
+        contactCertifIntent.putExtra("INTENT_EXTRA_ITF", ICC_READER);
+        Log.d(TAG,"contactCertifIntent : " + ICC_READER);
+        startActivity(contactCertifIntent);
     }
 
     private void startTestPin() {

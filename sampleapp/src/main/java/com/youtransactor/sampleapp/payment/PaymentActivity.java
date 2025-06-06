@@ -38,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,7 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.control.ControlContext;
 import com.youTransactor.uCube.control.ControlService;
+import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.control.ControlState;
 import com.youTransactor.uCube.rpc.Currency;
@@ -72,11 +74,15 @@ import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.GetStatusCommand;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListSelectLang;
+import com.youTransactor.uCube.rpc.command.event.pay.EventPayPinPrompt;
+import com.youTransactor.uCube.rpc.command.event.pay.EventPaySelectAid;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
 import com.youtransactor.sampleapp.YTProduct;
+import com.youtransactor.sampleapp.transactionView.DisplayList;
 import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
 import com.jps.secureService.api.entity.ViewIdentifier;
@@ -337,6 +343,10 @@ public class PaymentActivity extends AppCompatActivity {
 
         pay();
     }
+    private ArrayList<byte[]> update_cless_aid_list(ArrayList<byte[]> aid_list) {
+        //here to add your code and update aid list
+        return aid_list;
+    }
 
     private void onEventViewCreate(EventCommand eventCmd) {
         Intent intent;
@@ -352,9 +362,35 @@ public class PaymentActivity extends AppCompatActivity {
                 intent.putExtra(PinPrompt.INTENT_EXTRA_PIN_MSG_TAG, ((EventPptPin) eventCmd).getMessageId());
                 startActivity(intent);
                 break;
+            case pay_pin_prompt:
+                switch (((EventPayPinPrompt) eventCmd).getPinPromptMode()) {
+                    case EVENT_PAY_PIN_PROMPT_MODE_OFFLINE:
+                        //add you code
+                        break;
+                    case EVENT_PAY_PIN_PROMPT_MODE_ONLINE:
+                        //add you code
+                        break;
+                }
+                break;
+            case dsp_listbox_select_lang:
+                intent = intents.get(list.ordinal());
+                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListSelectLang) eventCmd).getChoiceList());
+                startActivity(intent);
+                break;
 
-            case dsp_listbox:
-                // Todo
+            case pay_select_aid:
+                // TO ADD: update the received list and tlv value
+                byte[] tlv = new byte[0];
+                PaymentUtils.send_event_filter_cless_aid(
+                        update_cless_aid_list(((EventPaySelectAid) eventCmd).getAidList()),
+                        tlv, (event, params) -> {
+                    switch (event) {
+                        case FAILED:
+                            break;
+                        case SUCCESS:
+                            break;
+                    }
+                });
                 break;
 
             default:
@@ -431,6 +467,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setMsrActivate(msrIsActivate)
                 .setPosEntryMode(posEntryMode)
                 .setDukptSlotKey(dukpt_key_slot)
+                .setUpdateTlvTask(new UpdateTlvTask(this))
         //CLIENT TAGs
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,

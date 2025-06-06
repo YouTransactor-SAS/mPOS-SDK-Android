@@ -1,13 +1,17 @@
 package com.youtransactor.sampleapp.transactionView;
 
+import static com.youTransactor.uCube.rpc.Constants.ICC_READER;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.youTransactor.uCube.payment.PaymentService;
+import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspUpdateClessLed;
@@ -23,6 +27,7 @@ public class WaitCard_Dte extends TransactionViewBaseDte {
     public static final String INTENT_EXTRA_WAIT_CARD_AMOUNT = "INTENT_EXTRA_WAIT_CARD_AMOUNT";
     public static final String INTENT_EXTRA_WAIT_CARD_MSG = "INTENT_EXTRA_WAIT_CARD_MSG";
     public static final String INTENT_EXTRA_WAIT_CARD_MSG_TAG = "INTENT_EXTRA_WAIT_CARD_MSG_TAG";
+    public static final String INTENT_EXTRA_ITF = "INTENT_EXTRA_ITF";
 
 
     private ImageView led1, led2, led3, led4;
@@ -68,11 +73,18 @@ public class WaitCard_Dte extends TransactionViewBaseDte {
             }
             textViewMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_WAIT_CARD_MSG_TAG, -1),
                     intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG)));
-            imageViewNFC.setVisibility(View.VISIBLE);
-            led1.setVisibility(View.VISIBLE);
-            led2.setVisibility(View.VISIBLE);
-            led3.setVisibility(View.VISIBLE);
-            led4.setVisibility(View.VISIBLE);
+            int reader = intent.getByteExtra(INTENT_EXTRA_ITF, Constants.NFC_READER);
+            if(reader == Constants.NFC_READER) {
+                Log.d("contactCertifIntent", "ICC_READER");
+                imageViewNFC.setVisibility(View.VISIBLE);
+                led1.setVisibility(View.VISIBLE);
+                led2.setVisibility(View.VISIBLE);
+                led3.setVisibility(View.VISIBLE);
+                led4.setVisibility(View.VISIBLE);
+            }
+            else{
+                imageViewInsert.setVisibility(View.VISIBLE);
+            }
         }
     }
 
