@@ -75,6 +75,7 @@ import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.GetStatusCommand;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListSelectLang;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
 import com.youTransactor.uCube.rpc.command.event.pay.EventPayPinPrompt;
 import com.youTransactor.uCube.rpc.command.event.pay.EventPaySelectAid;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
@@ -392,7 +393,9 @@ public class PaymentActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
+            case dsp_txt:
+                displaytxt(((EventDspTxt) eventCmd).getMessage());
+                break;
             default:
                 break;
         }
@@ -510,6 +513,9 @@ public class PaymentActivity extends AppCompatActivity {
         trxResultFld.setText(msg);
     }
 
+    private void displaytxt(String msg) {
+        trxResultFld.setText(msg);
+    }
     private void parsePaymentResponse(@NonNull PaymentContext context) {
         Log.d(TAG, "Payment status : " + context.paymentStatus);
 

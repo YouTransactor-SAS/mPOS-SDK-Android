@@ -84,20 +84,21 @@ public final class EmvParamFmt1ToYT {
         emvContactTagDict.put("targPerc", "DF0D");
         emvContactTagDict.put("maxTargPerc", "DF0F");
         emvContactTagDict.put("floorLim", "9F1B");
-        emvContactTagDict.put("transType", "DF40");
+        emvContactTagDict.put("transType", "9C");
         emvContactTagDict.put("appSelOpt", "DF41");
         emvContactTagDict.put("appLabel", "DF42");
 
         emvCLessVISATagDict.put("appVersion", "9F09");
         // VISA Cless
+        emvCLessVISATagDict.put("transType", "9C");
         emvCLessVISATagDict.put("AID", "9F06");
         emvCLessVISATagDict.put("appVersion", "9F09");
         emvCLessVISATagDict.put("termCtryCde", "9F1A");
+        emvCLessVISATagDict.put("floorLim", "9F1B");
         emvCLessVISATagDict.put("termRisk", "9F1D");
         emvCLessVISATagDict.put("termCap", "9F33");
         emvCLessVISATagDict.put("termType", "9F35");
         emvCLessVISATagDict.put("addTermCap", "9F40");
-        emvCLessVISATagDict.put("transType", "DF40");
         emvCLessVISATagDict.put("appSelOpt", "DF41");
         emvCLessVISATagDict.put("appLabel", "DF42");
         emvCLessVISATagDict.put("termIntProfile", "9F53");
@@ -118,11 +119,11 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("maxThornRec", "DF811D"); // NOT FOUND IN FMT1 - default "00"
         emvCLessVISATagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessVISATagDict.put("secCap", "DF811F");
-        emvCLessVISATagDict.put("floorLim", "DF01");
+        emvCLessVISATagDict.put("CVMReqLim", "DF01");
         emvCLessVISATagDict.put("transLim", "DF02");
         emvCLessVISATagDict.put("transLimNoDev", "DF8124");
         emvCLessVISATagDict.put("transLimDev", "DF8125");
-        emvCLessVISATagDict.put("CVMReqLim", "DF00");
+        // emvCLessVISATagDict.put("termClessTrxLimit", "DF00");
         emvCLessVISATagDict.put("Mag-stripe CVM Capability - No CVM Required", "DF812C"); // NOT FOUND IN FMT1 - default "08"
         emvCLessVISATagDict.put("Message Hold Time", "DF812D"); // NOT FOUND IN FMT1 - default value: "00000000"
         emvCLessVISATagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
@@ -130,15 +131,18 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
 
         // MCL Cless
-        emvCLessMCLTagDict.put("appVersion", "9F09");
+        emvCLessMCLTagDict.put("transType", "9C");
         emvCLessMCLTagDict.put("AID", "9F06");
         emvCLessMCLTagDict.put("appVersion", "9F09");
+        emvCLessMCLTagDict.put("mercCatCde", "9F15");
+        emvCLessMCLTagDict.put("mercId", "9F16");
+        emvCLessMCLTagDict.put("appVersion", "9F09");
         emvCLessMCLTagDict.put("termCtryCde", "9F1A");
+        emvCLessMCLTagDict.put("termId", "9F1C");
         emvCLessMCLTagDict.put("termRisk", "9F1D");
         emvCLessMCLTagDict.put("termCap", "9F33");
         emvCLessMCLTagDict.put("termType", "9F35");
         emvCLessMCLTagDict.put("addTermCap", "9F40");
-        emvCLessMCLTagDict.put("transType", "DF40");
         emvCLessMCLTagDict.put("appSelOpt", "DF41");
         emvCLessMCLTagDict.put("appLabel", "DF42");
         emvCLessMCLTagDict.put("termIntProfile", "9F53");

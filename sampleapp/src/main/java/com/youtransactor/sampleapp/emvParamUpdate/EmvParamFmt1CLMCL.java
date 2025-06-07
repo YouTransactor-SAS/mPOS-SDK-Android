@@ -61,11 +61,15 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_mcl_tag_dict());
+                    EmvParamDOL commonLst = EmvParamFmt1.get_tlv_dol(
+                            common,
+                            EmvParamFmt1ToYT.get_cless_mcl_tag_dict());
                     clessAIDDsc.dol = EmvParamFmt1.get_tlv_dol(
                             clAIDList.getJSONObject(i),
                             EmvParamFmt1ToYT.get_cless_mcl_tag_dict());
                     // AID parameters repeat common parameters
                     clessAIDDsc.dol.dol.addAll(clCommonLst.dol);
+                    clessAIDDsc.dol.dol.addAll(commonLst.dol);
                     clessAIDDsc.type = EmvParamYTModel.TypeID.clMCLKrnId.getVal();
                     clessAIDDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.noId.getVal();
                     if (clMCLalltagDol.dol.isEmpty()) {
@@ -76,6 +80,7 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                         clessTermDsc.type = EmvParamYTModel.TypeID.clMCLKrnId.getVal();
                         clessTermDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.clTermId.getVal();
                         clessTermDsc.dol = clMCLalltagDol;
+                        clessTermDsc.dol.dol.addAll(commonLst.dol);
                         // alcineo proprietary data
                         clessTermDsc.dol.add_tlv(new TLV(
                                 "D000", String.format(Locale.US,
@@ -83,6 +88,9 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                         // DFDF02: Online and clearing message: always empty
                         clessTermDsc.dol.add_tlv(new TLV(
                                 "DFDF02", "", "B_"));
+                        // DFDF03: Online and clearing message for Mag-Stripe transaction
+                        clessTermDsc.dol.add_tlv(new TLV(
+                                "DFDF03", "", "B_"));
                         // DFDF14: Socket Timeout for Online Processing: default set
                         clessTermDsc.dol.add_tlv(new TLV(
                                 "DFDF14", "00003A98", "B_"));
@@ -108,6 +116,22 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                         if (!clessTermDsc.dol.is_tlv_present("DFDF45")) {
                             clessTermDsc.dol.add_tlv(new TLV(
                                     "DFDF45", "5056575A5F245F255F285F305F345F2D5F536F7077808284878C8E8F9092949F059F079F089F0D9F0E9F0F9F109F119F129F179F1F9F209F249F269F279F329F369F389F3B9F429F449F469F479F489F4A9F4B9F4C9F4D9F509F519F549F5B9F5D9F5E9F5F9F609F619F629F639F649F659F669F679F699F6B9F6E9F6F9F709F719F729F739F749F759F769F779F789F799F7D9F7FA5BF0CDF4BDF8101DF8102DF8302DF8303DF8304DF83059F199F25", "B_"));
+                        }
+                        // IFD ID
+                        if (!clessTermDsc.dol.is_tlv_present("9F1E")) {
+                            clessTermDsc.dol.add_tlv(new TLV(
+                                    "9F1E", "YT-SOMV2", "AN_"));
+                        }
+                        // Merchant loc
+                        if (!clessTermDsc.dol.is_tlv_present("9F4E")) {
+                            clessTermDsc.dol.add_tlv(new TLV(
+                                    "9F4E", "R&D", "AN_"));
+                        }
+                        // Merchant custom data
+                        if (!clessTermDsc.dol.is_tlv_present("9F7C")) {
+                            clessTermDsc.dol.add_tlv(new TLV(
+                                    "9F7C", "1122334455667788990011223344556677889900",
+                                    "AN_"));
                         }
                         clessTermDsc.dol = model.filterDOLForAIDParam(
                                 clessTermDsc.dol, model.clMCLTermAIDTagList);

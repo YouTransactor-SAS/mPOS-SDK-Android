@@ -67,6 +67,15 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                             EmvParamFmt1ToYT.get_cless_visa_tag_dict());
                     // AID parameters repeat common parameters
                     clessAIDDsc.dol.dol.addAll(clCommonLst.dol);
+                    // terminal risk management
+                    clessAIDDsc.dol.dol.add((new TLV(
+                            "DFDF22", "3A00", "B_")));
+                    // temrinal cless transaction limit
+                    if (!clessAIDDsc.dol.is_tlv_present("DF00")) {
+                        clessAIDDsc.dol.add_tlv(new TLV(
+                                // magic number to define
+                                "DF00", "000000030000", "B_"));
+                    }
                     clessAIDDsc.type = EmvParamYTModel.TypeID.clVISAKrnId.getVal();
                     clessAIDDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.noId.getVal();
                     if (clVISAalltagDol.dol.isEmpty()) {
@@ -86,7 +95,7 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                                 "D001", "00", "B_"));
                         // DFDF02: Online and clearing message: always empty
                         clessTermDsc.dol.add_tlv(new TLV(
-                                "DFDF02", "", "B_"));
+                                "DFDF02", "50575A8295999A9C5F205F245F2A5F345F369F029F039F069F109F159F1A9F219F249F269F279F369F379F399F4E9F5D9F5B9F669F6E9F7CDFDF20DFDF23DFDF24DFDF27", "B_"));
                         // DFDF14: Socket Timeout for Online Processing: default set
                         clessTermDsc.dol.add_tlv(new TLV(
                                 "DFDF14", "00003A98", "B_"));
@@ -98,10 +107,10 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                                 "DFDF16", "00000080", "B_"));
                         // DFDF21: Reader features
                         clessTermDsc.dol.add_tlv(new TLV(
-                                "DFDF21", "83B0", "B_"));
+                                "DFDF21", "3800E0", "B_"));
                         // DFDF22: Default reader Risk Parameters Checking capabilities
                         clessTermDsc.dol.add_tlv(new TLV(
-                                "DFDF22", "3900", "B_"));
+                                "DFDF22", "3A00", "B_"));
                         // DFDF23: Default reader Risk Parameters Checking capabilities
                         clessTermDsc.dol.add_tlv(new TLV(
                                 "DFDF23", "05", "B_"));
@@ -109,21 +118,26 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                                 clessTermDsc.dol, model.clVISATermAIDTagList);
                         // 9F4E: Merchant Name and Location
                         clessTermDsc.dol.add_tlv(new TLV(
-                                "9F4E", "", "B_"));
+                                "9F4E", "R&D", "AN_"));
                         clessTermDsc.dol = model.filterDOLForAIDParam(
                                 clessTermDsc.dol, model.clVISATermAIDTagList);
-                        if (!clessTermDsc.dol.is_tlv_present("DF8120")) {
-                            clessTermDsc.dol.add_tlv(new TLV(
-                                    "DF8120", "0000000000", "B_"));
-                        }
-                        if (!clessTermDsc.dol.is_tlv_present("DF8121")) {
-                            clessTermDsc.dol.add_tlv(new TLV(
-                                    "DF8121", "0000000000", "B_"));
-                        }
-                        if (!clessTermDsc.dol.is_tlv_present("DF8122")) {
-                            clessTermDsc.dol.add_tlv(new TLV(
-                                    "DF8122", "0000000000", "B_"));
-                        }
+                        // seemingly not applicable for VISA but to be confirmed
+                        // Try to uncomment if needed:
+                        // Terminal Action Code Default
+//                        if (!clessTermDsc.dol.is_tlv_present("DF8120")) {
+//                            clessTermDsc.dol.add_tlv(new TLV(
+//                                    "DF8120", "0000000000", "B_"));
+//                        }
+//                        // Terminal Action Code denial
+//                        if (!clessTermDsc.dol.is_tlv_present("DF8121")) {
+//                            clessTermDsc.dol.add_tlv(new TLV(
+//                                    "DF8121", "0000000000", "B_"));
+//                        }
+//                        // Terminal Action Code online
+//                        if (!clessTermDsc.dol.is_tlv_present("DF8122")) {
+//                            clessTermDsc.dol.add_tlv(new TLV(
+//                                    "DF8122", "0000000000", "B_"));
+//                        }
                         // terminal country code is mandatory
                         if (!clessTermDsc.dol.is_tlv_present("9F1A")) {
                             clessTermDsc.dol.add_tlv(new TLV(
@@ -133,6 +147,16 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                         if (!clessTermDsc.dol.is_tlv_present("9F35")) {
                             clessTermDsc.dol.add_tlv(new TLV(
                                     "9F35", "22", "B_"));
+                        }
+                        // additional terminal capabilities
+                        if (!clessTermDsc.dol.is_tlv_present("9F40")) {
+                            clessTermDsc.dol.add_tlv(new TLV(
+                                    "9F40", "F000A0A000", "B_"));
+                        }
+                        // merchant category type
+                        if (!clessTermDsc.dol.is_tlv_present("9F15")) {
+                            clessTermDsc.dol.add_tlv(new TLV(
+                                    "9F15", "0000", "B_"));
                         }
                         // not defined in JPMC param file
                         model.add_cless_elt(clessTermDsc);
