@@ -59,8 +59,8 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
                 OnlinePinBlockFormatType.values()
         ));
         onlinePinBlockFormatChoice.setSelection(1);
-        // Todo: remove when all format are supported
-        onlinePinBlockFormatChoice.setVisibility(View.INVISIBLE);
+//        // Todo: remove when all format are supported
+//        onlinePinBlockFormatChoice.setVisibility(View.INVISIBLE);
     }
 
     @Override

@@ -44,6 +44,7 @@ import static com.youtransactor.sampleapp.transactionView.view_factory.View_inde
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.jps.secureService.api.product_manager.ProductIdentifier;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.TaskEvent;
@@ -413,7 +414,9 @@ public class PaymentActivity extends AppCompatActivity {
         OnlinePinBlockFormatType onlinePinBlockFormat = (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem();
 
         boolean forceAuthorisation = forceAuthorisationBtn.isChecked();
-
+        if(ProductManager.id == ProductIdentifier.stick){
+            forceAuthorisation = false;
+        }
         boolean contactOnly = contactOnlySwitch.isChecked();
 
         forceDebug = forceDebugSwitch.isChecked();

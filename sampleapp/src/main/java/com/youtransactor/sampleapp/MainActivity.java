@@ -1344,7 +1344,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     if(deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
                         Toast.makeText(this, "Terminal State: SECURED", Toast.LENGTH_LONG).show();
                     else
-                        Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState().label, Toast.LENGTH_LONG).show();
                     break;
             }
         }));

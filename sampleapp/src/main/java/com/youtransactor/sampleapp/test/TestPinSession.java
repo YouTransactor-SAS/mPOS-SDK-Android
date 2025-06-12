@@ -26,6 +26,7 @@ import static com.youTransactor.uCube.payment.TestPinState.START_DISPLAY_PIN;
 import static com.youTransactor.uCube.payment.TestPinState.START_ENTER_SECURE_SESSION;
 import static com.youTransactor.uCube.payment.TestPinState.START_EXIT_SECURE_SESSION;
 import static com.youTransactor.uCube.payment.TestPinState.START_UPDATE_KEY_PAD;
+import static com.youTransactor.uCube.rpc.OnlinePinBlockFormatType.FORMAT_4;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.payment.TestPinState;
+import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.command.SimplifiedOnlinePINCommand;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
@@ -166,6 +168,10 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
                 pay_context.currency = UCubePaymentRequest.CURRENCY_USD;
                 pay_context.amount = 1;
                 pay_context.setOnlinePinBlockFormat(onlinePinBlockFormatType);
+                pay_context.dukpt_key_slot =  Constants.DUKPT_KEY_SLOT_0;
+                if(onlinePinBlockFormatType == FORMAT_4){
+                    pay_context.dukpt_key_slot =  Constants.DUKPT_KEY_SLOT_2;
+                }
                 PaymentUtils.doSimplifiedOnlinePin(pay_context, (event, params) -> {
                     switch (event) {
                         case FAILED:
