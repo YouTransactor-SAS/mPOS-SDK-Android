@@ -39,6 +39,7 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
         boolean isAidEltIdFound;
+        model.setIsClMclConfigured(false);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject clCommon = clJson.getJSONObject("common");
         JSONObject common = jsonD.getJSONObject("common");
@@ -245,6 +246,7 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                 }
                 if (isAidEltIdFound) {
                     model.add_cless_elt(clessAIDDsc);
+                    model.setIsClMclConfigured(true);
                     break;
                 }
             }

@@ -118,6 +118,7 @@ public class UIUtils {
 	public static void hideProgressDialog() {
 		if (progressDialog != null) {
 			progressDialog.dismiss();
+			progressDialog = null;
 		}
 	}
 

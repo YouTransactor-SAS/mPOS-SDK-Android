@@ -22,6 +22,19 @@
  */
 package com.youtransactor.sampleapp.payment;
 
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1_DATA;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F20_CARDHOLDER_NAME;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F30_SERVICE_CODE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
+import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
+import static com.youtransactor.sampleapp.payment.PaymentActivity.pay_sdse_mode.VOLTAGE;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.list;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.pin;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,12 +52,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.*;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.jps.secureService.api.entity.ViewIdentifier;
 import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.TaskEvent;
@@ -56,19 +69,19 @@ import com.youTransactor.uCube.api.UCubePaymentRequest;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.control.ControlContext;
 import com.youTransactor.uCube.control.ControlService;
-import com.youTransactor.uCube.payment.PaymentUtils;
-import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.control.ControlState;
-import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
+import com.youTransactor.uCube.payment.PaymentUtils;
+import com.youTransactor.uCube.rpc.CardReaderType;
+import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.RPCCommand;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.TransactionType;
-import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.CancelCommand;
 import com.youTransactor.uCube.rpc.command.EnterSecureSessionCommand;
 import com.youTransactor.uCube.rpc.command.ExitSecureSessionCommand;
@@ -80,6 +93,7 @@ import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
 import com.youTransactor.uCube.rpc.command.event.pay.EventPayPinPrompt;
 import com.youTransactor.uCube.rpc.command.event.pay.EventPaySelectAid;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptPin;
+import com.youtransactor.sampleapp.App;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
@@ -87,19 +101,13 @@ import com.youtransactor.sampleapp.YTProduct;
 import com.youtransactor.sampleapp.transactionView.DisplayList;
 import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
-import com.jps.secureService.api.entity.ViewIdentifier;
-
-import com.jps.secureService.api.product_manager.ProductManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.*;
-import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
-import static com.youtransactor.sampleapp.payment.PaymentActivity.pay_sdse_mode.VOLTAGE;
+import java.util.function.Supplier;
 
 public class PaymentActivity extends AppCompatActivity {
     public static final String SDSE_MODE_PREF_NAME = "SDSE mode";
@@ -148,6 +156,7 @@ public class PaymentActivity extends AppCompatActivity {
     private List<Intent> intents;
 
     private PaymentMeasure paymentMeasure;
+
     public enum pay_sdse_mode {
         SRED("SRED", 0),
         SDSE_RFU("RFU", 1),
@@ -180,7 +189,8 @@ public class PaymentActivity extends AppCompatActivity {
             return SRED;
         }
     }
-    private static pay_sdse_mode sdse_mode= VOLTAGE;
+
+    private static pay_sdse_mode sdse_mode = VOLTAGE;
     private boolean forceDebug;
     private boolean isPinBypassAllowed = false;
 
@@ -191,7 +201,7 @@ public class PaymentActivity extends AppCompatActivity {
         prefs = getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
         testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
         measureModeEnabled = prefs.getBoolean(SetupActivity.MEASURES_MODE_PREF_NAME, false);
-        if(measureModeEnabled) {
+        if (measureModeEnabled) {
             paymentMeasure = new PaymentMeasure();
         }
 
@@ -221,7 +231,7 @@ public class PaymentActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
 
-        if(paymentService != null)
+        if (paymentService != null)
             cancelPayment(false);
         else
             cancelControl(false);
@@ -277,8 +287,8 @@ public class PaymentActivity extends AppCompatActivity {
         sdse_mode_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                prefs.edit().putInt(SDSE_MODE_PREF_NAME, ((pay_sdse_mode)sdse_mode_spinner.getSelectedItem()).getCode()).apply();
-                sdse_mode= (pay_sdse_mode) sdse_mode_spinner.getSelectedItem();
+                prefs.edit().putInt(SDSE_MODE_PREF_NAME, ((pay_sdse_mode) sdse_mode_spinner.getSelectedItem()).getCode()).apply();
+                sdse_mode = (pay_sdse_mode) sdse_mode_spinner.getSelectedItem();
             }
 
             @Override
@@ -345,6 +355,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         pay();
     }
+
     private ArrayList<byte[]> update_cless_aid_list(ArrayList<byte[]> aid_list) {
         //here to add your code and update aid list
         return aid_list;
@@ -386,13 +397,13 @@ public class PaymentActivity extends AppCompatActivity {
                 PaymentUtils.send_event_filter_cless_aid(
                         update_cless_aid_list(((EventPaySelectAid) eventCmd).getAidList()),
                         tlv, (event, params) -> {
-                    switch (event) {
-                        case FAILED:
-                            break;
-                        case SUCCESS:
-                            break;
-                    }
-                });
+                            switch (event) {
+                                case FAILED:
+                                    break;
+                                case SUCCESS:
+                                    break;
+                            }
+                        });
                 break;
             case dsp_txt:
                 displaytxt(((EventDspTxt) eventCmd).getMessage());
@@ -400,6 +411,10 @@ public class PaymentActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    private Supplier<Context> getActivityOnWhichAuthorizationPopupWillBeDisplayed() {
+        return () -> ((App) this.getApplication()).getCurrentActivity();
     }
 
     private UCubePaymentRequest preparePaymentRequest() {
@@ -414,7 +429,7 @@ public class PaymentActivity extends AppCompatActivity {
         OnlinePinBlockFormatType onlinePinBlockFormat = (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem();
 
         boolean forceAuthorisation = forceAuthorisationBtn.isChecked();
-        if(ProductManager.id == ProductIdentifier.stick){
+        if (ProductManager.id == ProductIdentifier.stick) {
             forceAuthorisation = false;
         }
         boolean contactOnly = contactOnlySwitch.isChecked();
@@ -432,7 +447,7 @@ public class PaymentActivity extends AppCompatActivity {
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
 
         long amount = amountFld.getCleanIntValue();
-        Log.d(TAG,"Amount : "+ amount);
+        Log.d(TAG, "Amount : " + amount);
 
         List<CardReaderType> readerList = new ArrayList<>();
 
@@ -440,11 +455,11 @@ public class PaymentActivity extends AppCompatActivity {
 
         if (!contactOnly)
             readerList.add(CardReaderType.NFC);
-        if(msrIsActivate){
+        if (msrIsActivate) {
             readerList.add(CardReaderType.MSR);
         }
 
-        AuthorizationTask authorizationTask = new AuthorizationTask(this);
+        AuthorizationTask authorizationTask = new AuthorizationTask(this.getActivityOnWhichAuthorizationPopupWillBeDisplayed());
         authorizationTask.setMeasureStatesListener(paymentMeasure);
         int posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
         int dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
@@ -457,7 +472,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setTransactionDate(new Date())
                 .setForceAuthorisation(forceAuthorisation)
                 .setOnlinePinBlockFormat(onlinePinBlockFormat)
-              //  .setRiskManagementTask(new RiskManagementTask(this))
+                //  .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)
@@ -474,12 +489,12 @@ public class PaymentActivity extends AppCompatActivity {
                 .setPosEntryMode(posEntryMode)
                 .setDukptSlotKey(dukpt_key_slot)
                 .setUpdateTlvTask(new UpdateTlvTask(this))
-        //CLIENT TAGs
+                //CLIENT TAGs
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
                         0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
-                        0x8F, 0x9F02, 0x9F03, 0x9F09,  0x9F1E, 0xDF63)
+                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63)
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
@@ -495,7 +510,7 @@ public class PaymentActivity extends AppCompatActivity {
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
                         0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
-                        0x8F, 0x9F02, 0x9F03, 0x9F09,  0x9F1E, 0xDF63)
+                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63)
 
                 .setFinalizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
@@ -519,6 +534,7 @@ public class PaymentActivity extends AppCompatActivity {
     private void displaytxt(String msg) {
         trxResultFld.setText(msg);
     }
+
     private void parsePaymentResponse(@NonNull PaymentContext context) {
         Log.d(TAG, "Payment status : " + context.paymentStatus);
 
@@ -547,7 +563,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         //todo send this to backend to check the integrity
         if (context.finalizationGetPlainTagsResponse != null)
-            Log.d(TAG,"finalization plain tags response " + Tools.bytesToHex(context.finalizationGetPlainTagsResponse));
+            Log.d(TAG, "finalization plain tags response " + Tools.bytesToHex(context.finalizationGetPlainTagsResponse));
 
         if (context.finalizationPlainTagsValues != null) {
             for (Integer tag : context.finalizationPlainTagsValues.keySet())
@@ -572,12 +588,12 @@ public class PaymentActivity extends AppCompatActivity {
 
         if (paymentService != null && paymentService.isRunning()) {
             Log.d(TAG, "Try to cancel current Payment");
-            if(displayUI)
+            if (displayUI)
                 UIUtils.showProgress(this, "Trying cancellation");
 
             paymentService.cancel(status -> {
-                Log.d(TAG, "cancel value : "+ status);
-                if(displayUI) {
+                Log.d(TAG, "cancel value : " + status);
+                if (displayUI) {
                     runOnUiThread(() -> {
                         UIUtils.hideProgressDialog();
 
@@ -594,12 +610,12 @@ public class PaymentActivity extends AppCompatActivity {
     private void cancelControl(boolean displayUI) {
         if (controlService != null && controlService.isRunning()) {
             Log.d(TAG, "Try to cancel current control");
-            if(displayUI)
+            if (displayUI)
                 UIUtils.showProgress(this, "Trying cancellation");
 
             controlService.cancel(status -> {
-                Log.d(TAG, "cancel value : "+ status);
-                if(displayUI) {
+                Log.d(TAG, "cancel value : " + status);
+                if (displayUI) {
                     runOnUiThread(() -> {
                         UIUtils.hideProgressDialog();
                         if (status)
@@ -621,13 +637,13 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void getCBTag() {
-        ITaskMonitor iTaskMonitor = (event, params) ->  {
-            Log.d(TAG,"event: " + event);
+        ITaskMonitor iTaskMonitor = (event, params) -> {
+            Log.d(TAG, "event: " + event);
 
-            if(event == TaskEvent.FAILED) {
+            if (event == TaskEvent.FAILED) {
                 String command = "unknown";
-                if(params[0] != null)
-                    command =  "0x"+Integer.toHexString(((RPCCommand) params[0]).getCommandId());
+                if (params[0] != null)
+                    command = "0x" + Integer.toHexString(((RPCCommand) params[0]).getCommandId());
 
                 String finalCommand = command;
                 runOnUiThread(() -> UIUtils.showMessageDialog(this, getString(R.string.get_cb_command_failed, finalCommand)));
@@ -638,10 +654,10 @@ public class PaymentActivity extends AppCompatActivity {
         new EnterSecureSessionCommand().execute(iTaskMonitor);
         new GetInfosCommand(Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1).execute(iTaskMonitor);
         new ExitSecureSessionCommand().execute((event, params) -> {
-            if(event == TaskEvent.FAILED) {
+            if (event == TaskEvent.FAILED) {
                 runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
                         getString(R.string.get_cb_command_failed, "0x5102")));
-            } else if(event == TaskEvent.SUCCESS) {
+            } else if (event == TaskEvent.SUCCESS) {
                 runOnUiThread(() -> UIUtils.showMessageDialog(PaymentActivity.this,
                         getString(R.string.get_cb_command_success)));
             }
@@ -649,7 +665,7 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void getStatus() {
-        new GetStatusCommand().execute((event, params) -> Log.d(TAG,"getStatus event:"+ event));
+        new GetStatusCommand().execute((event, params) -> Log.d(TAG, "getStatus event:" + event));
     }
 
     private void control() {
@@ -797,14 +813,14 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void displayMeasures(PaymentContext context) {
         findViewById(R.id.measurement_section).setVisibility(View.VISIBLE);
-        TextView measureStartToCardWait= findViewById(R.id.measure_start_to_waiting_card);
-        TextView measurePresentToAuth= findViewById(R.id.measure_present_card_to_auth);
-        TextView measureAuthToFinish= findViewById(R.id.measure_auth_resp_to_finish);
-        TextView measureEnterPinToAuth= findViewById(R.id.measure_user_enter_pin_to_auth);
-        TextView measurePresentCardToEnterPin= findViewById(R.id.measure_present_card_to_cr_enter_pin);
+        TextView measureStartToCardWait = findViewById(R.id.measure_start_to_waiting_card);
+        TextView measurePresentToAuth = findViewById(R.id.measure_present_card_to_auth);
+        TextView measureAuthToFinish = findViewById(R.id.measure_auth_resp_to_finish);
+        TextView measureEnterPinToAuth = findViewById(R.id.measure_user_enter_pin_to_auth);
+        TextView measurePresentCardToEnterPin = findViewById(R.id.measure_present_card_to_cr_enter_pin);
 
         String measurement;
-        if(context.activatedReader == CardReaderType.NFC.getCode()) {
+        if (context.activatedReader == CardReaderType.NFC.getCode()) {
             measureStartToCardWait.setText(getString(R.string.measure_start_to_waiting_card,
                     paymentMeasure.calculateMeasureStartToWaitingCard()));
             measurePresentToAuth.setText(getString(R.string.measure_present_card_to_auth,
@@ -822,7 +838,7 @@ public class PaymentActivity extends AppCompatActivity {
                     + "\n From Start To waiting card: " + paymentMeasure.calculateMeasureStartToWaitingCard()
                     + "\n From UPresentCard To Authorization: " + paymentMeasure.calculateMeasureUPresentCardToAuthorization()
                     + "\n From Authorisation Rp To Finish: " + paymentMeasure.calculateMeasureAuthorisationRpToFinish();
-        }else {
+        } else {
             measureStartToCardWait.setText(getString(R.string.measure_start_to_waiting_card,
                     paymentMeasure.calculateMeasureStartToWaitingCard()));
             measurePresentCardToEnterPin.setText(getString(R.string.measure_present_card_to_enter_pin,

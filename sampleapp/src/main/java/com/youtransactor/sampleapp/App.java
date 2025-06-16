@@ -22,10 +22,17 @@
  */
 package com.youtransactor.sampleapp;
 
+import android.app.Activity;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
+
 import com.youTransactor.uCube.api.UCubeAPI;
 
 public class App extends MultiDexApplication {
+
+    private Activity currentActivity = null;
 
     @Override
     public void onCreate() {
@@ -35,5 +42,44 @@ public class App extends MultiDexApplication {
 
         //Setup logger : if null lib will use it own logger
         UCubeAPI.setupLogger(null);
+        registerActivityLifecycleCallbacks(this.activityLifecycleCallbacks());
+    }
+
+    private ActivityLifecycleCallbacks activityLifecycleCallbacks() {
+        return new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityResumed(@NonNull final Activity activity) {
+                currentActivity = activity;
+            }
+
+            @Override
+            public void onActivityPaused(@NonNull final Activity activity) {
+                if (currentActivity == activity) currentActivity = null;
+            }
+
+            @Override
+            public void onActivityCreated(@NonNull final Activity activity, final Bundle savedInstanceState) {
+            }
+
+            @Override
+            public void onActivityStarted(@NonNull final Activity activity) {
+            }
+
+            @Override
+            public void onActivityStopped(@NonNull final Activity activity) {
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(@NonNull final Activity activity, @NonNull final Bundle outState) {
+            }
+
+            @Override
+            public void onActivityDestroyed(@NonNull final Activity activity) {
+            }
+        };
+    }
+
+    public Activity getCurrentActivity() {
+        return currentActivity;
     }
 }

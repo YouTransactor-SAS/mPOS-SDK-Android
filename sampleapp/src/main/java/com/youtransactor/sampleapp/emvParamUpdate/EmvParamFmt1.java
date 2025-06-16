@@ -96,6 +96,12 @@ public class EmvParamFmt1 {
             // Contactless parameter translation
             EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(jsonD, model);
             EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLAmex.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLInterac.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLJCB.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLDisc.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLCUP.getEmvModelFromFmt1Input(jsonD, model);
+            EmvParamFmt1CLCAPK.getEmvModelFromFmt1Input(jsonD, model);
         } catch (Exception e) {
             LogManager.e("EMV model from FMT1 conversion fail", e);
         }

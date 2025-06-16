@@ -37,6 +37,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLVisa extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
+        model.setIsClVisaConfigured(false);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -168,6 +169,7 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                 }
                 if (isAidEltIdFound) {
                     model.add_cless_elt(clessAIDDsc);
+                    model.setIsClVisaConfigured(true);
                     break;
                 }
             }

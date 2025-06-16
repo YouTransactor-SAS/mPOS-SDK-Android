@@ -237,7 +237,7 @@ public class DemoActivity extends TransactionViewBase {
             readerList.add(CardReaderType.MSR);
         }
 
-        AuthorizationTask authorizationTask = new AuthorizationTask(this);
+        AuthorizationTask authorizationTask = new AuthorizationTask(() -> this);
         authorizationTask.setMeasureStatesListener(paymentMeasure);
 
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,

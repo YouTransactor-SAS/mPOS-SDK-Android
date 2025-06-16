@@ -35,18 +35,20 @@ import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
 
+import java.util.function.Supplier;
+
 public class AuthorizationTask implements IAuthorizationTask {
     private static final String TAG = AuthorizationTask.class.getName();
 
-    private final Context context;
+    private final Supplier<Context> androidContextSupplier;
     private MeasureStatesListener measureStatesListener;
     private byte[] authResponse;
     private ITaskMonitor monitor;
     private PaymentContext paymentContext;
     private AlertDialog alertDialog;
 
-    public AuthorizationTask(Context context) {
-        this.context = context;
+    public AuthorizationTask(Supplier<Context> androidContextSupplier) {
+        this.androidContextSupplier = androidContextSupplier;
     }
 
     public void setMeasureStatesListener(MeasureStatesListener measureStatesListener) {
@@ -91,9 +93,10 @@ public class AuthorizationTask implements IAuthorizationTask {
                 Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationPlainTagsValues.get(tag))));
             }
         }
+        final Context androidContext = androidContextSupplier.get();
 
         //todo here you can call the host
-        if(context == null) {
+        if(androidContext == null) {
             this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x30};
             monitor.handleEvent(TaskEvent.SUCCESS);
             return;
@@ -105,7 +108,7 @@ public class AuthorizationTask implements IAuthorizationTask {
         }
 
         new Handler(Looper.getMainLooper()).post(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            AlertDialog.Builder builder = new AlertDialog.Builder(androidContext);
 
             builder.setCancelable(true);
             builder.setTitle("Authorization response");
