@@ -42,6 +42,8 @@ public final class EmvParamFmt1ToYT {
             emvCLessINTERACTagDict = new Hashtable<>();
     private static final Dictionary<String, String>
             emvCLessCUPTagDict = new Hashtable<>();
+    private static final Dictionary<String, String>
+            emvCLessCAPKTagDict = new Hashtable<>();
     private EmvParamFmt1ToYT() {}
 
     public static Dictionary<String, String> get_contact_tag_dict(){
@@ -52,6 +54,7 @@ public final class EmvParamFmt1ToYT {
         return emvCLessVISATagDict;
     }
     public static Dictionary<String, String> get_cless_mcl_tag_dict(){
+
         return emvCLessMCLTagDict;
     }
     public static Dictionary<String, String> get_cless_amex_tag_dict(){
@@ -67,7 +70,11 @@ public final class EmvParamFmt1ToYT {
         return emvCLessINTERACTagDict;
     }
     public static Dictionary<String, String> get_cless_cup_tag_dict(){
+
         return emvCLessCUPTagDict;
+    }
+    public static Dictionary<String, String> get_cless_capk_tag_dict(){
+        return emvCLessCAPKTagDict;
     }
     public static String get_mcl_tag_from_id(String id_str){
         return emvCLessMCLTagDict.get(id_str);
@@ -414,6 +421,13 @@ public final class EmvParamFmt1ToYT {
         emvCLessDISCTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessDISCTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessDISCTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+
+        // CAPKs
+        emvCLessCAPKTagDict.put("RID", "CA00");
+        emvCLessCAPKTagDict.put("index", "CA01");
+        emvCLessCAPKTagDict.put("mod", "CA02");
+        emvCLessCAPKTagDict.put("exp", "CA03");
+        emvCLessCAPKTagDict.put("checkSum", "CA04");
     }
 }
 

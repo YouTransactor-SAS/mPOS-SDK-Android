@@ -261,6 +261,7 @@ public class LocalUpdateActivity extends AppCompatActivity {
                        displayState(getResources().getString(R.string.read_file_error), true);
                    }
                }
+                displayState(null, false);
             }
         }
         super.onActivityResult(requestCode, resultCode, resultData);

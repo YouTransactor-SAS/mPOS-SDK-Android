@@ -22,11 +22,52 @@
  */
 package com.youtransactor.sampleapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.PAYMENT_SERVICE;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SOCKET;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SOCKET_JSON;
+import static com.youTransactor.uCube.rpc.Constants.ICC_READER;
+import static com.youTransactor.uCube.rpc.Constants.MAX_RPC_PACKET_SIZE;
+import static com.youTransactor.uCube.rpc.Constants.QUICK_MODE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_ACE_LAYER_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_AGNOS_LIB_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_BATTERY_STATE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_BLE_FIRMWARE_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_BOOT_LOADER_CHECKSUM;
+import static com.youTransactor.uCube.rpc.Constants.TAG_CB;
+import static com.youTransactor.uCube.rpc.Constants.TAG_CF_ENHANCED_SRED_CONFIGURATION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_CONFIGURATION_MERCHANT_INTERFACE_LOCALE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_E7_NFC_CARD_DETECT_CONFIGURATION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMVL1_CLESS_LIB_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMVL3_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMV_ICC_CONFIG_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMV_L1_CHECKSUM;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMV_L2_CHECKSUM;
+import static com.youTransactor.uCube.rpc.Constants.TAG_EMV_NFC_CONFIG_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_F3_BUILD_CONFIGURATION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_FB_CHARGING_STATUS;
+import static com.youTransactor.uCube.rpc.Constants.TAG_FC_SPEED_MODE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_FD_NON_SECURE_FIRMWARE_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_FIRMWARE_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_FULL_SVPP_IDENTIFICATION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_GPI_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_MPOS_MODULE_STATE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_OS_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_CHECKSUM;
+import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_POWER_OFF_TIMEOUT;
+import static com.youTransactor.uCube.rpc.Constants.TAG_RESOURCE_FILE_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_SECURE_MOD;
+import static com.youTransactor.uCube.rpc.Constants.TAG_SUPPORTED_LOCALE_LIST;
+import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_PN;
+import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_SN;
+import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_STATE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_TST_LOOPBACK_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_USB_CAPABILITY;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
+import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
+import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -47,8 +88,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.gson.Gson;
 import com.jps.secureService.api.entity.ViewIdentifier;
@@ -63,6 +109,8 @@ import com.youTransactor.uCube.api.YTMPOSProduct;
 import com.youTransactor.uCube.connexion.BatteryLevelListener;
 import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionService;
+import com.youTransactor.uCube.connexion.ConnectionState;
+import com.youTransactor.uCube.connexion.ConnectionStateChangeListener;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.connexion.IConnexionManager;
 import com.youTransactor.uCube.connexion.SVPPRestartListener;
@@ -71,14 +119,13 @@ import com.youTransactor.uCube.connexion.SocketConnectionManager;
 import com.youTransactor.uCube.connexion.SocketJSONConnectionManager;
 import com.youTransactor.uCube.connexion.UCubeDevice;
 import com.youTransactor.uCube.log.LogManager;
-import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.BinaryUpdate;
+import com.youTransactor.uCube.mdm.Config;
 import com.youTransactor.uCube.mdm.ServiceState;
 import com.youTransactor.uCube.rki.RKIServiceState;
-import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.DeviceInfos;
-import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.LostPacketListener;
+import com.youTransactor.uCube.rpc.RPCCommandStatus;
 import com.youTransactor.uCube.rpc.RPCCommunicationErrorListener;
 import com.youTransactor.uCube.rpc.command.DisplayMessageCommand;
 import com.youTransactor.uCube.rpc.command.EchoCommand;
@@ -88,7 +135,6 @@ import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.GetKeyInfoCommand;
 import com.youTransactor.uCube.rpc.command.InstallForLoadKeyCommand;
 import com.youTransactor.uCube.rpc.command.RTCGetCommand;
-import com.youTransactor.uCube.rpc.command.RTCSetCommand;
 import com.youTransactor.uCube.rpc.command.RebootCommand;
 import com.youTransactor.uCube.rpc.command.ResetCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
@@ -99,6 +145,8 @@ import com.youtransactor.sampleapp.connexion.YTKeyScanner;
 import com.youtransactor.sampleapp.connexion.YTSOMScanner;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamEnableDisableAIDActivity;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
+import com.youtransactor.sampleapp.features.Disconnect;
+import com.youtransactor.sampleapp.features.SetRtc;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
@@ -108,23 +156,19 @@ import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
 import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
-
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.*;
-import static com.youTransactor.uCube.rpc.Constants.*;
-import static com.youtransactor.sampleapp.MainActivity.State.*;
-import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
-
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 
 public class MainActivity extends AppCompatActivity implements BatteryLevelListener,
         SVPPRestartListener, LostPacketListener, RPCCommunicationErrorListener {
@@ -138,9 +182,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     public static final String INTENT_EXTRA_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     private static final String TDES = "74646573";
 
-    enum State { NO_DEVICE_SELECTED, DEVICE_NOT_CONNECTED, DEVICE_CONNECTED }
+    enum State {NO_DEVICE_SELECTED, DEVICE_NOT_CONNECTED, DEVICE_CONNECTED}
 
-    enum MDMState { IDLE, DEVICE_REGISTERED, DEVICE_NOT_REGISTERED }
+    enum MDMState {IDLE, DEVICE_REGISTERED, DEVICE_NOT_REGISTERED}
 
     private View actionPanel;
     private TextView uCubeNameTv;
@@ -165,10 +209,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private final Queue<Integer> remainingTags = new ConcurrentLinkedQueue<>();
     private final List<byte[]> tlvParts = new ArrayList<>();
 
+    private final ConnectionStateChangeListener connectionStateChangeListener = newState -> runOnUiThread(
+            () -> updateConnectionUI(newState == ConnectionState.CONNECTED ? DEVICE_CONNECTED : DEVICE_NOT_CONNECTED)
+    );
+
     @Override
     public void onLevelChanged(int newLevel) {
         runOnUiThread(() -> Toast.makeText(MainActivity.this, String.format(getString(R.string.battery_level), newLevel), Toast.LENGTH_LONG).show());
-        Log.d(TAG,String.format(getString(R.string.battery_level), newLevel));
+        Log.d(TAG, String.format(getString(R.string.battery_level), newLevel));
     }
 
     @Override
@@ -247,9 +295,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         ConnectionService.ConnectionManagerType currentConnexionType;
         try {
             /* protect again invalid connection type name */
-           currentConnexionType = ConnectionService.ConnectionManagerType.valueOf(connectionTypeName);
-        }
-        catch (Exception e) {
+            currentConnexionType = ConnectionService.ConnectionManagerType.valueOf(connectionTypeName);
+        } catch (Exception e) {
             setupSharedPref.edit().remove(SetupActivity.COMMUNICATION_TYPE_PREF_NAME).apply();
             currentConnexionType = ConnectionService.ConnectionManagerType.BT;
         }
@@ -260,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         UCubeAPI.registerSVPPRestartListener(this);
         UCubeAPI.registerLostPacketListener(this);
         UCubeAPI.registerRPCCommunicationErrorListener(this);
+        UCubeAPI.getConnexionManager().registerConnectionStateListener(connectionStateChangeListener);
 
         initViews(setupSharedPref);
 
@@ -391,7 +439,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         testPinbut = findViewById(R.id.testPinButton);
         testPinbut.setOnClickListener(v -> startTestPin());
 
-        contactCertifBut= findViewById(R.id.contactCertifButton);
+        contactCertifBut = findViewById(R.id.contactCertifButton);
         contactCertifBut.setOnClickListener(v -> startcontactCertif());
 
         TextView versionFld = findViewById(R.id.version_name);
@@ -405,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         displayBtn.setOnClickListener(v -> displayHelloWorld());
         findViewById(R.id.getInfoBtn).setOnClickListener(v -> getInfo());
         Button echoBtn = findViewById(R.id.echo_btn);
-        echoBtn.setOnClickListener(v-> {
+        echoBtn.setOnClickListener(v -> {
             final View customLayout = getLayoutInflater().inflate(R.layout.echo_msg_layout, null);
             final EditText echoData = customLayout.findViewById(R.id.echoDataFld);
 
@@ -435,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                         } catch (Exception e) {
                             timeout = -1;
                         }
-                        if (timeout != 0 && (timeout > 255 || timeout < 32))  {
+                        if (timeout != 0 && (timeout > 255 || timeout < 32)) {
                             Toast.makeText(this, R.string.error_wrong_value, Toast.LENGTH_LONG).show();
                         } else {
                             powerOffTimeout(timeout);
@@ -451,9 +499,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         Button slowModeBtn = findViewById(R.id.slow_mode);
         slowModeBtn.setOnClickListener(v -> enableSlowMode());
         findViewById(R.id.get_rtc).setOnClickListener(v -> getRtc());
-        findViewById(R.id.set_rtc).setOnClickListener(v -> setRtc());
-        findViewById(R.id.get_pub_key).setOnClickListener(v-> getPubKey());
-        findViewById(R.id.get_key_info).setOnClickListener(v-> {
+        findViewById(R.id.set_rtc).setOnClickListener(v -> askForDateAndSetRtc());
+        findViewById(R.id.get_pub_key).setOnClickListener(v -> getPubKey());
+        findViewById(R.id.get_key_info).setOnClickListener(v -> {
             final View customLayout = getLayoutInflater().inflate(R.layout.key_slot_dlg_layout, null);
             final EditText slot = customLayout.findViewById(R.id.key_slot_fld);
 
@@ -469,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     .show();
         });
         findViewById(R.id.reset).setOnClickListener(v -> reset());
-        findViewById(R.id.reboot).setOnClickListener(v-> reboot());
+        findViewById(R.id.reboot).setOnClickListener(v -> reboot());
         Button rkiButton = findViewById(R.id.rkiButton);
         rkiButton.setOnClickListener(v -> doRemoteKeyInjection());
         findViewById(R.id.localUpdateBtn).setOnClickListener(v -> localUpdate());
@@ -509,8 +557,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         forgetButton.setVisibility(
                 ConnectionService.getInstance().getConnectionManagerType() != PAYMENT_SERVICE
-                ? View.VISIBLE
-                : View.GONE);
+                        ? View.VISIBLE
+                        : View.GONE);
         displayDeviceInfos(UCubeAPI.getConnexionManager().getDevice());
 
         switch (state) {
@@ -542,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         switch (state) {
             case IDLE:
             case DEVICE_NOT_REGISTERED:
-                if (ytProduct != YTProduct.AndroidPOS ) mdmRegisterBtn.setVisibility(View.VISIBLE);
+                if (ytProduct != YTProduct.AndroidPOS) mdmRegisterBtn.setVisibility(View.VISIBLE);
                 mdmGetConfigBtn.setVisibility(View.GONE);
                 mdmCheckUpdateBtn.setVisibility(View.GONE);
                 mdmSendLogBtn.setVisibility(View.GONE);
@@ -566,8 +614,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         if (!StringUtils.isBlank(val)) {
             try {
                 return new Gson().fromJson(val, UCubeDevice.class);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.d(TAG, "invalid stored device infos");
                 forgetDevice();
             }
@@ -717,17 +764,17 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 new ConnectionListener() {
                     @Override
                     public void onConnectionFailed(ConnectionStatus status, int error) {
-                        Log.e(TAG, "connection failed status: "+ status);
+                        Log.e(TAG, "connection failed status: " + status);
                         runOnUiThread(() -> {
                             UIUtils.hideProgressDialog();
                             UIUtils.showMessageDialog(MainActivity.this,
-                                                      getString(R.string.connect_failed, status.name(), error));
+                                    getString(R.string.connect_failed, status.name(), error));
                         });
                     }
 
                     @Override
                     public void onConnectionSuccess() {
-                        Log.e(TAG,"connection success");
+                        Log.e(TAG, "connection success");
                         runOnUiThread(() -> {
                             UIUtils.hideProgressDialog();
                             updateConnectionUI(DEVICE_CONNECTED);
@@ -736,35 +783,32 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                     @Override
                     public void onConnectionCancelled() {
-                        Log.e(TAG,"connection cancelled");
+                        Log.e(TAG, "connection cancelled");
                         runOnUiThread(() -> {
                             UIUtils.hideProgressDialog();
                             Toast.makeText(MainActivity.this, getString(R.string.connection_cancelled),
-                                           Toast.LENGTH_LONG).show();
+                                    Toast.LENGTH_LONG).show();
                         });
                     }
                 });
     }
 
     private void disconnect(boolean showProgress) {
-        if (!UCubeAPI.getConnexionManager().isConnected()) {
-            updateConnectionUI(DEVICE_NOT_CONNECTED);
-            return;
-        }
+        final Disconnect disconnect = new Disconnect(UCubeAPI.getConnexionManager());
 
         // Disconnect could be called by closing this activity: do not update UI
         if (showProgress) {
             UIUtils.showProgress(this, getString(R.string.disconnecting));
         }
-        UCubeAPI.getConnexionManager().disconnect(status -> runOnUiThread(() -> {
-            Log.d(TAG,"disconnection status:" + status);
-            // Disconnect could be called by closing this activity: do not update UI
-            if (showProgress) {
-                UIUtils.hideProgressDialog();
-                if (status)
-                    updateConnectionUI(DEVICE_NOT_CONNECTED);
+        disconnect.execute((disconnectionStatus) -> {
+            if (!showProgress) {
+                return;
             }
-        }));
+            UIUtils.hideProgressDialog();
+            if (disconnectionStatus == Disconnect.DisconnectionStatus.DISCONNECTED) {
+                updateConnectionUI(DEVICE_NOT_CONNECTED);
+            }
+        });
     }
 
     private void payment() {
@@ -804,7 +848,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     Log.d(TAG, "mdm register status: " + status);
                     if (status) {
                         Toast.makeText(MainActivity.this,
-                                       getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                                getString(R.string.register_success), Toast.LENGTH_SHORT).show();
                     } else {
                         UIUtils.showMessageDialog(MainActivity.this, getString(R.string.register_failed));
                     }
@@ -820,7 +864,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         UCubeAPI.mdmGetConfig(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
-                runOnUiThread(() ->  progressDlg.setMessage(getString(R.string.progress, state.name())));
+                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
             }
 
             @Override
@@ -829,7 +873,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     progressDlg.dismiss();
                     Log.d(TAG, "mdm get config status: " + status);
 
-                    if (status && params!= null && params.length > 0 && params[0] instanceof List<?>) {
+                    if (status && params != null && params.length > 0 && params[0] instanceof List<?>) {
                         DeviceConfigDialogFragment dlg = new DeviceConfigDialogFragment();
                         dlg.init((List<Config>) params[0]);
                         dlg.show(MainActivity.this.getSupportFragmentManager(), DeviceConfigDialogFragment.class.getSimpleName());
@@ -841,7 +885,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     private void mdmCheckUpdate() {
         UIUtils.showOptionDialog(this, "Force Update ? (Install same version)",
-                                 "Yes", "No", (dialog, which) -> {
+                "Yes", "No", (dialog, which) -> {
                     switch (which) {
                         case DialogInterface.BUTTON_POSITIVE:
                             forceUpdate = true;
@@ -853,8 +897,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     }
 
                     UIUtils.showOptionDialog(MainActivity.this,
-                                             "Check Only Firmware version ?",
-                                             "Yes", "No", (dialog1, which1) -> {
+                            "Check Only Firmware version ?",
+                            "Yes", "No", (dialog1, which1) -> {
                                 switch (which1) {
                                     case DialogInterface.BUTTON_POSITIVE:
                                         checkOnlyFirmwareVersion = true;
@@ -875,7 +919,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                                             @Override
                                             public void onProgress(ServiceState state) {
-                                                runOnUiThread(() ->progressDlg.setMessage(getString(R.string.progress, state.name())));
+                                                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
                                             }
 
                                             @Override
@@ -892,8 +936,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                                                         if (updateList == null || updateList.isEmpty()) {
                                                             Toast.makeText(MainActivity.this,
-                                                                           getString(R.string.ucube_up_to_date),
-                                                                           Toast.LENGTH_SHORT).show();
+                                                                    getString(R.string.ucube_up_to_date),
+                                                                    Toast.LENGTH_SHORT).show();
                                                         } else {
 
                                                             CheckUpdateResultDialog dlg = new CheckUpdateResultDialog();
@@ -944,7 +988,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             dialog.dismiss();
 
             final ProgressDialog progressDlg = UIUtils.showProgress(this,
-                                                                    getString(R.string.update_progress), false);
+                    getString(R.string.update_progress), false);
 
             List<BinaryUpdate> selectedUpdateList = new ArrayList<>(selectedItems1.size());
 
@@ -957,7 +1001,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             UCubeAPI.mdmUpdate(selectedUpdateList, new UCubeLibMDMServiceListener() {
                 @Override
                 public void onProgress(ServiceState state) {
-                    runOnUiThread(() ->progressDlg.setMessage(getString(R.string.progress, state.name())));
+                    runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
                 }
 
                 @Override
@@ -966,8 +1010,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                         progressDlg.dismiss();
 
                         Toast.makeText(getApplicationContext(),
-                                       status ? getString(R.string.update_success) : getString(R.string.update_failed),
-                                       Toast.LENGTH_LONG
+                                status ? getString(R.string.update_success) : getString(R.string.update_failed),
+                                Toast.LENGTH_LONG
                         ).show();
                     });
                 }
@@ -1013,16 +1057,16 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         displayMessageCommand.execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
                 case PROGRESS:
-                    Log.d(TAG,"message display progress state "+ ((RPCCommandStatus) params1[1]).name());
+                    Log.d(TAG, "message display progress state " + ((RPCCommandStatus) params1[1]).name());
                     return;
                 case FAILED:
                 case CANCELLED:
-                    Log.d(TAG,"display message : "+ event1);
+                    Log.d(TAG, "display message : " + event1);
                     UIUtils.showMessageDialog(this, getString(R.string.display_msg_failure));
                     break;
 
                 case SUCCESS:
-                    Log.d(TAG,"display message : "+ event1);
+                    Log.d(TAG, "display message : " + event1);
                     Toast.makeText(this, getString(R.string.display_msg_success), Toast.LENGTH_LONG).show();
                     break;
             }
@@ -1061,7 +1105,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
         Intent contactCertifIntent = new Intent(this, WaitCard_Dte.class);
         contactCertifIntent.putExtra("INTENT_EXTRA_ITF", ICC_READER);
-        Log.d(TAG,"contactCertifIntent : " + ICC_READER);
+        Log.d(TAG, "contactCertifIntent : " + ICC_READER);
         startActivity(contactCertifIntent);
     }
 
@@ -1111,15 +1155,15 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_FULL_SVPP_IDENTIFICATION,
         };
 
-        UIUtils.showProgress(this, getString(R.string.get_info),false);
+        UIUtils.showProgress(this, getString(R.string.get_info), false);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> runOnUiThread(() -> {
-                Log.d(TAG,"get info : " + event);
+                Log.d(TAG, "get info : " + event);
 
                 switch (event) {
                     case PROGRESS:
-                        Log.d(TAG,"Get info state "+ ((RPCCommandStatus) params[1]).name());
+                        Log.d(TAG, "Get info state " + ((RPCCommandStatus) params[1]).name());
                         break;
 
                     case FAILED:
@@ -1151,7 +1195,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void retrieveTagInfoOneByOne(int[] tagList) {
         tlvParts.clear();
 
-        for (int tag: tagList) {
+        for (int tag : tagList) {
             remainingTags.add(tag);
         }
 
@@ -1186,9 +1230,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             }
 
             int offset = 0;
-            byte[] tlv = new byte[MAX_RPC_PACKET_SIZE*2];
+            byte[] tlv = new byte[MAX_RPC_PACKET_SIZE * 2];
 
-            for (byte[] part: tlvParts) {
+            for (byte[] part : tlvParts) {
                 System.arraycopy(part, 0, tlv, offset, part.length);
                 offset += part.length;
             }
@@ -1208,10 +1252,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
         setInfoFieldCommand.setPowerTimeout((byte) powerOffValue);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
-            Log.d(TAG,"set power off timeout : "+ event1);
+            Log.d(TAG, "set power off timeout : " + event1);
             if (event1 == TaskEvent.FAILED) {
                 Toast.makeText(this, "Set power off timeout failed! ", Toast.LENGTH_LONG).show();
-            } else if(event1 == TaskEvent.SUCCESS) {
+            } else if (event1 == TaskEvent.SUCCESS) {
                 Toast.makeText(this, "Set power off timeout SUCCESS! ", Toast.LENGTH_LONG).show();
             }
             progressDlg.dismiss();
@@ -1245,7 +1289,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                     CharSequence[] items = new CharSequence[locales.size()];
                     for (int i = 0; i < locales.size(); i++) {
-                        Log.d(TAG,"locale : " + locales.get(i));
+                        Log.d(TAG, "locale : " + locales.get(i));
                         items[i] = locales.get(i);
                     }
 
@@ -1279,7 +1323,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void enterSecureSession() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.enter_secure_session));
 
-        new EnterSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() ->  {
+        new EnterSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
                 case PROGRESS:
                     Log.d(TAG, "progress state " + ((RPCCommandStatus) params1[1]).name());
@@ -1302,7 +1346,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void exitSecureSession() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.exit_secure_session));
 
-        new ExitSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() ->  {
+        new ExitSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
                 case PROGRESS:
                     Log.d(TAG, "progress state " + ((RPCCommandStatus) params1[1]).name());
@@ -1325,8 +1369,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void getTerminalState() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_terminal_state));
 
-        new GetInfosCommand(TAG_TERMINAL_STATE).execute((event1, params1) -> runOnUiThread(() ->  {
-            Log.d(TAG,"Get terminal state  : "+ event1);
+        new GetInfosCommand(TAG_TERMINAL_STATE).execute((event1, params1) -> runOnUiThread(() -> {
+            Log.d(TAG, "Get terminal state  : " + event1);
             switch (event1) {
                 case PROGRESS:
                     break;
@@ -1341,7 +1385,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                     DeviceInfos deviceInfos = new DeviceInfos(((GetInfosCommand) params1[0]).getResponseData());
 
-                    if(deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
+                    if (deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
                         Toast.makeText(this, "Terminal State: SECURED", Toast.LENGTH_LONG).show();
                     else
                         Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState().label, Toast.LENGTH_LONG).show();
@@ -1357,7 +1401,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
         setInfoFieldCommand.setMode(QUICK_MODE);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
-            if(event1 == TaskEvent.PROGRESS)
+            if (event1 == TaskEvent.PROGRESS)
                 return;
 
             progressDlg.dismiss();
@@ -1371,7 +1415,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
         setInfoFieldCommand.setMode(0);
         setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
-            if(event1 == TaskEvent.PROGRESS)
+            if (event1 == TaskEvent.PROGRESS)
                 return;
 
             progressDlg.dismiss();
@@ -1406,100 +1450,43 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private ProgressDialog progressDlg;
     private int mYear, mMonth, mDay, mHour, mMinute;
 
-    private void setRtc() {
-        final Calendar c = Calendar.getInstance();
-        mYear = c.get(Calendar.YEAR);
-        mMonth = c.get(Calendar.MONTH);
-        mDay = c.get(Calendar.DAY_OF_MONTH);
-
-
+    private void askForDateAndSetRtc() {
+        final LocalDateTime now = LocalDateTime.now();
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (view, year, monthOfYear, dayOfMonth) -> {
-
-                    //save the selected date
-                    mYear = year;
-                    mMonth = monthOfYear;
-                    mDay = dayOfMonth;
-
-                    // Get Current Time
-                    final Calendar c1 = Calendar.getInstance();
-                    mHour = c1.get(Calendar.HOUR_OF_DAY);
-                    mMinute = c1.get(Calendar.MINUTE);
-
-                    // Launch Time Picker Dialog
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this,
-                            new TimePickerDialog.OnTimeSetListener() {
-
-                                @Override
-                                public void onTimeSet(TimePicker view, int hourOfDay,
-                                                      int minute) {
-
-                                    //save selected time
-                                    mHour = hourOfDay;
-                                    mMinute = minute;
-
-                                    //ui
-                                    runOnUiThread(() -> progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.set_rtc)));
-                                     //start enter secure session
-                                    new EnterSecureSessionCommand().execute((event, params) -> {
-                                        switch (event) {
-                                            case PROGRESS:
-                                                return;
-                                            case FAILED:
-                                            case CANCELLED:
-                                                Log.e(TAG, "set rtc : " + event);
-                                                runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this,
-                                                        getString(R.string.set_rtc_failed)));
-                                                return;
-
-                                            case SUCCESS:
-                                                Calendar c = Calendar.getInstance();
-                                                c.set(mYear, mMonth, mDay, mHour, minute);
-                                                RTCSetCommand rtcSetCommand = new RTCSetCommand(c.getTime());
-                                                rtcSetCommand.execute((event1, param1) -> {
-                                                    switch (event1) {
-                                                        case PROGRESS:
-                                                            return;
-                                                        case FAILED:
-                                                        case CANCELLED:
-                                                            Log.e(TAG, "set rtc : " + event1);
-                                                            runOnUiThread(() ->  {
-                                                                progressDlg.dismiss();
-                                                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_rtc_failed));
-                                                            });
-                                                            break;
-
-                                                        case SUCCESS:
-                                                            new ExitSecureSessionCommand().execute((event2, params2) -> {
-                                                                switch (event2) {
-                                                                    case PROGRESS:
-                                                                        return;
-                                                                    case FAILED:
-                                                                    case CANCELLED:
-                                                                        Log.e(TAG, "set rtc : " + event2);
-                                                                        runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this,
-                                                                                getString(R.string.set_rtc_failed)));
-                                                                        return;
-
-                                                                    case SUCCESS:
-                                                                        runOnUiThread(() -> {
-                                                                            progressDlg.dismiss();
-                                                                            Toast.makeText(MainActivity.this, getString(R.string.get_rtc_success), Toast.LENGTH_LONG).show();
-                                                                        });
-                                                                        break;
-                                                                }
-                                                            });
-                                                            break;
-                                                    }
-                                                });
-                                                break;
-                                        }
-                                    });
-                                }
-                            }, mHour, mMinute, false);
+                (datePicker, year, monthOfYear, dayOfMonth) -> {
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                            this,
+                            (timePicker, hourOfDay, minute) -> {
+                                final LocalDateTime chosenDateTime = LocalDateTime.of(year, monthOfYear + 1, dayOfMonth, hourOfDay, minute);
+                                this.setRtc(chosenDateTime);
+                            }, now.getHour(), now.getMinute(), false);
                     timePickerDialog.show();
-                }, mYear, mMonth, mDay);
+                }, now.getYear(), now.getMonthValue() - 1, now.getDayOfMonth());
         datePickerDialog.show();
+    }
+
+    private void setRtc(final LocalDateTime localDateTimeToSet) {
+        runOnUiThread(() -> progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.set_rtc)));
+        final SetRtc setRtc = new SetRtc(UCubeAPI.getConnexionManager());
+        setRtc.execute(localDateTimeToSet.atZone(ZoneId.systemDefault()).toInstant(),
+                (status) -> {
+                    switch (status) {
+                        case FAILED:
+                            runOnUiThread(() -> {
+                                progressDlg.dismiss();
+                                UIUtils.showMessageDialog(MainActivity.this,
+                                        getString(R.string.set_rtc_failed));
+                            });
+                            break;
+                        case SUCCESS_REBOOT_NEEDED:
+                            runOnUiThread(() -> {
+                                progressDlg.dismiss();
+                                Toast.makeText(MainActivity.this, getString(R.string.set_rtc_success), Toast.LENGTH_LONG).show();
+                                updateConnectionUI(DEVICE_NOT_CONNECTED);
+                            });
+                            break;
+                    }
+                });
     }
 
     public static String formatDate(Date date) {
@@ -1524,7 +1511,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 case SUCCESS:
                     Date deviceDate = rtcGetCommand.getDate();
                     Log.d(TAG, "get rtc success date : " + formatDate(deviceDate));
-                    runOnUiThread(()->
+                    runOnUiThread(() ->
                             Toast.makeText(MainActivity.this, getString(R.string.get_rtc_success, formatDate(deviceDate)), Toast.LENGTH_LONG).show());
                     break;
             }
@@ -1538,24 +1525,24 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         EchoCommand cmd = new EchoCommand();
         cmd.setData(Tools.hexStringToByteArray(data));
         cmd.execute((event, params) -> {
-           switch (event) {
-               case PROGRESS:
-                   return;
-               case FAILED:
-               case CANCELLED:
-                   Log.e(TAG, "echo cm : " + event);
-                   runOnUiThread(()->
-                           UIUtils.showMessageDialog(MainActivity.this, getString(R.string.echo_failed)));
-                   break;
+            switch (event) {
+                case PROGRESS:
+                    return;
+                case FAILED:
+                case CANCELLED:
+                    Log.e(TAG, "echo cm : " + event);
+                    runOnUiThread(() ->
+                            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.echo_failed)));
+                    break;
 
-               case SUCCESS:
-                   String echoResponse = Tools.bytesToHex(cmd.response.getData());
-                   Log.d(TAG, "echo success response : " + echoResponse);
-                   runOnUiThread(()->
-                           Toast.makeText(MainActivity.this, getString(R.string.echo_success, echoResponse), Toast.LENGTH_LONG).show());
-                   break;
-           }
-           progressDlg.dismiss();
+                case SUCCESS:
+                    String echoResponse = Tools.bytesToHex(cmd.response.getData());
+                    Log.d(TAG, "echo success response : " + echoResponse);
+                    runOnUiThread(() ->
+                            Toast.makeText(MainActivity.this, getString(R.string.echo_success, echoResponse), Toast.LENGTH_LONG).show());
+                    break;
+            }
+            progressDlg.dismiss();
         });
     }
 
@@ -1570,7 +1557,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 case FAILED:
                 case CANCELLED:
                     Log.e(TAG, "get pub key cm : " + event);
-                    runOnUiThread(()->
+                    runOnUiThread(() ->
                             UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_pub_key_failed)));
                     break;
 
@@ -1580,7 +1567,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     Log.d(TAG, "KSN DUKPT Data : " + Tools.bytesToHex(cmd.getiKsnDukpt()));
                     Log.d(TAG, "KSN DUKPT PIN : " + Tools.bytesToHex(cmd.getiKsnPin()));
 
-                    runOnUiThread(()->
+                    runOnUiThread(() ->
                             Toast.makeText(MainActivity.this, getString(R.string.get_pub_key_success), Toast.LENGTH_LONG).show());
                     break;
             }
@@ -1592,7 +1579,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         final ProgressDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.get_key_info));
 
         if (keySlotId.isEmpty()) {
-            runOnUiThread(()-> UIUtils.showMessageDialog(MainActivity.this, "key slot can not be empty"));
+            runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, "key slot can not be empty"));
             return;
         }
 
@@ -1604,14 +1591,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 case FAILED:
                 case CANCELLED:
                     Log.e(TAG, "get key info : " + event);
-                    runOnUiThread(()->
+                    runOnUiThread(() ->
                             UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_key_info_failed)));
                     break;
 
                 case SUCCESS:
                     Log.d(TAG, "key Info : " + cmd.keyInfo);
 
-                    runOnUiThread(()->
+                    runOnUiThread(() ->
                             Toast.makeText(MainActivity.this,
                                     getString(R.string.get_key_info_success, cmd.keyInfo),
                                     Toast.LENGTH_LONG).show());
