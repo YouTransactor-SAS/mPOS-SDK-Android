@@ -346,6 +346,10 @@
     <string name="reboot">Reboot</string>
     <string name="reboot_event">Reboot %s</string>
     <string name="reset_event">Reset %s</string>
+    <string name="set_integrity_check_time">Set integrity check time</string>
+    <string name="set_integrity_check_time_success">Integrity check time set. Device will reboot</string>
+    <string name="set_integrity_check_time_failed">Failed to set integrity check time</string>
+
 
     <string name="local_update">Local update</string>
     <string name="emv_param_update">EMV param update</string>
@@ -466,4 +470,7 @@
     <string name="set_exp_date">Set Expiration date</string>
     <string name="set_exp_date_success">Set Expiration date success</string>
     <string name="set_exp_date_failed">Set Expiration date failed</string>
+    <string name="lbl_fail_on_version_downgrade">Fail update on version downgrade</string>
+    <string name="lbl_fail_on_same_version">Fail update on with same version</string>
+
 </resources>

@@ -53,6 +53,7 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_FULL_SVPP_IDENTIFICATION
 import static com.youTransactor.uCube.rpc.Constants.TAG_GPI_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_MPOS_MODULE_STATE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_OS_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_INTEGRITY_CHECK_TIME;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_CHECKSUM;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_POWER_OFF_TIMEOUT;
@@ -146,6 +147,7 @@ import com.youtransactor.sampleapp.connexion.YTSOMScanner;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamEnableDisableAIDActivity;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.features.Disconnect;
+import com.youtransactor.sampleapp.features.SetIntegrityCheckTime;
 import com.youtransactor.sampleapp.features.SetRtc;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
 import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
@@ -161,6 +163,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -169,6 +172,7 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class MainActivity extends AppCompatActivity implements BatteryLevelListener,
         SVPPRestartListener, LostPacketListener, RPCCommunicationErrorListener {
@@ -516,6 +520,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     .setView(customLayout)
                     .show();
         });
+
+        findViewById(R.id.set_integrity_check_time).setOnClickListener(v -> askForTimeAndSetIntegrityCheckTime());
+
         findViewById(R.id.reset).setOnClickListener(v -> reset());
         findViewById(R.id.reboot).setOnClickListener(v -> reboot());
         Button rkiButton = findViewById(R.id.rkiButton);
@@ -1153,6 +1160,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_E7_NFC_CARD_DETECT_CONFIGURATION,
                 TAG_CF_ENHANCED_SRED_CONFIGURATION,
                 TAG_FULL_SVPP_IDENTIFICATION,
+                TAG_INTEGRITY_CHECK_TIME
         };
 
         UIUtils.showProgress(this, getString(R.string.get_info), false);
@@ -1388,7 +1396,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     if (deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
                         Toast.makeText(this, "Terminal State: SECURED", Toast.LENGTH_LONG).show();
                     else
-                        Toast.makeText(this, "Terminal State: "+ deviceInfos.getTerminalState().label, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Terminal State: " + deviceInfos.getTerminalState().label, Toast.LENGTH_LONG).show();
                     break;
             }
         }));
@@ -1448,9 +1456,20 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private ProgressDialog progressDlg;
-    private int mYear, mMonth, mDay, mHour, mMinute;
 
-    private void askForDateAndSetRtc() {
+    private void askForTimeAndPerformAction(final Consumer<LocalTime> action) {
+        final LocalTime now = LocalTime.now();
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this,
+                (timePicker, hourOfDay, minute) -> {
+                    final LocalTime chosenTime = LocalTime.of(hourOfDay, minute);
+                    action.accept(chosenTime);
+                }, now.getHour(), now.getMinute(), false);
+        timePickerDialog.show();
+    }
+
+    private void askForDateTimeAndPerformAction(final Consumer<LocalDateTime> action) {
         final LocalDateTime now = LocalDateTime.now();
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (datePicker, year, monthOfYear, dayOfMonth) -> {
@@ -1458,11 +1477,15 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                             this,
                             (timePicker, hourOfDay, minute) -> {
                                 final LocalDateTime chosenDateTime = LocalDateTime.of(year, monthOfYear + 1, dayOfMonth, hourOfDay, minute);
-                                this.setRtc(chosenDateTime);
+                                action.accept(chosenDateTime);
                             }, now.getHour(), now.getMinute(), false);
                     timePickerDialog.show();
                 }, now.getYear(), now.getMonthValue() - 1, now.getDayOfMonth());
         datePickerDialog.show();
+    }
+
+    private void askForDateAndSetRtc() {
+        this.askForDateTimeAndPerformAction(this::setRtc);
     }
 
     private void setRtc(final LocalDateTime localDateTimeToSet) {
@@ -1482,6 +1505,34 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                             runOnUiThread(() -> {
                                 progressDlg.dismiss();
                                 Toast.makeText(MainActivity.this, getString(R.string.set_rtc_success), Toast.LENGTH_LONG).show();
+                                updateConnectionUI(DEVICE_NOT_CONNECTED);
+                            });
+                            break;
+                    }
+                });
+    }
+
+    private void askForTimeAndSetIntegrityCheckTime() {
+        this.askForTimeAndPerformAction(this::setIntegrityCheckTime);
+    }
+
+    private void setIntegrityCheckTime(final LocalTime timeToSet) {
+        runOnUiThread(() -> progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.set_integrity_check_time)));
+        final SetIntegrityCheckTime setIntegrityCheckTime = new SetIntegrityCheckTime(UCubeAPI.getConnexionManager());
+        setIntegrityCheckTime.execute(timeToSet,
+                (status) -> {
+                    switch (status) {
+                        case FAILED:
+                            runOnUiThread(() -> {
+                                progressDlg.dismiss();
+                                UIUtils.showMessageDialog(MainActivity.this,
+                                        getString(R.string.set_integrity_check_time_failed));
+                            });
+                            break;
+                        case SUCCESS_REBOOT_NEEDED:
+                            runOnUiThread(() -> {
+                                progressDlg.dismiss();
+                                Toast.makeText(MainActivity.this, getString(R.string.set_integrity_check_time_success), Toast.LENGTH_LONG).show();
                                 updateConnectionUI(DEVICE_NOT_CONNECTED);
                             });
                             break;

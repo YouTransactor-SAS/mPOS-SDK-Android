@@ -17,6 +17,7 @@
 package com.youtransactor.sampleapp.transactionView;
 
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.dsp_msg;
+import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.list;
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.pin;
 
 import android.content.Intent;
@@ -29,6 +30,7 @@ import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspAuthorisation;
+import com.youTransactor.uCube.rpc.command.event.dsp.EventDspListSelectLang;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspPaymentRslt;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspReadCard;
 import com.youTransactor.uCube.rpc.command.event.dsp.EventDspTxt;
@@ -131,7 +133,12 @@ public abstract class TransactionViewBaseDte extends AppCompatActivity {
                     WaitCard_Dte.getInstance().update_text(((EventDspTxt) eventCmd).getMessage());
                 }
                 break;
-
+            case dsp_listbox_select_lang:
+                intent = intents.get(list.ordinal());
+                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListSelectLang) eventCmd).getChoiceList());
+                startActivity(intent);
+                this.finishTransactionView();
+                break;
             case dsp_idle:
                 this.finishTransactionView();
                 if (homeActivity == WaitCard_Dte.class) {

@@ -405,6 +405,9 @@ public class PaymentActivity extends AppCompatActivity {
                             }
                         });
                 break;
+            case pay_try_another_itf:
+                //add your code
+                break;
             case dsp_txt:
                 displaytxt(((EventDspTxt) eventCmd).getMessage());
                 break;

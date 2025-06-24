@@ -17,6 +17,7 @@ import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
 import java.lang.reflect.Field;
+import java.time.LocalTime;
 import java.util.List;
 
 public class GetInfoDialog extends DialogFragment {
@@ -53,7 +54,7 @@ public class GetInfoDialog extends DialogFragment {
         //todo
         Field[] fields = DeviceInfos.class.getDeclaredFields();
 
-        for (Field f: fields) {
+        for (Field f : fields) {
             f.setAccessible(true);
             Object value;
             try {
@@ -79,33 +80,35 @@ public class GetInfoDialog extends DialogFragment {
                 displayedValue = Tools.bytesToHex((byte[]) value);
             } else if (value instanceof List) {
                 displayedValue = value.toString();
+            } else if (value instanceof LocalTime) {
+                displayedValue = value.toString();
             }
 
-                LinearLayout layout = new LinearLayout(getActivity());
-                layout.setLayoutParams(lp);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout layout = new LinearLayout(getActivity());
+            layout.setLayoutParams(lp);
+            layout.setOrientation(LinearLayout.HORIZONTAL);
 
-                //name
-                String name = f.getName();
-                TextView tvName = new TextView(getActivity());
-                tvName.setText(name);
-                tvName.setTextSize(16);
-                // tvName.setPadding(30, 10, 30, 10);
-                tvName.setTextColor(Color.BLUE);
-                tvName.setLayoutParams(tvLp);
-                layout.addView(tvName);
+            //name
+            String name = f.getName();
+            TextView tvName = new TextView(getActivity());
+            tvName.setText(name);
+            tvName.setTextSize(16);
+            // tvName.setPadding(30, 10, 30, 10);
+            tvName.setTextColor(Color.BLUE);
+            tvName.setLayoutParams(tvLp);
+            layout.addView(tvName);
 
-                //value
-                TextView tvValue = new TextView(getActivity());
-                tvValue.setText(displayedValue);
-                tvValue.setTextSize(16);
-                //   tvValue.setPadding(30, 10, 30, 10);
-                tvValue.setTextColor(Color.DKGRAY);
-                tvValue.setLayoutParams(tvLp);
-                layout.addView(tvValue);
+            //value
+            TextView tvValue = new TextView(getActivity());
+            tvValue.setText(displayedValue);
+            tvValue.setTextSize(16);
+            //   tvValue.setPadding(30, 10, 30, 10);
+            tvValue.setTextColor(Color.DKGRAY);
+            tvValue.setLayoutParams(tvLp);
+            layout.addView(tvValue);
 
-                //add linear layout to scroll view
-                linearLayout.addView(layout);
+            //add linear layout to scroll view
+            linearLayout.addView(layout);
 
         }
 

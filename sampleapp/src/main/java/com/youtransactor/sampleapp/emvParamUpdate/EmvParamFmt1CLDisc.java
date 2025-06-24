@@ -133,8 +133,9 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                     }
                     // Terminal Features, see in AO-AN-Property
                     if (!clessAIDDsc.dol.is_tlv_present("DFDF22")) {
+                        // Activate extended selection for B2 card processing
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DFDF22", "C0DC", "B_"));
+                                "DFDF22", /*"C0DC"*/ "C05C", "B_"));
                     }
                     clessAIDDsc.type = EmvParamYTModel.TypeID.clDISCKrnId.getVal();
                     clessAIDDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.noId.getVal();

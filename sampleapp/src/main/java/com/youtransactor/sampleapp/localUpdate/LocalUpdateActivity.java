@@ -22,15 +22,12 @@
  */
 package com.youtransactor.sampleapp.localUpdate;
 
-import android.Manifest;
 import android.content.ClipData;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +40,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
@@ -52,6 +49,7 @@ import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.mdm.LocalUpdateService;
 import com.youTransactor.uCube.mdm.ServiceState;
+import com.youTransactor.uCube.mdm.UpdateFeature;
 import com.youTransactor.uCube.mdm.UpdateItem;
 import com.youtransactor.sampleapp.BuildConfig;
 import com.youtransactor.sampleapp.R;
@@ -64,7 +62,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,6 +72,8 @@ public class LocalUpdateActivity extends AppCompatActivity {
     private static final String TAG = LocalUpdateActivity.class.getSimpleName();
     private static final int PICK_FILE = 1;
 
+    private SwitchCompat failOnDowngradeVersionSwitch;
+    private SwitchCompat failOnSameVersionSwitch;
     private UpdateItemAdapter updateItemListAdapter;
     private File lastSelectedFile = null;
     private ProgressBar progressBar;
@@ -93,6 +92,26 @@ public class LocalUpdateActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setTitle(R.string.local_update);
         }
+
+        failOnDowngradeVersionSwitch = findViewById(R.id.fail_on_downgrade_version_switch);
+        failOnSameVersionSwitch = findViewById(R.id.fail_on_same_version_switch);
+
+        failOnDowngradeVersionSwitch.setChecked(
+                getPreferences(MODE_PRIVATE).getBoolean("failOnDowngradeVersion", false));
+        failOnSameVersionSwitch.setChecked(
+                getPreferences(MODE_PRIVATE).getBoolean("failOnSameVersion", false));
+
+        failOnDowngradeVersionSwitch.setOnClickListener(v -> {
+            getPreferences(MODE_PRIVATE).edit()
+                    .putBoolean("failOnDowngradeVersion", failOnDowngradeVersionSwitch.isChecked())
+                    .apply();
+        });
+
+        failOnSameVersionSwitch.setOnClickListener(v -> {
+            getPreferences(MODE_PRIVATE).edit()
+                    .putBoolean("failOnSameVersion", failOnSameVersionSwitch.isChecked())
+                    .apply();
+        });
 
         updateItemListAdapter = new UpdateItemAdapter(this,R.layout.custome_row_layout, R.id.log_message);
 
@@ -364,6 +383,16 @@ public class LocalUpdateActivity extends AppCompatActivity {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             LocalUpdateService lus = new LocalUpdateService();
+            if (failOnDowngradeVersionSwitch.isChecked()) {
+                lus.enableFeature(UpdateFeature.FAIL_ON_LOWER_VERSION_FEATURE);
+            } else {
+                lus.disableFeature(UpdateFeature.FAIL_ON_LOWER_VERSION_FEATURE);
+            }
+            if (failOnSameVersionSwitch.isChecked()) {
+                lus.enableFeature(UpdateFeature.FAIL_ON_SAME_VERSION_FEATURE);
+            } else {
+                lus.disableFeature(UpdateFeature.FAIL_ON_SAME_VERSION_FEATURE);
+            }
             lus.execute(updateList, monitor);
         });
     }
