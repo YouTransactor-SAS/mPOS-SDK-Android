@@ -298,6 +298,7 @@ public class PaymentActivity extends AppCompatActivity {
         final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_USD);
+        currencyAdapter.add(UCubePaymentRequest.CURRENCY_CAD);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_GBP);
 
         currencyChooser.setAdapter(currencyAdapter);
