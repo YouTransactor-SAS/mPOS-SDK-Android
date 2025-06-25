@@ -532,11 +532,11 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void displayProgress(PaymentState state) {
         String msg = state.name();
-        trxResultFld.setText(msg);
+        runOnUiThread(() -> trxResultFld.setText(msg));
     }
 
     private void displaytxt(String msg) {
-        trxResultFld.setText(msg);
+        runOnUiThread(() -> trxResultFld.setText(msg));
     }
 
     private void parsePaymentResponse(@NonNull PaymentContext context) {

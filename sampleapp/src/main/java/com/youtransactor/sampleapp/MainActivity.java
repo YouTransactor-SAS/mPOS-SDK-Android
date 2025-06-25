@@ -51,9 +51,9 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_FD_NON_SECURE_FIRMWARE_V
 import static com.youTransactor.uCube.rpc.Constants.TAG_FIRMWARE_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_FULL_SVPP_IDENTIFICATION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_GPI_VERSION;
+import static com.youTransactor.uCube.rpc.Constants.TAG_INTEGRITY_CHECK_TIME;
 import static com.youTransactor.uCube.rpc.Constants.TAG_MPOS_MODULE_STATE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_OS_VERSION;
-import static com.youTransactor.uCube.rpc.Constants.TAG_INTEGRITY_CHECK_TIME;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_CHECKSUM;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_POWER_OFF_TIMEOUT;
@@ -1221,7 +1221,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         String tagAsHex = String.format("%04X", tag & 0xFFFF);
         Log.d(TAG, "Retrieve Tag " + tagAsHex);
 
-        UIUtils.setProgressMessage(getString(R.string.get_info_progress, tagAsHex));
+        runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.get_info_progress, tagAsHex)));
 
         new GetInfosCommand(tag).execute((event, params) -> {
             Log.d(TAG, "Retrieve tag event: " + event);
