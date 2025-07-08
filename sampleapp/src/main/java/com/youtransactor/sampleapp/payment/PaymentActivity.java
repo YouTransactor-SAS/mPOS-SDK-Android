@@ -300,6 +300,7 @@ public class PaymentActivity extends AppCompatActivity {
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_USD);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_CAD);
         currencyAdapter.add(UCubePaymentRequest.CURRENCY_GBP);
+        currencyAdapter.add(UCubePaymentRequest.CURRENCY_TWD);
 
         currencyChooser.setAdapter(currencyAdapter);
         currencyChooser.setSelection(0);
@@ -407,7 +408,8 @@ public class PaymentActivity extends AppCompatActivity {
                         });
                 break;
             case pay_try_another_itf:
-                //add your code
+                displaytxt("please try another interface");
+
                 break;
             case dsp_txt:
                 displaytxt(((EventDspTxt) eventCmd).getMessage());

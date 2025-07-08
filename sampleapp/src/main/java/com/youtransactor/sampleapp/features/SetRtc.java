@@ -57,25 +57,7 @@ public class SetRtc {
                     callback.accept(FlowStatus.FAILED);
                     break;
                 case SUCCESS:
-                    exitSecureSession(callback);
-                    break;
-            }
-        });
-    }
-
-    private void exitSecureSession(final Consumer<FlowStatus> callback) {
-        Log.d(SetRtc.class.getSimpleName(), "Exiting secure session");
-        final ExitSecureSessionCommand command = new ExitSecureSessionCommand();
-        command.execute((event, unused) -> {
-            Log.d(SetRtc.class.getSimpleName(), String.format("ExitSecureSessionCommand event: %s", event));
-            switch (event) {
-                case FAILED:
-                case CANCELLED:
-                    Log.e(SetRtc.class.getSimpleName(), String.format("Exit Secure Session %s", event));
-                    callback.accept(FlowStatus.FAILED);
-                    break;
-                case SUCCESS:
-                    this.disconnect(callback);
+                    disconnect(callback);
                     break;
             }
         });

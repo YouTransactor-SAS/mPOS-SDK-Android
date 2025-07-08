@@ -124,7 +124,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("AID", "9F06");
         emvCLessVISATagDict.put("appVersion", "9F09");
         emvCLessVISATagDict.put("termCtryCde", "9F1A");
-        emvCLessVISATagDict.put("floorLim", "9F1B");
+        emvCLessVISATagDict.put("floorLim", "DF02");
         emvCLessVISATagDict.put("termRisk", "9F1D");
         emvCLessVISATagDict.put("termCap", "9F33");
         emvCLessVISATagDict.put("termType", "9F35");
@@ -136,7 +136,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("enhReaderCap", "9F6E");
         emvCLessVISATagDict.put("readerCap", "9F6D");
         emvCLessVISATagDict.put("mobDevInd", "9F7E"); // NOT FOUND IN FMT1
-        emvCLessVISATagDict.put("dataInputCap", "DF8117");
+        emvCLessVISATagDict.put("d/media/veracrypt2/gmx/jpmc/payment_application/emv_config_Canada.jsonataInputCap", "DF8117");
         emvCLessVISATagDict.put("defaultUDOL", "DF811A"); // MCL: always, value: "9F6A04"
         emvCLessVISATagDict.put("defaultTAC", "DF8120");
         emvCLessVISATagDict.put("denialTAC", "DF8121");
@@ -150,7 +150,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessVISATagDict.put("secCap", "DF811F");
         emvCLessVISATagDict.put("CVMReqLim", "DF01");
-        emvCLessVISATagDict.put("transLim", "DF02");
+        emvCLessVISATagDict.put("transLim", "DF00");
         emvCLessVISATagDict.put("transLimNoDev", "DF8124");
         emvCLessVISATagDict.put("transLimDev", "DF8125");
         // emvCLessVISATagDict.put("termClessTrxLimit", "DF00");
@@ -236,7 +236,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessJCBTagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessJCBTagDict.put("secCap", "DF811F");
         emvCLessJCBTagDict.put("CVMReqLim", "DF01");
-        emvCLessJCBTagDict.put("transLim", "DF02");
+        emvCLessJCBTagDict.put("transLim", "DF00");
         emvCLessJCBTagDict.put("transLimNoDev", "DF8124");
         emvCLessJCBTagDict.put("transLimDev", "DF8125");
         // emvCLessJCBTagDict.put("termClessTrxLimit", "DF00");
@@ -245,6 +245,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessJCBTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessJCBTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessJCBTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+        emvCLessJCBTagDict.put("termIntProfile", "9F53");
 
         // AMEX Cless
         emvCLessAMEXTagDict.put("appVersion", "9F09");
@@ -277,7 +278,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessAMEXTagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessAMEXTagDict.put("secCap", "DF811F");
         emvCLessAMEXTagDict.put("CVMReqLim", "DF01");
-        emvCLessAMEXTagDict.put("transLim", "DF02");
+        emvCLessAMEXTagDict.put("transLim", "DF00");
         emvCLessAMEXTagDict.put("appSelInd", "E000");
         emvCLessAMEXTagDict.put("transLimNoDev", "DF8124");
         emvCLessAMEXTagDict.put("transLimDev", "DF8125");
@@ -321,7 +322,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessCUPTagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessCUPTagDict.put("secCap", "DF811F");
         emvCLessCUPTagDict.put("CVMReqLim", "DF01");
-        emvCLessCUPTagDict.put("transLim", "DF02");
+        emvCLessCUPTagDict.put("transLim", "DF00");
         emvCLessCUPTagDict.put("transLimNoDev", "DF8124");
         emvCLessCUPTagDict.put("transLimDev", "DF8125");
         // emvCLessCUPTagDict.put("termClessTrxLimit", "DF00");
@@ -369,7 +370,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessINTERACTagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessINTERACTagDict.put("secCap", "DF811F");
         emvCLessINTERACTagDict.put("CVMReqLim", "DF01");
-        emvCLessINTERACTagDict.put("transLim", "DF02");
+        emvCLessINTERACTagDict.put("transLim", "DF00");
         emvCLessINTERACTagDict.put("transLimNoDev", "DF8124");
         emvCLessINTERACTagDict.put("transLimDev", "DF8125");
         // emvCLessINTERACTagDict.put("termClessTrxLimit", "DF00");
@@ -412,7 +413,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessDISCTagDict.put("Mag-stripe CVM Capability - CVM Required", "DF811E"); // NOT FOUND IN FMT1 - default "20"
         emvCLessDISCTagDict.put("secCap", "DF811F");
         emvCLessDISCTagDict.put("CVMReqLim", "DF01");
-        emvCLessDISCTagDict.put("transLim", "DF02");
+        emvCLessDISCTagDict.put("transLim", "DF00");
         emvCLessDISCTagDict.put("transLimNoDev", "DF8124");
         emvCLessDISCTagDict.put("transLimDev", "DF8125");
         // emvCLessDISCTagDict.put("termClessTrxLimit", "DF00");

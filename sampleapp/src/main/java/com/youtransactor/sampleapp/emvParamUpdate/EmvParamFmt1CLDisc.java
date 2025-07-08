@@ -86,6 +86,11 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                         clessAIDDsc.dol.add_tlv(new TLV(
                                 "9F09", "0001", "B_"));
                     }
+                    // Terminal floor limit
+                    if (!clessAIDDsc.dol.is_tlv_present("9F1B")) {
+                        clessAIDDsc.dol.add_tlv(new TLV(
+                                "9F1B", "000000000000", "B_"));
+                    }
                     // Terminal Transaction Qualifier (TTQ) (Follow D-PAS Connect Terminal Application Contactless Specification Table 54)
                     if (!clessAIDDsc.dol.is_tlv_present("9F66")) {
                         clessAIDDsc.dol.add_tlv(new TLV(

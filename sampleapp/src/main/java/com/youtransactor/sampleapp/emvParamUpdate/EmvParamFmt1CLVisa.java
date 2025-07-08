@@ -74,8 +74,12 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                     // temrinal cless transaction limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF00")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                // magic number to define
-                                "DF00", "000000030000", "B_"));
+                                "DF00", "000000000000", "B_"));
+                    }
+                    // Terminal floor limit
+                    if (!clessAIDDsc.dol.is_tlv_present("9F1B")) {
+                        clessAIDDsc.dol.add_tlv(new TLV(
+                                "9F1B", "000000000000", "B_"));
                     }
                     clessAIDDsc.type = EmvParamYTModel.TypeID.clVISAKrnId.getVal();
                     clessAIDDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.noId.getVal();
