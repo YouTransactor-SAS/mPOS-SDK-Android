@@ -38,7 +38,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLInterac extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClInteracConfigured(false);
+        model.setIsClInteracConfigured(true);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -55,9 +55,10 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
                     new EmvParamYTModel.ClessEltDsc();
             String aidKrnlTok = curJsonAidLst.getString("appLabel");
-            boolean isAidEltIdFound = true;
+            boolean isAidEltIdFound;
             for(String kernelTok : interacAppTokenL) {
                 if (aidKrnlTok.contains(kernelTok)) {
+                    isAidEltIdFound = true;
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_interac_tag_dict());
@@ -94,7 +95,7 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
                     // Terminal Contactless Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("9F5F")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "9F5F", "000000008000", "B_"));
+                                "9F5F", "000000000000", "B_"));
                     }
                     // Application Selection Indicator (ASI)
                     if (!clessAIDDsc.dol.is_tlv_present("E001")) {
@@ -257,7 +258,7 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
                         // Interac Retry Limit
                         if (!clessTermDsc.dol.is_tlv_present("DFDF30")) {
                             clessTermDsc.dol.add_tlv(new TLV(
-                                    "DFDF30", "01", "B_"));
+                                    "DFDF30", "00", "B_"));
                         }
                         clessTermDsc.dol = model.filterDOLForAIDParam(
                                 clessTermDsc.dol, model.clINTERACTermAIDTagList);

@@ -38,7 +38,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLAmex extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClAmexConfigured(false);
+        model.setIsClAmexConfigured(true);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -46,6 +46,7 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
         JSONArray clAIDList = clJson.getJSONArray("aids");
         List<String> amexAppTokenL = new ArrayList<>();
         amexAppTokenL.add("AMERICAN EXPRESS");
+        amexAppTokenL.add("AMEX US DEBIT");
         int nbAmexAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, amexAppTokenL);
         EmvParamDOL clAMEXalltagDol = new EmvParamDOL();
@@ -55,9 +56,11 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
                     new EmvParamYTModel.ClessEltDsc();
             String aidKrnlTok = curJsonAidLst.getString("appLabel");
-            boolean isAidEltIdFound = true;
+            boolean isAidEltIdFound;
             for(String kernelTok : amexAppTokenL) {
+                isAidEltIdFound = false;
                 if (aidKrnlTok.contains(kernelTok)) {
+                    isAidEltIdFound = true;
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_amex_tag_dict());

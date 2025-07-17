@@ -26,10 +26,11 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F20_CARDHOLDER_NAME;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F30_SERVICE_CODE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_DF5A_PAN_CVV_DATA;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 import static com.youtransactor.sampleapp.payment.PaymentActivity.pay_sdse_mode.VOLTAGE;
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.list;
@@ -77,6 +78,8 @@ import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.Currency;
+import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
+import com.youTransactor.uCube.rpc.EMVClessApplicationDescriptor;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.RPCCommand;
@@ -124,19 +127,21 @@ public class PaymentActivity extends AppCompatActivity {
     private EditText dukpt_key_slotFld;
     private Spinner trxTypeChoice;
     private CurrencyEditText amountFld;
+    private CurrencyEditText cashbackAmountFld;
     private Spinner currencyChooser;
     private Switch forceOnlinePINBtn;
     private Spinner onlinePinBlockFormatChoice;
     private Switch forceAuthorisationBtn;
     private Switch amountSrcSwitch;
-    private Switch contactOnlySwitch;
+    private Switch contactItf;
+    private Switch nfcItf;
+    private Switch msrItf;
     private Switch forceDebugSwitch;
     private Switch allowPinBypassSwitch;
     private Switch skipCardRemovalSwitch;
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
     private Switch tipSwitch;
-    private Switch msrActivate;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
     private Button uPresentCard;
@@ -256,10 +261,13 @@ public class PaymentActivity extends AppCompatActivity {
                 OnlinePinBlockFormatType.values()
         ));
         amountFld = findViewById(R.id.amountFld);
+        cashbackAmountFld = findViewById(R.id.cashbackAmountFld);
         currencyChooser = findViewById(R.id.currencyChooser);
         forceOnlinePINBtn = findViewById(R.id.forceOnlinePINSwitch);
         amountSrcSwitch = findViewById(R.id.amountSrcSwitch);
-        contactOnlySwitch = findViewById(R.id.contactOnlySwitch);
+        contactItf = findViewById(R.id.contact_itf);
+        nfcItf = findViewById(R.id.nfc_itf);
+        msrItf = findViewById(R.id.msr_itf);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationSwitch);
         forceDebugSwitch = findViewById(R.id.forceDebugSwitch);
         allowPinBypassSwitch = findViewById(R.id.allowPinBypassSwitch);
@@ -269,7 +277,6 @@ public class PaymentActivity extends AppCompatActivity {
         skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
         retrieveF5TagSwitch = findViewById(R.id.retrieveF5Tag);
         tipSwitch = findViewById(R.id.tipSwitch);
-        msrActivate = findViewById(R.id.MsrSwitch);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         getStatusBtn = findViewById(R.id.getStatusBtn);
@@ -358,9 +365,29 @@ public class PaymentActivity extends AppCompatActivity {
         pay();
     }
 
-    private ArrayList<byte[]> update_cless_aid_list(ArrayList<byte[]> aid_list) {
+    private void update_cless_aid_list(List<EMVClessApplicationDescriptor> candidate) {
         //here to add your code and update aid list
-        return aid_list;
+        if(candidate.size() == 1) {
+            byte[] tlv = new byte[0];
+            PaymentUtils.send_event_filter_cless_aid(0, tlv, (event, params) -> {
+                switch (event) {
+                    case FAILED:
+                        break;
+                    case SUCCESS:
+                        break;
+                }
+            });
+        }else{
+            int i;
+            ArrayList<String> app_label = new ArrayList<>();
+            for (i = 0; i < candidate.size(); i++) {
+                app_label.add(candidate.get(i).getLabel());
+            }
+            Intent intent = new Intent(this, DisplayList.class);
+            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, app_label);
+            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_TYPE, 1);
+            startActivity(intent);
+        }
     }
 
     private void onEventViewCreate(EventCommand eventCmd) {
@@ -395,22 +422,9 @@ public class PaymentActivity extends AppCompatActivity {
 
             case pay_select_aid:
                 // TO ADD: update the received list and tlv value
-                byte[] tlv = new byte[0];
-                PaymentUtils.send_event_filter_cless_aid(
-                        update_cless_aid_list(((EventPaySelectAid) eventCmd).getAidList()),
-                        tlv, (event, params) -> {
-                            switch (event) {
-                                case FAILED:
-                                    break;
-                                case SUCCESS:
-                                    break;
-                            }
-                        });
+                update_cless_aid_list(((EventPaySelectAid) eventCmd).getCandidateList());
                 break;
-            case pay_try_another_itf:
-                displaytxt("please try another interface");
 
-                break;
             case dsp_txt:
                 displaytxt(((EventDspTxt) eventCmd).getMessage());
                 break;
@@ -438,8 +452,6 @@ public class PaymentActivity extends AppCompatActivity {
         if (ProductManager.id == ProductIdentifier.stick) {
             forceAuthorisation = false;
         }
-        boolean contactOnly = contactOnlySwitch.isChecked();
-
         forceDebug = forceDebugSwitch.isChecked();
         isPinBypassAllowed = allowPinBypassSwitch.isChecked();
 
@@ -448,20 +460,24 @@ public class PaymentActivity extends AppCompatActivity {
         boolean skipStartingSteps = skipStartingStepsSwitch.isChecked();
 
         boolean tipRequired = tipSwitch.isChecked();
-        boolean msrIsActivate = msrActivate.isChecked();
-
+        boolean msrIsActivate = msrItf.isChecked();
+        boolean nfcIsActivate = nfcItf.isChecked();
+        boolean contactIsActivate = contactItf.isChecked();
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
-
         long amount = amountFld.getCleanIntValue();
         Log.d(TAG, "Amount : " + amount);
+        int cashbackAmount = Math.toIntExact(cashbackAmountFld.getCleanIntValue());
+        Log.d(TAG, "Cashback Amount : " + cashbackAmount);
 
         List<CardReaderType> readerList = new ArrayList<>();
 
-        readerList.add(CardReaderType.ICC);
-
-        if (!contactOnly)
+        if(nfcIsActivate){
             readerList.add(CardReaderType.NFC);
-        if (msrIsActivate) {
+        }
+        if(contactIsActivate){
+            readerList.add(CardReaderType.ICC);
+        }
+        if(msrIsActivate){
             readerList.add(CardReaderType.MSR);
         }
 
@@ -491,42 +507,44 @@ public class PaymentActivity extends AppCompatActivity {
                 .setPinRequestLabelXPosition((byte) 0xFF)
                 .setDataEncryptionMechanism(sdse_mode.getCode())
                 .withViewDelegate(ViewIdentifier.PIN_PROMPT)
-                .setMsrActivate(msrIsActivate)
                 .setPosEntryMode(posEntryMode)
                 .setDukptSlotKey(dukpt_key_slot)
                 .setUpdateTlvTask(new UpdateTlvTask(this))
+                .setCashbackAmount(cashbackAmount)
                 //CLIENT TAGs
                 .setAuthorizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
-                        0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
-                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
-                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63)
+                        0x9F37, 0x9F27, 0x9A, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
+                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63, 0x9F34,
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE)
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
-                        0x99,
-                        0x5F2A,
-                        0x9F02,
-                        0x9F03
+                        TAG_SECURE_5F20_CARDHOLDER_NAME,
+                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
+                        TAG_SECURE_9F6B_TRACK_2_DATA,
+                        TAG_SECURE_DF5A_PAN_CVV_DATA
+
                 )
                 .setFinalizationPlainTags(
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
-                        0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
-                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
-                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63)
+                        0x9F37, 0x9F27, 0x9A, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
+                        0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06,
+                        0x8F, 0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF63, 0x9F34,
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_5F30_SERVICE_CODE)
 
                 .setFinalizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
                         TAG_SECURE_5F20_CARDHOLDER_NAME,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
-                        TAG_SECURE_5F30_SERVICE_CODE,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA
+                        TAG_SECURE_9F6B_TRACK_2_DATA,
+                        TAG_SECURE_DF5A_PAN_CVV_DATA
                 );
 
         return uCubePaymentRequest;
@@ -573,12 +591,16 @@ public class PaymentActivity extends AppCompatActivity {
 
         if (context.finalizationPlainTagsValues != null) {
             for (Integer tag : context.finalizationPlainTagsValues.keySet())
-                Log.d(TAG, String.format("Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationPlainTagsValues.get(tag))));
+                Log.d(TAG, String.format("finalization Plain Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationPlainTagsValues.get(tag))));
         }
 
-        if (context.finalizationSecuredTagsValues != null)
-            Log.d(TAG, "secure tag block: " + Tools.bytesToHex(context.finalizationSecuredTagsValues));
+        if (context.finalizationGetSecuredTagsResponse != null)
+            Log.d(TAG, "finalization secure tag block: " + Tools.bytesToHex(context.finalizationGetSecuredTagsResponse));
 
+        if (context.finalizationSecuredTagsValues != null) {
+            for (Integer tag : context.finalizationSecuredTagsValues.keySet())
+                Log.d(TAG, String.format("finalization Secured Tag : 0x%x : %s", tag, Tools.bytesToHex(context.finalizationSecuredTagsValues.get(tag))));
+        }
         if (context.pinKsn != null) {
             Log.d(TAG, "pin KSN: " + Tools.bytesToHex(context.pinKsn));
         }
@@ -777,7 +799,6 @@ public class PaymentActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-
                             @Override
                             public void onFinish(PaymentContext context) {
                                 runOnUiThread(() -> {

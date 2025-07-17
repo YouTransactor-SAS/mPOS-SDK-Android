@@ -38,7 +38,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLCUP extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClCupConfigured(false);
+        model.setIsClCupConfigured(true);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -46,7 +46,9 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
         JSONArray clAIDList = clJson.getJSONArray("aids");
         List<String> cupAppTokenL = new ArrayList<>();
         cupAppTokenL.add("UNIONPAY CREDIT");
+        cupAppTokenL.add("UNIONPAY DEBIT");
         cupAppTokenL.add("UNIONPAY QUASI");
+        cupAppTokenL.add("UNIONPAY US");
         int nbCupAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, cupAppTokenL);
         EmvParamDOL clCUPalltagDol = new EmvParamDOL();
@@ -56,9 +58,10 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
                     new EmvParamYTModel.ClessEltDsc();
             String aidKrnlTok = curJsonAidLst.getString("appLabel");
-            boolean isAidEltIdFound = true;
+            boolean isAidEltIdFound;
             for(String kernelTok : cupAppTokenL) {
                 if (aidKrnlTok.contains(kernelTok)) {
+                    isAidEltIdFound = true;
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_cup_tag_dict());

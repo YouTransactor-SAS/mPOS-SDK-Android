@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ ============================================================================
   ~
   ~ Copyright (c) 2022 YouTransactor
@@ -33,19 +32,20 @@
         android:id="@+id/test_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/auto_cancel_pane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
-                android:textStyle="bold"
-                android:text="@string/auto_cancel" />
+                android:text="@string/auto_cancel"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/cancelEventSwitch"
@@ -74,7 +74,8 @@
                     android:gravity="end"
                     android:importantForAutofill="no"
                     android:inputType="number"
-                    android:text="@string/_200"  />
+                    android:text="@string/_200" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -95,8 +96,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
-                android:textStyle="bold"
-                android:text="@string/auto_disconnect" />
+                android:text="@string/auto_disconnect"
+                android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/disconnectEventSwitch"
@@ -110,20 +111,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
+
             <Button
                 android:id="@+id/getStatusBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_margin="@dimen/margin"
+                android:layout_weight="1"
                 android:text="@string/getstatus" />
 
             <Button
                 android:id="@+id/getSvppLogL1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_margin="@dimen/margin"
+                android:layout_weight="1"
                 android:text="@string/get_logs_l1" />
 
         </LinearLayout>
@@ -146,33 +148,34 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/u_present_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="@dimen/margin"
-                android:text="@string/u_present_card" />
+                <Button
+                    android:id="@+id/u_present_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:layout_weight="1"
+                    android:text="@string/u_present_card" />
 
-            <Button
-                android:id="@+id/cr_enter_pin"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="@dimen/margin"
-                android:text="CR Enter PIN" />
+                <Button
+                    android:id="@+id/cr_enter_pin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:layout_weight="1"
+                    android:text="CR Enter PIN" />
 
                 <Button
                     android:id="@+id/u_enter_pin"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_margin="@dimen/margin"
+                    android:layout_weight="1"
                     android:text="@string/u_present_card" />
             </LinearLayout>
 
@@ -180,29 +183,33 @@
                 android:id="@+id/measurement_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <TextView
-                android:id="@+id/measure_start_to_waiting_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/measure_present_card_to_auth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/measure_present_card_to_cr_enter_pin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/measure_user_enter_pin_to_auth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/measure_auth_resp_to_finish"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/measure_start_to_waiting_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/measure_present_card_to_auth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/measure_present_card_to_cr_enter_pin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/measure_user_enter_pin_to_auth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/measure_auth_resp_to_finish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
         </LinearLayout>
@@ -213,209 +220,250 @@
             android:layout_margin="@dimen/margin"
             android:background="@color/grey_300" />
     </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="@dimen/margin"
-            android:layout_weight="1"
-            android:text="@string/card_wait_timeout" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/margin"
+                    android:layout_weight="1"
+                    android:text="@string/card_wait_timeout" />
 
-        <EditText
-            android:id="@+id/cardWaitTimeoutFld"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:width="60dp"
-            android:ems="10"
-            android:gravity="end"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:text="@string/_30" />
+                <EditText
+                    android:id="@+id/cardWaitTimeoutFld"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:width="60dp"
+                    android:ems="10"
+                    android:gravity="end"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:text="@string/_30" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/s" />
-    </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/s" />
+            </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/type" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:text="@string/type" />
 
-        <Spinner
-            android:id="@+id/trxTypeChoice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin" />
-    </LinearLayout>
-
-    <Switch
-        android:id="@+id/amountSrcSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/enter_amount_on_ucube" />
-
-    <Switch
-        android:id="@+id/contactOnlySwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/contact_only" />
-
-    <Switch
-        android:id="@+id/forceAuthorisationSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/force_authorisation" />
-
-    <Switch
-        android:id="@+id/forceOnlinePINSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/force_online_pin" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/online_pin_block_format" />
-
-        <Spinner
-            android:id="@+id/onlinePinBlockFormatChoice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin" />
-    </LinearLayout>
-
-    <Switch
-        android:id="@+id/forceDebugSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/force_debug"/>
-
-    <Switch
-        android:id="@+id/allowPinBypassSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/allow_pin_bypass"/>
-
-    <Switch
-        android:id="@+id/retrieveF5Tag"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="@string/retrieve_f5_tag"/>
+                <Spinner
+                    android:id="@+id/trxTypeChoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin" />
+            </LinearLayout>
 
             <Switch
-        android:id="@+id/skipCardRemovalSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
+                android:id="@+id/amountSrcSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/enter_amount_on_ucube" />
+
+            <Switch
+                android:id="@+id/contact_itf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
                 android:checked="true"
-        android:text="@string/skip_card_removal"/>
+                android:text="@string/contact_interface" />
+            <Switch
+                android:id="@+id/nfc_itf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:text="@string/nfc_interface" />
+            <Switch
+                android:id="@+id/msr_itf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:text="@string/msr_interface" />
+            <Switch
+                android:id="@+id/forceAuthorisationSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/force_authorisation" />
 
-    <Switch
-        android:id="@+id/skipStartingStepsSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:checked="true"
-        android:text="@string/skip_starting_steps"/>
-    <Switch
-        android:id="@+id/MsrSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="MSR activate" />
-    <Switch
-        android:id="@+id/tipSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:text="Tip" />
+            <Switch
+                android:id="@+id/forceOnlinePINSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/force_online_pin" />
 
-    <LinearLayout
-        android:id="@+id/auto_sdse_mode_pane"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:textStyle="bold"
-        android:text="SDSE_mode" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:text="@string/online_pin_block_format" />
 
-    <Spinner
-        android:id="@+id/sdse_mode_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin" />
-    </LinearLayout>
+                <Spinner
+                    android:id="@+id/onlinePinBlockFormatChoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin" />
+            </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <Switch
+                android:id="@+id/forceDebugSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/force_debug" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/amount" />
+            <Switch
+                android:id="@+id/allowPinBypassSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/allow_pin_bypass" />
 
-        <com.youtransactor.sampleapp.payment.CurrencyEditText
-            android:id="@+id/amountFld"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:maxLength="16"
-            android:importantForAutofill="no"
-            android:text="1,00 "
-            android:inputType="numberDecimal" />
+            <Switch
+                android:id="@+id/retrieveF5Tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/retrieve_f5_tag" />
 
-        <Spinner
-            android:id="@+id/currencyChooser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-    </LinearLayout>
+            <Switch
+                android:id="@+id/skipCardRemovalSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:text="@string/skip_card_removal" />
+
+            <Switch
+                android:id="@+id/skipStartingStepsSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:checked="true"
+                android:text="@string/skip_starting_steps" />
+
+            <Switch
+                android:id="@+id/tipSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="Tip" />
+
+            <LinearLayout
+                android:id="@+id/auto_sdse_mode_pane"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:text="SDSE_mode"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/sdse_mode_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/margin"
+                    android:text="@string/amount" />
+
+                <com.youtransactor.sampleapp.payment.CurrencyEditText
+                    android:id="@+id/amountFld"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:importantForAutofill="no"
+                    android:inputType="numberDecimal"
+                    android:maxLength="16"
+                    android:text="1,00 " />
+
+                <Spinner
+                    android:id="@+id/currencyChooser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/margin"
+                    android:text="@string/cashback_amount" />
+
+                <com.youtransactor.sampleapp.payment.CurrencyEditText
+                    android:id="@+id/cashbackAmountFld"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:importantForAutofill="no"
+                    android:inputType="numberDecimal"
+                    android:maxLength="16"
+                    android:text="0,00 " />
+
+                <Space
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -441,6 +489,7 @@
                     android:inputType="number"
                     android:text="5" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -466,37 +515,38 @@
                     android:inputType="number"
                     android:text="1" />
             </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_margin="@dimen/margin"
-        android:gravity="center"
-        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/doPaymentBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:gravity="center|center_horizontal"
-            android:text="@string/start_payment" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_margin="@dimen/margin"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/cancelPaymentBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:gravity="center_vertical"
-            android:text="@string/cancel_payment"
-            app:backgroundTint="@color/red" />
-    </LinearLayout>
+                <Button
+                    android:id="@+id/doPaymentBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center|center_horizontal"
+                    android:text="@string/start_payment" />
 
-        <TextView
-            android:id="@+id/trxResultFld"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:gravity="center|center_horizontal" />
+                <Button
+                    android:id="@+id/cancelPaymentBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin"
+                    android:gravity="center_vertical"
+                    android:text="@string/cancel_payment"
+                    app:backgroundTint="@color/red" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/trxResultFld"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="center|center_horizontal" />
 
         </LinearLayout>
     </ScrollView>

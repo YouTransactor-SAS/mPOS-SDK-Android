@@ -29,7 +29,7 @@ import org.json.JSONObject;
 public class EmvParamFmt1CLCAPK extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClCapkConfigured(false);
+        model.setIsClCapkConfigured(true);
         JSONArray clCapkList = jsonD.getJSONArray("capks");
         for(int i = 0; i < clCapkList.length(); i++) {
             EmvParamYTModel.ClessEltDsc clessCAPKDsc =

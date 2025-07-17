@@ -42,10 +42,10 @@ public class WaitCard extends TransactionViewBase {
         TextView textViewAmount = findViewById(R.id.textViewAmount);
         TextView textViewMsg = findViewById(R.id.textViewMsg);
         Button buttonCancel = findViewById(R.id.buttonCancel);
-        led1 =              findViewById(R.id.led1);
-        led2 =              findViewById(R.id.led2);
-        led3 =              findViewById(R.id.led3);
-        led4 =              findViewById(R.id.led4);
+        led1 = findViewById(R.id.led1);
+        led2 = findViewById(R.id.led2);
+        led3 = findViewById(R.id.led3);
+        led4 = findViewById(R.id.led4);
         ImageView imageViewSwipe = findViewById(R.id.imageViewSwipe);
         ImageView imageViewInsert = findViewById(R.id.imageViewInsert);
         ImageView imageViewNFC = findViewById(R.id.imageViewNFC);
@@ -67,7 +67,7 @@ public class WaitCard extends TransactionViewBase {
                 textViewAmount.setText(intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_AMOUNT));
             }
             textViewMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_WAIT_CARD_MSG_TAG, -1),
-                        intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG)));
+                    intent.getStringExtra(INTENT_EXTRA_WAIT_CARD_MSG)));
             int[] interfaces = intent.getIntArrayExtra(INTENT_EXTRA_WAIT_CARD_ITF);
             if (interfaces != null) {
                 for (int anInterface : interfaces) {
@@ -100,10 +100,12 @@ public class WaitCard extends TransactionViewBase {
     protected void onEventViewUpdate(EventCommand event) {
         switch (event.getEvent()) {
             case dsp_update_cless_LED:
-                led1.setSelected(((EventDspUpdateClessLed) event).getStatusLed1() == 1);
-                led2.setSelected(((EventDspUpdateClessLed) event).getStatusLed2() == 1);
-                led3.setSelected(((EventDspUpdateClessLed) event).getStatusLed3() == 1);
-                led4.setSelected(((EventDspUpdateClessLed) event).getStatusLed4() == 1);
+                runOnUiThread(() -> {
+                    led1.setSelected(((EventDspUpdateClessLed) event).getStatusLed1() == 1);
+                    led2.setSelected(((EventDspUpdateClessLed) event).getStatusLed2() == 1);
+                    led3.setSelected(((EventDspUpdateClessLed) event).getStatusLed3() == 1);
+                    led4.setSelected(((EventDspUpdateClessLed) event).getStatusLed4() == 1);
+                });
                 break;
 
             default:
@@ -112,6 +114,7 @@ public class WaitCard extends TransactionViewBase {
     }
 
     private void cancel() {
-        paymentService.cancel(status -> {});
+        paymentService.cancel(status -> {
+        });
     }
 }

@@ -38,7 +38,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLJCB extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClJcbConfigured(false);
+        model.setIsClJcbConfigured(true);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -55,9 +55,10 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
                     new EmvParamYTModel.ClessEltDsc();
             String aidKrnlTok = curJsonAidLst.getString("appLabel");
-            boolean isAidEltIdFound = true;
+            boolean isAidEltIdFound;
             for(String kernelTok : jcbAppTokenL) {
                 if (aidKrnlTok.contains(kernelTok)) {
+                    isAidEltIdFound = true;
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_jcb_tag_dict());

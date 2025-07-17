@@ -28,17 +28,20 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F20_CARDHOLDER_NAME;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F30_SERVICE_CODE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.jps.secureService.api.entity.ViewIdentifier;
+import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.api.UCubeLibPaymentServiceListener;
 import com.youTransactor.uCube.api.UCubePaymentRequest;
@@ -47,45 +50,33 @@ import com.youTransactor.uCube.connexion.ConnectionListener;
 import com.youTransactor.uCube.connexion.ConnectionService;
 import com.youTransactor.uCube.connexion.ConnectionStatus;
 import com.youTransactor.uCube.payment.PaymentContext;
-import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.rpc.Currency;
 import com.youTransactor.uCube.rpc.TransactionType;
+import com.youtransactor.sampleapp.keyboard.Keyboard;
+import com.youtransactor.sampleapp.keyboard.adapters.NumericKeyboardView;
+import com.youtransactor.sampleapp.keyboard.adapters.PhysicalKeyboardAdapter;
 import com.youtransactor.sampleapp.payment.AuthorizationTask;
-import com.youtransactor.sampleapp.payment.PaymentMeasure;
-import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
 import com.youtransactor.sampleapp.payment.Localization;
+import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class DemoActivity extends TransactionViewBase {
-    private TextView textViewAmount;
-    private Button buttonKey1;
-    private Button buttonKey2;
-    private Button buttonKey3;
-    private Button buttonKey4;
-    private Button buttonKey5;
-    private Button buttonKey6;
-    private Button buttonKey7;
-    private Button buttonKey8;
-    private Button buttonKey9;
-    private Button buttonKey0;
-    private Button buttonKey00;
-    private Button buttonDel;
-    private Button buttonPay;
 
+    private final PhysicalKeyboardAdapter physicalKeyboardAdapter = new PhysicalKeyboardAdapter();
+    private TextView textViewAmount;
+    private Button buttonPay;
+    private boolean isPaying = false;
     private CheckBox checkBoxInterfaceNFC;
     private CheckBox checkBoxInterfaceSMC;
     private CheckBox checkBoxInterfaceMSR;
 
-
     private String amountStr = "";
-
-    private PaymentMeasure paymentMeasure;
-    private PaymentService paymentService;
 
     @Override
     protected void onDestroy() {
@@ -108,10 +99,44 @@ public class DemoActivity extends TransactionViewBase {
 
         setContentView(R.layout.activity_demo);
 
-        String versionName = BuildConfig.VERSION_NAME;
-        TextView versionNametv = findViewById(R.id.version_name);
+        final String versionName = BuildConfig.VERSION_NAME;
+        final TextView versionNametv = findViewById(R.id.version_name);
         versionNametv.setText(getString(R.string.versionName, versionName));
 
+        this.initializeYtSomCommunication();
+
+        final Keyboard keyboardAdapter = instanciateKeyboard();
+
+        keyboardAdapter.subscribe(keyboardKey -> {
+            appendStringToAmount(keyboardKey.correspondingValue);
+            switch (keyboardKey) {
+                case CORRECT:
+                    deleteLastAmountCharacter();
+                    break;
+                case CANCEL:
+                    resetAmount();
+                    break;
+                case CONFIRM:
+                    pay();
+                    break;
+            }
+        });
+
+        textViewAmount = findViewById(R.id.textViewAmount);
+        buttonPay = findViewById(R.id.buttonPay);
+        buttonPay.setOnClickListener(v -> this.pay());
+        checkBoxInterfaceNFC = findViewById(R.id.checkBoxInterfaceNFC);
+        checkBoxInterfaceNFC.setChecked(true);
+        checkBoxInterfaceSMC = findViewById(R.id.checkBoxInterfaceSMC);
+        checkBoxInterfaceSMC.setChecked(true);
+        checkBoxInterfaceMSR = findViewById(R.id.checkBoxInterfaceMSR);
+        checkBoxInterfaceMSR.setClickable(true);
+    }
+
+    private void initializeYtSomCommunication() {
+        if (UCubeAPI.getConnexionManager().isConnected()) {
+            return;
+        }
         UCubeAPI.setLogLevel(SYSTEM);
         UCubeAPI.setYTmPOSProduct(YTMPOSProduct.AndroidPOS);
         UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.PAYMENT_SERVICE);
@@ -121,97 +146,91 @@ public class DemoActivity extends TransactionViewBase {
                 3,
                 new ConnectionListener() {
                     @Override
-                    public void onConnectionFailed(ConnectionStatus status, int error) {}
-                    @Override
-                    public void onConnectionSuccess() {}
-                    @Override
-                    public void onConnectionCancelled() {}
-                });
+                    public void onConnectionFailed(ConnectionStatus status, int error) {
+                    }
 
-        textViewAmount = findViewById(R.id.textViewAmount);
-        buttonKey1 = findViewById(R.id.button1);
-        buttonKey1.setOnClickListener(v -> amountAppendStr(buttonKey1.getText().toString()));
-        buttonKey2 = findViewById(R.id.button2);
-        buttonKey2.setOnClickListener(v -> amountAppendStr(buttonKey2.getText().toString()));
-        buttonKey3 = findViewById(R.id.button3);
-        buttonKey3.setOnClickListener(v -> amountAppendStr(buttonKey3.getText().toString()));
-        buttonKey4 = findViewById(R.id.button4);
-        buttonKey4.setOnClickListener(v -> amountAppendStr(buttonKey4.getText().toString()));
-        buttonKey5 = findViewById(R.id.button5);
-        buttonKey5.setOnClickListener(v -> amountAppendStr(buttonKey5.getText().toString()));
-        buttonKey6 = findViewById(R.id.button6);
-        buttonKey6.setOnClickListener(v -> amountAppendStr(buttonKey6.getText().toString()));
-        buttonKey7 = findViewById(R.id.button7);
-        buttonKey7.setOnClickListener(v -> amountAppendStr(buttonKey7.getText().toString()));
-        buttonKey8 = findViewById(R.id.button8);
-        buttonKey8.setOnClickListener(v -> amountAppendStr(buttonKey8.getText().toString()));
-        buttonKey9 = findViewById(R.id.button9);
-        buttonKey9.setOnClickListener(v -> amountAppendStr(buttonKey9.getText().toString()));
-        buttonKey0 = findViewById(R.id.button0);
-        buttonKey0.setOnClickListener(v -> amountAppendStr(buttonKey0.getText().toString()));
-        buttonKey00 = findViewById(R.id.button00);
-        buttonKey00.setOnClickListener(v -> amountAppendStr(buttonKey00.getText().toString()));
-        buttonDel = findViewById(R.id.buttonDel);
-        buttonDel.setOnClickListener(v -> amountDeleteChar());
-        buttonPay = findViewById(R.id.buttonPay);
-        buttonPay.setOnClickListener(v -> pay());
-        checkBoxInterfaceNFC = findViewById(R.id.checkBoxInterfaceNFC);
-        checkBoxInterfaceNFC.setChecked(true);
-        checkBoxInterfaceSMC = findViewById(R.id.checkBoxInterfaceSMC);
-        checkBoxInterfaceSMC.setChecked(true);
-        checkBoxInterfaceMSR = findViewById(R.id.checkBoxInterfaceMSR);
-        checkBoxInterfaceMSR.setClickable(true);
+                    @Override
+                    public void onConnectionSuccess() {
+                    }
+
+                    @Override
+                    public void onConnectionCancelled() {
+                    }
+                });
     }
 
-    private void amountAppendStr(String str) {
+    private Keyboard instanciateKeyboard() {
+        final NumericKeyboardView keyboardView = findViewById(R.id.numericKeyboard);
+        if (ProductManager.id == ProductIdentifier.stick) {
+            keyboardView.setVisibility(View.INVISIBLE);
+            return physicalKeyboardAdapter;
+        } else {
+            keyboardView.setVisibility(View.VISIBLE);
+            return keyboardView;
+        }
+    }
+
+    private void appendStringToAmount(String str) {
         // Amount limited for GUI
         if (((amountStr.length() + str.length()) < 8) &&
-            !(str.matches("^0*$") && amountStr.matches("^0*$"))) {
+                !(str.matches("^0*$") && amountStr.matches("^0*$"))) {
             amountStr = amountStr + str;
             amountUpdate();
         }
     }
 
-    private void amountDeleteChar() {
+    private void deleteLastAmountCharacter() {
         if (amountStr != null && !amountStr.isEmpty()) {
             amountStr = amountStr.substring(0, amountStr.length() - 1);
         }
         amountUpdate();
     }
 
+    private void resetAmount() {
+        amountStr = "";
+        amountUpdate();
+    }
+
     private void amountUpdate() {
-        String amountStrFormatted = amountStr;
-        int amountStrLen = amountStrFormatted.length();
-        for (int i = 0; i < (3 - amountStrLen); i++) {
-            amountStrFormatted = "0" + amountStrFormatted;
-        }
-        int dotPosition = amountStrFormatted.length() - 2;
-        amountStrFormatted = "USD " + amountStrFormatted.substring(0, dotPosition) + "."
-                             + amountStrFormatted.substring(dotPosition);
-        textViewAmount.setText(amountStrFormatted);
+        runOnUiThread(() -> {
+            String amountStrFormatted = amountStr;
+            int amountStrLen = amountStrFormatted.length();
+            for (int i = 0; i < (3 - amountStrLen); i++) {
+                amountStrFormatted = "0" + amountStrFormatted;
+            }
+            int dotPosition = amountStrFormatted.length() - 2;
+            amountStrFormatted = "USD " + amountStrFormatted.substring(0, dotPosition) + "."
+                    + amountStrFormatted.substring(dotPosition);
+            textViewAmount.setText(amountStrFormatted);
+        });
+
     }
 
     private void pay() {
+        if (isPaying) {
+            return;
+        }
         new Thread(() -> {
             try {
                 UCubePaymentRequest uCubePaymentRequest = preparePaymentRequest();
-                paymentService = UCubeAPI.pay(uCubePaymentRequest,
-                                              new UCubeLibPaymentServiceListener() {
+                isPaying = true;
+                runOnUiThread(() -> buttonPay.setEnabled(false));
+                UCubeAPI.pay(uCubePaymentRequest,
+                        new UCubeLibPaymentServiceListener() {
 
-                                                  @Override
-                                                  public void onProgress(PaymentState state, PaymentContext context) {
-                                                      // todo No RPC call here
-                                                  }
+                            @Override
+                            public void onProgress(PaymentState state, PaymentContext context) {
+                            }
 
-                                                  @Override
-                                                  public void onFinish(PaymentContext context) {
-
-                                                  }
-                                              });
+                            @Override
+                            public void onFinish(PaymentContext context) {
+                                isPaying = false;
+                                runOnUiThread(() -> buttonPay.setEnabled(true));
+                            }
+                        });
 
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
         }).start();
     }
@@ -238,10 +257,9 @@ public class DemoActivity extends TransactionViewBase {
         }
 
         AuthorizationTask authorizationTask = new AuthorizationTask(() -> this);
-        authorizationTask.setMeasureStatesListener(paymentMeasure);
 
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
-                                                                          readerList, authorizationTask, Collections.singletonList("en"));
+                readerList, authorizationTask, Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest
@@ -267,17 +285,20 @@ public class DemoActivity extends TransactionViewBase {
                         0x9C, 0x9F10, 0x9F1A, 0x4F, 0xDF, 0x81, 0x29, 0xD4, 0x9F41, 0xDF02, 0x8E, 0x9F39,
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
                         0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F,
-                        0x9F02, 0x9F03, 0x9F09,  0x9F1E, 0xDF36)
+                        0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF36,
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE
+                        )
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
                         0x99,
                         0x5F2A,
                         0x9F02,
-                        0x9F03
+                        0x9F03,
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_5F30_SERVICE_CODE
                 )
                 .setFinalizationPlainTags(0x9F1A, 0x99, 0x5F2A, 0x95, 0x4F, 0x9B, 0x5F34, 0x81, 0x8E, 0x9A, 0xDF37, 0x50, 0xDF36)
                 .setFinalizationSecuredTags(
@@ -285,13 +306,10 @@ public class DemoActivity extends TransactionViewBase {
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
                         TAG_SECURE_5F20_CARDHOLDER_NAME,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
-                        TAG_SECURE_5F30_SERVICE_CODE,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
                         TAG_SECURE_9F6B_TRACK_2_DATA
                 )
-                .withViewDelegate(ViewIdentifier.PIN_PROMPT)
-                .setMsrActivate(checkBoxInterfaceMSR.isChecked());
+                .withViewDelegate(ViewIdentifier.PIN_PROMPT);
 
 
         return uCubePaymentRequest;

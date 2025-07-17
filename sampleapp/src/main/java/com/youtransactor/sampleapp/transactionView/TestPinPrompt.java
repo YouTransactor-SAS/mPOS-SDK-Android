@@ -116,7 +116,7 @@ public class TestPinPrompt extends TransactionViewBasePinTest {
     protected void onResume() {
         super.onResume();
         mSecureLogicSvcMgr.setServiceConnectCallback(mSecureLogicConnectionCallback);
-        if (mSecureLogicSvcMgr.isServiceDisconnected()) {
+        if (!mSecureLogicSvcMgr.isServiceConnected()) {
             mSecureLogicSvcMgr.bindService(getApplicationContext());
         }
     }

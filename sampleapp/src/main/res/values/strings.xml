@@ -151,6 +151,8 @@
     <string name="type">Type</string>
     <string name="enter_amount_on_ucube">Enter amount on uCube</string>
     <string name="amount">Amount</string>
+    <string name="cashback_amount">Cashback Amount</string>
+
     <string name="use_single_entry_point">Use single entry point</string>
     <string name="mag_stripe">Mag stripe</string>
     <string name="chip">Chip</string>
@@ -164,7 +166,10 @@
     <string name="payment_progress_without_amount">Make payment in %s</string>
     <string name="payment_failed">Please Check the input parameters, Payment failed!</string>
     <string name="display">Display</string>
-    <string name="contact_only">Contact Only</string>
+    <string name="contact_interface">Contact interface</string>
+    <string name="nfc_interface">NFC interface</string>
+    <string name="msr_interface">MSR interface</string>
+
     <string name="display_result_on_ucube">Display result on uCube</string>
     <string name="force_authorisation">Force Authorisation</string>
     <string name="cancel_pay">Cancel current payment</string>

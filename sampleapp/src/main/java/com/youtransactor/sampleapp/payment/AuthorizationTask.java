@@ -80,9 +80,14 @@ public class AuthorizationTask implements IAuthorizationTask {
         //throw new NullPointerException();
         this.monitor = monitor;
 
-        if (paymentContext.authorizationSecuredTagsValues != null)
-            Log.d(TAG,"authorization secured tags " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues));
+        if (paymentContext.authorizationSecuredTagsResponse != null)
+            Log.d(TAG,"authorization secured tags response " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsResponse));
 
+        if (paymentContext.authorizationSecuredTagsValues != null) {
+            for (Integer tag : paymentContext.authorizationSecuredTagsValues.keySet()) {
+                Log.d(TAG, String.format("authorization secured tags: 0x%x : %s", tag, Tools.bytesToHex(paymentContext.authorizationSecuredTagsValues.get(tag))));
+            }
+        }
         //todo send this to backend to check the integrity
         if (paymentContext.authorizationGetPlainTagsResponse != null)
             Log.d(TAG,"authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));

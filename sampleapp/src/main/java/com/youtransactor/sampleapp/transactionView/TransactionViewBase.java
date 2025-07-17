@@ -17,6 +17,8 @@
 package com.youtransactor.sampleapp.transactionView;
 
 import com.youTransactor.uCube.payment.PaymentUtils;
+import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
+import com.youTransactor.uCube.rpc.EMVClessApplicationDescriptor;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
@@ -89,9 +91,29 @@ public abstract class TransactionViewBase extends AppCompatActivity {
         Log.d("onEventViewUpdate", "onEventViewUpdate");
     }
 
-    private ArrayList<byte[]> update_cless_aid_list(ArrayList<byte[]> aid_list) {
+    private void update_cless_aid_list(List<EMVClessApplicationDescriptor> candidate) {
         //here to add your code and update aid list
-        return aid_list;
+        if(candidate.size() == 1) {
+            byte[] tlv = new byte[0];
+            PaymentUtils.send_event_filter_cless_aid(0, tlv, (event, params) -> {
+                switch (event) {
+                    case FAILED:
+                        break;
+                    case SUCCESS:
+                        break;
+                }
+            });
+        }else {
+            int i;
+            ArrayList<String> app_label = new ArrayList<>();
+            for (i = 0; i < candidate.size(); i++) {
+                app_label.add(candidate.get(i).getLabel());
+            }
+            Intent intent = new Intent(this, DisplayList.class);
+            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, app_label);
+            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_TYPE, 1);
+            startActivity(intent);
+        }
     }
 
     private void onEventViewCreate(EventCommand eventCmd) {
@@ -150,18 +172,8 @@ public abstract class TransactionViewBase extends AppCompatActivity {
                 break;
 
             case pay_select_aid:
-                // TO ADD: update the received list and tlv value
-                byte[] tlv = new byte[0];
-                PaymentUtils.send_event_filter_cless_aid(
-                        update_cless_aid_list(((EventPaySelectAid) eventCmd).getAidList()),
-                        tlv, (event, params) -> {
-                    switch (event) {
-                        case FAILED:
-                            break;
-                        case SUCCESS:
-                            break;
-                    }
-                });
+                update_cless_aid_list(((EventPaySelectAid) eventCmd).getCandidateList());
+
                 break;
             case dsp_idle:
                 this.finishTransactionView();

@@ -38,7 +38,7 @@ import java.util.Locale;
 public class EmvParamFmt1CLDisc extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(
             JSONObject jsonD, EmvParamYTModel model) throws JSONException {
-        model.setIsClDiscConfigured(false);
+        model.setIsClDiscConfigured(true);
         JSONObject clJson = jsonD.getJSONObject("contactless");
         JSONObject common = jsonD.getJSONObject("common");
         JSONObject clCommon = clJson.getJSONObject("common");
@@ -46,6 +46,7 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
         JSONArray clAIDList = clJson.getJSONArray("aids");
         List<String> discAppTokenL = new ArrayList<>();
         discAppTokenL.add("DISCOVER");
+        discAppTokenL.add("DISCOVER DEBIT");
         int nbDiscAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, discAppTokenL);
         EmvParamDOL clDISCalltagDol = new EmvParamDOL();
@@ -55,9 +56,10 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
                     new EmvParamYTModel.ClessEltDsc();
             String aidKrnlTok = curJsonAidLst.getString("appLabel");
-            boolean isAidEltIdFound = true;
+            boolean isAidEltIdFound;
             for(String kernelTok : discAppTokenL) {
                 if (aidKrnlTok.contains(kernelTok)) {
+                    isAidEltIdFound = true;
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_disc_tag_dict());

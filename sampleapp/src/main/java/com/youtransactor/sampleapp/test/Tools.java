@@ -56,7 +56,7 @@ import java.util.List;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
 import static com.youTransactor.uCube.rpc.Constants.INSTALL_FOR_LOAD_COMMAND;
 
 public class Tools {
@@ -290,14 +290,14 @@ public class Tools {
                 .setAuthorizationPlainTags(
                         0x4F, 0x50, 0x5F34, 0x82, 0x84, 0x8E, 0x8F, 0x95, 0x9A, 0x9C, 0x9F06, 0x9F08, 0x9F10, 0x9F12,
                         0x9F1A, 0x9F26, 0x9F27, 0x9F33, 0x9F34, 0x9F36, 0x9F37, 0x9F39, 0x9F41, 0x9F66, 0x9F6E, 0x9F71,
-                        0x9F7C, 0xD3, 0xD4, 0xDF02, 0xDF81, 0x29, 0xDFC302
-                )
+                        0x9F7C, 0xD3, 0xD4, 0xDF02, 0xDF81, 0x29, 0xDFC302,
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE
+                        )
 
                 .setAuthorizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F24_APPLICATION_EXPIRATION_DATE,
                         0x99,
                         0x9F02,
                         0x9F03,

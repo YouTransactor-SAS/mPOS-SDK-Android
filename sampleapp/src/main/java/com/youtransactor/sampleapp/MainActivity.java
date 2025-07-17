@@ -53,6 +53,7 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_FULL_SVPP_IDENTIFICATION
 import static com.youTransactor.uCube.rpc.Constants.TAG_GPI_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_INTEGRITY_CHECK_TIME;
 import static com.youTransactor.uCube.rpc.Constants.TAG_MPOS_MODULE_STATE;
+import static com.youTransactor.uCube.rpc.Constants.TAG_NFC_INFOS;
 import static com.youTransactor.uCube.rpc.Constants.TAG_OS_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_CHECKSUM;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_VERSION;
@@ -1126,7 +1127,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     private void getInfo() {
         final int[] uCubeInfoTagList = {
                 TAG_SECURE_MOD,
-                TAG_CB,
                 TAG_TERMINAL_PN,
                 TAG_TERMINAL_SN,
                 TAG_FIRMWARE_VERSION,
@@ -1160,7 +1160,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_E7_NFC_CARD_DETECT_CONFIGURATION,
                 TAG_CF_ENHANCED_SRED_CONFIGURATION,
                 TAG_FULL_SVPP_IDENTIFICATION,
-                TAG_INTEGRITY_CHECK_TIME
+                TAG_INTEGRITY_CHECK_TIME,
+                TAG_NFC_INFOS
         };
 
         UIUtils.showProgress(this, getString(R.string.get_info), false);
