@@ -173,6 +173,22 @@
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/slow_mode" />
+
+        <Button
+            android:id="@+id/buzzer_on"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/buzzer_on" />
+
+        <Button
+            android:id="@+id/buzzer_off"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/buzzer_off" />
     </LinearLayout>
 
     <LinearLayout

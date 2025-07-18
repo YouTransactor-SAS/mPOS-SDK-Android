@@ -503,6 +503,10 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         quickModeBtn.setOnClickListener(v -> enableQuickMode());
         Button slowModeBtn = findViewById(R.id.slow_mode);
         slowModeBtn.setOnClickListener(v -> enableSlowMode());
+        Button buzzer_on = findViewById(R.id.buzzer_on);
+        buzzer_on.setOnClickListener(v -> BuzzerOn());
+        Button buzzer_off = findViewById(R.id.buzzer_off);
+        buzzer_off.setOnClickListener(v -> BuzzerOff());
         findViewById(R.id.get_rtc).setOnClickListener(v -> getRtc());
         findViewById(R.id.set_rtc).setOnClickListener(v -> askForDateAndSetRtc());
         findViewById(R.id.get_pub_key).setOnClickListener(v -> getPubKey());
@@ -1267,6 +1271,34 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             } else if (event1 == TaskEvent.SUCCESS) {
                 Toast.makeText(this, "Set power off timeout SUCCESS! ", Toast.LENGTH_LONG).show();
             }
+            progressDlg.dismiss();
+        }));
+    }
+
+    private void BuzzerOn() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_on));
+        progressDlg.setCancelable(false);
+
+        SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setBuzzerOnOff(true);
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            if (event1 == TaskEvent.PROGRESS)
+                return;
+
+            progressDlg.dismiss();
+        }));
+    }
+
+    private void BuzzerOff() {
+        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_off));
+        progressDlg.setCancelable(false);
+
+        SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
+        setInfoFieldCommand.setBuzzerOnOff(false);
+        setInfoFieldCommand.execute((event1, params1) -> runOnUiThread(() -> {
+            if (event1 == TaskEvent.PROGRESS)
+                return;
+
             progressDlg.dismiss();
         }));
     }

@@ -158,7 +158,7 @@
     <string name="chip">Chip</string>
     <string name="nfc">NFC</string>
     <string name="force_online_pin">Force online PIN</string>
-    <string name="online_pin_block_format">Online PIN block format supported: Format 1</string>
+    <string name="online_pin_block_format">Online PIN block format supported: </string>
     <string name="start_payment">Pay</string>
     <string name="_00_00">00.00</string>
     <string name="_1_00">1.00</string>
@@ -186,6 +186,10 @@
 
     <string name="setup_quick_mode">Setup Quick mode</string>
     <string name="setup_slow_mode">Setup Slow mode</string>
+
+    <string name="setup_buzzer_on">Buzzer ON</string>
+    <string name="setup_buzzer_off">Buzzer OFF</string>
+
 
     <string name="get_supported_locales">Get supported locales</string>
     <string name="get_supported_locale_list_failed">Get Supported locale liste failed</string>
@@ -296,6 +300,8 @@
     <string name="get_state">get State</string>
     <string name="slow_mode">slow mode</string>
     <string name="quick_mode">Quick mode</string>
+    <string name="buzzer_on">Buzzer ON</string>
+    <string name="buzzer_off">Buzzer OFF</string>
     <string name="enable_recovery_mechanism">Enable recovery mechanism</string>
     <string name="enable_measures">enable measures</string>
     <string name="rpc_timeout">RPC Timeout</string>
