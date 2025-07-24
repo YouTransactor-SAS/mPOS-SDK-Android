@@ -1,4 +1,4 @@
-package com.youtransactor.sampleapp.keyboard.adapters;
+package com.youtransactor.sampleapp.infrastructure.keyboard.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.youtransactor.sampleapp.R;
-import com.youtransactor.sampleapp.keyboard.Keyboard;
-import com.youtransactor.sampleapp.keyboard.KeyboardKey;
+import com.youtransactor.sampleapp.infrastructure.keyboard.Keyboard;
+import com.youtransactor.sampleapp.infrastructure.keyboard.KeyboardKey;
 
 import java.util.function.Consumer;
 

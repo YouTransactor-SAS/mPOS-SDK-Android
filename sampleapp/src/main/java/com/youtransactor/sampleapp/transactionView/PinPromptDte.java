@@ -25,7 +25,6 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.jps.secureService.api.SecureLogicServiceManager;
 import com.jps.secureService.api.product_manager.ProductIdentifier;
 import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.payment.PaymentUtils;
@@ -43,7 +42,6 @@ import java.util.List;
 public class PinPromptDte extends TransactionViewBaseDte {
 
     private static final String TAG = PinPromptDte.class.getSimpleName();
-    public static final String INTENT_EXTRA_PIN_AMOUNT = "INTENT_EXTRA_PIN_AMOUNT";
     public static final String INTENT_EXTRA_PIN_MSG = "INTENT_EXTRA_PIN_MSG";
     public static final String INTENT_EXTRA_PIN_MSG_TAG = "INTENT_EXTRA_PIN_MSG_TAG";
     public static final String INTENT_EXTRA_UPDATE_KEYPAD_TAG = "INTENT_EXTRA_UPDATE_KEYPAD_TAG";
@@ -52,7 +50,6 @@ public class PinPromptDte extends TransactionViewBaseDte {
     private TextView textViewPin;
     private TextView textViewPinMsg;
     private boolean Is_Keypad_Update;
-
 
     @Override
     protected void onResume() {
@@ -91,13 +88,12 @@ public class PinPromptDte extends TransactionViewBaseDte {
 
         if (ProductManager.id == ProductIdentifier.stick) {
             findViewById(R.id.pinGrid).setVisibility(View.GONE);
-        }
-        else{
+        } else {
             this.setupMapping();
         }
         Is_Keypad_Update = intent.getBooleanExtra(INTENT_EXTRA_UPDATE_KEYPAD_TAG, true);
         textViewPinMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_PIN_MSG_TAG, -1),
-                    intent.getStringExtra(INTENT_EXTRA_PIN_MSG)));
+                intent.getStringExtra(INTENT_EXTRA_PIN_MSG)));
     }
 
 
@@ -109,16 +105,16 @@ public class PinPromptDte extends TransactionViewBaseDte {
             case kbd_release:
             case kbd_del_one_char:
             case kbd_del_all_char:
-                updatePin(((EventKbd) event).getNbPressedDigit(), ((EventKbd) event).getValue());
+                updatePin(((EventKbd) event).getNbPressedDigit());
                 break;
             case ppt_pin_ok:
             case ppt_pin_blocked:
-                textViewPinMsg.setText(Localization.getMsg(((EventPptResult)event).getTag(),
+                textViewPinMsg.setText(Localization.getMsg(((EventPptResult) event).getTag(),
                         ((EventPptResult) event).getText()));
                 PinPromptDte.this.runOnUiThread(PinPromptDte.this::finish);
                 break;
             case ppt_pin_wrong:
-                textViewPinMsg.setText(Localization.getMsg(((EventPptResult)event).getTag(),
+                textViewPinMsg.setText(Localization.getMsg(((EventPptResult) event).getTag(),
                         ((EventPptResult) event).getText()));
                 break;
 
@@ -127,7 +123,7 @@ public class PinPromptDte extends TransactionViewBaseDte {
         }
     }
 
-    private void updatePin(byte nb_digit, byte value) {
+    private void updatePin(byte nb_digit) {
         StringBuffer pinStr = new StringBuffer();
         for (int i = 0; i < nb_digit; i++) {
             pinStr.append('*');
@@ -162,12 +158,12 @@ public class PinPromptDte extends TransactionViewBaseDte {
             int x = location[0];
             int y = location[1];
             Log.d("ButtonPosition", "Button " + button.getText() + " at X1: " + x + ", Y1: " +
-                    y + ", X2: " + (x +  button.getWidth())+ ", Y2: " + (y + button.getHeight()));
+                    y + ", X2: " + (x + button.getWidth()) + ", Y2: " + (y + button.getHeight()));
             KBDMapping.add(new UpdateKeypad.KBDButton(x, y,
-                       x + button.getWidth(),
-                       y + button.getHeight(), pair.second));
+                    x + button.getWidth(),
+                    y + button.getHeight(), pair.second));
         }
-        if(Is_Keypad_Update) {
+        if (Is_Keypad_Update) {
             PaymentUtils.update_keypad(KBDMapping, (event, params) -> {
                 switch (event) {
                     case FAILED:

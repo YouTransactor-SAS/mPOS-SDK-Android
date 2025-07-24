@@ -23,9 +23,6 @@
 package com.youtransactor.sampleapp;
 
 
-import static com.youtransactor.sampleapp.transactionView.SdsePrompt.*;
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.sdse;
-
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -34,39 +31,31 @@ import com.youTransactor.uCube.rpc.command.event.ppt.EventPptSdse;
 import com.youtransactor.sampleapp.transactionView.SdsePrompt;
 import com.youtransactor.sampleapp.transactionView.StartSdseSession;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
-import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
-
-import com.jps.secureService.api.product_manager.ProductManager;
-
-import java.util.List;
 
 public class SdseActivity extends TransactionViewBase {
 
-    private static final String TAG = SdseActivity.class.getSimpleName();
     public static final String INTENT_EXTRA_SDSE_TYPE = "INTENT_EXTRA_SDSE_TYPE";
     private int Sdse_type;
-    private List<Intent> intents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        intents = view_manager.getApplicableIntents(this, ProductManager.id);
         Sdse_type = (byte) intent.getIntExtra(INTENT_EXTRA_SDSE_TYPE, -1);
-        new StartSdseSession(this, (byte)Sdse_type).execute();
+        new StartSdseSession(this, (byte) Sdse_type).execute();
     }
 
-     private void onError() {
+    private void onError() {
         finish();
-     }
+    }
 
     @Override
     protected void onEventViewUpdate(EventCommand event) {
         switch (event.getEvent()) {
             case ppt_sdse:
-                Sdse_type = ((EventPptSdse)event).getSdse_type();
+                Sdse_type = ((EventPptSdse) event).getSdse_type();
                 Intent sdseIntent = new Intent(this, SdsePrompt.class);
-                switch(Sdse_type){
+                switch (Sdse_type) {
                     case 1:
                         sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
                         break;

@@ -1,4 +1,4 @@
-package com.youtransactor.sampleapp.keyboard;
+package com.youtransactor.sampleapp.infrastructure.keyboard;
 
 import java.util.function.Consumer;
 

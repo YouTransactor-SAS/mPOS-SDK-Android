@@ -32,52 +32,39 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jps.secureService.api.product_manager.ProductIdentifier;
+import com.jps.secureService.api.product_manager.ProductManager;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.Constants;
-import com.youtransactor.sampleapp.R;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
-
-import com.jps.secureService.api.product_manager.ProductIdentifier;
-import com.jps.secureService.api.product_manager.ProductManager;
-import com.jps.secureService.api.ISecureLogicServiceConnectCallback;
-import com.jps.secureService.api.SecureLogicServiceManager;
+import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.infrastructure.SystemBars;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SdsePrompt extends TransactionViewBase {
 
-    private static final String TAG = SdsePrompt.class.getSimpleName();
     public static final String INTENT_EXTRA_SDSE_PROMPT_MSG = "INTENT_EXTRA_SDSE_PROMPT_MSG";
     public static final String INTENT_EXTRA_SDSE_PROMPT_TYPE = "INTENT_EXTRA_SDSE_PROMPT_TYPE";
     private TextView textViewSdseMsg;
     private TextView textViewSdse;
 
-    private int Sdse_type;
     private ArrayList<Pair<Button, Integer>> kbdButtonList;
     private List<UpdateKeypad.KBDButton> KBDMapping = new ArrayList<>();
 
-    private SecureLogicServiceManager mSecureLogicSvcMgr = SecureLogicServiceManager.getInstance();
-    private ISecureLogicServiceConnectCallback mSecureLogicConnectionCallback =
-            new ISecureLogicServiceConnectCallback() {
-                @Override
-                public void onServiceConnected() {
-                    mSecureLogicSvcMgr.disableSystemBars(true);
-                }
-                @Override
-                public void onServiceDisconnected() {
-                }
-            };
+    private SystemBars systemBars;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.systemBars = new SystemBars(this);
         Intent intent = getIntent();
         setContentView(R.layout.activity_pan_prompt);
         textViewSdseMsg = findViewById(R.id.textViewSdseMsg);
-        textViewSdse= findViewById(R.id.textViewPan);
+        textViewSdse = findViewById(R.id.textViewPan);
         kbdButtonList = new ArrayList<>();
         kbdButtonList.add(new Pair<>(findViewById(R.id.button0), Constants.KEYPAD_BUTTON_0));
         kbdButtonList.add(new Pair<>(findViewById(R.id.button1), Constants.KEYPAD_BUTTON_1));
@@ -95,11 +82,10 @@ public class SdsePrompt extends TransactionViewBase {
         kbdButtonList.add(new Pair<>(findViewById(R.id.buttonClear), Constants.KEYPAD_BUTTON_CLEAR));
 
         if (ProductManager.id == ProductIdentifier.stick) {
-             findViewById(R.id.pinGrid).setVisibility(View.GONE);
+            findViewById(R.id.pinGrid).setVisibility(View.GONE);
         }
 
         textViewSdseMsg.setText(intent.getStringExtra(INTENT_EXTRA_SDSE_PROMPT_MSG));
-        Sdse_type = (byte) intent.getIntExtra(INTENT_EXTRA_SDSE_PROMPT_TYPE, -1);
         new Thread(() -> {
             try {
                 starThread();
@@ -112,16 +98,12 @@ public class SdsePrompt extends TransactionViewBase {
     @Override
     protected void onResume() {
         super.onResume();
-        mSecureLogicSvcMgr.setServiceConnectCallback(mSecureLogicConnectionCallback);
-        if (!mSecureLogicSvcMgr.isServiceConnected()) {
-            mSecureLogicSvcMgr.bindService(getApplicationContext());
-        }
+        this.systemBars.disable();
     }
 
     @Override
     protected void onPause() {
-        mSecureLogicSvcMgr.disableSystemBars(false);
-        mSecureLogicSvcMgr.setServiceConnectCallback(null);
+        this.systemBars.enable();
         super.onPause();
     }
 
@@ -136,8 +118,8 @@ public class SdsePrompt extends TransactionViewBase {
                     button.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     buttonsProcessed[0]++;
                     if ((buttonsProcessed[0] == kbdButtonList.size()) &&
-                            (kbdButtonList.size() != 0)){
-                        if(ProductManager.id == ProductIdentifier.blade) {
+                            (kbdButtonList.size() != 0)) {
+                        if (ProductManager.id == ProductIdentifier.blade) {
                             sendMapping();
                         }
                     }
@@ -146,7 +128,7 @@ public class SdsePrompt extends TransactionViewBase {
         }
     }
 
-    private void  sendMapping() {
+    private void sendMapping() {
         KBDMapping = new ArrayList<>();
         for (Pair<Button, Integer> pair : kbdButtonList) {
             Button button = pair.first;
@@ -187,6 +169,7 @@ public class SdsePrompt extends TransactionViewBase {
                 break;
         }
     }
+
     private void updateSdse(byte nb_digit, byte value) {
         StringBuffer pinStr = new StringBuffer();
         for (int i = 0; i < nb_digit; i++) {

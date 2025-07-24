@@ -24,65 +24,38 @@ package com.youtransactor.sampleapp.transactionView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.youTransactor.uCube.api.UCubeAPI;
-import com.youTransactor.uCube.payment.PaymentUtils;
-import com.youTransactor.uCube.rpc.Constants;
-import com.youtransactor.sampleapp.R;
-import com.youTransactor.uCube.rpc.command.UpdateKeypad;
-import com.youTransactor.uCube.rpc.command.event.EventCommand;
-import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
 
 import com.jps.secureService.api.product_manager.ProductIdentifier;
 import com.jps.secureService.api.product_manager.ProductManager;
-import com.jps.secureService.api.ISecureLogicServiceConnectCallback;
-import com.jps.secureService.api.SecureLogicServiceManager;
+import com.youTransactor.uCube.rpc.Constants;
+import com.youTransactor.uCube.rpc.command.event.EventCommand;
+import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
+import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.infrastructure.SystemBars;
 import com.youtransactor.sampleapp.payment.Localization;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class TestPinPrompt extends TransactionViewBasePinTest {
 
-    private static final String TAG = TestPinPrompt.class.getSimpleName();
-    public static final String INTENT_EXTRA_PIN_AMOUNT = "INTENT_EXTRA_PIN_AMOUNT";
     public static final String INTENT_EXTRA_PIN_MSG = "INTENT_EXTRA_PIN_MSG";
     public static final String INTENT_EXTRA_PIN_MSG_TAG = "INTENT_EXTRA_PIN_MSG_TAG";
-    public static final String INTENT_EXTRA_UPDATE_KEYPAD_TAG = "INTENT_EXTRA_UPDATE_KEYPAD_TAG";
-    private static final Logger log = LoggerFactory.getLogger(TestPinPrompt.class);
 
     private TextView textViewPin;
     private TextView textViewPinMsg;
-    private boolean Is_Keypad_Update;
 
     private ArrayList<Pair<Button, Integer>> kbdButtonList;
-    private List<UpdateKeypad.KBDButton> KBDMapping = new ArrayList<>();
 
-    private SecureLogicServiceManager mSecureLogicSvcMgr = SecureLogicServiceManager.getInstance();
-    private ISecureLogicServiceConnectCallback mSecureLogicConnectionCallback =
-            new ISecureLogicServiceConnectCallback() {
-                @Override
-                public void onServiceConnected() {
-                    mSecureLogicSvcMgr.disableSystemBars(true);
-                }
-                @Override
-                public void onServiceDisconnected() {
-                }
-            };
+    private SystemBars systemBars;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.systemBars = new SystemBars(this);
         Intent intent = getIntent();
         setContentView(R.layout.activity_pin_prompt);
         textViewPin = findViewById(R.id.textViewPIN);
@@ -107,7 +80,6 @@ public class TestPinPrompt extends TransactionViewBasePinTest {
             findViewById(R.id.pinGrid).setVisibility(View.GONE);
         }
 
-        Is_Keypad_Update = intent.getBooleanExtra(INTENT_EXTRA_UPDATE_KEYPAD_TAG, true);
         textViewPinMsg.setText(Localization.getMsg(intent.getIntExtra(INTENT_EXTRA_PIN_MSG_TAG, -1),
                 intent.getStringExtra(INTENT_EXTRA_PIN_MSG)));
     }
@@ -115,80 +87,24 @@ public class TestPinPrompt extends TransactionViewBasePinTest {
     @Override
     protected void onResume() {
         super.onResume();
-        mSecureLogicSvcMgr.setServiceConnectCallback(mSecureLogicConnectionCallback);
-        if (!mSecureLogicSvcMgr.isServiceConnected()) {
-            mSecureLogicSvcMgr.bindService(getApplicationContext());
-        }
+        this.systemBars.disable();
     }
 
     @Override
     protected void onPause() {
-        mSecureLogicSvcMgr.disableSystemBars(false);
-        mSecureLogicSvcMgr.setServiceConnectCallback(null);
+        this.systemBars.enable();
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        mSecureLogicSvcMgr.disableSystemBars(false);
-        mSecureLogicSvcMgr.setServiceConnectCallback(null);
+        this.systemBars.enable();
         super.onStop();
     }
 
     protected void onDestroy() {
-        mSecureLogicSvcMgr.disableSystemBars(false);
-        mSecureLogicSvcMgr.setServiceConnectCallback(null);
+        this.systemBars.enable();
         super.onDestroy();
-    }
-
-    private void starThread() {
-        final int[] buttonsProcessed = {0};
-
-        for (Pair<Button, Integer> pair : kbdButtonList) {
-            Button button = pair.first;
-            button.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    button.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    buttonsProcessed[0]++;
-                    if ((buttonsProcessed[0] == kbdButtonList.size()) &&
-                            (kbdButtonList.size() != 0)){
-                        if(ProductManager.id == ProductIdentifier.blade) {
-                            sendMapping();
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    private void  sendMapping() {
-        KBDMapping = new ArrayList<>();
-        for (Pair<Button, Integer> pair : kbdButtonList) {
-            Button button = pair.first;
-            int[] location = new int[2];
-            button.getLocationOnScreen(location);
-            int x = location[0];
-            int y = location[1];
-            Log.d("ButtonPosition", "Button " + button.getText() + " at X1: " + x + ", Y1: " +
-                    y + ", X2: " + (x + button.getWidth()) + ", Y2: " + (y + button.getHeight()));
-            KBDMapping.add(new UpdateKeypad.KBDButton(x, y,
-                    x + button.getWidth(),
-                    y + button.getHeight(), pair.second));
-        }
-        PaymentUtils.update_keypad(KBDMapping, (event, params) -> {
-            switch (event) {
-                case FAILED:
-                    runOnUiThread(() -> Toast.makeText(this, "Update Keypad fail", Toast.LENGTH_LONG).show());
-                    this.finish();
-                    break;
-                case SUCCESS:
-                    runOnUiThread(() -> Toast.makeText(this, "Update Keypad success", Toast.LENGTH_LONG).show());
-                    break;
-                default:
-                    break;
-            }
-        });
     }
 
     @Override
@@ -199,13 +115,14 @@ public class TestPinPrompt extends TransactionViewBasePinTest {
             case kbd_release:
             case kbd_del_one_char:
             case kbd_del_all_char:
-                updatePin(((EventKbd) event).getNbPressedDigit(), ((EventKbd) event).getValue());
+                updatePin(((EventKbd) event).getNbPressedDigit());
                 break;
             default:
                 break;
         }
     }
-    private void updatePin(byte nb_digit, byte value) {
+
+    private void updatePin(byte nb_digit) {
         StringBuffer pinStr = new StringBuffer();
         for (int i = 0; i < nb_digit; i++) {
             pinStr.append('*');

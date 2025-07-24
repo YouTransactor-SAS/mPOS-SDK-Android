@@ -1,12 +1,12 @@
-package com.youtransactor.sampleapp.keyboard.adapters;
+package com.youtransactor.sampleapp.infrastructure.keyboard.adapters;
 
 import static com.youTransactor.uCube.rpc.Event.kbd_release;
 
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
-import com.youtransactor.sampleapp.keyboard.Keyboard;
-import com.youtransactor.sampleapp.keyboard.KeyboardKey;
+import com.youtransactor.sampleapp.infrastructure.keyboard.Keyboard;
+import com.youtransactor.sampleapp.infrastructure.keyboard.KeyboardKey;
 
 import java.util.function.Consumer;
 

@@ -1,4 +1,4 @@
-package com.youtransactor.sampleapp.keyboard;
+package com.youtransactor.sampleapp.infrastructure.keyboard;
 
 public enum KeyboardKey {
     ONE("1"),
