@@ -173,6 +173,7 @@
     <string name="display_result_on_ucube">Display result on uCube</string>
     <string name="force_authorisation">Force Authorisation</string>
     <string name="cancel_pay">Cancel current payment</string>
+    <string name="keep_secure_session">Keep secure session open</string>
 
     <!--RPC DISPLAY -->
     <string name="display_msg">Display message</string>

@@ -132,6 +132,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch forceOnlinePINBtn;
     private Spinner onlinePinBlockFormatChoice;
     private Switch forceAuthorisationBtn;
+    private Switch keepSecureSessionBtn;
     private Switch amountSrcSwitch;
     private Switch contactItf;
     private Switch nfcItf;
@@ -269,6 +270,7 @@ public class PaymentActivity extends AppCompatActivity {
         nfcItf = findViewById(R.id.nfc_itf);
         msrItf = findViewById(R.id.msr_itf);
         forceAuthorisationBtn = findViewById(R.id.forceAuthorisationSwitch);
+        keepSecureSessionBtn = findViewById(R.id.keepSecureSessionSwitch);
         forceDebugSwitch = findViewById(R.id.forceDebugSwitch);
         allowPinBypassSwitch = findViewById(R.id.allowPinBypassSwitch);
         trxResultFld = findViewById(R.id.trxResultFld);
@@ -454,6 +456,7 @@ public class PaymentActivity extends AppCompatActivity {
         }
         forceDebug = forceDebugSwitch.isChecked();
         isPinBypassAllowed = allowPinBypassSwitch.isChecked();
+        boolean keepSecureSession = keepSecureSessionBtn.isChecked();
 
         boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
 
@@ -493,6 +496,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
                 .setForceAuthorisation(forceAuthorisation)
+                .setKeepSecureSession(keepSecureSession)
                 .setOnlinePinBlockFormat(onlinePinBlockFormat)
                 //  .setRiskManagementTask(new RiskManagementTask(this))
                 .setCardWaitTimeout(timeout)
