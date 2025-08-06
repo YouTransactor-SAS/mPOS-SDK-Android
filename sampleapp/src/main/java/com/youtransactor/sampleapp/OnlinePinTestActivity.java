@@ -24,7 +24,6 @@ package com.youtransactor.sampleapp;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -38,10 +37,11 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
     private Button startBtn;
     private boolean testOngoing = false;
     private boolean testStarted = false;
-    private static int TIME_BETWEEN_ONLINE_PIN = 3000;
+    private static final int TIME_BETWEEN_ONLINE_PIN = 3000;
     private Spinner onlinePinBlockFormatChoice;
     private TestPinSession testPinSessionInstance;
-
+    private Spinner onlinePINTestSpinner;
+    private final String[] keySlotList = {"0x40", "0x41", "0x42", "0x43", "0x44"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +59,17 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
                 OnlinePinBlockFormatType.values()
         ));
         onlinePinBlockFormatChoice.setSelection(1);
+
+        ArrayAdapter<String> keySlotListAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                this.keySlotList
+        );
+        this.onlinePINTestSpinner = findViewById(R.id.onlinePINTestSpinner);
+        keySlotListAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        this.onlinePINTestSpinner.setAdapter(keySlotListAdapter);
+
 //        // Todo: remove when all format are supported
 //        onlinePinBlockFormatChoice.setVisibility(View.INVISIBLE);
     }
@@ -75,13 +86,19 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
             }
         }, TIME_BETWEEN_ONLINE_PIN);
     }
+    private byte hexStringToByte(String hexString){
+        // substring 2: remove 0x
+        return (byte) Integer.parseInt(hexString.substring(2),16);
+    }
 
     private void startTest() {
         startBtn.setClickable(false);
         testOngoing = true;
         startBtn.setOnClickListener(v -> stopTest());
         runOnUiThread(() -> startBtn.setText(R.string.stop));
-        testPinSessionInstance = new TestPinSession(this, (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem());
+        testPinSessionInstance = new TestPinSession(this,
+                (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem(),
+                hexStringToByte((String) onlinePINTestSpinner.getSelectedItem()));
         testPinSessionInstance.setStopTestInterface(new TestPinSession.StopTestInterface() {
             @Override
             public void stopTestSession() {

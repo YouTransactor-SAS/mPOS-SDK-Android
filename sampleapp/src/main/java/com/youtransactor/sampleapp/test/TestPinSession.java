@@ -54,15 +54,18 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
     private Context context;
     private PaymentContext pay_context = new PaymentContext();
     private OnlinePinBlockFormatType onlinePinBlockFormatType;
+    private final byte keySlot;
     private StopTestInterface stopTestInterface;
 
     public interface StopTestInterface {
         void stopTestSession();
     }
-
-    public TestPinSession(Context context, OnlinePinBlockFormatType onlinePinBlockFormatType){
+    public TestPinSession(Context context,
+                          OnlinePinBlockFormatType onlinePinBlockFormatType,
+                          byte keySlot){
         this.context = context;
         this.onlinePinBlockFormatType = onlinePinBlockFormatType;
+        this.keySlot = keySlot;
     }
 
     public void setStopTestInterface(StopTestInterface stopTestInterface) {
@@ -168,10 +171,7 @@ public class TestPinSession extends AsyncTask<Void, Void, Boolean> {
                 pay_context.currency = UCubePaymentRequest.CURRENCY_USD;
                 pay_context.amount = 1;
                 pay_context.setOnlinePinBlockFormat(onlinePinBlockFormatType);
-                pay_context.dukpt_key_slot =  Constants.DUKPT_KEY_SLOT_0;
-                if(onlinePinBlockFormatType == FORMAT_4){
-                    pay_context.dukpt_key_slot =  Constants.DUKPT_KEY_SLOT_2;
-                }
+                pay_context.dukpt_key_slot = this.keySlot;
                 PaymentUtils.doSimplifiedOnlinePin(pay_context, (event, params) -> {
                     switch (event) {
                         case FAILED:

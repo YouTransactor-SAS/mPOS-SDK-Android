@@ -66,6 +66,23 @@
             android:layout_margin="@dimen/margin" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Online PIN key slot"
+            android:layout_margin="@dimen/margin"/>
+
+        <Spinner
+            android:id="@+id/onlinePINTestSpinner"  android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:layout_margin="@dimen/margin"/>
+    </LinearLayout>
+
     <Space
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

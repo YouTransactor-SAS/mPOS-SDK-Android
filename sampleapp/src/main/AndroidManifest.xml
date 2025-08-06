@@ -37,7 +37,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.USB_PERMISSION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="33"/>
-    <uses-permission android:name="android.permission.STATUS_BAR"/>
+    <uses-permission android:name="com.jps.secureService.permission.SECURE_SERVICE_PERMISSION" />
 
     <application
         android:name=".App"
