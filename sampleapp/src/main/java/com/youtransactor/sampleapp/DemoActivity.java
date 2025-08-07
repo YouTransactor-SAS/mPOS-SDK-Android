@@ -139,7 +139,7 @@ public class DemoActivity extends TransactionViewBase {
         }
         UCubeAPI.setLogLevel(SYSTEM);
         UCubeAPI.setYTmPOSProduct(YTMPOSProduct.AndroidPOS);
-        UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.PAYMENT_SERVICE);
+        UCubeAPI.setConnexionManagerType(ConnectionService.ConnectionManagerType.SECURE_SERVICE);
         Localization.Localization_init(UCubeAPI.getContext());
         UCubeAPI.getConnexionManager().connect(
                 10 * 1000,

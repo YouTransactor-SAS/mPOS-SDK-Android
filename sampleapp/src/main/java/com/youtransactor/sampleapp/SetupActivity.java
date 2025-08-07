@@ -22,8 +22,7 @@
  */
 package com.youtransactor.sampleapp;
 
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.PAYMENT_SERVICE;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SECURE_SERVICE;
 
 import android.content.Context;
 import android.content.Intent;
@@ -146,7 +145,9 @@ public class SetupActivity extends AppCompatActivity {
         connectionTypeSpinner.setAdapter(connectionTypeAdapater);
         connectionTypeSpinner.setSelection(5);
         try {
-            connectionTypeSpinner.setSelection(connectionTypeAdapater.getPosition(ConnectionService.ConnectionManagerType.valueOf(sharedPreferences.getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, BT.name()))));
+            connectionTypeSpinner.setSelection(connectionTypeAdapater.getPosition(
+                    ConnectionService.ConnectionManagerType.valueOf(sharedPreferences.getString(
+                            SetupActivity.COMMUNICATION_TYPE_PREF_NAME, SECURE_SERVICE.name()))));
         } catch (Exception ignored) {}
 
 

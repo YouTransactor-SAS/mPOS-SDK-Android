@@ -136,7 +136,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("enhReaderCap", "9F6E");
         emvCLessVISATagDict.put("readerCap", "9F6D");
         emvCLessVISATagDict.put("mobDevInd", "9F7E"); // NOT FOUND IN FMT1
-        emvCLessVISATagDict.put("d/media/veracrypt2/gmx/jpmc/payment_application/emv_config_Canada.jsonataInputCap", "DF8117");
+        emvCLessVISATagDict.put("dataInputCap", "DF8117");
         emvCLessVISATagDict.put("defaultUDOL", "DF811A"); // MCL: always, value: "9F6A04"
         emvCLessVISATagDict.put("defaultTAC", "DF8120");
         emvCLessVISATagDict.put("denialTAC", "DF8121");

@@ -22,8 +22,7 @@
  */
 package com.youtransactor.sampleapp;
 
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.BT;
-import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.PAYMENT_SERVICE;
+import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SECURE_SERVICE;
 import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SOCKET;
 import static com.youTransactor.uCube.connexion.ConnectionService.ConnectionManagerType.SOCKET_JSON;
 import static com.youTransactor.uCube.rpc.Constants.ICC_READER;
@@ -34,7 +33,6 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_AGNOS_LIB_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_BATTERY_STATE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_BLE_FIRMWARE_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_BOOT_LOADER_CHECKSUM;
-import static com.youTransactor.uCube.rpc.Constants.TAG_CB;
 import static com.youTransactor.uCube.rpc.Constants.TAG_CF_ENHANCED_SRED_CONFIGURATION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_CONFIGURATION_MERCHANT_INTERFACE_LOCALE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_E7_NFC_CARD_DETECT_CONFIGURATION;
@@ -296,14 +294,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         }
 
         lastConnectionType = UCubeAPI.getConnexionManagerType();
-        connectionTypeName = setupSharedPref.getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, BT.name());
+        connectionTypeName = setupSharedPref.getString(SetupActivity.COMMUNICATION_TYPE_PREF_NAME, SECURE_SERVICE.name());
         ConnectionService.ConnectionManagerType currentConnexionType;
         try {
             /* protect again invalid connection type name */
             currentConnexionType = ConnectionService.ConnectionManagerType.valueOf(connectionTypeName);
         } catch (Exception e) {
             setupSharedPref.edit().remove(SetupActivity.COMMUNICATION_TYPE_PREF_NAME).apply();
-            currentConnexionType = ConnectionService.ConnectionManagerType.BT;
+            currentConnexionType = SECURE_SERVICE;
         }
 
         UCubeAPI.setConnexionManagerType(currentConnexionType);
@@ -323,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             forgetDevice(lastProduct.toString());
         }
 
-        selectedDeviceChanged(currentConnexionType == PAYMENT_SERVICE
+        selectedDeviceChanged(currentConnexionType == SECURE_SERVICE
                 ? UCubeAPI.getConnexionManager().getDevice()
                 : getDevice());
     }
@@ -376,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.getItem(0).setVisible(ConnectionService.getInstance().getConnectionManagerType() != PAYMENT_SERVICE);
+        menu.getItem(0).setVisible(ConnectionService.getInstance().getConnectionManagerType() != SECURE_SERVICE);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -568,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         }
 
         forgetButton.setVisibility(
-                ConnectionService.getInstance().getConnectionManagerType() != PAYMENT_SERVICE
+                ConnectionService.getInstance().getConnectionManagerType() != SECURE_SERVICE
                         ? View.VISIBLE
                         : View.GONE);
         displayDeviceInfos(UCubeAPI.getConnexionManager().getDevice());
