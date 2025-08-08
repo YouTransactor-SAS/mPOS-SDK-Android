@@ -78,7 +78,6 @@ import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.Currency;
-import com.youTransactor.uCube.rpc.EMVApplicationDescriptor;
 import com.youTransactor.uCube.rpc.EMVClessApplicationDescriptor;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
@@ -499,6 +498,7 @@ public class PaymentActivity extends AppCompatActivity {
                 .setKeepSecureSession(keepSecureSession)
                 .setOnlinePinBlockFormat(onlinePinBlockFormat)
                 //  .setRiskManagementTask(new RiskManagementTask(this))
+                //.setBeforeContactlessOnlinePinTask(new BeforeContactlessOnlinePinTaskExample(BeforeContactlessOnlinePinTaskExample.TaskAction.SUCCESS))
                 .setCardWaitTimeout(timeout)
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)
