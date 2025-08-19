@@ -107,7 +107,9 @@ public class WaitCard extends TransactionViewBase {
                     led4.setSelected(((EventDspUpdateClessLed) event).getStatusLed4() == 1);
                 });
                 break;
-
+            case pay_cless_processing:
+                //Start Cless processing, you can update LED here
+                break;
             default:
                 break;
         }
