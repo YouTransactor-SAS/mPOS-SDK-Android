@@ -20,8 +20,7 @@
  *
  * ==========================================================================
  */
-package com.youtransactor.sampleapp.transactionView;
-
+package com.youtransactor.sampleapp.features;
 
 import static com.youTransactor.uCube.payment.SetSdseState.*;
 
@@ -34,16 +33,18 @@ import android.widget.Toast;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.payment.SetSdseState;
+import com.youTransactor.uCube.rpc.command.GetSecuredTagCommand;
 
+public class SdseSession extends AsyncTask<Void, Void, Boolean> {
 
-public class StartSdseSession extends AsyncTask<Void, Void, Boolean> {
+    public static final int SDSE_TYPE_PAN =  1;
+    public static final int SDSE_TYPE_CVV =  2;
+    public static final int SDSE_TYPE_DATE = 3;
 
-    private byte sdse_type;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Context context;
 
-    public StartSdseSession(Context context, byte SdseType){
-        this.sdse_type = SdseType;
+    public SdseSession(Context context){
         this.context = context;
     }
 
@@ -69,15 +70,47 @@ public class StartSdseSession extends AsyncTask<Void, Void, Boolean> {
                             });
                             break;
                         case SUCCESS:
-                            startSetting(DISPLAY_SDSE);
+                            startSetting(DISPLAY_SDSE_PAN);
                             break;
                         default:
                             break;
                     }
                 });
                 break;
-            case DISPLAY_SDSE:
-                PaymentUtils.SetSdse(sdse_type, 180, (event, params) -> {
+            case DISPLAY_SDSE_PAN:
+                PaymentUtils.SetSdse(SDSE_TYPE_PAN, 180, (event, params) -> {
+                    switch (event) {
+                        case FAILED:
+                            handler.post(() -> {
+                                // Code qui sera exécuté sur le thread principal (UI thread)
+                                Toast.makeText(context, "Set Data failed", Toast.LENGTH_LONG).show();
+                            });
+                            startSetting(START_SDSE_EXIT_SECURE_SESSION);
+                            break;
+                        case SUCCESS:
+                            startSetting(DISPLAY_SDSE_CVV);
+                            break;
+                    }
+                });
+                break;
+            case DISPLAY_SDSE_CVV:
+                PaymentUtils.SetSdse(SDSE_TYPE_CVV, 180, (event, params) -> {
+                    switch (event) {
+                        case FAILED:
+                            handler.post(() -> {
+                                // Code qui sera exécuté sur le thread principal (UI thread)
+                                Toast.makeText(context, "Set Data failed", Toast.LENGTH_LONG).show();
+                            });
+                            startSetting(START_SDSE_EXIT_SECURE_SESSION);
+                            break;
+                        case SUCCESS:
+                            startSetting(DISPLAY_SDSE_DATE);
+                            break;
+                    }
+                });
+                break;
+            case DISPLAY_SDSE_DATE:
+                PaymentUtils.SetSdse(SDSE_TYPE_DATE, 180, (event, params) -> {
                     switch (event) {
                         case FAILED:
                             handler.post(() -> {
@@ -88,10 +121,19 @@ public class StartSdseSession extends AsyncTask<Void, Void, Boolean> {
                             startSetting(START_SDSE_EXIT_SECURE_SESSION);
                             break;
                         case SUCCESS:
-                            handler.post(() -> {
-                                // Code qui sera exécuté sur le thread principal (UI thread)
-                                Toast.makeText(context, "Set Data success", Toast.LENGTH_LONG).show();
-                            });
+                            startSetting(GET_SECURED_TAGS);
+                            break;
+                    }
+                });
+                break;
+            case GET_SECURED_TAGS:
+                new GetSecuredTagCommand(new int[]{0xDF5A}).execute((event, params) -> {
+                    switch (event) {
+                        case PROGRESS:
+                            break;
+                        case CANCELLED:
+                        case FAILED:
+                        case SUCCESS:
                             startSetting(START_SDSE_EXIT_SECURE_SESSION);
                             break;
                     }

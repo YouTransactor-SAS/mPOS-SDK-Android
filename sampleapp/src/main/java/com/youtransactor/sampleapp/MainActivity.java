@@ -155,6 +155,8 @@ import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
+import com.youtransactor.sampleapp.transactionView.SdsePrompt;
+import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
 
 import org.apache.commons.codec.binary.Hex;
@@ -427,14 +429,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         mdmSendLogBtn = findViewById(R.id.sendLogBtn);
         mdmSendLogBtn.setOnClickListener(v -> mdmSendLogs());
 
-        setPan = findViewById(R.id.setPanBtn);
-        setPan.setOnClickListener(v -> setPan());
-
-        setCvv = findViewById(R.id.setCvvBtn);
-        setCvv.setOnClickListener(v -> setCvv());
-
-        setExpDate = findViewById(R.id.setExpDateBtn);
-        setExpDate.setOnClickListener(v -> setExpDate());
+        setPan = findViewById(R.id.setPanCvvDateBtn);
+        setPan.setOnClickListener(v -> setPanCvvDate());
 
         dtebut = findViewById(R.id.dteButton);
         dtebut.setOnClickListener(v -> startdte());
@@ -1085,22 +1081,12 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         }));
     }
 
-    private void setPan() {
-        Intent sdseIntent = new Intent(this, SdseActivity.class);
-        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 1);
+    private void setPanCvvDate() {
+        Intent sdseIntent = new Intent(this, SdsePrompt.class);
+        sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
+        sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_TYPE, SdseSession.SDSE_TYPE_PAN);
         startActivity(sdseIntent);
-    }
-
-    private void setCvv() {
-        Intent sdseIntent = new Intent(this, SdseActivity.class);
-        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 2);
-        startActivity(sdseIntent);
-    }
-
-    private void setExpDate() {
-        Intent sdseIntent = new Intent(this, SdseActivity.class);
-        sdseIntent.putExtra(SdseActivity.INTENT_EXTRA_SDSE_TYPE, 3);
-        startActivity(sdseIntent);
+        new SdseSession(this).execute();
     }
 
     private void startdte() {

@@ -111,7 +111,7 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                     // Terminal Contactless Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF02")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DF02", "000000015000", "B_"));
+                                "DF02", "000000000000", "B_"));
                     }
                     // Application Selection Indicator (ASI)
                     if (!clessAIDDsc.dol.is_tlv_present("E001")) {

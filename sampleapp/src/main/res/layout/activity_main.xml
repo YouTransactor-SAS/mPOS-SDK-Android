@@ -166,28 +166,10 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/setPanBtn"
+                        android:id="@+id/setPanCvvDateBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Set PAN" />
-
-                    <Button
-                        android:id="@+id/setCvvBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Set CVV" />
-
-                    <Button
-                        android:id="@+id/setExpDateBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Set Expiration Date" />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal">
+                        android:text="Set PAN / CVV / DATE" />
 
                     <Button
                         android:id="@+id/emvParamEnableDisableAID"

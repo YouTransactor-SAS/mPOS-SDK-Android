@@ -39,7 +39,9 @@ import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 import com.youTransactor.uCube.rpc.command.event.EventCommand;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
+import com.youTransactor.uCube.rpc.command.event.ppt.EventPptSdse;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.infrastructure.SystemBars;
 
 import java.util.ArrayList;
@@ -56,6 +58,7 @@ public class SdsePrompt extends TransactionViewBase {
     private List<UpdateKeypad.KBDButton> KBDMapping = new ArrayList<>();
 
     private SystemBars systemBars;
+    private int sdsePromptType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,7 @@ public class SdsePrompt extends TransactionViewBase {
             findViewById(R.id.pinGrid).setVisibility(View.GONE);
         }
 
+        sdsePromptType = intent.getIntExtra(INTENT_EXTRA_SDSE_PROMPT_TYPE, SdseSession.SDSE_TYPE_PAN);
         textViewSdseMsg.setText(intent.getStringExtra(INTENT_EXTRA_SDSE_PROMPT_MSG));
         new Thread(() -> {
             try {
@@ -149,7 +153,6 @@ public class SdsePrompt extends TransactionViewBase {
                     this.finish();
                     break;
                 case SUCCESS:
-                    runOnUiThread(() -> Toast.makeText(this, "Update Keypad success", Toast.LENGTH_LONG).show());
                     break;
                 default:
                     break;
@@ -166,6 +169,25 @@ public class SdsePrompt extends TransactionViewBase {
             case kbd_del_one_char:
             case kbd_del_all_char:
                 updateSdse(((EventKbd) event).getNbPressedDigit(), ((EventKbd) event).getValue());
+                break;
+            case ppt_sdse:
+                if (((EventPptSdse) event).getSdse_type() != sdsePromptType) {
+                    Intent sdseIntent = new Intent(this, SdsePrompt.class);
+                    sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_TYPE, ((EventPptSdse) event).getSdse_type());
+                    switch (((EventPptSdse) event).getSdse_type()) {
+                        case SdseSession.SDSE_TYPE_PAN:
+                            sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
+                            break;
+                        case SdseSession.SDSE_TYPE_CVV:
+                            sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_cvv));
+                            break;
+                        case SdseSession.SDSE_TYPE_DATE:
+                            sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_exp_date));
+                            break;
+                    }
+                    startActivity(sdseIntent);
+                    this.finish();
+                }
                 break;
         }
     }
