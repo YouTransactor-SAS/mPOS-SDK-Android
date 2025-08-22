@@ -73,7 +73,7 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
                     // Terminal Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("9F1B")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "9F1B", "99999999", "B_"));
+                                "9F1B", "00000000", "B_"));
                     }
                     // Terminal Transaction Qualifiers (TTQ) (Follow Part V Contactless Integrated Circuit Card Payment Specification_v2021) according to ICS value
                     if (!clessAIDDsc.dol.is_tlv_present("9F66")) {
@@ -93,7 +93,7 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
                     // Default Reader Contactless Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF02")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DF02", "000000015000", "B_"));
+                                "DF02", "000000000000", "B_"));
                     }
                     // Terminal Action Code - Default
                     if (!clessAIDDsc.dol.is_tlv_present("DF8120")) {

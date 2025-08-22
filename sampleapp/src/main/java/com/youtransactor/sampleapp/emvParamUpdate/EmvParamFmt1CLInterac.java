@@ -85,7 +85,7 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
                     // Terminal Floor Limit according to ICS value
                     if (!clessAIDDsc.dol.is_tlv_present("9F1B")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "9F1B", "00002710", "B_"));
+                                "9F1B", "00000000", "B_"));
                     }
                     // Default Dynamic Data Authentication Data Object List (DDOL)
                     if (!clessAIDDsc.dol.is_tlv_present("9F49")) {

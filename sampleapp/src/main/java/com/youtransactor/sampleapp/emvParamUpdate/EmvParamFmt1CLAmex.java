@@ -87,7 +87,7 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
                     // Terminal Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("9F1B")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "9F1B", "00002710", "B_"));
+                                "9F1B", "00000000", "B_"));
                     }
                     // Terminal Contactless Transaction Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF00")) {
