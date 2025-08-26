@@ -169,7 +169,7 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                                     "9F1A", "0392", "B_"));
                         }
                         // Terminal Floor Limit
-                        if (!clessTermDsc.dol.is_tlv_present("DF02")) {
+                        if (!clessTermDsc.dol.is_tlv_present("9F1B")) {
                             clessTermDsc.dol.add_tlv(new TLV(
                                     "9F1B", "00000000", "B_"));
                         }

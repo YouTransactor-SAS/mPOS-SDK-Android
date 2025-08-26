@@ -106,7 +106,7 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                     // Terminal CVM Required Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF01")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DF01", "000000002000", "B_"));
+                                "DF01", "000000005000", "B_"));
                     }
                     // Terminal Contactless Floor Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF02")) {
@@ -142,7 +142,7 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                     if (!clessAIDDsc.dol.is_tlv_present("DFDF22")) {
                         // Activate extended selection for B2 card processing
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DFDF22", /*"C0DC"*/ "C05C", "B_"));
+                                "DFDF22", /*"C0DC"*/ "C0CC", "B_"));
                     }
                     clessAIDDsc.type = EmvParamYTModel.TypeID.clDISCKrnId.getVal();
                     clessAIDDsc.eltToUpdID = EmvParamYTModel.EltToUpdID.noId.getVal();
@@ -250,7 +250,7 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                         // Terminal Features, see in AO-AN-Property
                         if (!clessTermDsc.dol.is_tlv_present("DFDF22")) {
                             clessTermDsc.dol.add_tlv(new TLV(
-                                    "DFDF22", "C0DC", "B_"));
+                                    "DFDF22", "C0CC", "B_"));
                         }
                         clessTermDsc.dol = model.filterDOLForAIDParam(
                                 clessTermDsc.dol, model.clDISCTermAIDTagList);
