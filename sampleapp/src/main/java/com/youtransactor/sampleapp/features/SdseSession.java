@@ -23,26 +23,35 @@
 package com.youtransactor.sampleapp.features;
 
 import static com.youTransactor.uCube.payment.SetSdseState.*;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_50_APPLICATION_LABEL;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_DF5A_PAN_CVV_DATA;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.payment.SetSdseState;
+import com.youTransactor.uCube.rpc.command.DisplayMessageSdse;
 import com.youTransactor.uCube.rpc.command.GetSecuredTagCommand;
+
+import java.util.Map;
 
 public class SdseSession extends AsyncTask<Void, Void, Boolean> {
 
     public static final int SDSE_TYPE_PAN =  1;
     public static final int SDSE_TYPE_CVV =  2;
     public static final int SDSE_TYPE_DATE = 3;
-
+    private boolean cvv_was_by_passed = false;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Context context;
+    public Map<Integer, byte[]> Values;
 
     public SdseSession(Context context){
         this.context = context;
@@ -104,6 +113,14 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                             startSetting(START_SDSE_EXIT_SECURE_SESSION);
                             break;
                         case SUCCESS:
+                            Values = ((DisplayMessageSdse) params[0]).getResult();
+                            if (Values.containsKey(TAG_5F30_SERVICE_CODE) &&
+                                    Values.get(TAG_5F30_SERVICE_CODE) == null){
+                                //CVV was bypassed
+                                cvv_was_by_passed = true;
+                                Log.d("Manuel PAN/CVV", String.format(" CVV was by passed"));
+
+                            }
                             startSetting(DISPLAY_SDSE_DATE);
                             break;
                     }
@@ -127,13 +144,17 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                 });
                 break;
             case GET_SECURED_TAGS:
-                new GetSecuredTagCommand(new int[]{0xDF5A}).execute((event, params) -> {
+                new GetSecuredTagCommand(new int[]{TAG_SECURE_DF5A_PAN_CVV_DATA}).execute((event, params) -> {
                     switch (event) {
                         case PROGRESS:
                             break;
                         case CANCELLED:
                         case FAILED:
                         case SUCCESS:
+                            Values = ((GetSecuredTagCommand) params[0]).getResult();
+                            for (Integer tag : Values.keySet()) {
+                                Log.d("Manuel PAN/CVV", String.format(" Tag : 0x%x : %s", tag, Tools.bytesToHex(Values.get(tag))));
+                            }
                             startSetting(START_SDSE_EXIT_SECURE_SESSION);
                             break;
                     }

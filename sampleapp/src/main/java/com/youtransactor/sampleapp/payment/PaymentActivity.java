@@ -529,8 +529,7 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_SECURE_56_TRACK_1_DATA,
                         TAG_SECURE_5F20_CARDHOLDER_NAME,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA,
-                        TAG_SECURE_DF5A_PAN_CVV_DATA
+                        TAG_SECURE_9F6B_TRACK_2_DATA
 
                 )
                 .setFinalizationPlainTags(
@@ -547,8 +546,7 @@ public class PaymentActivity extends AppCompatActivity {
                         TAG_SECURE_56_TRACK_1_DATA,
                         TAG_SECURE_5F20_CARDHOLDER_NAME,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA,
-                        TAG_SECURE_DF5A_PAN_CVV_DATA
+                        TAG_SECURE_9F6B_TRACK_2_DATA
                 );
 
         return uCubePaymentRequest;
