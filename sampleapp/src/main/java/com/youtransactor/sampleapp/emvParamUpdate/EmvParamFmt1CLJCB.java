@@ -136,12 +136,16 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                     // Combination Options, see AO-AN-Property and JCB_Contactless_Terminal_Spec annex A3
                     if (!clessAIDDsc.dol.is_tlv_present("DFDF44")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DFDF44", "7B00", "B_"));
+                                "DFDF44", "6B00", "B_"));
                     }
                     // Terminal Interchange Profile (Follow AO-AN-Property and JCB_Contactless_Terminal_Spec annex A7) according to ICS value
                     if (!clessAIDDsc.dol.is_tlv_present("DFDF45")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
                                 "DFDF45", "708000", "B_"));
+                    }
+                    if (!clessAIDDsc.dol.is_tlv_present("DF02")) {
+                        clessAIDDsc.dol.add_tlv(new TLV(
+                                "DF02", "00000000", "B_"));
                     }
                     // Removal timeout
                     if (!clessAIDDsc.dol.is_tlv_present("DFDF46")) {
