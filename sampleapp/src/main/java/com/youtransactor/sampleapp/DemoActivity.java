@@ -57,7 +57,7 @@ import com.youTransactor.uCube.rpc.TransactionType;
 import com.youtransactor.sampleapp.infrastructure.keyboard.Keyboard;
 import com.youtransactor.sampleapp.infrastructure.keyboard.adapters.NumericKeyboardView;
 import com.youtransactor.sampleapp.infrastructure.keyboard.adapters.PhysicalKeyboardAdapter;
-import com.youtransactor.sampleapp.payment.AuthorizationTask;
+import com.youtransactor.sampleapp.payment.authorization.UserChoiceAuthorizationTask;
 import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
 
@@ -256,10 +256,10 @@ public class DemoActivity extends TransactionViewBase {
             readerList.add(CardReaderType.MSR);
         }
 
-        AuthorizationTask authorizationTask = new AuthorizationTask(() -> this);
+        UserChoiceAuthorizationTask userChoiceAuthorizationTask = new UserChoiceAuthorizationTask(() -> this);
 
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
-                readerList, authorizationTask, Collections.singletonList("en"));
+                readerList, userChoiceAuthorizationTask, Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest

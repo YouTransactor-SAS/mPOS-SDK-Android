@@ -23,7 +23,7 @@
 
 package com.youtransactor.sampleapp.payment;
 
-interface MeasureStatesListener {
+public interface MeasuresStatesListener {
     void onStart();
     void onWaitingCard();
     void onUserPresentCard();

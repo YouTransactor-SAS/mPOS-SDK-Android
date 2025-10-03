@@ -46,7 +46,7 @@ import com.youTransactor.uCube.rpc.command.GetInfosCommand;
 import com.youTransactor.uCube.rpc.command.InstallForLoadKeyCommand;
 import com.youTransactor.uCube.rpc.command.LoadCommand;
 import com.youTransactor.uCube.rpc.command.PowerOffCommand;
-import com.youtransactor.sampleapp.payment.AuthorizationTask;
+import com.youtransactor.sampleapp.payment.authorization.UserChoiceAuthorizationTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -276,7 +276,7 @@ public class Tools {
         readerList.add(CardReaderType.NFC);
 
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(100, UCubePaymentRequest.CURRENCY_EUR, TransactionType.PURCHASE,
-                readerList, new AuthorizationTask(null), Collections.singletonList("en"));
+                readerList, new UserChoiceAuthorizationTask(null), Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest

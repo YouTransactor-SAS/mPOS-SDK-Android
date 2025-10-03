@@ -27,7 +27,7 @@ import android.util.Log;
 
 import java.util.Date;
 
-public class PaymentMeasure implements MeasureStatesListener {
+public class PaymentMeasure implements MeasuresStatesListener {
     public static final String TAG = PaymentMeasure.class.getName();
 
     Date start;

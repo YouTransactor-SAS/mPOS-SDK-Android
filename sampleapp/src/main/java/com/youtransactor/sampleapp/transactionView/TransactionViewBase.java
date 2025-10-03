@@ -111,7 +111,8 @@ public abstract class TransactionViewBase extends AppCompatActivity {
             }
             Intent intent = new Intent(this, DisplayList.class);
             intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, app_label);
-            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_TYPE, 1);
+            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_TYPE,
+                    DisplayList.INTENT_EXTRA_DISPLAY_LIST_AID);
             startActivity(intent);
         }
     }

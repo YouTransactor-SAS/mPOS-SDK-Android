@@ -20,7 +20,7 @@
  *
  * ==========================================================================
  */
-package com.youtransactor.sampleapp.payment;
+package com.youtransactor.sampleapp.payment.authorization;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,26 +32,28 @@ import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
-import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.task.IAuthorizationTask;
+import com.youtransactor.sampleapp.payment.MeasuresStatesListener;
 
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-public class AuthorizationTask implements IAuthorizationTask {
-    private static final String TAG = AuthorizationTask.class.getName();
+public class UserChoiceAuthorizationTask implements IAuthorizationTask {
+    private static final String TAG = UserChoiceAuthorizationTask.class.getName();
 
     private final Supplier<Context> androidContextSupplier;
-    private MeasureStatesListener measureStatesListener;
+    private MeasuresStatesListener measureStatesListener;
     private byte[] authResponse;
     private ITaskMonitor monitor;
     private PaymentContext paymentContext;
     private AlertDialog alertDialog;
 
-    public AuthorizationTask(Supplier<Context> androidContextSupplier) {
+    public UserChoiceAuthorizationTask(Supplier<Context> androidContextSupplier) {
         this.androidContextSupplier = androidContextSupplier;
     }
 
-    public void setMeasureStatesListener(MeasureStatesListener measureStatesListener) {
+    public void setMeasureStatesListener(MeasuresStatesListener measureStatesListener) {
         this.measureStatesListener = measureStatesListener;
     }
 
@@ -71,17 +73,11 @@ public class AuthorizationTask implements IAuthorizationTask {
     }
 
     @Override
-    public void execute(ITaskMonitor monitor) {/*
-        try {
-            throw new NullPointerException();
-        }catch (Exception e) {
-            monitor.handleEvent(TaskEvent.FAILED);
-        }*/
-        //throw new NullPointerException();
+    public void execute(ITaskMonitor monitor) {
         this.monitor = monitor;
 
         if (paymentContext.authorizationSecuredTagsResponse != null)
-            Log.d(TAG,"authorization secured tags response " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsResponse));
+            Log.d(TAG, "authorization secured tags response " + Tools.bytesToHex(paymentContext.authorizationSecuredTagsResponse));
 
         if (paymentContext.authorizationSecuredTagsValues != null) {
             for (Integer tag : paymentContext.authorizationSecuredTagsValues.keySet()) {
@@ -90,7 +86,7 @@ public class AuthorizationTask implements IAuthorizationTask {
         }
         //todo send this to backend to check the integrity
         if (paymentContext.authorizationGetPlainTagsResponse != null)
-            Log.d(TAG,"authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));
+            Log.d(TAG, "authorization plain tags response " + Tools.bytesToHex(paymentContext.authorizationGetPlainTagsResponse));
 
         if (paymentContext.authorizationPlainTagsValues != null) {
 
@@ -101,14 +97,14 @@ public class AuthorizationTask implements IAuthorizationTask {
         final Context androidContext = androidContextSupplier.get();
 
         //todo here you can call the host
-        if(androidContext == null) {
-            this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x30};
+        if (androidContext == null) {
+            this.authResponse = AuthorizationOutcomes.APPROVED.correspondingResponse;
             monitor.handleEvent(TaskEvent.SUCCESS);
             return;
         }
 
         if (paymentContext.isBypassAuthorization()) {
-            end(0);
+            end(AuthorizationOutcomes.APPROVED);
             return;
         }
 
@@ -118,9 +114,12 @@ public class AuthorizationTask implements IAuthorizationTask {
             builder.setCancelable(true);
             builder.setTitle("Authorization response");
 
-            builder.setItems(new String[]{"Approved", "SCA (0x1A)", "SCA (0x70)", "Declined", "Unable to go online",  "Failed"}, (dialog, which) -> {
+            final String[] labels = Stream.of(AuthorizationOutcomes.values())
+                    .map(a -> a.label)
+                    .toArray(String[]::new);
+            builder.setItems(labels, (dialog, which) -> {
                 dialog.dismiss();
-                end(which);
+                end(AuthorizationOutcomes.values()[which]);
             });
 
             alertDialog = builder.create();
@@ -129,42 +128,20 @@ public class AuthorizationTask implements IAuthorizationTask {
     }
 
     @Override
-    public void cancel(ITaskCancelListener taskCancelListener){
-        if(alertDialog != null && alertDialog.isShowing())
+    public void cancel(ITaskCancelListener taskCancelListener) {
+        if (alertDialog != null && alertDialog.isShowing())
             alertDialog.dismiss();
 
         monitor.handleEvent(TaskEvent.CANCELLED);
         taskCancelListener.onCancelFinish(true);
     }
 
-
-    private void end(int choice) {
-        switch (choice) {
-            case 0:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x30};
-                break;
-
-            case 1:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x31, 0x41};
-                break;
-
-            case 2:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x37, 0x30, (byte) 0xDF, 0x76, 0x01, 0x01};
-                break;
-
-            case 3:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x30, 0x35};
-                break;
-
-            case 4:
-                this.authResponse = new byte[]{(byte) 0x8A, 0x02, 0x39, 0x38};
-                break;
-
-            case 5:
-                monitor.handleEvent(TaskEvent.FAILED);
-                return;
+    private void end(final AuthorizationOutcomes outcome) {
+        this.authResponse = outcome.correspondingResponse;
+        if (outcome == AuthorizationOutcomes.FAILED) {
+            monitor.handleEvent(TaskEvent.FAILED);
+            return;
         }
-
         if (measureStatesListener != null)
             measureStatesListener.onAuthorizationResponse();
         monitor.handleEvent(TaskEvent.SUCCESS);

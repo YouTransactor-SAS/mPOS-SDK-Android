@@ -22,18 +22,15 @@
  */
 package com.youtransactor.sampleapp.payment;
 
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F20_CARDHOLDER_NAME;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_DF5A_PAN_CVV_DATA;
-import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
 import static com.youtransactor.sampleapp.payment.PaymentActivity.pay_sdse_mode.VOLTAGE;
-import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.list;
 import static com.youtransactor.sampleapp.transactionView.view_factory.View_index.pin;
 
 import android.content.Context;
@@ -74,11 +71,11 @@ import com.youTransactor.uCube.control.ControlState;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.PaymentService;
 import com.youTransactor.uCube.payment.PaymentState;
-import com.youTransactor.uCube.payment.PaymentUtils;
+import com.youTransactor.uCube.payment.PaymentStatus;
+import com.youTransactor.uCube.payment.task.IAuthorizationTask;
 import com.youTransactor.uCube.rpc.CardReaderType;
 import com.youTransactor.uCube.rpc.Constants;
 import com.youTransactor.uCube.rpc.Currency;
-import com.youTransactor.uCube.rpc.EMVClessApplicationDescriptor;
 import com.youTransactor.uCube.rpc.EventListener;
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youTransactor.uCube.rpc.RPCCommand;
@@ -99,8 +96,14 @@ import com.youtransactor.sampleapp.App;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.SetupActivity;
 import com.youtransactor.sampleapp.UIUtils;
-import com.youtransactor.sampleapp.YTProduct;
-import com.youtransactor.sampleapp.transactionView.DisplayList;
+import com.youtransactor.sampleapp.payment.authorization.BypassAuthorizationTask;
+import com.youtransactor.sampleapp.payment.authorization.UserChoiceAuthorizationTask;
+import com.youtransactor.sampleapp.payment.choose_aid.BypassChooseAidTask;
+import com.youtransactor.sampleapp.payment.choose_aid.ChooseAidTask;
+import com.youtransactor.sampleapp.payment.choose_aid.UserChoiceChooseAidTask;
+import com.youtransactor.sampleapp.payment.choose_language.BypassChooseLanguageTask;
+import com.youtransactor.sampleapp.payment.choose_language.ChooseLanguageTask;
+import com.youtransactor.sampleapp.payment.choose_language.UserChoiceChooseLanguageTask;
 import com.youtransactor.sampleapp.transactionView.PinPrompt;
 import com.youtransactor.sampleapp.transactionView.view_factory.view_manager;
 
@@ -117,7 +120,6 @@ public class PaymentActivity extends AppCompatActivity {
     public static final String TAG = PaymentActivity.class.getName();
 
     private SharedPreferences prefs;
-    private YTProduct ytProduct = YTProduct.uCubeTouch;
     private Button doPaymentBtn;
     private Button cancelPaymentBtn;
     private Button getLogsL1, getStatusBtn;
@@ -142,6 +144,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Switch skipStartingStepsSwitch;
     private Switch retrieveF5TagSwitch;
     private Switch tipSwitch;
+    private Switch paymentLoopSwitch;
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
     private Button uPresentCard;
@@ -212,10 +215,6 @@ public class PaymentActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_payment);
 
-        if (getIntent() != null) {
-            if (getIntent().hasExtra(YT_PRODUCT))
-                ytProduct = YTProduct.valueOf(getIntent().getStringExtra(YT_PRODUCT));
-        }
         intents = view_manager.getApplicableIntents(this, ProductManager.id);
         initView();
     }
@@ -278,6 +277,7 @@ public class PaymentActivity extends AppCompatActivity {
         skipStartingStepsSwitch = findViewById(R.id.skipStartingStepsSwitch);
         retrieveF5TagSwitch = findViewById(R.id.retrieveF5Tag);
         tipSwitch = findViewById(R.id.tipSwitch);
+        paymentLoopSwitch = findViewById(R.id.paymentLoopSwitch);
         trxTypeChoice.setAdapter(new TransactionTypeAdapter());
         getLogsL1 = findViewById(R.id.getSvppLogL1);
         getStatusBtn = findViewById(R.id.getStatusBtn);
@@ -366,31 +366,6 @@ public class PaymentActivity extends AppCompatActivity {
         pay();
     }
 
-    private void update_cless_aid_list(List<EMVClessApplicationDescriptor> candidate) {
-        //here to add your code and update aid list
-        if(candidate.size() == 1) {
-            byte[] tlv = new byte[0];
-            PaymentUtils.send_event_filter_cless_aid(0, tlv, (event, params) -> {
-                switch (event) {
-                    case FAILED:
-                        break;
-                    case SUCCESS:
-                        break;
-                }
-            });
-        }else{
-            int i;
-            ArrayList<String> app_label = new ArrayList<>();
-            for (i = 0; i < candidate.size(); i++) {
-                app_label.add(candidate.get(i).getLabel());
-            }
-            Intent intent = new Intent(this, DisplayList.class);
-            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, app_label);
-            intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_TYPE, 1);
-            startActivity(intent);
-        }
-    }
-
     private void onEventViewCreate(EventCommand eventCmd) {
         Intent intent;
         switch (eventCmd.getEvent()) {
@@ -407,23 +382,18 @@ public class PaymentActivity extends AppCompatActivity {
                 break;
             case pay_pin_prompt:
                 switch (((EventPayPinPrompt) eventCmd).getPinPromptMode()) {
-                    case EVENT_PAY_PIN_PROMPT_MODE_OFFLINE:
-                        //add you code
-                        break;
-                    case EVENT_PAY_PIN_PROMPT_MODE_ONLINE:
+                    case EVENT_PAY_PIN_PROMPT_MODE_OFFLINE, EVENT_PAY_PIN_PROMPT_MODE_ONLINE:
                         //add you code
                         break;
                 }
                 break;
             case dsp_listbox_select_lang:
-                intent = intents.get(list.ordinal());
-                intent.putExtra(DisplayList.INTENT_EXTRA_DISPLAY_LIST_MSG, ((EventDspListSelectLang) eventCmd).getChoiceList());
-                startActivity(intent);
+                this.buildChooseLanguageTask().execute((EventDspListSelectLang) eventCmd);
                 break;
 
             case pay_select_aid:
                 // TO ADD: update the received list and tlv value
-                update_cless_aid_list(((EventPaySelectAid) eventCmd).getCandidateList());
+                this.buildChooseAidTask().execute((EventPaySelectAid) eventCmd);
                 break;
 
             case dsp_txt:
@@ -431,6 +401,22 @@ public class PaymentActivity extends AppCompatActivity {
                 break;
             default:
                 break;
+        }
+    }
+
+    private ChooseLanguageTask buildChooseLanguageTask() {
+        if (paymentLoopSwitch.isChecked()) {
+            return new BypassChooseLanguageTask();
+        } else {
+            return new UserChoiceChooseLanguageTask(this);
+        }
+    }
+
+    private ChooseAidTask buildChooseAidTask() {
+        if (paymentLoopSwitch.isChecked()) {
+            return new BypassChooseAidTask();
+        } else {
+            return new UserChoiceChooseAidTask(this);
         }
     }
 
@@ -467,24 +453,31 @@ public class PaymentActivity extends AppCompatActivity {
         boolean contactIsActivate = contactItf.isChecked();
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
         long amount = amountFld.getCleanIntValue();
+        boolean loopMode = paymentLoopSwitch.isChecked();
         Log.d(TAG, "Amount : " + amount);
         int cashbackAmount = Math.toIntExact(cashbackAmountFld.getCleanIntValue());
         Log.d(TAG, "Cashback Amount : " + cashbackAmount);
 
         List<CardReaderType> readerList = new ArrayList<>();
 
-        if(nfcIsActivate){
+        if (nfcIsActivate) {
             readerList.add(CardReaderType.NFC);
         }
-        if(contactIsActivate){
+        if (contactIsActivate) {
             readerList.add(CardReaderType.ICC);
         }
-        if(msrIsActivate){
+        if (msrIsActivate) {
             readerList.add(CardReaderType.MSR);
         }
 
-        AuthorizationTask authorizationTask = new AuthorizationTask(this.getActivityOnWhichAuthorizationPopupWillBeDisplayed());
-        authorizationTask.setMeasureStatesListener(paymentMeasure);
+        IAuthorizationTask authorizationTask;
+        if (loopMode) {
+            authorizationTask = new BypassAuthorizationTask();
+        } else {
+            authorizationTask = new UserChoiceAuthorizationTask(this.getActivityOnWhichAuthorizationPopupWillBeDisplayed());
+            ((UserChoiceAuthorizationTask) authorizationTask).setMeasureStatesListener(paymentMeasure);
+        }
+
         int posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
         int dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
@@ -801,6 +794,7 @@ public class PaymentActivity extends AppCompatActivity {
                                     }
                                 });
                             }
+
                             @Override
                             public void onFinish(PaymentContext context) {
                                 runOnUiThread(() -> {
@@ -810,9 +804,6 @@ public class PaymentActivity extends AppCompatActivity {
                                     }
 
                                     Log.d(TAG, "payment finish status : " + context.paymentStatus);
-
-                                    doPaymentBtn.setVisibility(View.VISIBLE);
-                                    cancelPaymentBtn.setVisibility(View.GONE);
 
                                     if (paymentMeasure != null) {
                                         paymentMeasure.onFinish();
@@ -824,6 +815,15 @@ public class PaymentActivity extends AppCompatActivity {
                                     }
 
                                     parsePaymentResponse(context);
+
+                                    boolean triggerNewPayment = paymentLoopSwitch.isChecked() && context.paymentStatus == PaymentStatus.APPROVED;
+                                    if (triggerNewPayment) {
+                                        startPayment();
+                                    } else {
+                                        doPaymentBtn.setVisibility(View.VISIBLE);
+                                        cancelPaymentBtn.setVisibility(View.GONE);
+                                    }
+
                                 });
 
                             }

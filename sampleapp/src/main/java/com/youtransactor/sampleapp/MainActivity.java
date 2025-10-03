@@ -522,7 +522,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         findViewById(R.id.set_integrity_check_time).setOnClickListener(v -> askForTimeAndSetIntegrityCheckTime());
 
-        findViewById(R.id.reset).setOnClickListener(v -> reset());
         findViewById(R.id.reboot).setOnClickListener(v -> reboot());
         Button rkiButton = findViewById(R.id.rkiButton);
         rkiButton.setOnClickListener(v -> doRemoteKeyInjection());
