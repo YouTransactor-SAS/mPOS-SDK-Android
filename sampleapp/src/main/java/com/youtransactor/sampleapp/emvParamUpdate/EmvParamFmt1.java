@@ -89,21 +89,68 @@ public class EmvParamFmt1 {
     }
 
     private void getEmvModelFromFmt1Input(InputStream input, EmvParamYTModel model) {
+        JSONObject jsonD = null;
         try {
-            // Contact parameter translation
-            JSONObject jsonD = new JSONObject(IOUtils.toString(input));
-            emvParamFmt1Contact.getEmvModelFromFmt1Input(jsonD, model);
-            // Contactless parameter translation
-            EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLAmex.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLInterac.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLJCB.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLDisc.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLCUP.getEmvModelFromFmt1Input(jsonD, model);
-            EmvParamFmt1CLCAPK.getEmvModelFromFmt1Input(jsonD, model);
+            jsonD = new JSONObject(IOUtils.toString(input));
         } catch (Exception e) {
-            LogManager.e("EMV model from FMT1 conversion fail", e);
+            LogManager.e("EMV model from FMT1 - error JSON", e);
+        }
+        if(null != jsonD) {
+            // Contact parameter translation
+            try {
+                emvParamFmt1ContactAID.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e(
+                        "EMV model from FMT1 - contact AID fail", e);
+            }
+            try {
+                emvParamFmt1ContactCAPK.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e(
+                        "EMV model from FMT1 - contact CAPK fail", e);
+            }
+            // Contactless parameter translation
+            try {
+                EmvParamFmt1CLVisa.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e(
+                        "EMV model from FMT1 - VISA fail", e);
+            }
+            try {
+                EmvParamFmt1CLMCL.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - MCL fail", e);
+            }
+            try {
+                EmvParamFmt1CLAmex.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - AMEX fail", e);
+            }
+            try {
+                EmvParamFmt1CLInterac.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - INTERAC fail", e);
+            }
+            try {
+                EmvParamFmt1CLJCB.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - JCB fail", e);
+            }
+            try {
+                EmvParamFmt1CLDisc.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - DPAS fail", e);
+            }
+            try {
+                EmvParamFmt1CLCUP.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - CUP fail", e);
+            }
+            try {
+                EmvParamFmt1CLCAPK.getEmvModelFromFmt1Input(jsonD, model);
+            } catch (Exception e) {
+                LogManager.e("EMV model from FMT1 - Cl CAPK fail", e);
+            }
         }
     }
 

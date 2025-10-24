@@ -30,7 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class emvParamFmt1Contact extends EmvParamFmt1{
+public class emvParamFmt1ContactAID extends EmvParamFmt1{
     static void getEmvModelFromFmt1Input(JSONObject jsonD, EmvParamYTModel model) throws JSONException {
         JSONObject commonJson = jsonD.getJSONObject("common");
         model.setCtParamID(EmvParamFmt1.getCtParamID(commonJson));
@@ -58,17 +58,6 @@ public class emvParamFmt1Contact extends EmvParamFmt1{
             aidP.dol.addAll(cCommonLst.dol);
             // update YT model
             model.add_contact_aid(aidP);
-        }
-
-        JSONArray cCAPKsList = jsonD.getJSONArray("capks");
-        for(int i = 0; i < cCAPKsList.length(); i++){
-            JSONObject capkP = cCAPKsList.getJSONObject(i);
-            model.add_contact_capk(capkP.getString("RID"),
-                    capkP.getString("index"),
-                    capkP.getString("exp"),
-                    capkP.getString("mod"),
-                    capkP.getString("checkSum"),
-                    capkP.getString("expiryDate"));
         }
     }
 }

@@ -399,7 +399,13 @@ public class PaymentActivity extends AppCompatActivity {
             case dsp_txt:
                 displaytxt(((EventDspTxt) eventCmd).getMessage());
                 break;
+            case dsp_integ_check_24h_warning:
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Device will restart:\n24H hour check is imminent",
+                        Toast.LENGTH_LONG).show());
+                break;
             default:
+                Log.d(TAG, "PAY: unused event: " + eventCmd.getEvent().name());
                 break;
         }
     }
@@ -556,9 +562,9 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void parsePaymentResponse(@NonNull PaymentContext context) {
         Log.d(TAG, "Payment status : " + context.paymentStatus);
-
-        trxResultFld.setText(context.paymentStatus.name());
-
+        if(context.paymentStatus != null){
+            trxResultFld.setText(context.paymentStatus.name());
+        }
         /* uCube info */
         byte[] ucubeFirmware = TLV.parse(context.uCubeInfos).get(Constants.TAG_FIRMWARE_VERSION);
         if (ucubeFirmware != null)
@@ -779,6 +785,9 @@ public class PaymentActivity extends AppCompatActivity {
                                         case CARD_READ_END:
                                             //DISABLE CANCELLING
                                             cancelPaymentBtn.setVisibility(View.GONE);
+                                            break;
+                                        default:
+                                            // Log.d(TAG, "nothing to do");
                                             break;
                                     }
 

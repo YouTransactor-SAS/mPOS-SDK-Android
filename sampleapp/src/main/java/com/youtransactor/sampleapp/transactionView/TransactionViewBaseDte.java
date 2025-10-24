@@ -23,6 +23,7 @@ import static com.youtransactor.sampleapp.transactionView.view_factory.View_inde
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -145,7 +146,10 @@ public abstract class TransactionViewBaseDte extends AppCompatActivity {
                     WaitCard_Dte.getInstance().update_text("");
                 }
                 break;
-
+            case dsp_integ_check_24h_warning:
+                runOnUiThread(() -> Toast.makeText(this,
+                        "24H hour check is imminent",
+                        Toast.LENGTH_LONG).show());
             default:
                 break;
         }

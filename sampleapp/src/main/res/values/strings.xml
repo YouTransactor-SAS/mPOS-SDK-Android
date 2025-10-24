@@ -350,6 +350,7 @@
     <string name="set_rtc">set RTC</string>
     <string name="set_rtc_failed">set rtc failed</string>
     <string name="set_rtc_success">RTC set. Device will reboot.</string>
+    <string name="get_sys_log">Get Log Light</string>
     <string name="non_secure_fw_version">Non Secure FW version:</string>
     <string name="nsf_logs">NSF Logs</string>
     <string name="echo">ECHO</string>

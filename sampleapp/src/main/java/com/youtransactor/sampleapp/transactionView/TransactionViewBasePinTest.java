@@ -19,6 +19,7 @@ package com.youtransactor.sampleapp.transactionView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -95,6 +96,10 @@ public abstract class TransactionViewBasePinTest extends AppCompatActivity {
                 this.finishTransactionView();
                 break;
 
+            case dsp_integ_check_24h_warning:
+                runOnUiThread(() -> Toast.makeText(this,
+                        "24H hour check is imminent",
+                        Toast.LENGTH_LONG).show());
             default:
                 break;
         }

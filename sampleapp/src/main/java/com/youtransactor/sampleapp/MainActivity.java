@@ -68,6 +68,7 @@ import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
 import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
 import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
 import static com.youtransactor.sampleapp.SetupActivity.YT_PRODUCT;
+import static android.view.View.GONE;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -174,6 +175,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+
+import com.youTransactor.uCube.info.log.LogLight;
+import com.youTransactor.uCube.info.log.LogLightService;
 
 public class MainActivity extends AppCompatActivity implements BatteryLevelListener,
         SVPPRestartListener, LostPacketListener, RPCCommunicationErrorListener {
@@ -452,6 +456,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         displayBtn.setOnClickListener(v -> displayHelloWorld());
         findViewById(R.id.getInfoBtn).setOnClickListener(v -> getInfo());
         Button echoBtn = findViewById(R.id.echo_btn);
+        findViewById(R.id.get_sys_log).setOnClickListener(v -> getLogLight());
+        // comment to test log light retrieval in the sample app
+        findViewById(R.id.get_sys_log).setVisibility(GONE);
         echoBtn.setOnClickListener(v -> {
             final View customLayout = getLayoutInflater().inflate(R.layout.echo_msg_layout, null);
             final EditText echoData = customLayout.findViewById(R.id.echoDataFld);
@@ -531,31 +538,31 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
         boolean testModeEnabled = setupSharedPref.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
         Button testBtn = findViewById(R.id.testBtn);
-        testBtn.setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
+        testBtn.setVisibility(testModeEnabled ? View.VISIBLE : GONE);
         testBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TestActivity.class)));
 
         boolean certifModeEnabled = setupSharedPref.getBoolean(SetupActivity.CERTIF_MODE_PREF_NAME, false);
         View dteLaout = findViewById(R.id.dteLayout);
-        dteLaout.setVisibility(certifModeEnabled ? View.VISIBLE : View.GONE);
+        dteLaout.setVisibility(certifModeEnabled ? View.VISIBLE : GONE);
         View contactCertifLaout = findViewById(R.id.contactCertifLayout);
-        contactCertifLaout.setVisibility(certifModeEnabled ? View.VISIBLE : View.GONE);
+        contactCertifLaout.setVisibility(certifModeEnabled ? View.VISIBLE : GONE);
         if (ytProduct == YTProduct.AndroidPOS) {
-            displayBtn.setVisibility(View.GONE);
-            echoBtn.setVisibility(View.GONE);
-            powerTimeoutBtn.setVisibility(View.GONE);
-            quickModeBtn.setVisibility(View.GONE);
-            slowModeBtn.setVisibility(View.GONE);
-            mdmRegisterBtn.setVisibility(View.GONE);
-            rkiButton.setVisibility(View.GONE);
+            displayBtn.setVisibility(GONE);
+            echoBtn.setVisibility(GONE);
+            powerTimeoutBtn.setVisibility(GONE);
+            quickModeBtn.setVisibility(GONE);
+            slowModeBtn.setVisibility(GONE);
+            mdmRegisterBtn.setVisibility(GONE);
+            rkiButton.setVisibility(GONE);
         }
     }
 
     private void updateConnectionUI(State state) {
         if (state == NO_DEVICE_SELECTED) {
-            actionPanel.setVisibility(View.GONE);
-            disconnectBtn.setVisibility(View.GONE);
-            connectBtn.setVisibility(View.GONE);
-            forgetButton.setVisibility(View.GONE);
+            actionPanel.setVisibility(GONE);
+            disconnectBtn.setVisibility(GONE);
+            connectBtn.setVisibility(GONE);
+            forgetButton.setVisibility(GONE);
             displayDeviceInfos(null);
             return;
         }
@@ -563,19 +570,19 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         forgetButton.setVisibility(
                 ConnectionService.getInstance().getConnectionManagerType() != SECURE_SERVICE
                         ? View.VISIBLE
-                        : View.GONE);
+                        : GONE);
         displayDeviceInfos(UCubeAPI.getConnexionManager().getDevice());
 
         switch (state) {
             case DEVICE_NOT_CONNECTED:
-                actionPanel.setVisibility(View.GONE);
+                actionPanel.setVisibility(GONE);
                 connectBtn.setVisibility(View.VISIBLE);
-                disconnectBtn.setVisibility(View.GONE);
+                disconnectBtn.setVisibility(GONE);
                 break;
 
             case DEVICE_CONNECTED:
                 actionPanel.setVisibility(View.VISIBLE);
-                connectBtn.setVisibility(View.GONE);
+                connectBtn.setVisibility(GONE);
                 disconnectBtn.setVisibility(View.VISIBLE);
                 break;
         }
@@ -596,13 +603,13 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             case IDLE:
             case DEVICE_NOT_REGISTERED:
                 if (ytProduct != YTProduct.AndroidPOS) mdmRegisterBtn.setVisibility(View.VISIBLE);
-                mdmGetConfigBtn.setVisibility(View.GONE);
-                mdmCheckUpdateBtn.setVisibility(View.GONE);
-                mdmSendLogBtn.setVisibility(View.GONE);
+                mdmGetConfigBtn.setVisibility(GONE);
+                mdmCheckUpdateBtn.setVisibility(GONE);
+                mdmSendLogBtn.setVisibility(GONE);
                 break;
 
             case DEVICE_REGISTERED:
-                mdmRegisterBtn.setVisibility(View.GONE);
+                mdmRegisterBtn.setVisibility(GONE);
 
                 mdmGetConfigBtn.setVisibility(View.VISIBLE);
                 mdmCheckUpdateBtn.setVisibility(View.VISIBLE);
@@ -1344,6 +1351,31 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         });
     }
 
+    private void getLogLight(){
+        LogLightService srv = new LogLightService();
+
+        srv.execute((event, param) -> {
+                switch (event) {
+                    case PROGRESS:
+                        break;
+
+                    case FAILED:
+                    case CANCELLED:
+                        break;
+
+                    case SUCCESS:
+                        if (param == null || param.length == 0 || !(param[0] instanceof List)) {
+                            Log.e(TAG, "Log light: invalid handler");
+                        }else {
+                            List<LogLight> logLightList = (List<LogLight>) param[0];
+                            for(int i = 0; i < logLightList.size(); i++){
+                                logLightList.get(i).print();
+                            }
+                        }
+                        break;
+                }
+            });
+    }
     private void enterSecureSession() {
         final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.enter_secure_session));
 
