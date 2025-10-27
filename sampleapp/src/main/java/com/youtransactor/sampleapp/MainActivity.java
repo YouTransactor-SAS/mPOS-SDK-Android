@@ -1604,7 +1604,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 case FAILED:
                 case CANCELLED:
                     Log.e(TAG, "get rtc : " + event);
-                    UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_rtc_failed));
+                    runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, getString(R.string.get_rtc_failed)));
                     break;
 
                 case SUCCESS:

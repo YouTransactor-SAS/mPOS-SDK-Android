@@ -57,7 +57,7 @@ public class SetupActivity extends AppCompatActivity {
     public static final String TEST_MODE_PREF_NAME = "testMode";
     public static final String CERTIF_MODE_PREF_NAME = "certifMode";
     public static final String MEASURES_MODE_PREF_NAME = "measuresMode";
-    public static final String RECOVERY_MODE_PERF_NAME = "recoveryMode";
+    public static final String RECOVERY_MODE_PREF_NAME = "recoveryMode";
     public static final String ENABLE_SDK_LOGS_PREF_NAME = "enableSDKLogs";
     public static final String COMMUNICATION_TYPE_PREF_NAME = "communicationType";
     public static final String SDK_LOGS_LEVEL_PREF_NAME = "SDKLogLevel";
@@ -72,7 +72,7 @@ public class SetupActivity extends AppCompatActivity {
     private SwitchMaterial defaultModelSwitch;
     private EditText mdmUrlEditText;
     private SharedPreferences sharedPreferences;
-    private  View.OnClickListener productSelectionListener = (v) -> {
+    private View.OnClickListener productSelectionListener = (v) -> {
         ytkeyCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
         uCubeCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
         uCubeTouchCardView.setCardBackgroundColor(ContextCompat.getColor(SetupActivity.this, android.R.color.white));
@@ -114,10 +114,7 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void setupRecoveryMechanism(boolean is_enabled){
-        sharedPreferences
-                .edit()
-                .putBoolean(RECOVERY_MODE_PERF_NAME, is_enabled)
-                .apply();
+        sharedPreferences.edit().putBoolean(RECOVERY_MODE_PREF_NAME, is_enabled).apply();
         UCubeAPI.enableRecoveryMechanism(is_enabled);
     }
 
@@ -175,32 +172,28 @@ public class SetupActivity extends AppCompatActivity {
         androidPOSCardView.setOnClickListener(productSelectionListener);
         ytSOMCardView.setOnClickListener(productSelectionListener);
 
-        SwitchMaterial s = findViewById(R.id.enableTest);
-        s.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
-        s.setOnCheckedChangeListener((compoundButton, b) ->
+        SwitchMaterial switchBtn = findViewById(R.id.enableTest);
+        switchBtn.setChecked(sharedPreferences.getBoolean(TEST_MODE_PREF_NAME, false));
+        switchBtn.setOnCheckedChangeListener((compoundButton, b) ->
                 sharedPreferences.edit().putBoolean(TEST_MODE_PREF_NAME, compoundButton.isChecked()).apply());
 
-        SwitchMaterial c = findViewById(R.id.enableCertif);
-        c.setChecked(sharedPreferences.getBoolean(CERTIF_MODE_PREF_NAME, false));
-        c.setOnCheckedChangeListener((compoundButton, b) ->
+        switchBtn = findViewById(R.id.enableCertif);
+        switchBtn.setChecked(sharedPreferences.getBoolean(CERTIF_MODE_PREF_NAME, false));
+        switchBtn.setOnCheckedChangeListener((compoundButton, b) ->
                 sharedPreferences.edit().putBoolean(CERTIF_MODE_PREF_NAME, compoundButton.isChecked()).apply());
 
-        SwitchMaterial e = findViewById(R.id.enableMeasures);
-        e.setChecked(sharedPreferences.getBoolean(MEASURES_MODE_PREF_NAME, false));
-        e.setOnCheckedChangeListener((compoundButton, b) ->
+        switchBtn = findViewById(R.id.enableMeasures);
+        switchBtn.setChecked(sharedPreferences.getBoolean(MEASURES_MODE_PREF_NAME, false));
+        switchBtn.setOnCheckedChangeListener((compoundButton, b) ->
                 sharedPreferences.edit().putBoolean(MEASURES_MODE_PREF_NAME, compoundButton.isChecked()).apply());
 
-        SwitchMaterial d = findViewById(R.id.enableRecoveryMechanism);
-        d.setOnCheckedChangeListener((compoundButton, b) -> {
-            boolean enable = compoundButton.isChecked();
-            setupRecoveryMechanism(enable);
-        });
+        switchBtn = findViewById(R.id.enableRecoveryMechanism);
+        switchBtn.setOnCheckedChangeListener((compoundButton, b) -> setupRecoveryMechanism(compoundButton.isChecked()));
+        switchBtn.setChecked(sharedPreferences.getBoolean(RECOVERY_MODE_PREF_NAME, false));
 
         SwitchMaterial enableLogSwitch = findViewById(R.id.enableSDKLog);
-        enableLogSwitch.setOnCheckedChangeListener((compoundButton, b) ->  {
-            boolean enable = compoundButton.isChecked();
-            setupLogs(enable);
-        });
+        enableLogSwitch.setOnCheckedChangeListener((compoundButton, b) -> setupLogs(compoundButton.isChecked()));
+        enableLogSwitch.setChecked(sharedPreferences.getBoolean(ENABLE_SDK_LOGS_PREF_NAME, false));
 
         Spinner logLevelSpinner = findViewById(R.id.logLevelSpinner);
         logLevelSpinner.setAdapter(new ArrayAdapter<>(
@@ -221,19 +214,11 @@ public class SetupActivity extends AppCompatActivity {
             }
         });
 
-        boolean logsEnabled = sharedPreferences.getBoolean(ENABLE_SDK_LOGS_PREF_NAME, false);
         int level =  sharedPreferences.getInt(SDK_LOGS_LEVEL_PREF_NAME, LogManager.LogLevel.API.getCode());
         LogManager.LogLevel logLevel = LogManager.LogLevel.valueOf(level);
         List<LogManager.LogLevel> values = new ArrayList<>(Arrays.asList(LogManager.LogLevel.values()));
-        findViewById(R.id.logLevelSection).setVisibility(logsEnabled ? View.VISIBLE : View.GONE);
-        enableLogSwitch.setChecked(logsEnabled);
-        setupLogs(logsEnabled);
         logLevelSpinner.setSelection(values.indexOf(logLevel));
         UCubeAPI.setLogLevel(logLevel);
-        d.setChecked(sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false));
-
-        boolean recoMechanismEnabled = sharedPreferences.getBoolean(RECOVERY_MODE_PERF_NAME, false);
-        setupRecoveryMechanism(recoMechanismEnabled);
         String url = sharedPreferences.getString(MDM_URL_PREF_NAME, MDMServices.DEFAULT_URL);
         mdmUrlEditText = findViewById(R.id.mdm_url_edit_text);
         mdmUrlEditText.setText(url);
