@@ -1589,7 +1589,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     public static String formatDate(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH);
         return dateFormat.format(date);
     }
 
