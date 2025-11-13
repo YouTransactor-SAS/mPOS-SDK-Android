@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ ============================================================================
+  ~
+  ~ Copyright (c) 2022 YouTransactor
+  ~
+  ~ All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of YouTransactor
+  ~ ("Confidential Information"). You  shall not disclose or redistribute such
+  ~ Confidential Information and shall use it only in accordance with the terms of
+  ~ the license agreement you entered into with YouTransactor.
+  ~
+  ~ This software is provided by YouTransactor AS IS, and YouTransactor
+  ~ makes no representations or warranties about the suitability of the software,
+  ~ either express or implied, including but not limited to the implied warranties
+  ~ of merchantability, fitness for a particular purpose or non-infringement.
+  ~ YouTransactor shall not be liable for any direct, indirect, incidental,
+  ~ special, exemplary, or consequential damages suffered by licensee as the
+  ~ result of using, modifying or distributing this software or its derivatives.
+  ~
+  ~ ==========================================================================
+  -->
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <GridLayout
+        android:layout_row="0"
+        android:layout_rowWeight="1"
+        android:layout_column="0"
+        android:layout_columnWeight="1">
+
+        <Space
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="0"
+            android:layout_columnWeight="3" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="1"
+            android:layout_columnWeight="1"
+            android:gravity="center|bottom"
+            android:text="NFC"
+            android:textAlignment="gravity"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="3"
+            android:layout_columnWeight="1"
+            android:gravity="center|bottom"
+            android:text="SMC"
+            android:textAlignment="gravity"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="0"
+            android:layout_rowWeight="2"
+            android:layout_column="5"
+            android:layout_columnWeight="1"
+            android:gravity="center|bottom"
+            android:text="MSR"
+            android:textAlignment="gravity"
+            android:textColor="@color/black" />
+
+        <CheckBox
+            android:id="@+id/checkBoxInterfaceNFC"
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="1"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center|top" />
+
+        <CheckBox
+            android:id="@+id/checkBoxInterfaceSMC"
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="3"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center|top" />
+
+        <CheckBox
+            android:id="@+id/checkBoxInterfaceMSR"
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="5"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center|top" />
+
+        <Space
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="6"
+            android:layout_columnWeight="3" />
+
+    </GridLayout>
+
+    <GridLayout
+        android:layout_row="1"
+        android:layout_rowWeight="2"
+        android:layout_column="0"
+        android:layout_columnWeight="1">
+
+        <Space
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="0"
+            android:layout_columnWeight="1" />
+
+        <TextView
+            android:id="@+id/textViewAmount"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="1"
+            android:layout_rowWeight="7"
+            android:layout_column="2"
+            android:layout_columnWeight="30"
+            android:autoSizeTextType="uniform"
+            android:gravity="center|bottom"
+            android:text="@string/demo_amount"
+            android:textAlignment="gravity"
+            android:textColor="@color/black" />
+
+        <Space
+            android:layout_row="2"
+            android:layout_rowWeight="1"
+            android:layout_column="3"
+            android:layout_columnWeight="1" />
+
+    </GridLayout>
+
+    <GridLayout
+        android:layout_row="2"
+        android:layout_rowWeight="1"
+        android:layout_column="0"
+        android:layout_columnWeight="1">
+
+        <Space
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="0"
+            android:layout_columnWeight="1" />
+
+        <TextView
+            android:id="@+id/textViewEnterAmount"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="1"
+            android:layout_rowWeight="3"
+            android:layout_column="2"
+            android:layout_columnWeight="30"
+            android:autoSizeTextType="uniform"
+            android:text="Enter amount"
+            android:textAlignment="center" />
+
+        <Space
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="3"
+            android:layout_columnWeight="1" />
+    </GridLayout>
+
+    <Space
+        android:layout_row="3"
+        android:layout_rowWeight="1"
+        android:layout_column="0"
+        android:layout_columnWeight="1" />
+
+    <com.youtransactor.sampleapp.infrastructure.keyboard.adapters.NumericKeyboardView
+        android:id="@+id/numericKeyboard"
+        android:layout_row="4"
+        android:layout_rowWeight="8"
+        android:layout_column="0"
+        android:layout_columnWeight="1" />
+
+    <GridLayout
+        android:layout_row="5"
+        android:layout_rowWeight="2"
+        android:layout_column="0"
+        android:layout_columnWeight="1">
+
+        <Space
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="0"
+            android:layout_columnWeight="1" />
+
+        <Button
+            android:id="@+id/buttonPay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="1"
+            android:layout_rowWeight="3"
+            android:layout_column="1"
+            android:layout_columnWeight="7"
+            android:autoSizeTextType="uniform"
+            android:background="@drawable/enable_disable_button_background_selector"
+            android:paddingBottom="10dp"
+            android:text="Pay"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF" />
+
+        <Space
+            android:layout_row="1"
+            android:layout_rowWeight="1"
+            android:layout_column="2"
+            android:layout_columnWeight="1" />
+
+        <Space
+            android:layout_row="3"
+            android:layout_rowWeight="3"
+            android:layout_column="0"
+            android:layout_columnWeight="1" />
+
+    </GridLayout>
+</GridLayout>

@@ -22,59 +22,43 @@
  */
 package com.youtransactor.sampleapp.payment;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
-import com.youTransactor.uCube.TaskEvent;
-import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.payment.PaymentContext;
 import com.youTransactor.uCube.payment.task.ITlvUpdateTask;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateTlvTask implements ITlvUpdateTask {
-	private PaymentContext paymentContext;
-	private final Context context;
+    private PaymentContext paymentContext;
 
-	public UpdateTlvTask(Context context) {
-		this.context = context;
-	}
-	private void addTlvMap(int key, byte[] value) {
-		paymentContext.TlvListToUpdate.put(key, value);
-	}
-	@Override
-	public Map<Integer, byte[]> getTlvMap() {
-		return paymentContext.TlvListToUpdate;
-	}
+    @Override
+    public Map<Integer, byte[]> getTlvMap() {
+        return paymentContext.TlvListToUpdate;
+    }
 
-	@Override
-	public PaymentContext getContext() {
-		return paymentContext;
-	}
+    @Override
+    public PaymentContext getContext() {
+        return paymentContext;
+    }
 
-	@Override
-	public void setContext(PaymentContext context) {
-		this.paymentContext = context;
-	}
+    @Override
+    public void setContext(PaymentContext context) {
+        this.paymentContext = context;
+    }
 
-	@Override
-	public void execute(ITaskMonitor monitor) {
-		//this only an example: it should be updated
+    @Override
+    public void execute(ITaskMonitor monitor) {
+        //this only an example: it should be updated
 //		byte[] value = new byte[]{(byte) 0x00, 0x00, 0x00, 0x00, 0x30, 0x30};
 //		addTlvMap(0x9F02, value);
 //		byte[] value2 = new byte[]{(byte) 0x0A, 0x0B, 0x0C};
 //		addTlvMap(0x9FFF, value2);
-	}
+    }
 
-	@Override
-	public void cancel(ITaskCancelListener taskCancelListener){
-		taskCancelListener.onCancelFinish(true);
-	}
+    @Override
+    public void cancel(ITaskCancelListener taskCancelListener) {
+        taskCancelListener.onCancelFinish(true);
+    }
 
 }

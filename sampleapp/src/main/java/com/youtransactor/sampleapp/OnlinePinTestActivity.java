@@ -24,15 +24,22 @@ package com.youtransactor.sampleapp;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
 import com.youTransactor.uCube.rpc.OnlinePinBlockFormatType;
 import com.youtransactor.sampleapp.test.TestPinSession;
-import com.youtransactor.sampleapp.transactionView.TransactionViewBasePinTest;
+import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
+import com.youtransactor.sampleapp.transactionView.components.TestPinPromptFragment;
+import com.youtransactor.sampleapp.transactionView.configuration.TransactionStepHandler;
+import com.youtransactor.sampleapp.transactionView.steps.display_integrity_check_warning.DefaultDisplayIntegrityCheckWarningStep;
 
-public class OnlinePinTestActivity extends TransactionViewBasePinTest {
+public class OnlinePinTestActivity extends TransactionViewBase {
+
+    private static final String TAG = OnlinePinTestActivity.class.getSimpleName();
 
     private Button startBtn;
     private boolean testOngoing = false;
@@ -42,11 +49,37 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
     private TestPinSession testPinSessionInstance;
     private Spinner onlinePINTestSpinner;
     private final String[] keySlotList = {"0x40", "0x41", "0x42", "0x43", "0x44"};
+
+    private final TestPinPromptFragment testPinPromptFragment = new TestPinPromptFragment();
+
+    private final TransactionStepHandler transactionStepHandler = (eventCmd) -> {
+        Log.d(TAG, "Event received: " + eventCmd.getEvent().name());
+        switch (eventCmd.getEvent()) {
+            case ppt_pin:
+                this.switchToPinPromptView();
+                break;
+            case dsp_idle:
+                this.switchToTestMenuView();
+                break;
+            case dsp_integ_check_24h_warning:
+                new DefaultDisplayIntegrityCheckWarningStep(this).execute(eventCmd);
+                break;
+            default:
+                break;
+        }
+    };
+
+    @Override
+    protected TransactionStepHandler getTransactionStepHandler() {
+        return transactionStepHandler;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setHomeActivity(this.getClass());
+
         setContentView(R.layout.activity_online_pin_test);
+
         startBtn = findViewById(R.id.startOnlinePinTestButton);
         startBtn.setOnClickListener(v -> {
             startTest();
@@ -70,25 +103,41 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
                 android.R.layout.simple_spinner_dropdown_item);
         this.onlinePINTestSpinner.setAdapter(keySlotListAdapter);
 
-//        // Todo: remove when all format are supported
-//        onlinePinBlockFormatChoice.setVisibility(View.INVISIBLE);
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        testStarted = false;
+    private void switchToPinPromptView() {
+        this.getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.pin_prompt_container, testPinPromptFragment)
+                .commit();
+        runOnUiThread(() -> {
+            this.findViewById(R.id.test_menu_container).setVisibility(View.GONE);
+        });
+    }
+
+    private void switchToTestMenuView() {
+        this.getSupportFragmentManager()
+                .beginTransaction()
+                .remove(testPinPromptFragment)
+                .commit();
+        runOnUiThread(() -> {
+            this.findViewById(R.id.test_menu_container).setVisibility(View.VISIBLE);
+            this.launchNextTestIfNeeded();
+        });
+    }
+
+    private void launchNextTestIfNeeded() {
         startBtn.setClickable(true);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (testOngoing && !testStarted) startTest();
-            }
+        testStarted = false;
+        new Handler().postDelayed(() -> {
+            if (testOngoing && !testStarted) startTest();
         }, TIME_BETWEEN_ONLINE_PIN);
     }
-    private byte hexStringToByte(String hexString){
+
+    private byte hexStringToByte(String hexString) {
         // substring 2: remove 0x
-        return (byte) Integer.parseInt(hexString.substring(2),16);
+        return (byte) Integer.parseInt(hexString.substring(2), 16);
     }
 
     private void startTest() {
@@ -99,12 +148,7 @@ public class OnlinePinTestActivity extends TransactionViewBasePinTest {
         testPinSessionInstance = new TestPinSession(this,
                 (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem(),
                 hexStringToByte((String) onlinePINTestSpinner.getSelectedItem()));
-        testPinSessionInstance.setStopTestInterface(new TestPinSession.StopTestInterface() {
-            @Override
-            public void stopTestSession() {
-                stopTest();
-            }
-        });
+        testPinSessionInstance.setStopTestInterface(this::stopTest);
         testPinSessionInstance.execute();
     }
 

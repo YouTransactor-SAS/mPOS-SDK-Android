@@ -233,6 +233,14 @@
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/reboot" />
+
+        <Button
+            android:id="@+id/get_som_sys_log"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="get som sys log" />
     </LinearLayout>
 
     <LinearLayout

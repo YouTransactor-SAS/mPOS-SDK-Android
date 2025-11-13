@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ ============================================================================
   ~
   ~ Copyright (c) 2022 YouTransactor
@@ -28,18 +29,40 @@
     android:orientation="vertical"
     tools:context=".DemoActivity">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <include
-        layout="@layout/version_name_section_layout"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="0dp" />
+        android:layout_weight="1"/>
 
+    <TextView
+        android:id="@+id/textViewSdseMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeTextType="uniform"
+        android:padding="16dp"
+        android:text="Enter PAN"
+        android:textAlignment="center" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/textViewPan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="6"
+        android:letterSpacing="1"
+        android:text=""
+        android:textAlignment="center"
+        android:textSize="16dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <include layout="@layout/layout_pin_keyboard" />
 
 </LinearLayout>

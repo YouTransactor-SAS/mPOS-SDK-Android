@@ -79,7 +79,4 @@ public class App extends MultiDexApplication {
         };
     }
 
-    public Activity getCurrentActivity() {
-        return currentActivity;
-    }
 }

@@ -59,6 +59,7 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_POWER_OFF_TIMEOUT;
 import static com.youTransactor.uCube.rpc.Constants.TAG_RESOURCE_FILE_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_SECURE_MOD;
 import static com.youTransactor.uCube.rpc.Constants.TAG_SUPPORTED_LOCALE_LIST;
+import static com.youTransactor.uCube.rpc.Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_PN;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_SN;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_STATE;
@@ -147,6 +148,7 @@ import com.youtransactor.sampleapp.connexion.YTSOMScanner;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamEnableDisableAIDActivity;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.features.Disconnect;
+import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.features.SetIntegrityCheckTime;
 import com.youtransactor.sampleapp.features.SetRtc;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
@@ -154,10 +156,9 @@ import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
 import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
+import com.youtransactor.sampleapp.payment.PaymentFragment;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
-import com.youtransactor.sampleapp.transactionView.SdsePrompt;
-import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
 
 import org.apache.commons.codec.binary.Hex;
@@ -530,6 +531,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         findViewById(R.id.set_integrity_check_time).setOnClickListener(v -> askForTimeAndSetIntegrityCheckTime());
 
         findViewById(R.id.reboot).setOnClickListener(v -> reboot());
+        findViewById(R.id.get_som_sys_log).setOnClickListener(
+                v -> getSomSyslog());
         Button rkiButton = findViewById(R.id.rkiButton);
         rkiButton.setOnClickListener(v -> doRemoteKeyInjection());
         findViewById(R.id.localUpdateBtn).setOnClickListener(v -> localUpdate());
@@ -825,7 +828,6 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     private void payment() {
         Intent paymentIntent = new Intent(this, PaymentActivity.class);
-        paymentIntent.putExtra(YT_PRODUCT, ytProduct.name());
         startActivity(paymentIntent);
     }
 
@@ -1088,9 +1090,9 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void setPanCvvDate() {
-        Intent sdseIntent = new Intent(this, SdsePrompt.class);
-        sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
-        sdseIntent.putExtra(SdsePrompt.INTENT_EXTRA_SDSE_PROMPT_TYPE, SdseSession.SDSE_TYPE_PAN);
+        Intent sdseIntent = new Intent(this, SdsePromptActivity.class);
+        sdseIntent.putExtra(SdsePromptActivity.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
+        sdseIntent.putExtra(SdsePromptActivity.INTENT_EXTRA_SDSE_PROMPT_TYPE, SdseSession.SDSE_TYPE_PAN);
         startActivity(sdseIntent);
         new SdseSession(this).execute();
     }
@@ -1116,6 +1118,33 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         ((SecureServiceConnectionManager) cnxManager).registerPaymentViewDelegate(ViewIdentifier.PIN_PROMPT);
         Intent TestPinIntent = new Intent(this, OnlinePinTestActivity.class);
         startActivity(TestPinIntent);
+    }
+
+    private void sendGetInfocommand(int[] tagList){
+        Executors.newSingleThreadExecutor().execute(() -> {
+            new GetInfosCommand(tagList).execute((event, params) -> runOnUiThread(() -> {
+                Log.d(TAG, "get info : " + event);
+
+                switch (event) {
+                    case PROGRESS:
+                        Log.d(TAG, "Get info state " + ((RPCCommandStatus) params[1]).name());
+                        break;
+
+                    case FAILED:
+                    case CANCELLED:
+                        retrieveTagInfoOneByOne(tagList);
+                        break;
+
+                    case SUCCESS:
+                        byte[] data = ((GetInfosCommand) params[0]).getResponseData();
+                        if (LogManager.getLogLevel().getCode() >= LogManager.LogLevel.RPC.getCode()) {
+                            LogManager.d(TAG, Hex.encodeHexString(data));
+                        }
+                        onDeviceInfoRetrieved(new DeviceInfos(data));
+                        break;
+                }
+            }));
+        });
     }
 
     private void getInfo() {
@@ -1157,33 +1186,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_INTEGRITY_CHECK_TIME,
                 TAG_NFC_INFOS
         };
-
+        sendGetInfocommand(uCubeInfoTagList);
         UIUtils.showProgress(this, getString(R.string.get_info), false);
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            new GetInfosCommand(uCubeInfoTagList).execute((event, params) -> runOnUiThread(() -> {
-                Log.d(TAG, "get info : " + event);
-
-                switch (event) {
-                    case PROGRESS:
-                        Log.d(TAG, "Get info state " + ((RPCCommandStatus) params[1]).name());
-                        break;
-
-                    case FAILED:
-                    case CANCELLED:
-                        retrieveTagInfoOneByOne(uCubeInfoTagList);
-                        break;
-
-                    case SUCCESS:
-                        byte[] data = ((GetInfosCommand) params[0]).getResponseData();
-                        if (LogManager.getLogLevel().getCode() >= LogManager.LogLevel.RPC.getCode()) {
-                            LogManager.d(TAG, Hex.encodeHexString(data));
-                        }
-                        onDeviceInfoRetrieved(new DeviceInfos(data));
-                        break;
-                }
-            }));
-        });
     }
 
     private void onDeviceInfoRetrieved(DeviceInfos deviceInfos) {
@@ -1726,6 +1730,14 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     break;
             }
         });
+    }
+
+    private void getSomSyslog(){
+        final int [] sysLogTags = {
+                TAG_SYSTEM_FAILURE_LOG_RECORD_1
+        };
+        sendGetInfocommand(sysLogTags);
+        UIUtils.showProgress(this, getString(R.string.get_info), false);
     }
 
     private void reset() {

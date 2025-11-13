@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ ============================================================================
   ~
   ~ Copyright (c) 2022 YouTransactor
@@ -26,20 +27,43 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical"
-    tools:context=".DemoActivity">
+    tools:context=".transactionView.components.PinPromptFragment"
+    android:gravity="center_horizontal">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
-    <include
-        layout="@layout/version_name_section_layout"
+    <TextView
+        android:id="@+id/textViewPinMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoSizeTextType="uniform"
+        android:padding="16dp"
+        android:text="Please enter PIN"
+        android:textAlignment="center" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/textViewPIN"
+        android:text=""
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="0dp" />
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:ems="6"
+        android:letterSpacing="0.5" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <include layout="@layout/layout_pin_keyboard" />
 
 </LinearLayout>
