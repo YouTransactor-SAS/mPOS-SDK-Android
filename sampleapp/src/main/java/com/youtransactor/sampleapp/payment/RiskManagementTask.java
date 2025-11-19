@@ -29,6 +29,7 @@ import android.os.Looper;
 
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
+import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.TaskEvent;
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.payment.task.IRiskManagementTask;
@@ -84,6 +85,13 @@ public class RiskManagementTask implements IRiskManagementTask {
 
 				end(new byte[] {0, 0, 0, 0, 0});
 			});
+
+			if(paymentContext.overrideParameter){
+				byte[] dynamicParam =
+					PaymentTagOverrideFactory.getContactTerminalCapabilities(
+						new byte[] {(byte) 0xE0, (byte) 0x20, (byte) 0xC0});
+				paymentContext.TlvListToUpdate = TLV.parse(dynamicParam);
+			}
 
 			alertDialog = builder.create();
 			alertDialog.show();

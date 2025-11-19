@@ -346,15 +346,17 @@ public class PaymentFragment extends Fragment {
         boolean nfcIsActivate = nfcItf.isChecked();
         boolean contactIsActivate = contactItf.isChecked();
         boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
-
+        boolean overrideParameter;
         if(emvParamOverride.isChecked()){
+            overrideParameter = true;
             byte[] dynamicParam =
-                    PaymentTagOverrideFactory.getCVMReqLimit(
+                    PaymentTagOverrideFactory.getClessCVMReqLimit(
                             new byte[] {0x00, 0x00, 0x00, 0x01, 0x00, 0x00});
             PaymentUtils.setEmvClessDynamicParam(Tools.appendBytes(new byte[] {
                             (byte) TAG_EMV_TEMPLATE_73, (byte) dynamicParam.length},
                     dynamicParam));
         }else{
+            overrideParameter = false;
             PaymentUtils.setEmvClessDynamicParam(new byte[] {});
         }
 
@@ -396,7 +398,8 @@ public class PaymentFragment extends Fragment {
                 .setForceAuthorisation(forceAuthorisation)
                 .setKeepSecureSession(keepSecureSession)
                 .setOnlinePinBlockFormat(onlinePinBlockFormat)
-                //  .setRiskManagementTask(new RiskManagementTask(this))
+                // .setRiskManagementTask(new RiskManagementTask(
+                //                               this.underlyingActivity))
                 //.setBeforeContactlessOnlinePinTask(new BeforeContactlessOnlinePinTaskExample(BeforeContactlessOnlinePinTaskExample.TaskAction.SUCCESS))
                 .setCardWaitTimeout(timeout)
                 .setForceDebug(forceDebug)
@@ -446,7 +449,9 @@ public class PaymentFragment extends Fragment {
                         TAG_SECURE_5F20_CARDHOLDER_NAME,
                         TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
                         TAG_SECURE_9F6B_TRACK_2_DATA
-                );
+                )
+                .setOverrideParameter(overrideParameter);
+        ;
 
         return uCubePaymentRequest;
     }

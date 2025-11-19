@@ -24,7 +24,9 @@ package com.youtransactor.sampleapp.payment;
 
 import com.youTransactor.uCube.ITaskCancelListener;
 import com.youTransactor.uCube.ITaskMonitor;
+import com.youTransactor.uCube.TLV;
 import com.youTransactor.uCube.payment.PaymentContext;
+import com.youTransactor.uCube.payment.PaymentUtils;
 import com.youTransactor.uCube.payment.task.ITlvUpdateTask;
 
 import java.util.Map;
@@ -54,6 +56,14 @@ public class UpdateTlvTask implements ITlvUpdateTask {
 //		addTlvMap(0x9F02, value);
 //		byte[] value2 = new byte[]{(byte) 0x0A, 0x0B, 0x0C};
 //		addTlvMap(0x9FFF, value2);
+        if(paymentContext.overrideParameter){
+            // example for overriding already loaded EMV parameters
+            paymentContext.TlvListToUpdate =
+                TLV.parse(
+                   PaymentTagOverrideFactory.getContactTerminalCapabilities(
+                        new byte[] {(byte) 0xE0, (byte) 0x20, (byte) 0xC0})
+                );
+        }
     }
 
     @Override
