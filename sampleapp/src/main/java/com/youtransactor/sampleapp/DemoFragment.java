@@ -26,10 +26,10 @@ import static com.youTransactor.uCube.rpc.Constants.CHIP_CARD_READ_WRITE_RELIABL
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_56_TRACK_1_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5F20_CARDHOLDER_NAME;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F20_CARDHOLDER_NAME;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F24_APPLICATION_EXPIRATION_DATE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
 
 import android.os.Bundle;
@@ -250,7 +250,9 @@ public class DemoFragment extends Fragment {
                         0x9F37, 0x9F27, 0x9A, 0x9F08, 0x50, 0x95, 0x9F7C, 0x9F71, 0xDF, 0xC302, 0x9F36, 0x9F34,
                         0x9B, 0x9F12, 0x82, 0x9F66, 0x9F26, 0x5F34, 0x9F6E, 0xD3, 0x84, 0x9F33, 0x9F06, 0x8F,
                         0x9F02, 0x9F03, 0x9F09, 0x9F1E, 0xDF36,
-                        TAG_5F24_APPLICATION_EXPIRATION_DATE
+                        TAG_5F24_APPLICATION_EXPIRATION_DATE,
+                        TAG_5F20_CARDHOLDER_NAME,
+                        TAG_9F0B_CARDHOLDER_NAME_EXTENDED
                         )
 
                 .setAuthorizationSecuredTags(
@@ -261,18 +263,17 @@ public class DemoFragment extends Fragment {
                         0x5F2A,
                         0x9F02,
                         0x9F03,
-                        TAG_5F24_APPLICATION_EXPIRATION_DATE,
                         TAG_5F30_SERVICE_CODE
-                )
-                .setFinalizationPlainTags(0x9F1A, 0x99, 0x5F2A, 0x95, 0x4F, 0x9B, 0x5F34, 0x81, 0x8E, 0x9A, 0xDF37, 0x50, 0xDF36)
+                        )
+                .setFinalizationPlainTags(0x9F1A, 0x99, 0x5F2A, 0x95, 0x4F, 0x9B, 0x5F34, 0x81, 0x8E, 0x9A, 0xDF37, 0x50, 0xDF36,
+                        TAG_5F20_CARDHOLDER_NAME,
+                        TAG_9F0B_CARDHOLDER_NAME_EXTENDED)
                 .setFinalizationSecuredTags(
                         TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER,
                         TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA,
                         TAG_SECURE_56_TRACK_1_DATA,
-                        TAG_SECURE_5F20_CARDHOLDER_NAME,
-                        TAG_SECURE_9F0B_CARDHOLDER_NAME_EXTENDED,
-                        TAG_SECURE_9F6B_TRACK_2_DATA,
-                        TAG_5F24_APPLICATION_EXPIRATION_DATE
+                        TAG_SECURE_56_TRACK_1_DATA,
+                        TAG_SECURE_9F6B_TRACK_2_DATA
 
                 )
                 .withViewDelegate(ViewIdentifier.PIN_PROMPT);
