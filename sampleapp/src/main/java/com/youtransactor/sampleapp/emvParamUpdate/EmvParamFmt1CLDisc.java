@@ -63,11 +63,16 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                     EmvParamDOL clCommonLst = EmvParamFmt1.get_tlv_dol(
                             clCommon,
                             EmvParamFmt1ToYT.get_cless_disc_tag_dict());
+                    EmvParamDOL commonLst = EmvParamFmt1.get_tlv_dol(
+                            common,
+                            EmvParamFmt1ToYT.get_cless_disc_tag_dict());
                     clessAIDDsc.dol = EmvParamFmt1.get_tlv_dol(
                             clAIDList.getJSONObject(i),
                             EmvParamFmt1ToYT.get_cless_disc_tag_dict());
                     // AID parameters repeat common parameters
                     clessAIDDsc.dol.dol.addAll(clCommonLst.dol);
+                    clessAIDDsc.dol.dol.addAll(commonLst.dol);
+
                     // Transaction Type
                     if (!clessAIDDsc.dol.is_tlv_present("9C")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
