@@ -64,15 +64,11 @@ public class EmvParamUpdateAdapter extends ArrayAdapter<UpdateItem> {
         return selected;
     }
 
-    public void setSelected(UpdateItem selected) {
-        this.selected = selected;
-        notifyDataSetChanged();
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.update_item_layout, parent, false);
+            convertView = LayoutInflater.from(
+                    getContext()).inflate(R.layout.update_item_layout, parent, false);
         }
 
         UpdateItem item = getItem(position);

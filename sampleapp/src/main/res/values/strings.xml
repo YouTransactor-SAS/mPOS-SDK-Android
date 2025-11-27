@@ -374,6 +374,7 @@
     <string name="addFile">Add</string>
     <string name="removeFile">Remove</string>
     <string name="sig_not_found_msg">Signature not found for %s</string>
+    <string name="read_param">read param</string>
     <string name="readFile">Read file</string>
     <string name="read_file_error">Read file error</string>
     <string name="update_item_already_selected">Update item already selected</string>

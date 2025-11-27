@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,8 +39,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.youTransactor.uCube.emv.EmvParamYTModel;
+import com.youTransactor.uCube.emv.EmvParamYTModelPrinter;
+import com.youTransactor.uCube.mdm.EmvParamReadSvc;
 import com.youTransactor.uCube.mdm.EmvParamUpdate1by1FSM;
-import com.youTransactor.uCube.mdm.UpdateItem;
 import com.youtransactor.sampleapp.BuildConfig;
 import com.youtransactor.sampleapp.R;
 
@@ -60,6 +60,7 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private boolean updateInProgress = false;
     private TextView progressMsgFld;
+    EmvParamYTModel read_model = new EmvParamYTModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,23 +78,23 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
         updateItemListAdapter = new EmvParamUpdateAdapter(
                 this,R.layout.custome_row_layout, R.id.log_message);
 
-        final ListView filelistFld = findViewById(R.id.filelistFldEmvParUpd);
-        filelistFld.setAdapter(updateItemListAdapter);
-        filelistFld.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
-        filelistFld.setOnItemClickListener((parent, view, position, id) -> {
-            UpdateItem current = updateItemListAdapter.getItem(position);
-
-            if (updateItemListAdapter.getSelected() == current) {
-                filelistFld.setSelection(-1);
-                view.setSelected(false);
-                updateItemListAdapter.setSelected(null);
-            } else {
-                filelistFld.setSelection(position);
-                view.setSelected(true);
-                updateItemListAdapter.setSelected(current);
-            }
-        });
+//        final ListView filelistFld = findViewById(R.id.filelistFldEmvParUpd);
+//        filelistFld.setAdapter(updateItemListAdapter);
+//        filelistFld.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+//
+//        filelistFld.setOnItemClickListener((parent, view, position, id) -> {
+//            UpdateItem current = updateItemListAdapter.getItem(position);
+//
+//            if (updateItemListAdapter.getSelected() == current) {
+//                filelistFld.setSelection(-1);
+//                view.setSelected(false);
+//                updateItemListAdapter.setSelected(null);
+//            } else {
+//                filelistFld.setSelection(position);
+//                view.setSelected(true);
+//                updateItemListAdapter.setSelected(current);
+//            }
+//        });
 
         progressBar = findViewById(R.id.progressBarEmvParUpd);
         progressMsgFld = findViewById(R.id.progressMsgFldEmvParUpd);
@@ -137,6 +138,22 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.menu_select_file_emv_par_upd) {
             selectFile();
+            return true;
+        }
+        if(item.getItemId() == R.id.menu_read_parameters) {
+            EmvParamReadSvc svc = new EmvParamReadSvc(null, read_model,
+                    (event, param) -> {
+                        switch(event){
+                            case SUCCESS:
+                                EmvParamYTModelPrinter.printModel(read_model);
+                                break;
+                            default:
+                                Log.e("",
+                                        "APP: read EMV param failed");
+                                break;
+                        }
+                    });
+            svc.execute();
             return true;
         }
         if (item.getItemId() == android.R.id.home) {

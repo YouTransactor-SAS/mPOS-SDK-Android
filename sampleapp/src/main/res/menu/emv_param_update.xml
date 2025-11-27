@@ -28,4 +28,8 @@
         android:title="@string/update"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/menu_read_parameters"
+        android:title="@string/read_param"
+        app:showAsAction="ifRoom" />
 </menu>

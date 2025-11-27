@@ -351,10 +351,8 @@ public class PaymentFragment extends Fragment {
             overrideParameter = true;
             byte[] dynamicParam =
                     PaymentTagOverrideFactory.getClessCVMReqLimit(
-                            new byte[] {0x00, 0x00, 0x00, 0x01, 0x00, 0x00});
-            PaymentUtils.setEmvClessDynamicParam(Tools.appendBytes(new byte[] {
-                            (byte) TAG_EMV_TEMPLATE_73, (byte) dynamicParam.length},
-                    dynamicParam));
+                            new byte[] {0x00, 0x00, 0x00, 0x00, 0x30, 0x00});
+            PaymentUtils.setEmvClessDynamicParam(dynamicParam);
         }else{
             overrideParameter = false;
             PaymentUtils.setEmvClessDynamicParam(new byte[] {});
