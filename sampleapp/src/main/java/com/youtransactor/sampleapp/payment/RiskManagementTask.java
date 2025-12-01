@@ -86,13 +86,21 @@ public class RiskManagementTask implements IRiskManagementTask {
 				end(new byte[] {0, 0, 0, 0, 0});
 			});
 
-			if(paymentContext.overrideParameter){
-				byte[] dynamicParam =
-					PaymentTagOverrideFactory.getContactTerminalCapabilities(
-						new byte[] {(byte) 0xE0, (byte) 0x20, (byte) 0xC0});
+			byte[] dynamicParam = new byte[0];
+			if(paymentContext.overrideParameter) {
+				dynamicParam =
+						PaymentTagOverrideFactory.getContactTerminalCapabilities(
+								new byte[]{(byte) 0xE0, (byte) 0x20, (byte) 0xC0});
+			}
+			Tools.appendBytes(dynamicParam,
+					PaymentTagOverrideFactory.getContactPinParam((byte)paymentContext.pin_min_digit,
+							(byte)paymentContext.pin_max_digit,
+							paymentContext.firstDigitTimeout,
+							paymentContext.interDigitTimeout,
+							paymentContext.globalTimeout));
+			if(dynamicParam.length > 0) {
 				paymentContext.TlvListToUpdate = TLV.parse(dynamicParam);
 			}
-
 			alertDialog = builder.create();
 			alertDialog.show();
 		});

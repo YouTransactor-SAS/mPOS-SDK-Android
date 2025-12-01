@@ -25,9 +25,7 @@ package com.youtransactor.sampleapp.localUpdate;
 import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,8 +40,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.documentfile.provider.DocumentFile;
-
-import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import com.youTransactor.uCube.ITaskMonitor;
 import com.youTransactor.uCube.TaskEvent;
@@ -75,7 +71,6 @@ public class LocalUpdateActivity extends AppCompatActivity {
     private SwitchCompat failOnDowngradeVersionSwitch;
     private SwitchCompat failOnSameVersionSwitch;
     private UpdateItemAdapter updateItemListAdapter;
-    private File lastSelectedFile = null;
     private ProgressBar progressBar;
     private boolean updateInProgress = false;
     private TextView progressMsgFld;
@@ -138,15 +133,6 @@ public class LocalUpdateActivity extends AppCompatActivity {
 
         TextView versionFld = findViewById(R.id.version_name);
         versionFld.setText(getString(R.string.versionName, BuildConfig.VERSION_NAME));
-
-//        lastSelectedFile = getFilesDir();
-        lastSelectedFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
-//        SharedPreferences prefs = getSharedPreferences(SHARE_PREF_NAME, MODE_PRIVATE);
-//        String val = prefs.getString(LAST_SELECTION_PATH, null);
-//        if (val != null) {
-//            lastSelectedFile = new File(val);
-//        }
     }
 
     @Override
@@ -197,30 +183,11 @@ public class LocalUpdateActivity extends AppCompatActivity {
     }
 
     private void selectFile() {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-
-            startActivityForResult(intent, PICK_FILE);
-            return;
-        }
-
-        new ChooserDialog(LocalUpdateActivity.this)
-                .withFilterRegex(false, true, ".*\\.(bin)")
-                .withStartFile(lastSelectedFile != null ? lastSelectedFile.getAbsolutePath() : "")
-                .withNavigateUpTo(dir -> true)
-                .withNavigateTo(file -> true)
-//                .withRowLayoutView(resId)
-                .displayPath(true)
-                .withChosenListener((path, pathFile) -> {
-                  onFileSelect(pathFile);
-                })
-                /* to handle the back key pressed or clicked outside the dialog */
-                .withOnCancelListener(dialog -> dialog.cancel())
-                .build()
-                .show();
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(intent, PICK_FILE);
     }
 
     @Override
@@ -299,7 +266,6 @@ public class LocalUpdateActivity extends AppCompatActivity {
         Executors.newSingleThreadExecutor().execute(() -> {
             _addFile(file);
         });
-        lastSelectedFile = file;
 //        getSharedPreferences(SHARE_PREF_NAME, MODE_PRIVATE)
 //                .edit()
 //                .putString(LAST_SELECTION_PATH, file.getParent())

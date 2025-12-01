@@ -23,17 +23,20 @@
 package com.youtransactor.sampleapp;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.Objects;
 
 public class UIUtils {
 
-	private static ProgressDialog progressDialog;
+	private static AlertDialog progressDialog;
+	private static TextView progressMessageView;
 
 	private UIUtils() {}
 
@@ -78,40 +81,43 @@ public class UIUtils {
 		return dialog;
 	}
 
-	public static ProgressDialog showProgressDialog(Context context) {
+	public static AlertDialog showProgressDialog(Context context) {
 		return showProgress(context, null);
 	}
 
-	public static ProgressDialog showProgress(Context context, String message) {
+	public static AlertDialog showProgress(Context context, String message) {
 		return showProgress(context, message, false);
 	}
 
-	public static ProgressDialog showProgress(Context context, String message, boolean cancellable) {
+	public static AlertDialog showProgress(Context context, String message, boolean cancellable) {
 		return showProgress(context, message, cancellable, null);
 	}
 
-	public static ProgressDialog showProgress(Context context, String message, boolean cancellable, DialogInterface.OnCancelListener onCancel) {
-		ProgressDialog dlg = new ProgressDialog(context);
-
-		dlg.setMessage(message);
-		dlg.setCancelable(cancellable);
-
+	public static AlertDialog showProgress(Context context, String message, boolean cancellable, DialogInterface.OnCancelListener onCancel) {
+		// Create custom layout for progress dialog
+		View progressView = createProgressDialogView(context, message);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setView(progressView);
+		builder.setCancelable(cancellable);
+		
 		if (onCancel != null) {
-			dlg.setOnCancelListener(onCancel);
+			builder.setOnCancelListener(onCancel);
 		}
-
+		
 		hideProgressDialog();
-
+		
+		AlertDialog dlg = builder.create();
 		progressDialog = dlg;
-
+		
 		dlg.show();
-
+		
 		return dlg;
 	}
 
 	public static void setProgressMessage(String msg) {
-		if (progressDialog != null) {
-			progressDialog.setMessage(msg);
+		if (progressMessageView != null) {
+			progressMessageView.setText(msg);
 		}
 	}
 
@@ -119,7 +125,41 @@ public class UIUtils {
 		if (progressDialog != null) {
 			progressDialog.dismiss();
 			progressDialog = null;
+			progressMessageView = null;
 		}
+	}
+	
+	private static View createProgressDialogView(Context context, String message) {
+		// Create a linear layout to hold progress bar and message
+		android.widget.LinearLayout layout = new android.widget.LinearLayout(context);
+		layout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+		layout.setPadding(50, 50, 50, 50);
+		layout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+		
+		// Create progress bar
+		ProgressBar progressBar = new ProgressBar(context);
+		android.widget.LinearLayout.LayoutParams progressParams = 
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+		progressParams.setMargins(0, 0, 30, 0);
+		progressBar.setLayoutParams(progressParams);
+		
+		// Create message text view
+		progressMessageView = new TextView(context);
+		progressMessageView.setText(message != null ? message : "Loading...");
+		progressMessageView.setTextSize(16);
+		android.widget.LinearLayout.LayoutParams textParams = 
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+		progressMessageView.setLayoutParams(textParams);
+		
+		// Add views to layout
+		layout.addView(progressBar);
+		layout.addView(progressMessageView);
+		
+		return layout;
 	}
 
 	public static void showMessageDialog(final Context context, String msg) {

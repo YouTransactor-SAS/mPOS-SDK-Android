@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -44,7 +43,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -122,7 +120,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
             String classname = intent.getStringExtra(INTENT_EXTRA_DEVICE_SCANNER_CLASSNAME);
             if (classname != null) {
                 try {
-                    deviceSCanner = (IDeviceScanner) Class.forName(classname).newInstance();
+                    deviceSCanner = (IDeviceScanner) Class.forName(classname).getDeclaredConstructor().newInstance();
                 }
                 catch (Exception e) {
                     Log.w(TAG, "invalid device scanner class supplied: " + classname);
@@ -164,12 +162,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
         super.onResume();
 
         /* this is mandatory before doing a BLE scan */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!checkPermissionAndroid12()) {
-                requestPermissionAndroid12();
-                return;
-            }
-        } else if (!checkPermission()) {
+        if (!checkPermission()) {
             requestPermission();
             return;
         }
@@ -248,9 +241,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
                     getString(R.string.enable_bt_no_label), (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    requestPermissions(new String[] { Manifest.permission.BLUETOOTH_CONNECT }, REQUEST_ENABLE_BT);
-                                }
+                                requestPermissions(new String[] { Manifest.permission.BLUETOOTH_CONNECT }, REQUEST_ENABLE_BT);
                                 // here to request the missing permissions, and then overriding
                                 //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                 //                                          int[] grantResults)
@@ -274,11 +265,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(getClass().getName(), "Permission granted");
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    requestPermissionAndroid12();
-                } else {
-                    requestPermission();
-                }
+                requestPermission();
             }
         }
 
@@ -346,8 +333,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
         new Timer().schedule(restartScanTask, delay);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
-    private boolean checkPermissionAndroid12() {
+    private boolean checkPermission() {
         int  btScanPermissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
         int  btConnectPermissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
         int  fineLocationPermissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -357,13 +343,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
                 && fineLocationPermissionState == PackageManager.PERMISSION_GRANTED;
     }
 
-    private boolean checkPermission() {
-        int coarsePermissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        return coarsePermissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.S)
-    private void requestPermissionAndroid12() {
+    private void requestPermission() {
         String[] permissions = new String[] {
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
@@ -385,21 +365,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanListene
                     });
         } else {
             Log.d(getClass().getName(), "Requesting permissions");
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
-        }
-    }
-
-    private void requestPermission() {
-        String[] permissions = new String[] { Manifest.permission.ACCESS_FINE_LOCATION };
-
-        boolean shouldProvideRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (shouldProvideRationale) {
-            Log.d(getClass().getName(), "Displaying permission rationale to provide additional context.");
-            showSnackBar("Location Permission is necessary!", android.R.string.ok,
-                    view -> ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION));
-        } else {
-            Log.d(getClass().getName(), "Requesting permission");
             ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
         }
     }

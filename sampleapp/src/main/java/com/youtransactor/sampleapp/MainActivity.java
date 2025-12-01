@@ -73,7 +73,6 @@ import static android.view.View.GONE;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -156,7 +155,6 @@ import com.youtransactor.sampleapp.mdm.CheckUpdateResultDialog;
 import com.youtransactor.sampleapp.mdm.DeviceConfigDialogFragment;
 import com.youtransactor.sampleapp.payment.Localization;
 import com.youtransactor.sampleapp.payment.PaymentActivity;
-import com.youtransactor.sampleapp.payment.PaymentFragment;
 import com.youtransactor.sampleapp.rpc.GetInfoDialog;
 import com.youtransactor.sampleapp.test.TestActivity;
 import com.youtransactor.sampleapp.transactionView.WaitCard_Dte;
@@ -847,11 +845,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void mdmRegister() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.register_progress));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.register_progress));
         UCubeAPI.mdmRegister(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
-                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
+                runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, state.name())));
             }
 
             @Override
@@ -874,11 +872,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void mdmGetConfig() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_config_progress));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_config_progress));
         UCubeAPI.mdmGetConfig(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
-                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
+                runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, state.name())));
             }
 
             @Override
@@ -923,7 +921,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                                         break;
                                 }
 
-                                final ProgressDialog progressDlg = UIUtils.showProgress(this,
+                                final AlertDialog progressDlg = UIUtils.showProgress(this,
                                         getString(R.string.check_update_progress), false);
 
                                 UCubeAPI.mdmCheckUpdate(
@@ -933,7 +931,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
                                             @Override
                                             public void onProgress(ServiceState state) {
-                                                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
+                                                runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, state.name())));
                                             }
 
                                             @Override
@@ -1001,7 +999,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
             dialog.dismiss();
 
-            final ProgressDialog progressDlg = UIUtils.showProgress(this,
+            final AlertDialog progressDlg = UIUtils.showProgress(this,
                     getString(R.string.update_progress), false);
 
             List<BinaryUpdate> selectedUpdateList = new ArrayList<>(selectedItems1.size());
@@ -1015,7 +1013,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             UCubeAPI.mdmUpdate(selectedUpdateList, new UCubeLibMDMServiceListener() {
                 @Override
                 public void onProgress(ServiceState state) {
-                    runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
+                    runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, state.name())));
                 }
 
                 @Override
@@ -1037,12 +1035,12 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void mdmSendLogs() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.send_log_progress));
 
         UCubeAPI.mdmSendLogs(new UCubeLibMDMServiceListener() {
             @Override
             public void onProgress(ServiceState state) {
-                runOnUiThread(() -> progressDlg.setMessage(getString(R.string.progress, state.name())));
+                runOnUiThread(() -> UIUtils.setProgressMessage(getString(R.string.progress, state.name())));
             }
 
             @Override
@@ -1061,7 +1059,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void displayHelloWorld() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.display_msg));
         DisplayMessageCommand displayMessageCommand = new DisplayMessageCommand("Hello world");
         // displayMessageCommand.setTimeout(2);
         displayMessageCommand.setClearConfig((byte) 0x04);
@@ -1253,7 +1251,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void powerOffTimeout(int powerOffValue) {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.set_power_off_timeout_value));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.set_power_off_timeout_value));
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
@@ -1270,7 +1268,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void BuzzerOn() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_on));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_on));
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
@@ -1284,7 +1282,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void BuzzerOff() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_off));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_buzzer_off));
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
@@ -1381,7 +1379,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
             });
     }
     private void enterSecureSession() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.enter_secure_session));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.enter_secure_session));
 
         new EnterSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
@@ -1404,7 +1402,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void exitSecureSession() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.exit_secure_session));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.exit_secure_session));
 
         new ExitSecureSessionCommand().execute((event1, params1) -> runOnUiThread(() -> {
             switch (event1) {
@@ -1427,7 +1425,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void getTerminalState() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_terminal_state));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.get_terminal_state));
 
         new GetInfosCommand(TAG_TERMINAL_STATE).execute((event1, params1) -> runOnUiThread(() -> {
             Log.d(TAG, "Get terminal state  : " + event1);
@@ -1455,7 +1453,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void enableQuickMode() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_quick_mode));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_quick_mode));
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
@@ -1469,7 +1467,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void enableSlowMode() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_slow_mode));
+        final AlertDialog progressDlg = UIUtils.showProgress(this, getString(R.string.setup_slow_mode));
         progressDlg.setCancelable(false);
 
         SetInfoFieldCommand setInfoFieldCommand = new SetInfoFieldCommand();
@@ -1507,7 +1505,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 });
     }
 
-    private ProgressDialog progressDlg;
+    private AlertDialog progressDlg;
 
     private void askForTimeAndPerformAction(final Consumer<LocalTime> action) {
         final LocalTime now = LocalTime.now();
@@ -1598,7 +1596,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void getRtc() {
-        final ProgressDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.get_rtc));
+        final AlertDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.get_rtc));
 
         RTCGetCommand rtcGetCommand = new RTCGetCommand();
         rtcGetCommand.execute((event, params) -> {
@@ -1623,7 +1621,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void echo(String data) {
-        final ProgressDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.echo));
+        final AlertDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.echo));
 
         EchoCommand cmd = new EchoCommand();
         cmd.setData(Tools.hexStringToByteArray(data));
@@ -1679,7 +1677,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void getKeyInfo(String keySlotId) {
-        final ProgressDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.get_key_info));
+        final AlertDialog progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.get_key_info));
 
         if (keySlotId.isEmpty()) {
             runOnUiThread(() -> UIUtils.showMessageDialog(MainActivity.this, "key slot can not be empty"));
