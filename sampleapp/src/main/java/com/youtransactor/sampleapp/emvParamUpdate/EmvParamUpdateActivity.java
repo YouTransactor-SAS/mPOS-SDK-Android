@@ -24,6 +24,7 @@ package com.youtransactor.sampleapp.emvParamUpdate;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -38,13 +39,18 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.youTransactor.uCube.emv.EmvParamYTModel;
-import com.youTransactor.uCube.emv.EmvParamYTModelPrinter;
 import com.youTransactor.uCube.mdm.EmvParamReadSvc;
 import com.youTransactor.uCube.mdm.EmvParamUpdate1by1FSM;
 import com.youtransactor.sampleapp.BuildConfig;
 import com.youtransactor.sampleapp.R;
+import com.youtransactor.sampleapp.utils_common.emv_utils.EmvParamYTModelPrinter;
 
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 public class EmvParamUpdateActivity extends AppCompatActivity {
     private static final String TAG = EmvParamUpdateActivity.class.getSimpleName();
@@ -136,13 +142,31 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
             return true;
         }
         if(item.getItemId() == R.id.menu_read_parameters) {
-            EmvParamReadSvc svc = new EmvParamReadSvc(null, read_model,
+            ArrayList<EmvParamYTModel.TypeID> kernelToRdLst = new ArrayList<>();
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cKrnAID);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cCAPKID);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clMCLKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clVISAKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clDISCKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clAMEXKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clJCBKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clINTERACKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clCUPKrnId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clCAPKId);
+            displayState("EMV PARAMETER READ ONGOING",
+                    true);
+            EmvParamReadSvc svc = new EmvParamReadSvc(
+                    kernelToRdLst, read_model,
                     (event, param) -> {
                         switch(event){
                             case SUCCESS:
+                                displayState("EMV PARAMETER READ SUCCESS",
+                                        false);
                                 EmvParamYTModelPrinter.printModel(read_model);
                                 break;
                             default:
+                                displayState("EMV PARAMETER READ ERROR",
+                                        false);
                                 Log.e("",
                                         "APP: read EMV param failed");
                                 break;
@@ -159,11 +183,17 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
     }
 
     private void selectFile() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
-        startActivityForResult(intent, PICK_FILE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+            startActivityForResult(intent, PICK_FILE);
+            return;
+        }
+        // TODO: sort the file access issue on Android lesser than 14
+        onFileSelect(new File("/data/data/com.youtransactor.sampleapp/" +
+                "files/20231031-emv_config CERT US 20231006_.txt"));
     }
 
     @Override
@@ -187,6 +217,26 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    private void onFileSelect(File _file) {
+        String label = _file.getName().substring(0, _file.getName().lastIndexOf('.'));
+        if (updateItemListAdapter.contains(label)) {
+            Toast.makeText(this, R.string.update_item_already_selected,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            EmvParamYTModel model;
+            try (InputStream input = new FileInputStream(_file)) {
+                model = EmvParamFmt1.from(input);
+            } catch (Exception e) {
+                Log.d(TAG, "read EMV file error", e);
+                runOnUiThread(() -> Toast.makeText(EmvParamUpdateActivity.this, "read EMV config error", Toast.LENGTH_LONG).show());
+                return;
+            }
+            startEmvParamUpdate(model);
+        });
     }
 
     private void displayState(final String text, boolean running) {
