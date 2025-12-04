@@ -47,7 +47,12 @@ public class EmvParamEnableDisableAIDActivity extends AppCompatActivity {
     private EditText editTextAID;
     private Button btnEnableAID;
     private Button btnDisableAID;
+    private int PAY_PARAM_CFG_NOT_SET = 0;
+    private int PAY_PARAM_CFG_DISABLE_CT_AID  = 1;
+    private int PAY_PARAM_CFG_ENABLE_CT_AID= 2;
 
+    private int PAY_PARAM_CFG_DISABLE_CL_AID = 0x11;
+    private int PAY_PARAM_CFG_ENABLE_CL_AID = 0x12;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +93,9 @@ public class EmvParamEnableDisableAIDActivity extends AppCompatActivity {
         payload[offset++] = (byte)(dataLen / 0x100);
         payload[offset++] = 0x02;
         payload[offset++] = 0;
-        payload[offset++] = (byte) (contact ? (enable ? 0x01 : 0x02) : (enable ? 0x11 : 0x12));
+        payload[offset++] = (byte) (contact ?
+                (enable ? PAY_PARAM_CFG_ENABLE_CT_AID : PAY_PARAM_CFG_DISABLE_CT_AID) :
+                (enable ? PAY_PARAM_CFG_ENABLE_CL_AID : PAY_PARAM_CFG_DISABLE_CL_AID));
         payload[offset++] = 0;
         payload[offset++] = (byte) (contact ? 0x84 : 0x9F);
         if (!contact) payload[offset++] = 0x06;
