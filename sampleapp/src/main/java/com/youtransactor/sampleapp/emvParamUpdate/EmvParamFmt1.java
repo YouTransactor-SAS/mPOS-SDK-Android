@@ -166,7 +166,7 @@ public class EmvParamFmt1 {
             ret = common.getString("settingsVersion");
         }catch(JSONException e){
             LogManager.e("can't retrieve contact ID", e);
-            ret = "";
+            ret = null;
         }
         return ret;
     }
@@ -176,7 +176,7 @@ public class EmvParamFmt1 {
             ret = common.getString("settingsVersion");
         }catch(JSONException e){
             LogManager.e("can't retrieve contact ID", e);
-            ret = "";
+            ret = null;
         }
         return ret;
     }

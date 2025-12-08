@@ -606,10 +606,6 @@ public class PaymentFragment extends Fragment {
                                                 paymentMeasure.onStart();
                                             break;
 
-                                        case KSN_AVAILABLE:
-                                            Log.d(TAG, "KSN : " + Arrays.toString(context.sredKsn));
-                                            break;
-
                                         case START_TRANSACTION:
                                             if (paymentMeasure != null)
                                                 paymentMeasure.onWaitingCard();

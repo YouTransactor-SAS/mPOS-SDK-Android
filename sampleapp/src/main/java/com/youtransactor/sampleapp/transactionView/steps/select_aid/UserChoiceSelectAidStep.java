@@ -48,6 +48,7 @@ public class UserChoiceSelectAidStep implements SelectAidStep {
         for (i = 0; i < candidates.size(); i++) {
             app_label.add(candidates.get(i).getLabel());
         }
+        app_label.add("NO FILTERING");
         final DisplayListFragment.DisplayListParams params = new DisplayListFragment.DisplayListParams(
                 app_label,
                 DisplayListFragment.DISPLAY_LIST_AID
