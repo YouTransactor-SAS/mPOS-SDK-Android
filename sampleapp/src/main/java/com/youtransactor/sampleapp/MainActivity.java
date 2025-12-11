@@ -139,6 +139,7 @@ import com.youTransactor.uCube.rpc.command.RTCGetCommand;
 import com.youTransactor.uCube.rpc.command.RebootCommand;
 import com.youTransactor.uCube.rpc.command.ResetCommand;
 import com.youTransactor.uCube.rpc.command.SetInfoFieldCommand;
+import com.youtransactor.sampleapp.manual_entry.ManualEntryActivity;
 import com.youtransactor.sampleapp.connexion.DeviceScanActivity;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeScanner;
 import com.youtransactor.sampleapp.connexion.ListPairedUCubeTouchScanner;
@@ -147,7 +148,6 @@ import com.youtransactor.sampleapp.connexion.YTSOMScanner;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamEnableDisableAIDActivity;
 import com.youtransactor.sampleapp.emvParamUpdate.EmvParamUpdateActivity;
 import com.youtransactor.sampleapp.features.Disconnect;
-import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.features.SetIntegrityCheckTime;
 import com.youtransactor.sampleapp.features.SetRtc;
 import com.youtransactor.sampleapp.localUpdate.LocalUpdateActivity;
@@ -1088,11 +1088,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
     }
 
     private void setPanCvvDate() {
-        Intent sdseIntent = new Intent(this, SdsePromptActivity.class);
-        sdseIntent.putExtra(SdsePromptActivity.INTENT_EXTRA_SDSE_PROMPT_MSG, getString(R.string.set_pan));
-        sdseIntent.putExtra(SdsePromptActivity.INTENT_EXTRA_SDSE_PROMPT_TYPE, SdseSession.SDSE_TYPE_PAN);
+        Intent sdseIntent = new Intent(this, ManualEntryActivity.class);
         startActivity(sdseIntent);
-        new SdseSession(this).execute();
     }
 
     private void startdte() {

@@ -23,12 +23,10 @@
 package com.youtransactor.sampleapp.features;
 
 import static com.youTransactor.uCube.payment.SetSdseState.*;
-import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_50_APPLICATION_LABEL;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F30_SERVICE_CODE;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_DF5A_PAN_CVV_DATA;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -43,21 +41,28 @@ import com.youTransactor.uCube.rpc.command.GetSecuredTagCommand;
 
 import java.util.Map;
 
-public class SdseSession extends AsyncTask<Void, Void, Boolean> {
+public class SdseSession {
 
     public static final int SDSE_TYPE_PAN =  1;
     public static final int SDSE_TYPE_CVV =  2;
     public static final int SDSE_TYPE_DATE = 3;
-    private boolean cvv_was_by_passed = false;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Context context;
     public Map<Integer, byte[]> Values;
+    private boolean is_key_luhn_check;
+    private boolean is_cancelled = false;
 
-    public SdseSession(Context context){
+
+    public SdseSession(Context context, boolean is_key_luhn_check){
         this.context = context;
+        this.is_key_luhn_check = is_key_luhn_check;
     }
 
     private void startSetting(SetSdseState state) {
+        if(is_cancelled == true) {
+            startSetting(START_SDSE_EXIT_SECURE_SESSION);
+            return;
+        };
         switch (state) {
             case START_SDSE_EXIT_SECURE_SESSION:
                 PaymentUtils.exitSecureSession((event, params) -> {
@@ -87,7 +92,7 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                 });
                 break;
             case DISPLAY_SDSE_PAN:
-                PaymentUtils.SetSdse(SDSE_TYPE_PAN, 180, (event, params) -> {
+                PaymentUtils.SetSdse(SDSE_TYPE_PAN, 180, is_key_luhn_check, (event, params) -> {
                     switch (event) {
                         case FAILED:
                             handler.post(() -> {
@@ -103,7 +108,7 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                 });
                 break;
             case DISPLAY_SDSE_CVV:
-                PaymentUtils.SetSdse(SDSE_TYPE_CVV, 180, (event, params) -> {
+                PaymentUtils.SetSdse(SDSE_TYPE_CVV, 180, is_key_luhn_check, (event, params) -> {
                     switch (event) {
                         case FAILED:
                             handler.post(() -> {
@@ -117,9 +122,7 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                             if (Values.containsKey(TAG_5F30_SERVICE_CODE) &&
                                     Values.get(TAG_5F30_SERVICE_CODE) == null){
                                 //CVV was bypassed
-                                cvv_was_by_passed = true;
                                 Log.d("Manuel PAN/CVV", String.format(" CVV was by passed"));
-
                             }
                             startSetting(DISPLAY_SDSE_DATE);
                             break;
@@ -127,7 +130,7 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
                 });
                 break;
             case DISPLAY_SDSE_DATE:
-                PaymentUtils.SetSdse(SDSE_TYPE_DATE, 180, (event, params) -> {
+                PaymentUtils.SetSdse(SDSE_TYPE_DATE, 180, is_key_luhn_check,(event, params) -> {
                     switch (event) {
                         case FAILED:
                             handler.post(() -> {
@@ -164,14 +167,11 @@ public class SdseSession extends AsyncTask<Void, Void, Boolean> {
 
     }
 
-    @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                startSetting(ENTER_SDSE_SECURE_SESSION);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
+    public void start() {
+        startSetting(SetSdseState.ENTER_SDSE_SECURE_SESSION);
     }
+
+    public void cancel() {
+        is_cancelled = true;
+    }
+}

@@ -12,13 +12,13 @@
  * @author: Emmanuel COLAS (emmanuel_colas@jabil.com)
  */
 
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.manual_entry;
 
 import android.os.Bundle;
 
 import com.jps.secureService.api.product_manager.ProductManager;
-import com.youTransactor.uCube.api.UCubeAPI;
 import com.youTransactor.uCube.rpc.Event;
+import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.transactionView.TransactionViewBase;
 import com.youtransactor.sampleapp.transactionView.configuration.ConfigurableTransactionStepHandler;

@@ -484,6 +484,8 @@
     <string name="set_exp_date">Set Expiration date</string>
     <string name="set_exp_date_success">Set Expiration date success</string>
     <string name="set_exp_date_failed">Set Expiration date failed</string>
+    <string name="lbl_enable_luhn_key_check">Enable Luhn Key Check</string>
+
     <string name="lbl_fail_on_version_downgrade">Fail update on version downgrade</string>
     <string name="lbl_fail_on_same_version">Fail update on with same version</string>
 

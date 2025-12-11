@@ -51,7 +51,8 @@
         <activity android:name=".test.TestActivity"/>
 
         <activity android:name=".transactionView.WaitCard_Dte"/>
-        <activity android:name=".SdsePromptActivity"/>
+        <activity android:name=".manual_entry.ManualEntryActivity"/>
+        <activity android:name=".manual_entry.SdsePromptActivity"/>
         <activity android:name=".OnlinePinTestActivity"/>
         <activity android:name=".SetupActivity"
             android:exported="true"

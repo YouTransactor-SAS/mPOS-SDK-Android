@@ -20,7 +20,7 @@
  *
  * ==========================================================================
  */
-package com.youtransactor.sampleapp;
+package com.youtransactor.sampleapp.manual_entry;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,6 +48,7 @@ import com.youTransactor.uCube.rpc.RPCManager;
 import com.youTransactor.uCube.rpc.command.UpdateKeypad;
 import com.youTransactor.uCube.rpc.command.event.kbd.EventKbd;
 import com.youTransactor.uCube.rpc.command.event.ppt.EventPptSdse;
+import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.features.SdseSession;
 import com.youtransactor.sampleapp.infrastructure.SystemBars;
 import com.youtransactor.sampleapp.transactionView.components.CloseFragmentListener;
