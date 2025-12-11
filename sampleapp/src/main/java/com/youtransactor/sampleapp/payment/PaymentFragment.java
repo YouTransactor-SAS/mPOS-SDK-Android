@@ -399,6 +399,7 @@ public class PaymentFragment extends Fragment {
                 // .setRiskManagementTask(new RiskManagementTask(
                 //                               this.underlyingActivity))
                 //.setBeforeContactlessOnlinePinTask(new BeforeContactlessOnlinePinTaskExample(BeforeContactlessOnlinePinTaskExample.TaskAction.SUCCESS))
+                .setContactlessEndReadingTask(new ContactlessEndReadingTaskExample(ContactlessEndReadingTaskExample.TaskAction.SUCCESS))
                 .setCardWaitTimeout(timeout)
                 .setForceDebug(forceDebug)
                 .setSkipCardRemoval(skipCardRemoval)

@@ -48,10 +48,11 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
         List<String> mclAppTokenL = new ArrayList<>();
         mclAppTokenL.add("MASTERCARD");
         mclAppTokenL.add("MAESTRO");
+        mclAppTokenL.add("EBT");
         int nbMclAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, mclAppTokenL);
         EmvParamDOL clMCLalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =

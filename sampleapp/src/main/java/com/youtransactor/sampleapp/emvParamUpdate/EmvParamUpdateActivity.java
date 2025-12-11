@@ -143,6 +143,14 @@ public class EmvParamUpdateActivity extends AppCompatActivity {
         }
         if(item.getItemId() == R.id.menu_read_parameters) {
             ArrayList<EmvParamYTModel.TypeID> kernelToRdLst = new ArrayList<>();
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cParamID);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cCAPKIDid);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cParamDate);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.cCAPKDate);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clParamID);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clParamDate);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clCAPKIDId);
+            kernelToRdLst.add(EmvParamYTModel.TypeID.clCAPKDate);
             kernelToRdLst.add(EmvParamYTModel.TypeID.cKrnAID);
             kernelToRdLst.add(EmvParamYTModel.TypeID.cCAPKID);
             kernelToRdLst.add(EmvParamYTModel.TypeID.clMCLKrnId);

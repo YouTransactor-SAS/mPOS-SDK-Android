@@ -49,7 +49,7 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
         int nbInteracAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, interacAppTokenL);
         EmvParamDOL clINTERACalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =

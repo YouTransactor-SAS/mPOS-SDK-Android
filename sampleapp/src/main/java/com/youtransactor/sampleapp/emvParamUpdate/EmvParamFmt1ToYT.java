@@ -94,11 +94,6 @@ public final class EmvParamFmt1ToYT {
         emvContactTagDict.put("transCurrExp", "5F36");
         emvContactTagDict.put("transRefCurrCde", "9F3C");
         emvContactTagDict.put("transRefCurrExp", "9F3D");
-        // TODO: to manage at some point here or somewhere else
-//        emvContactTagDict.put("settingsVersion", "N"");/A
-//        emvContactTagDict.put("settingsDate", "N"");/A
-//        emvContactTagDict.put("CAPKVersion", "N"");/A
-//        emvContactTagDict.put("CAPKDate", "N"");/A
 
         // AID Param
         emvContactTagDict.put("termCap", "9F33");
@@ -131,7 +126,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessVISATagDict.put("addTermCap", "9F40");
         emvCLessVISATagDict.put("appSelOpt", "DF41");
         emvCLessVISATagDict.put("appLabel", "DF42");
-        emvCLessVISATagDict.put("termIntProfile", "9F53");
         emvCLessVISATagDict.put("TTQ", "9F66");
         emvCLessVISATagDict.put("enhReaderCap", "9F6E");
         emvCLessVISATagDict.put("readerCap", "9F6D");
@@ -175,7 +169,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessMCLTagDict.put("addTermCap", "9F40");
         emvCLessMCLTagDict.put("appSelOpt", "DF41");
         emvCLessMCLTagDict.put("appLabel", "DF42");
-        emvCLessMCLTagDict.put("termIntProfile", "9F53");
         emvCLessMCLTagDict.put("TTQ", "9F66");
         emvCLessMCLTagDict.put("enhReaderCap", "9F6E");
         emvCLessMCLTagDict.put("readerCap", "9F6D");
@@ -203,6 +196,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessMCLTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessMCLTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessMCLTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+        emvCLessMCLTagDict.put("acqId", "9F01");
 
         // JCB Cless
         emvCLessJCBTagDict.put("appVersion", "9F09");
@@ -245,7 +239,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessJCBTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessJCBTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessJCBTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
-        emvCLessJCBTagDict.put("termIntProfile", "9F53");
+        emvCLessJCBTagDict.put("acqId", "9F01");
 
         // AMEX Cless
         emvCLessAMEXTagDict.put("appVersion", "9F09");
@@ -260,7 +254,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessAMEXTagDict.put("addTermCap", "9F40");
         emvCLessAMEXTagDict.put("appSelOpt", "DF41");
         emvCLessAMEXTagDict.put("appLabel", "DF42");
-        emvCLessAMEXTagDict.put("termIntProfile", "DFDF45");
         emvCLessAMEXTagDict.put("enhReaderCap", "9F6E");
         emvCLessAMEXTagDict.put("readerCap", "9F6D");
         emvCLessAMEXTagDict.put("mobDevInd", "9F7E"); // NOT FOUND IN FMT1
@@ -288,6 +281,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessAMEXTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessAMEXTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessAMEXTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+        emvCLessAMEXTagDict.put("acqId", "9F01");
 
         // CUP Cless
         emvCLessCUPTagDict.put("appVersion", "9F09");
@@ -303,7 +297,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessCUPTagDict.put("appSelOpt", "DF41");
         emvCLessCUPTagDict.put("appLabel", "DF42");
         emvCLessCUPTagDict.put("appSelInd", "E000");
-        emvCLessCUPTagDict.put("termIntProfile", "DFDF45");
         emvCLessCUPTagDict.put("enhReaderCap", "9F6E");
         emvCLessCUPTagDict.put("readerCap", "9F6D");
         emvCLessCUPTagDict.put("mobDevInd", "9F7E"); // NOT FOUND IN FMT1
@@ -351,7 +344,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessINTERACTagDict.put("TOS", "9F5E");
         emvCLessINTERACTagDict.put("receiptLim", "9F5D");
         emvCLessINTERACTagDict.put("appLabel", "DF42");
-        emvCLessINTERACTagDict.put("termIntProfile", "DFDF45");
         emvCLessINTERACTagDict.put("enhReaderCap", "9F6E");
         emvCLessINTERACTagDict.put("readerCap", "9F6D");
         emvCLessINTERACTagDict.put("mobDevInd", "9F7E"); // NOT FOUND IN FMT1
@@ -379,6 +371,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessINTERACTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessINTERACTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessINTERACTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+        emvCLessINTERACTagDict.put("acqId", "9F01");
 
         // DISC Cless
         emvCLessDISCTagDict.put("appVersion", "9F09");
@@ -393,7 +386,6 @@ public final class EmvParamFmt1ToYT {
         emvCLessDISCTagDict.put("addTermCap", "9F40");
         emvCLessDISCTagDict.put("appSelOpt", "DF41");
         emvCLessDISCTagDict.put("appLabel", "DF42");
-        emvCLessDISCTagDict.put("termIntProfile", "DFDF45");
         emvCLessDISCTagDict.put("enhReaderCap", "9F6E");
         emvCLessDISCTagDict.put("TTQ", "9F66");
         emvCLessDISCTagDict.put("readerCap", "9F6D");
@@ -422,6 +414,7 @@ public final class EmvParamFmt1ToYT {
         emvCLessDISCTagDict.put("onlAndClearingMsg", "DFDF02"); // alcineo prop
         emvCLessDISCTagDict.put("onlProcSockTimeout", "DFDF14"); // alcineo prop
         emvCLessDISCTagDict.put("onlProcSockNbRetry", "DFDF15"); // alcineo prop
+        emvCLessDISCTagDict.put("acqId", "9F01");
 
         // CAPKs
         emvCLessCAPKTagDict.put("RID", "CA00");

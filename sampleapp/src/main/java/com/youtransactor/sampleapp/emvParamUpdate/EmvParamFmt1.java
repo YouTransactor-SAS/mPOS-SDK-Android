@@ -170,14 +170,81 @@ public class EmvParamFmt1 {
         }
         return ret;
     }
+    public static String getCtParamDate(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("settingsDate");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve contact param date", e);
+            ret = null;
+        }
+        return ret;
+    }
+    public static String getCtCAPKID(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("CAPKVersion");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve contact CAPK ID", e);
+            ret = null;
+        }
+        return ret;
+    }
+    public static String getCtCAPKDate(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("CAPKDate");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve contact CAPK date", e);
+            ret = null;
+        }
+        return ret;
+    }
     public static String getClParamID(JSONObject common){
         String ret;
         try{
             ret = common.getString("settingsVersion");
         }catch(JSONException e){
-            LogManager.e("can't retrieve contact ID", e);
+            LogManager.e("can't retrieve cless ID", e);
             ret = null;
         }
         return ret;
+    }
+    public static String getClParamDate(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("settingsDate");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve cless param date", e);
+            ret = null;
+        }
+        return ret;
+    }
+    public static String getClCAPKID(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("CAPKVersion");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve cless CAPK ID", e);
+            ret = null;
+        }
+        return ret;
+    }
+    public static String getClCAPKDate(JSONObject common){
+        String ret;
+        try{
+            ret = common.getString("CAPKDate");
+        }catch(JSONException e){
+            LogManager.e("can't retrieve cless CAPK date", e);
+            ret = null;
+        }
+        return ret;
+    }
+    public static void setClInfoInModel(EmvParamYTModel model,
+                                 JSONObject jsonFmt1Common){
+        model.setClParamID(EmvParamFmt1.getClParamID(jsonFmt1Common));
+        model.setClParamDate(EmvParamFmt1.getClParamDate(jsonFmt1Common));
+        model.setClCAPKID(EmvParamFmt1.getClCAPKID(jsonFmt1Common));
+        model.setClCAPKDate(EmvParamFmt1.getClCAPKDate(jsonFmt1Common));
     }
 }

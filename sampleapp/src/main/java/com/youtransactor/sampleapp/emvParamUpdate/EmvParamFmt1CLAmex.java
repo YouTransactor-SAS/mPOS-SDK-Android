@@ -50,7 +50,7 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
         int nbAmexAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, amexAppTokenL);
         EmvParamDOL clAMEXalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
@@ -243,8 +243,6 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
                     }
                     clessAIDDsc.dol = model.filterDOLForAIDParam(
                             clessAIDDsc.dol, model.clAMEXAIDTagList);
-                } else {
-                    isAidEltIdFound = false;
                 }
                 if (isAidEltIdFound) {
                     model.add_cless_elt(clessAIDDsc);

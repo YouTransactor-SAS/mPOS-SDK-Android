@@ -69,6 +69,11 @@ public abstract class TransactionViewBase extends AppCompatActivity implements C
                 .replace(R.id.fragment_container, homeFragment)
                 .commitAllowingStateLoss();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }
 
 

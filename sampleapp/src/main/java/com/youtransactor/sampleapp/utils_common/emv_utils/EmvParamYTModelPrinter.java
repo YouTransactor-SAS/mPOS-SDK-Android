@@ -60,8 +60,20 @@ public class EmvParamYTModelPrinter {
     static public void printModel(EmvParamYTModel model){
         Log.i(TAG, "EMV Parameter Contact identifier (version): "+
                 model.getCtParamID());
+        Log.i(TAG, "EMV Parameter Contact Date: "+
+                model.getCtParamDate());
+        Log.i(TAG, "EMV Parameter Contact CAPK identifier (version): "+
+                model.getCtCAPKID());
+        Log.i(TAG, "EMV Parameter Contact CAPK date: "+
+                model.getCtCAPKDate());
         Log.i(TAG, "EMV Parameter CLess identifier (version): "+
                 model.getClParamID());
+        Log.i(TAG, "EMV Parameter CLess Date: "+
+                model.getClParamDate());
+        Log.i(TAG, "EMV Parameter CLess CAPK identifier (version): "+
+                model.getClCAPKID());
+        Log.i(TAG, "EMV Parameter CLess CAPK date: "+
+                model.getClCAPKDate());
         printEltDolList("Contact AID", model.getcAIDList());
         printEltDolList("Contact CAPK", model.getcCAPKList());
         printClessEltDolList("CLess AID MCL",

@@ -52,7 +52,7 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
         int nbCupAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, cupAppTokenL);
         EmvParamDOL clCUPalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =

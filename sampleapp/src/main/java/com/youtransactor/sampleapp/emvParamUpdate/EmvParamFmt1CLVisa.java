@@ -51,7 +51,7 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
         int nbVisaAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, visaAppTokenL);
         EmvParamDOL clVISAalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =

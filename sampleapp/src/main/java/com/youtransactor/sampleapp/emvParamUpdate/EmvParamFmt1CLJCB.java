@@ -49,7 +49,7 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
         int nbJcbAid = EmvParamFmt1.getNbAIDProfileForKernel(
                 clAIDList, jcbAppTokenL);
         EmvParamDOL clJCBalltagDol = new EmvParamDOL();
-        model.setClParamID(EmvParamFmt1.getClParamID(common));
+        setClInfoInModel(model, common);
         for(int i = 0; i < clAIDList.length(); i++) {
             JSONObject curJsonAidLst = clAIDList.getJSONObject(i);
             EmvParamYTModel.ClessEltDsc clessAIDDsc =
@@ -77,9 +77,10 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                                 "9C", "00", "B_"));
                     }
                     // Acquirer Identifier
+                    // (value according to JPMC value loaded in the BTT tool ICS)
                     if (!clessAIDDsc.dol.is_tlv_present("9F01")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "9F01", "000000000010", "B_"));
+                                "9F01", "197002", "B_"));
                     }
                     // Terminal Application Identifier (AID)
                     if (!clessAIDDsc.dol.is_tlv_present("9F06")) {

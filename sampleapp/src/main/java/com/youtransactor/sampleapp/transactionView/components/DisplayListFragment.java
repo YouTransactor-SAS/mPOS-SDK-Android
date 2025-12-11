@@ -1,6 +1,5 @@
 package com.youtransactor.sampleapp.transactionView.components;
 
-import static com.youTransactor.uCube.rpc.Constants.DISPLAY_LIST_NO_ITEM_SELECTED;
 import static com.youTransactor.uCube.rpc.Constants.EVT_APP_SELECT_LANG;
 
 import android.content.Context;
@@ -71,16 +70,7 @@ public class DisplayListFragment extends Fragment {
         ArrayList<String> itemList = params.itemList;
         int list_type = params.listType;
 
-        if ((itemList == null || itemList.isEmpty()) && (list_type == DISPLAY_LIST_LANGUAGE)) {
-            PaymentUtils.evtSelectedItem(EVT_APP_SELECT_LANG, DISPLAY_LIST_NO_ITEM_SELECTED,
-                    (event, params1) -> {
-                        switch (event) {
-                            case FAILED:
-                            case SUCCESS:
-                                break;
-                        }
-                    });
-        } else if (itemList != null) {
+        if (itemList != null) {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.list_item, R.id.text_item, itemList);
             Log.e(TAG, String.format("Item: %d", itemList.size()));
             for (String item : itemList) {

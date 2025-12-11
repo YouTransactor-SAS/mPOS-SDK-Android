@@ -158,6 +158,12 @@ public class OnlinePinTestActivity extends TransactionViewBase {
         startBtn.setOnClickListener(v -> startTest());
         runOnUiThread(() -> startBtn.setText(R.string.start));
     }
+
+    @Override
+    protected void onStop() {
+        stopTest();
+        super.onStop();
+    }
 }
 
 

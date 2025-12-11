@@ -25,11 +25,6 @@ public class BypassSelectLanguageStep implements SelectLanguageStep {
     @Override
     public void execute(EventCommand eventCmd) {
         PaymentUtils.evtSelectedItem(EVT_APP_SELECT_LANG, DISPLAY_LIST_NO_ITEM_SELECTED,
-                (event, params) -> {
-                    switch (event) {
-                        case FAILED, SUCCESS:
-                            break;
-                    }
-                });
+                (event, params1) -> {});
     }
 }
