@@ -87,10 +87,19 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                         clessAIDDsc.dol.add_tlv(new TLV(
                                 "9F06", "A0000000651010", "B_"));
                     }
+                    TLV df00Tag = null;
                     // Terminal Contactless Transaction Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF00")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DF00", "000000020000", "B_"));
+                                "DF00", "000099999900", "B_"));
+                    }else{
+                        // mirror DF03 and DF00
+                        df00Tag = clessAIDDsc.dol.get_tlv_from_tag("DF00");
+                        if(df00Tag != null) {
+                            clessAIDDsc.dol.add_tlv(new TLV(
+                                    "DF03", df00Tag.getVal(),
+                                    "B_"));
+                        }
                     }
                     // Terminal CVM Required Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF01")) {
@@ -100,7 +109,7 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                     // On-Device CVM Contactless Transaction Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF03")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
-                                "DF03", "000000025000", "B_"));
+                                "DF03", "000099999900", "B_"));
                     }
                     // Kernel ID
                     if (!clessAIDDsc.dol.is_tlv_present("DF810C")) {
