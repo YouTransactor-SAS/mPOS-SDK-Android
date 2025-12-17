@@ -1,6 +1,6 @@
 # JPS SDK - Android
 
-###### Release 1.3.8.28
+###### Release 1.3.8.29
 
 <p>
   <img src="https://user-images.githubusercontent.com/59020462/86530448-09bf9880-beb9-11ea-98f2-5ccc64ed6d6e.png">

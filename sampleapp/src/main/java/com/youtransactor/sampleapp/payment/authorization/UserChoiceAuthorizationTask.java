@@ -121,9 +121,10 @@ public class UserChoiceAuthorizationTask implements IAuthorizationTask {
                 dialog.dismiss();
                 end(AuthorizationOutcomes.values()[which]);
             });
-
+            builder.setCancelable(false);
             alertDialog = builder.create();
             alertDialog.show();
+            alertDialog.setCanceledOnTouchOutside(false);
         });
     }
 
