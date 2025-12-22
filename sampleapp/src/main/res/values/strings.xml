@@ -91,13 +91,13 @@
     <string name="send_log_success">Send Logs success</string>
 
     <!--connect message-->
-    <string name="connecting">Connecting ...</string>
+    <string name="connecting">Connecting …</string>
     <string name="connect_failed">Connect failed Msg : %1$s Code : %2$d</string>
     <string name="connect_success">Connect success</string>
     <string name="connection_cancelled">Connection cancelled</string>
 
     <!-- disconnect message-->
-    <string name="disconnecting">Disconnecting ...</string>
+    <string name="disconnecting">Disconnecting …</string>
     <string name="disconnect_failed">Disconnect failed</string>
     <string name="disconnect_success">Disconnect success</string>
 
@@ -141,12 +141,10 @@
     <string name="nfc_not_supported">NFC NOT SUPPORTED</string>
 
     <!--Payment -->
-    <string name="card_wait_timeout">Card wait timeout</string>
+    <string name="card_wait_timeout">Card wait timeout (s)</string>
     <string name= "pos_entry_mode"> POS Entry Mode</string>
     <string name= "dukpt_key_slot"> DUKPT Key Slot (1..20)</string>
 
-    <string name="_30">30</string>
-    <string name="s">(s)</string>
     <string name="date">Date</string>
     <string name="type">Type</string>
     <string name="enter_amount_on_ucube">Enter amount on uCube</string>
@@ -158,7 +156,7 @@
     <string name="chip">Chip</string>
     <string name="nfc">NFC</string>
     <string name="force_online_pin">Force online PIN</string>
-    <string name="online_pin_block_format">Online PIN block format supported: </string>
+    <string name="online_pin_block_format">Online PIN block format</string>
     <string name="start_payment">Pay</string>
     <string name="_00_00">00.00</string>
     <string name="_1_00">1.00</string>
@@ -217,6 +215,7 @@
 
     <!-- GET INFO -->
     <string name="get_info">Get Info</string>
+    <string name="get_sp_id">Get SP ID</string>
     <string name="get_info_progress">Get Info (tag %s)</string>
     <string name="get_info_failed">Get Info Failed</string>
     <string name="terminal_serial_number">Terminal SN : </string>
@@ -258,7 +257,7 @@
     <string name="force_debug">Force debug</string>
     <string name="allow_pin_bypass">PIN bypass OK</string>
     <string name="_0">0</string>
-    <string name="start_cancel_after">start cancel after :</string>
+    <string name="start_cancel_after">start cancel after (ms)</string>
     <string name="ms">ms</string>
     <string name="_10">10</string>
     <string name="_200">200</string>
@@ -350,7 +349,7 @@
     <string name="set_rtc">set RTC</string>
     <string name="set_rtc_failed">set rtc failed</string>
     <string name="set_rtc_success">RTC set. Device will reboot.</string>
-    <string name="get_sys_log">Get Log Light</string>
+    <string name="get_light_log">Get Log Light</string>
     <string name="non_secure_fw_version">Non Secure FW version:</string>
     <string name="nsf_logs">NSF Logs</string>
     <string name="echo">ECHO</string>
@@ -395,7 +394,7 @@
 
     <string name="demo_amount">USD 0.00</string>
     <string name="wait_card_present_card">Tap or insert card</string>
-    <string name="wait_card_cancel">cancel</string>
+    <string name="wait_card_cancel">Cancel</string>
     <string name="wait_card_logo">Wait Card logo</string>
 
     <!-- Payement message -->
@@ -411,7 +410,7 @@
     <string name="SCR_CLESS_MSG_INCORRECT_PIN">Incorrect PIN</string>
     <string name="SCR_CLESS_MSG_INSERT_CARD">Tap or insert card to pay</string>
     <string name="SCR_CLESS_MSG_NOT_ACCEPTED">Not accepted</string>
-    <string name="SCR_CLESS_MSG_PIN_OK">PIN Ok</string>
+    <string name="SCR_CLESS_MSG_PIN_OK">PIN OK</string>
     <string name="SCR_CLESS_MSG_PLEASE_WAIT">Authorising</string>
     <string name="SCR_CLESS_MSG_PROCESSING_ERROR">Could not read card</string>
     <string name="SCR_CLESS_MSG_REMOVE_CARD">Remove card</string>
@@ -421,7 +420,7 @@
     <string name="SCR_CLESS_MSG_WELCOME">Welcome</string>
     <string name="SCR_CLESS_MSG_PRESENT_CARD">Tap or insert card to pay</string>
     <string name="SCR_CLESS_MSG_PROCESSING">Authorising</string>
-    <string name="SCR_CLESS_MSG_CARD_READ_OK">Card read Ok</string>
+    <string name="SCR_CLESS_MSG_CARD_READ_OK">Card read OK</string>
     <string name="SCR_CLESS_MSG_INSERT_OR_SWIPE_CARD">Tap or insert card to pay</string>
     <string name="SCR_CLESS_MSG_PRESENT_ONLY_ONE_CARD">Present one card only</string>
     <string name="SCR_CLESS_MSG_APPROVED_SIGN">Approved Please sign</string>
@@ -488,5 +487,11 @@
 
     <string name="lbl_fail_on_version_downgrade">Fail update on version downgrade</string>
     <string name="lbl_fail_on_same_version">Fail update on with same version</string>
+    <string name="payment_tip">Tip</string>
+    <string name="emv_param_override">EMV Param override</string>
+    <string name="sdse_mode">SDSE_mode</string>
+    <string name="payment_loop">Payment Loop</string>
+    <string name="payment_tab_title">Payment</string>
+    <string name="payment_settings_tab_title">Settings</string>
 
 </resources>

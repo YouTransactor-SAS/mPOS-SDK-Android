@@ -49,7 +49,6 @@
             android:layout_gravity="center"
             android:text="@string/set_locale" />
 
-
         <Button
             android:id="@+id/displayBtn"
             android:layout_width="0dp"
@@ -57,6 +56,14 @@
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/display" />
+
+        <Button
+            android:id="@+id/getInfoBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/get_info" />
     </LinearLayout>
 
     <LinearLayout
@@ -66,12 +73,12 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/getInfoBtn"
+            android:id="@+id/getInfoSPIdBtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/get_info" />
+            android:text="@string/get_sp_id" />
 
         <Button
             android:id="@+id/get_terminal_state"
@@ -247,12 +254,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
-            android:id="@+id/get_sys_log"
+            android:id="@+id/get_light_log"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/get_sys_log" />
+            android:text="@string/get_light_log" />
     </LinearLayout>
 
 </LinearLayout>

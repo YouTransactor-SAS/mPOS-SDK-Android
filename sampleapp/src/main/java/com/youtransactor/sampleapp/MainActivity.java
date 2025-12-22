@@ -50,8 +50,10 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_FIRMWARE_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_FULL_SVPP_IDENTIFICATION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_GPI_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_INTEGRITY_CHECK_TIME;
+import static com.youTransactor.uCube.rpc.Constants.TAG_KSL_ID;
 import static com.youTransactor.uCube.rpc.Constants.TAG_MPOS_MODULE_STATE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_NFC_INFOS;
+import static com.youTransactor.uCube.rpc.Constants.TAG_OPTION_BYTE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_OS_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_CHECKSUM;
 import static com.youTransactor.uCube.rpc.Constants.TAG_PCI_PED_VERSION;
@@ -454,10 +456,11 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         Button displayBtn = findViewById(R.id.displayBtn);
         displayBtn.setOnClickListener(v -> displayHelloWorld());
         findViewById(R.id.getInfoBtn).setOnClickListener(v -> getInfo());
+        findViewById(R.id.getInfoSPIdBtn).setOnClickListener(v -> getSPId());
         Button echoBtn = findViewById(R.id.echo_btn);
-        findViewById(R.id.get_sys_log).setOnClickListener(v -> getLogLight());
+        findViewById(R.id.get_light_log).setOnClickListener(v -> getLogLight());
         // comment to test log light retrieval in the sample app
-        findViewById(R.id.get_sys_log).setVisibility(GONE);
+        findViewById(R.id.get_light_log).setVisibility(GONE);
         echoBtn.setOnClickListener(v -> {
             final View customLayout = getLayoutInflater().inflate(R.layout.echo_msg_layout, null);
             final EditText echoData = customLayout.findViewById(R.id.echoDataFld);
@@ -1184,11 +1187,23 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
         sendGetInfocommand(uCubeInfoTagList);
         UIUtils.showProgress(this, getString(R.string.get_info), false);
     }
-
+    private void getSPId() {
+        final int[] spIdentificationTagList = {
+                TAG_OPTION_BYTE,
+                TAG_KSL_ID
+        };
+        sendGetInfocommand(spIdentificationTagList);
+        UIUtils.showProgress(this, getString(R.string.get_info), false);
+    }
     private void onDeviceInfoRetrieved(DeviceInfos deviceInfos) {
         runOnUiThread(() -> {
+            // ignore tlv field which is an input of the get info
+            // and has no interest
+            ArrayList<String> ignoreFieldLst = new ArrayList<>();
+            ignoreFieldLst.add("tlv");
             FragmentManager fm = MainActivity.this.getSupportFragmentManager();
-            GetInfoDialog Dialog = new GetInfoDialog(deviceInfos, ytProduct);
+            GetInfoDialog Dialog = new GetInfoDialog(deviceInfos,
+                    ytProduct, ignoreFieldLst);
             Dialog.show(fm, "GET_INFO");
             UIUtils.hideProgressDialog();
         });
@@ -1443,7 +1458,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                     if (deviceInfos.getTerminalState() == null) // data are null in secured mode because the response is ciphered
                         Toast.makeText(this, "Terminal State: SECURED", Toast.LENGTH_LONG).show();
                     else
-                        Toast.makeText(this, "Terminal State: " + deviceInfos.getTerminalState().label, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Terminal State: " + deviceInfos.getTerminalState(), Toast.LENGTH_LONG).show();
                     break;
             }
         }));

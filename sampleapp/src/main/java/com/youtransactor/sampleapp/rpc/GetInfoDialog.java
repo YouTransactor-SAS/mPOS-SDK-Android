@@ -13,22 +13,33 @@ import androidx.fragment.app.DialogFragment;
 
 import com.youTransactor.uCube.Tools;
 import com.youTransactor.uCube.rpc.DeviceInfos;
+import com.youTransactor.uCube.rpc.TerminalState;
 import com.youtransactor.sampleapp.R;
 import com.youtransactor.sampleapp.YTProduct;
 
 import java.lang.reflect.Field;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GetInfoDialog extends DialogFragment {
     private final DeviceInfos deviceInfos;
     private final YTProduct ytProduct;
+    private final ArrayList<String> attributeToIgnoreLst;
 
     public GetInfoDialog(DeviceInfos deviceInfos, YTProduct ytProduct) {
         this.deviceInfos = deviceInfos;
         this.ytProduct = ytProduct;
+        this.attributeToIgnoreLst = new ArrayList<>();
     }
 
+    public GetInfoDialog(DeviceInfos deviceInfos,
+                         YTProduct ytProduct,
+                         ArrayList<String> attributeToIgnoreLst) {
+        this.deviceInfos = deviceInfos;
+        this.ytProduct = ytProduct;
+        this.attributeToIgnoreLst = attributeToIgnoreLst;
+    }
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -68,7 +79,8 @@ public class GetInfoDialog extends DialogFragment {
                     (value instanceof List && ((List<?>) value).size() == 0) ||
                     (value instanceof String && value.equals("")) ||
                     (value instanceof Byte && (byte) value == -1) ||
-                    (value instanceof Integer && (int) value == -1)) {
+                    (value instanceof Integer && (int) value == -1) ||
+                    (this.attributeToIgnoreLst.contains(f.getName()))) {
                 continue;
             }
 
@@ -81,6 +93,8 @@ public class GetInfoDialog extends DialogFragment {
             } else if (value instanceof List) {
                 displayedValue = value.toString();
             } else if (value instanceof LocalTime) {
+                displayedValue = value.toString();
+            } else if (value instanceof TerminalState) {
                 displayedValue = value.toString();
             }
 

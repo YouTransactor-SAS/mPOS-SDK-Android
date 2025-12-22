@@ -38,6 +38,13 @@ public class CurrencyAdapter extends BaseAdapter {
 
 	private final List<Currency> currencyList = new ArrayList<>();
 
+    public CurrencyAdapter() {}
+
+    public CurrencyAdapter(Currency... currencies) {
+        Collections.addAll(currencyList, currencies);
+        Collections.sort(currencyList, new Currency.ByLabelComparator());
+    }
+
 	@Override
 	public int getCount() {
 		return currencyList.size();
@@ -52,6 +59,10 @@ public class CurrencyAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
+
+    public int getItemPosition(Currency item) {
+        return currencyList.indexOf(item);
+    }
 
 	public void add(Currency currency) {
 		currencyList.add(currency);

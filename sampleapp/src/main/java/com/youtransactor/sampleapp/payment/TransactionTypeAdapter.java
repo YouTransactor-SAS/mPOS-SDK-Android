@@ -22,43 +22,26 @@
  */
 package com.youtransactor.sampleapp.payment;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.youTransactor.uCube.rpc.TransactionType;
 
+public class TransactionTypeAdapter extends ArrayAdapter<TransactionType> {
 
-public class TransactionTypeAdapter extends BaseAdapter {
-
-	private final TransactionType[] typeList = TransactionType.values();
-
-	@Override
-	public int getCount() {
-		return typeList.length;
-	}
-
-	@Override
-	public Object getItem(int position) {
-		return typeList[position];
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    public TransactionTypeAdapter(Context context) {
+        super(context, android.R.layout.simple_spinner_item, TransactionType.values());
+    }
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = new TextView(parent.getContext());
-			convertView.setPadding(20, 20, 20, 20);
-		}
-
-		((TextView) convertView).setText(typeList[position].getLabel());
-
+        if (convertView == null) {
+            convertView = super.getView(position, convertView, parent);
+        }
+		((TextView) convertView).setText(getItem(position).getLabel());
 		return convertView;
 	}
-
 }

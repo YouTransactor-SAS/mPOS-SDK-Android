@@ -30,7 +30,6 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICA
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F20_CARDHOLDER_NAME;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
-import static com.youTransactor.uCube.rpc.Constants.TAG_EMV_TEMPLATE_73;
 
 import android.app.Activity;
 import android.content.Context;
@@ -55,6 +54,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.jps.secureService.api.entity.ViewIdentifier;
 import com.jps.secureService.api.product_manager.ProductIdentifier;
@@ -105,7 +108,6 @@ public class PaymentFragment extends Fragment {
     private SharedPreferences prefs;
     private Button doPaymentBtn;
     private Button cancelPaymentBtn;
-    private Button getLogsL1, getStatusBtn;
     private EditText cardWaitTimeoutFld;
     private EditText posEntryModeFld;
     private EditText dukpt_key_slotFld;
@@ -132,21 +134,19 @@ public class PaymentFragment extends Fragment {
 
     private TextView trxResultFld;
     private EditText startCancelDelayEditText;
-    private Button uPresentCard;
-    private Button uEnterPin;
-    private Button crEnterPin;
     private Spinner sdse_mode_spinner;
     private LinearLayout measurementSection;
+    private View cashBackSection;
     private PaymentState autoCancelState;
     private int startCancelDelay;
     private PaymentState autoDisconnectState;
     private boolean testModeEnabled = false;
     private boolean measureModeEnabled;
     private PaymentService paymentService;
-
     private PaymentMeasure paymentMeasure;
-
+    private final PaymentSettings paymentSettings = new PaymentSettings();
     private final Activity underlyingActivity;
+    private int lastTabSelection = -1;
 
     public PaymentFragment(Activity underlyingActivity) {
         this.underlyingActivity = underlyingActivity;
@@ -167,14 +167,9 @@ public class PaymentFragment extends Fragment {
         }
     }
 
-    private static pay_sdse_mode sdse_mode = pay_sdse_mode.VOLTAGE;
-    private boolean forceDebug;
-    private boolean isPinBypassAllowed = false;
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         prefs = underlyingActivity.getSharedPreferences(SetupActivity.SETUP_SHARED_PREF_NAME, Context.MODE_PRIVATE);
         testModeEnabled = prefs.getBoolean(SetupActivity.TEST_MODE_PREF_NAME, false);
         measureModeEnabled = prefs.getBoolean(SetupActivity.MEASURES_MODE_PREF_NAME, false);
@@ -183,91 +178,81 @@ public class PaymentFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_payment, container, false);
-
-        initView(view);
+        initTabLayout(view);
         return view;
     }
 
-    private void initView(final View view) {
+    private void initTabLayout(final View view) {
+        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
+        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
 
+        PaymentTabAdapter adapter = new PaymentTabAdapter(this);
+        viewPager.setAdapter(adapter);
+
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) {
+                tab.setText(R.string.payment_tab_title);
+            } else {
+                tab.setText(R.string.payment_settings_tab_title);
+            }
+        }).attach();
+
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (lastTabSelection == 1) {
+                    updatePaymentSettingsFromViews();
+                }
+                lastTabSelection = position;
+            }
+        });
+    }
+
+    public void initPaymentTabViews(final View view) {
         view.findViewById(R.id.test_section).setVisibility(testModeEnabled ? View.VISIBLE : View.GONE);
         view.findViewById(R.id.measures_section).setVisibility(measureModeEnabled ? View.VISIBLE : View.GONE);
 
         doPaymentBtn =  view.findViewById(R.id.doPaymentBtn);
         cancelPaymentBtn =  view.findViewById(R.id.cancelPaymentBtn);
-        cardWaitTimeoutFld =  view.findViewById(R.id.cardWaitTimeoutFld);
-        posEntryModeFld =  view.findViewById(R.id.posEntryModeFld);
-        dukpt_key_slotFld =  view.findViewById(R.id.dukpt_slotFld);
-
-        trxTypeChoice =  view.findViewById(R.id.trxTypeChoice);
-        onlinePinBlockFormatChoice =  view.findViewById(R.id.onlinePinBlockFormatChoice);
-        onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
-                underlyingActivity,
-                android.R.layout.simple_spinner_item,
-                OnlinePinBlockFormatType.values()
-        ));
         amountFld =  view.findViewById(R.id.amountFld);
         cashbackAmountFld =  view.findViewById(R.id.cashbackAmountFld);
         currencyChooser =  view.findViewById(R.id.currencyChooser);
-        forceOnlinePINBtn =  view.findViewById(R.id.forceOnlinePINSwitch);
-        amountSrcSwitch =  view.findViewById(R.id.amountSrcSwitch);
         contactItf =  view.findViewById(R.id.contact_itf);
         nfcItf =  view.findViewById(R.id.nfc_itf);
         msrItf =  view.findViewById(R.id.msr_itf);
-        forceAuthorisationBtn =  view.findViewById(R.id.forceAuthorisationSwitch);
-        keepSecureSessionBtn =  view.findViewById(R.id.keepSecureSessionSwitch);
-        forceDebugSwitch =  view.findViewById(R.id.forceDebugSwitch);
-        allowPinBypassSwitch =  view.findViewById(R.id.allowPinBypassSwitch);
+        tipSwitch =  view.findViewById(R.id.tipSwitch);
         trxResultFld =  view.findViewById(R.id.trxResultFld);
         startCancelDelayEditText =  view.findViewById(R.id.start_cancel_delay);
-        skipCardRemovalSwitch =  view.findViewById(R.id.skipCardRemovalSwitch);
-        skipStartingStepsSwitch =  view.findViewById(R.id.skipStartingStepsSwitch);
-        retrieveF5TagSwitch =  view.findViewById(R.id.retrieveF5Tag);
-        tipSwitch =  view.findViewById(R.id.tipSwitch);
-        paymentLoopSwitch =  view.findViewById(R.id.paymentLoopSwitch);
-        trxTypeChoice.setAdapter(new TransactionTypeAdapter());
-        getLogsL1 =  view.findViewById(R.id.getSvppLogL1);
-        getStatusBtn =  view.findViewById(R.id.getStatusBtn);
-        uPresentCard =  view.findViewById(R.id.u_present_card);
-        uEnterPin =  view.findViewById(R.id.u_enter_pin);
-        crEnterPin =  view.findViewById(R.id.cr_enter_pin);
         measurementSection =  view.findViewById(R.id.measurement_section);
-        sdse_mode_spinner =  view.findViewById(R.id.sdse_mode_spinner);
-        sdse_mode_spinner.setAdapter(new ArrayAdapter<>(
-                underlyingActivity,
-                android.R.layout.simple_spinner_item,
-                pay_sdse_mode.values()
-        ));
-        sdse_mode_spinner.setSelection(2);
-        emvParamOverride =  view.findViewById(R.id.emvParameterOverride);
-        sdse_mode_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        trxTypeChoice =  view.findViewById(R.id.trxTypeChoice);
+        cashBackSection = view.findViewById(R.id.cashback_pane);
+
+        CurrencyAdapter currencyAdapter = new CurrencyAdapter(
+                UCubePaymentRequest.CURRENCY_EUR,
+                UCubePaymentRequest.CURRENCY_USD,
+                UCubePaymentRequest.CURRENCY_CAD,
+                UCubePaymentRequest.CURRENCY_GBP,
+                UCubePaymentRequest.CURRENCY_TWD);
+        currencyChooser.setAdapter(currencyAdapter);
+        currencyChooser.setSelection(currencyAdapter.getItemPosition(UCubePaymentRequest.CURRENCY_USD));
+
+        trxTypeChoice.setAdapter(new TransactionTypeAdapter(underlyingActivity));
+        trxTypeChoice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                prefs.edit().putInt(SDSE_MODE_PREF_NAME, ((pay_sdse_mode) sdse_mode_spinner.getSelectedItem()).getCode()).apply();
-                sdse_mode = (pay_sdse_mode) sdse_mode_spinner.getSelectedItem();
+                TransactionType trxType = (TransactionType) trxTypeChoice.getSelectedItem();
+                cashBackSection.setVisibility(trxType == TransactionType.PURCHASE_CASHBACK ? View.VISIBLE : View.GONE);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+                /* never occur */
             }
         });
-        final CurrencyAdapter currencyAdapter = new CurrencyAdapter();
-        currencyAdapter.add(UCubePaymentRequest.CURRENCY_EUR);
-        currencyAdapter.add(UCubePaymentRequest.CURRENCY_USD);
-        currencyAdapter.add(UCubePaymentRequest.CURRENCY_CAD);
-        currencyAdapter.add(UCubePaymentRequest.CURRENCY_GBP);
-        currencyAdapter.add(UCubePaymentRequest.CURRENCY_TWD);
-
-        currencyChooser.setAdapter(currencyAdapter);
-        currencyChooser.setSelection(0);
-
-        amountSrcSwitch.setOnClickListener(v -> amountFld.setEnabled(!amountSrcSwitch.isChecked()));
 
         doPaymentBtn.setOnClickListener(v -> startPayment());
-
         cancelPaymentBtn.setOnClickListener(v -> cancelPayment(true));
         cancelPaymentBtn.setVisibility(View.GONE);
-
 
         final Spinner cancelEventSwitch = view.findViewById(R.id.cancelEventSwitch);
         cancelEventSwitch.setAdapter(new PaymentStateAdapter());
@@ -297,18 +282,92 @@ public class PaymentFragment extends Fragment {
             }
         });
 
-        getLogsL1.setOnClickListener(v -> getCBTag());
-        getStatusBtn.setOnClickListener(v -> getStatus());
+        view.findViewById(R.id.getSvppLogL1).setOnClickListener(v -> getCBTag());
+        view.findViewById(R.id.getStatusBtn).setOnClickListener(v -> getStatus());
+        view.findViewById(R.id.u_present_card).setOnClickListener(v -> {
+            if (paymentMeasure != null) paymentMeasure.onUserPresentCard();
+        });
+        view.findViewById(R.id.u_enter_pin).setOnClickListener(v -> {
+            if (paymentMeasure != null) paymentMeasure.onUEnterPin();
+        });
+        view.findViewById(R.id.cr_enter_pin).setOnClickListener(v -> {
+            if (paymentMeasure != null) paymentMeasure.onCREnterPin();
+        });
+    }
 
-        uPresentCard.setOnClickListener(v -> paymentMeasure.onUserPresentCard());
-        uEnterPin.setOnClickListener(v -> paymentMeasure.onUEnterPin());
-        crEnterPin.setOnClickListener(v -> paymentMeasure.onCREnterPin());
+    public void initSettingsTabViews(final View view) {
+        cardWaitTimeoutFld =  view.findViewById(R.id.cardWaitTimeoutFld);
+        cardWaitTimeoutFld.setText(String.valueOf(paymentSettings.cardWaitTimeout));
+        posEntryModeFld =  view.findViewById(R.id.posEntryModeFld);
+        dukpt_key_slotFld =  view.findViewById(R.id.dukpt_slotFld);
+        onlinePinBlockFormatChoice =  view.findViewById(R.id.onlinePinBlockFormatChoice);
+        forceOnlinePINBtn =  view.findViewById(R.id.forceOnlinePINSwitch);
+        amountSrcSwitch =  view.findViewById(R.id.amountSrcSwitch);
+        forceAuthorisationBtn =  view.findViewById(R.id.forceAuthorisationSwitch);
+        keepSecureSessionBtn =  view.findViewById(R.id.keepSecureSessionSwitch);
+        forceDebugSwitch =  view.findViewById(R.id.forceDebugSwitch);
+        allowPinBypassSwitch =  view.findViewById(R.id.allowPinBypassSwitch);
+        skipCardRemovalSwitch =  view.findViewById(R.id.skipCardRemovalSwitch);
+        skipStartingStepsSwitch =  view.findViewById(R.id.skipStartingStepsSwitch);
+        retrieveF5TagSwitch =  view.findViewById(R.id.retrieveF5Tag);
+        paymentLoopSwitch =  view.findViewById(R.id.paymentLoopSwitch);
+        emvParamOverride =  view.findViewById(R.id.emvParameterOverride);
+        sdse_mode_spinner =  view.findViewById(R.id.sdse_mode_spinner);
+
+        onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
+                underlyingActivity,
+                android.R.layout.simple_spinner_item,
+                OnlinePinBlockFormatType.values()
+        ));
+
+        sdse_mode_spinner.setAdapter(new ArrayAdapter<>(
+                underlyingActivity,
+                android.R.layout.simple_spinner_item,
+                pay_sdse_mode.values()
+        ));
+        sdse_mode_spinner.setSelection(2);
+
+        sdse_mode_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                paymentSettings.sdse_mode = (pay_sdse_mode) sdse_mode_spinner.getSelectedItem();
+                prefs.edit().putInt(SDSE_MODE_PREF_NAME, paymentSettings.sdse_mode.getCode()).apply();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
+        amountSrcSwitch.setOnClickListener(v -> {
+            if (amountFld != null) {
+                amountFld.setEnabled(!amountSrcSwitch.isChecked());
+            }
+        });
+    }
+
+    private void updatePaymentSettingsFromViews() {
+        paymentSettings.cardWaitTimeout = Integer.parseInt(cardWaitTimeoutFld.getText().toString());
+        paymentSettings.keepSecureSession = keepSecureSessionBtn.isChecked();
+        paymentSettings.forceAuthorisation = forceAuthorisationBtn.isChecked();
+        paymentSettings.forceOnlinePin = forceOnlinePINBtn.isChecked(); // only for NFC & MSR
+        paymentSettings.onlinePinBlockFormat = (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem();
+        paymentSettings.forceDebug = forceDebugSwitch.isChecked();
+        paymentSettings.isPinBypassAllowed = allowPinBypassSwitch.isChecked();
+        paymentSettings.retrieveF5Tag = retrieveF5TagSwitch.isChecked();
+        paymentSettings.skipCardRemoval = skipCardRemovalSwitch.isChecked();
+        paymentSettings.skipStartingSteps = skipStartingStepsSwitch.isChecked();
+        paymentSettings.loopMode = paymentLoopSwitch.isChecked();
+        paymentSettings.overrideParameter = emvParamOverride.isChecked();
+        paymentSettings.posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
+        paymentSettings.dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
     }
 
     private void startPayment() {
         doPaymentBtn.setVisibility(View.GONE);
         cancelPaymentBtn.setVisibility(View.VISIBLE);
-        measurementSection.setVisibility(View.GONE);
+        if (measurementSection != null) {
+            measurementSection.setVisibility(View.GONE);
+        }
         trxResultFld.setText("");
 
         pay();
@@ -319,101 +378,77 @@ public class PaymentFragment extends Fragment {
     }
 
     private UCubePaymentRequest preparePaymentRequest() {
-        int timeout = Integer.parseInt(cardWaitTimeoutFld.getText().toString());
-
         Currency currency = (Currency) currencyChooser.getSelectedItem();
-
         TransactionType trxType = (TransactionType) trxTypeChoice.getSelectedItem();
-
-        boolean forceOnlinePin = forceOnlinePINBtn.isChecked(); // only for NFC & MSR
-
-        OnlinePinBlockFormatType onlinePinBlockFormat = (OnlinePinBlockFormatType) onlinePinBlockFormatChoice.getSelectedItem();
-
-        boolean forceAuthorisation = forceAuthorisationBtn.isChecked();
-        if (ProductManager.id == ProductIdentifier.stick) {
-            forceAuthorisation = false;
+        List<CardReaderType> readerList = new ArrayList<>();
+        if (nfcItf.isChecked()) {
+            readerList.add(CardReaderType.NFC);
         }
-        forceDebug = forceDebugSwitch.isChecked();
-        isPinBypassAllowed = allowPinBypassSwitch.isChecked();
-        boolean keepSecureSession = keepSecureSessionBtn.isChecked();
-
-        boolean skipCardRemoval = skipCardRemovalSwitch.isChecked();
-
-        boolean skipStartingSteps = skipStartingStepsSwitch.isChecked();
-
+        if (contactItf.isChecked()) {
+            readerList.add(CardReaderType.ICC);
+        }
+        if (msrItf.isChecked()) {
+            readerList.add(CardReaderType.MSR);
+        }
         boolean tipRequired = tipSwitch.isChecked();
-        boolean msrIsActivate = msrItf.isChecked();
-        boolean nfcIsActivate = nfcItf.isChecked();
-        boolean contactIsActivate = contactItf.isChecked();
-        boolean retrieveF5Tag = retrieveF5TagSwitch.isChecked();
-        boolean overrideParameter;
-        if(emvParamOverride.isChecked()){
-            overrideParameter = true;
-            byte[] dynamicParam =
-                    PaymentTagOverrideFactory.getClessCVMReqLimit(
+
+        // ugly workaround to prevent use of this option on stick
+        // TO BE REMOVED WHEN POSSIBLE
+        if (ProductManager.id == ProductIdentifier.stick) {
+            paymentSettings.forceAuthorisation = false;
+        }
+
+        if (paymentSettings.overrideParameter) {
+            byte[] dynamicParam = PaymentTagOverrideFactory.getClessCVMReqLimit(
                             new byte[] {0x00, 0x00, 0x00, 0x00, 0x30, 0x00});
             PaymentUtils.setEmvClessDynamicParam(dynamicParam);
-        }else{
-            overrideParameter = false;
+        } else {
             PaymentUtils.setEmvClessDynamicParam(new byte[] {});
         }
 
         long amount = amountFld.getCleanIntValue();
-        boolean loopMode = paymentLoopSwitch.isChecked();
-        Log.d(TAG, "Amount : " + amount);
-        int cashbackAmount = Math.toIntExact(cashbackAmountFld.getCleanIntValue());
-        Log.d(TAG, "Cashback Amount : " + cashbackAmount);
-
-        List<CardReaderType> readerList = new ArrayList<>();
-
-        if (nfcIsActivate) {
-            readerList.add(CardReaderType.NFC);
+        int cashbackAmount = 0;
+        if (cashbackAmountFld.getVisibility() == View.VISIBLE) {
+            cashbackAmount = Math.toIntExact(cashbackAmountFld.getCleanIntValue());
         }
-        if (contactIsActivate) {
-            readerList.add(CardReaderType.ICC);
-        }
-        if (msrIsActivate) {
-            readerList.add(CardReaderType.MSR);
-        }
-
         IAuthorizationTask authorizationTask;
-        if (loopMode) {
+        if (paymentSettings.loopMode) {
             authorizationTask = new BypassAuthorizationTask();
         } else {
             authorizationTask = new UserChoiceAuthorizationTask(this.getActivityOnWhichAuthorizationPopupWillBeDisplayed());
             ((UserChoiceAuthorizationTask) authorizationTask).setMeasureStatesListener(paymentMeasure);
         }
 
-        int posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
-        int dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
         UCubePaymentRequest uCubePaymentRequest = new UCubePaymentRequest(amount, currency, trxType,
                 readerList, authorizationTask, Collections.singletonList("en"));
 
         //Add optional variables
         uCubePaymentRequest
-                .setForceOnlinePin(forceOnlinePin)
                 .setTransactionDate(new Date())
-                .setForceAuthorisation(forceAuthorisation)
-                .setKeepSecureSession(keepSecureSession)
-                .setOnlinePinBlockFormat(onlinePinBlockFormat)
+                .setForceOnlinePin(paymentSettings.forceOnlinePin)
+                .setForceAuthorisation(paymentSettings.forceAuthorisation)
+                .setKeepSecureSession(paymentSettings.keepSecureSession)
+                .setOnlinePinBlockFormat(paymentSettings.onlinePinBlockFormat)
+                .setCardWaitTimeout(paymentSettings.cardWaitTimeout)
+                .setForceDebug(paymentSettings.forceDebug)
+                .setSkipCardRemoval(paymentSettings.skipCardRemoval)
+                .setSkipStartingSteps(paymentSettings.skipStartingSteps)
+                .setRetrieveF5Tag(paymentSettings.retrieveF5Tag)
+                .setTipRequired(tipRequired)
+                .setPinBypassAuthorisation(paymentSettings.isPinBypassAllowed)
                 // .setRiskManagementTask(new RiskManagementTask(
                 //                               this.underlyingActivity))
                 //.setBeforeContactlessOnlinePinTask(new BeforeContactlessOnlinePinTaskExample(BeforeContactlessOnlinePinTaskExample.TaskAction.SUCCESS))
+
                 .setContactlessEndReadingTask(new ContactlessEndReadingTaskExample(ContactlessEndReadingTaskExample.TaskAction.SUCCESS))
-                .setCardWaitTimeout(timeout)
-                .setForceDebug(forceDebug)
-                .setSkipCardRemoval(skipCardRemoval)
-                .setSkipStartingSteps(skipStartingSteps)
-                .setRetrieveF5Tag(retrieveF5Tag)
                 .setTipRequired(tipRequired)
                 .setPinRequestLabel("Pin ?")
-                .setPinBypassAuthorisation(isPinBypassAllowed)
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)
-                .setDataEncryptionMechanism(sdse_mode.getCode())
+                .setDataEncryptionMechanism(paymentSettings.sdse_mode.getCode())
                 .withViewDelegate(ViewIdentifier.PIN_PROMPT)
-                .setPosEntryMode(posEntryMode)
-                .setDukptSlotKey(dukpt_key_slot)
+                .setPosEntryMode(paymentSettings.posEntryMode)
+                .setDukptSlotKey(paymentSettings.dukpt_key_slot)
                 .setUpdateTlvTask(new UpdateTlvTask())
                 .setCashbackAmount(cashbackAmount)
                 //CLIENT TAGs
@@ -449,8 +484,7 @@ public class PaymentFragment extends Fragment {
                         TAG_SECURE_56_TRACK_1_DATA,
                         TAG_SECURE_9F6B_TRACK_2_DATA
                 )
-                .setOverrideParameter(overrideParameter);
-        ;
+                .setOverrideParameter(paymentSettings.overrideParameter);
 
         return uCubePaymentRequest;
     }
@@ -465,7 +499,7 @@ public class PaymentFragment extends Fragment {
     }
 
     public boolean isLoopMode() {
-        return paymentLoopSwitch.isChecked();
+        return paymentSettings.loopMode;
     }
 
     private void parsePaymentResponse(@NonNull PaymentContext context) {
@@ -661,13 +695,13 @@ public class PaymentFragment extends Fragment {
                                         displayMeasures(context);
                                     }
 
-                                    if (forceDebug & (context.tagF4 == null || context.tagF4.length <= 21)) {
+                                    if (paymentSettings.forceDebug & (context.tagF4 == null || context.tagF4.length <= 21)) {
                                         underlyingActivity.runOnUiThread(() -> UIUtils.showMessageDialog(underlyingActivity, getString(R.string.F4_tag_is_empty)));
                                     }
 
                                     parsePaymentResponse(context);
 
-                                    boolean triggerNewPayment = paymentLoopSwitch.isChecked() && context.paymentStatus == PaymentStatus.APPROVED;
+                                    boolean triggerNewPayment = paymentSettings.loopMode && context.paymentStatus == PaymentStatus.APPROVED;
                                     if (triggerNewPayment) {
                                         startPayment();
                                     } else {
@@ -681,8 +715,7 @@ public class PaymentFragment extends Fragment {
                         });
 
             } catch (Exception e) {
-                e.printStackTrace();
-
+                Log.w(TAG, "Payment error", e);
                 underlyingActivity.runOnUiThread(() -> {
                     doPaymentBtn.setVisibility(View.VISIBLE);
                     cancelPaymentBtn.setVisibility(View.GONE);
