@@ -340,13 +340,6 @@
                     android:layout_gravity="center_vertical" />
             </LinearLayout>
 
-            <Switch
-                android:id="@+id/tipSwitch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin"
-                android:text="@string/payment_tip" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="80dp"

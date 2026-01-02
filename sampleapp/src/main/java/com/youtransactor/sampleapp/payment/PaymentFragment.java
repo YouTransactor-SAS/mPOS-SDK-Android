@@ -221,7 +221,6 @@ public class PaymentFragment extends Fragment {
         contactItf =  view.findViewById(R.id.contact_itf);
         nfcItf =  view.findViewById(R.id.nfc_itf);
         msrItf =  view.findViewById(R.id.msr_itf);
-        tipSwitch =  view.findViewById(R.id.tipSwitch);
         trxResultFld =  view.findViewById(R.id.trxResultFld);
         startCancelDelayEditText =  view.findViewById(R.id.start_cancel_delay);
         measurementSection =  view.findViewById(R.id.measurement_section);
@@ -313,13 +312,17 @@ public class PaymentFragment extends Fragment {
         paymentLoopSwitch =  view.findViewById(R.id.paymentLoopSwitch);
         emvParamOverride =  view.findViewById(R.id.emvParameterOverride);
         sdse_mode_spinner =  view.findViewById(R.id.sdse_mode_spinner);
-
+        tipSwitch =  view.findViewById(R.id.tipSwitch);
+        if((ProductManager.id == ProductIdentifier.blade) ||
+                (ProductManager.id == ProductIdentifier.stick)) {
+            tipSwitch.setClickable(false);
+        }
         onlinePinBlockFormatChoice.setAdapter(new ArrayAdapter<>(
                 underlyingActivity,
                 android.R.layout.simple_spinner_item,
                 OnlinePinBlockFormatType.values()
         ));
-
+        onlinePinBlockFormatChoice.setSelection(0);
         sdse_mode_spinner.setAdapter(new ArrayAdapter<>(
                 underlyingActivity,
                 android.R.layout.simple_spinner_item,
@@ -360,6 +363,8 @@ public class PaymentFragment extends Fragment {
         paymentSettings.overrideParameter = emvParamOverride.isChecked();
         paymentSettings.posEntryMode = Integer.parseInt(posEntryModeFld.getText().toString());
         paymentSettings.dukpt_key_slot = Integer.parseInt(dukpt_key_slotFld.getText().toString());
+        paymentSettings.tipRequired = tipSwitch.isChecked();
+
     }
 
     private void startPayment() {
@@ -390,7 +395,6 @@ public class PaymentFragment extends Fragment {
         if (msrItf.isChecked()) {
             readerList.add(CardReaderType.MSR);
         }
-        boolean tipRequired = tipSwitch.isChecked();
 
         // ugly workaround to prevent use of this option on stick
         // TO BE REMOVED WHEN POSSIBLE
@@ -434,14 +438,14 @@ public class PaymentFragment extends Fragment {
                 .setSkipCardRemoval(paymentSettings.skipCardRemoval)
                 .setSkipStartingSteps(paymentSettings.skipStartingSteps)
                 .setRetrieveF5Tag(paymentSettings.retrieveF5Tag)
-                .setTipRequired(tipRequired)
+                .setTipRequired(paymentSettings.tipRequired)
                 .setPinBypassAuthorisation(paymentSettings.isPinBypassAllowed)
                 // .setRiskManagementTask(new RiskManagementTask(
                 //                               this.underlyingActivity))
                 //.setBeforeContactlessOnlinePinTask(new BeforeContactlessOnlinePinTaskExample(BeforeContactlessOnlinePinTaskExample.TaskAction.SUCCESS))
 
                 .setContactlessEndReadingTask(new ContactlessEndReadingTaskExample(ContactlessEndReadingTaskExample.TaskAction.SUCCESS))
-                .setTipRequired(tipRequired)
+                .setTipRequired(paymentSettings.tipRequired)
                 .setPinRequestLabel("Pin ?")
                 .setPinRequestLabelFont(1)
                 .setPinRequestLabelXPosition((byte) 0xFF)

@@ -35,5 +35,6 @@ public class PaymentSettings {
     public int dukpt_key_slot;
     boolean overrideParameter;
     boolean loopMode;
+    boolean tipRequired;
     PaymentFragment.pay_sdse_mode sdse_mode = PaymentFragment.pay_sdse_mode.VOLTAGE;
 }

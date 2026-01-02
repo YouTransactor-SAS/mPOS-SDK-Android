@@ -348,7 +348,7 @@
 
     <string name="set_rtc">set RTC</string>
     <string name="set_rtc_failed">set rtc failed</string>
-    <string name="set_rtc_success">RTC set. Device will reboot.</string>
+    <string name="set_rtc_success">set RTC success</string>
     <string name="get_light_log">Get Log Light</string>
     <string name="non_secure_fw_version">Non Secure FW version:</string>
     <string name="nsf_logs">NSF Logs</string>
@@ -359,7 +359,7 @@
     <string name="reboot_event">Reboot %s</string>
     <string name="reset_event">Reset %s</string>
     <string name="set_integrity_check_time">Set integrity check time</string>
-    <string name="set_integrity_check_time_success">Integrity check time set. Device will reboot</string>
+    <string name="set_integrity_check_time_success">Set integrity check time success</string>
     <string name="set_integrity_check_time_failed">Failed to set integrity check time</string>
 
 

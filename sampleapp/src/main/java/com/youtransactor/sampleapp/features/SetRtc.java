@@ -12,29 +12,35 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 public class SetRtc {
-    public enum FlowStatus {
-        SUCCESS_REBOOT_NEEDED,
-        FAILED,
-    }
+    public enum FlowStatus { SUCCESS, FAILED }
 
-    private final Disconnect disconnect;
+    private Consumer<FlowStatus> callback;
+    private Instant timeToSet;
+    private FlowStatus status;
 
+    public SetRtc() {}
+
+    @Deprecated(forRemoval = true)
     public SetRtc(final IConnexionManager connexionManager) {
-        this.disconnect = new Disconnect(connexionManager);
+        this();
     }
 
     public void execute(final Instant timeToSet, final Consumer<FlowStatus> callback) {
         Log.d(SetRtc.class.getSimpleName(), "Entering secure session");
-        final EnterSecureSessionCommand command = new EnterSecureSessionCommand();
+        this.timeToSet = timeToSet;
+        this.callback = callback;
+        enterSecureSession();
+    }
 
-        command.execute((event, unused) -> {
+    private void enterSecureSession() {
+        new EnterSecureSessionCommand().execute((event, unused) -> {
             Log.d(SetRtc.class.getSimpleName(), String.format("EnterSecureSessionCommand event: %s", event));
             switch (event) {
                 case PROGRESS:
                     return;
                 case FAILED:
                 case CANCELLED:
-                    Log.e(SetRtc.class.getSimpleName(), String.format("Enter Secure Session %s", event));
+                    Log.e(SetRtc.class.getSimpleName(), String.format("Enter Secure Session status: %s", event));
                     callback.accept(FlowStatus.FAILED);
                     break;
                 case SUCCESS:
@@ -46,25 +52,39 @@ public class SetRtc {
 
     private void setRtc(final Instant timeToSet, final Consumer<FlowStatus> callback) {
         Log.i(SetRtc.class.getSimpleName(), "Setting RTC to " + timeToSet.toString());
-        RTCSetCommand rtcSetCommand = new RTCSetCommand(Date.from(timeToSet));
-
-        rtcSetCommand.execute((event, unused) -> {
+        new RTCSetCommand(Date.from(timeToSet)).execute((event, unused) -> {
             Log.d(SetRtc.class.getSimpleName(), String.format("RTCSetCommand event: %s", event));
             switch (event) {
+                case PROGRESS:
+                    return;
                 case FAILED:
                 case CANCELLED:
-                    Log.e(SetRtc.class.getSimpleName(), String.format("Setting RTC %s", event));
-                    callback.accept(FlowStatus.FAILED);
+                    Log.e(SetRtc.class.getSimpleName(), String.format("Setting RTC status:%s", event));
+                    status = FlowStatus.FAILED;
                     break;
                 case SUCCESS:
-                    disconnect(callback);
+                    status = FlowStatus.SUCCESS;
                     break;
             }
+            exitSecureSession();
         });
     }
 
-    private void disconnect(final Consumer<FlowStatus> callback) {
-        Log.d(SetRtc.class.getSimpleName(), "Disconnecting after setting RTC");
-        disconnect.execute((disconnectionStatus) -> callback.accept(FlowStatus.SUCCESS_REBOOT_NEEDED));
+    private void exitSecureSession() {
+        Log.i(SetRtc.class.getSimpleName(), "Exitting secure session");
+        new ExitSecureSessionCommand().execute((event, unused) -> {
+            Log.d(SetRtc.class.getSimpleName(), String.format("ExitSecureSessionCommand event: %s", event));
+            switch (event) {
+                case PROGRESS:
+                    return;
+                case FAILED:
+                case CANCELLED:
+                    Log.e(SetRtc.class.getSimpleName(), String.format("Exit Secure Session status: %s", event));
+                    status = FlowStatus.FAILED;
+                    break;
+            }
+            callback.accept(status);
+        });
     }
+
 }

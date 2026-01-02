@@ -123,6 +123,13 @@
             android:text="@string/allow_pin_bypass" />
 
         <Switch
+            android:id="@+id/tipSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/payment_tip" />
+
+        <Switch
             android:id="@+id/retrieveF5Tag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

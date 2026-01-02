@@ -1552,26 +1552,18 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     private void setRtc(final LocalDateTime localDateTimeToSet) {
         runOnUiThread(() -> progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.set_rtc)));
-        final SetRtc setRtc = new SetRtc(UCubeAPI.getConnexionManager());
-        setRtc.execute(localDateTimeToSet.atZone(ZoneId.systemDefault()).toInstant(),
-                (status) -> {
-                    switch (status) {
-                        case FAILED:
-                            runOnUiThread(() -> {
-                                progressDlg.dismiss();
-                                UIUtils.showMessageDialog(MainActivity.this,
-                                        getString(R.string.set_rtc_failed));
-                            });
-                            break;
-                        case SUCCESS_REBOOT_NEEDED:
-                            runOnUiThread(() -> {
-                                progressDlg.dismiss();
+        new SetRtc().execute(localDateTimeToSet.atZone(ZoneId.systemDefault()).toInstant(),
+                (status) -> runOnUiThread(() -> {
+                        progressDlg.dismiss();
+                        switch (status) {
+                            case FAILED:
+                                UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_rtc_failed));
+                                break;
+                            case SUCCESS:
                                 Toast.makeText(MainActivity.this, getString(R.string.set_rtc_success), Toast.LENGTH_LONG).show();
-                                updateConnectionUI(DEVICE_NOT_CONNECTED);
-                            });
-                            break;
-                    }
-                });
+                                break;
+                        }
+                    }));
     }
 
     private void askForTimeAndSetIntegrityCheckTime() {
@@ -1580,26 +1572,17 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
 
     private void setIntegrityCheckTime(final LocalTime timeToSet) {
         runOnUiThread(() -> progressDlg = UIUtils.showProgress(MainActivity.this, getString(R.string.set_integrity_check_time)));
-        final SetIntegrityCheckTime setIntegrityCheckTime = new SetIntegrityCheckTime(UCubeAPI.getConnexionManager());
-        setIntegrityCheckTime.execute(timeToSet,
-                (status) -> {
+        new SetIntegrityCheckTime().execute(timeToSet, (status) -> runOnUiThread(() -> {
+                    progressDlg.dismiss();
                     switch (status) {
                         case FAILED:
-                            runOnUiThread(() -> {
-                                progressDlg.dismiss();
-                                UIUtils.showMessageDialog(MainActivity.this,
-                                        getString(R.string.set_integrity_check_time_failed));
-                            });
+                            UIUtils.showMessageDialog(MainActivity.this, getString(R.string.set_integrity_check_time_failed));
                             break;
-                        case SUCCESS_REBOOT_NEEDED:
-                            runOnUiThread(() -> {
-                                progressDlg.dismiss();
-                                Toast.makeText(MainActivity.this, getString(R.string.set_integrity_check_time_success), Toast.LENGTH_LONG).show();
-                                updateConnectionUI(DEVICE_NOT_CONNECTED);
-                            });
+                        case SUCCESS:
+                            Toast.makeText(MainActivity.this, getString(R.string.set_integrity_check_time_success), Toast.LENGTH_LONG).show();
                             break;
-                    }
-                });
+                }
+            }));
     }
 
     public static String formatDate(Date date) {
