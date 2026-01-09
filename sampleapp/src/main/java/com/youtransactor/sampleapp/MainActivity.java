@@ -61,6 +61,7 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_POWER_OFF_TIMEOUT;
 import static com.youTransactor.uCube.rpc.Constants.TAG_RESOURCE_FILE_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_SECURE_MOD;
 import static com.youTransactor.uCube.rpc.Constants.TAG_SUPPORTED_LOCALE_LIST;
+import static com.youTransactor.uCube.rpc.Constants.TAG_SVPP_ID_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.TAG_SYSTEM_FAILURE_LOG_RECORD_1;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_PN;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_SN;
@@ -1181,6 +1182,7 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_E7_NFC_CARD_DETECT_CONFIGURATION,
                 TAG_CF_ENHANCED_SRED_CONFIGURATION,
                 TAG_FULL_SVPP_IDENTIFICATION,
+                TAG_SVPP_ID_EXTENDED,
                 TAG_INTEGRITY_CHECK_TIME,
                 TAG_NFC_INFOS
         };
