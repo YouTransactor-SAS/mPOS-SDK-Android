@@ -65,6 +65,7 @@ public class PaymentActivity extends TransactionViewBase {
                 paymentFragment.displaytxt(((EventDspTxt) eventCmd).getMessage());
                 break;
             case dsp_idle:
+            case dsp_authorisation:
                 new DefaultDisplayIdleStep(this).execute(eventCmd);
                 break;
             case dsp_integ_check_24h_warning:
