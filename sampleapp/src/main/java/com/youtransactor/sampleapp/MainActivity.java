@@ -68,6 +68,7 @@ import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_SN;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TERMINAL_STATE;
 import static com.youTransactor.uCube.rpc.Constants.TAG_TST_LOOPBACK_VERSION;
 import static com.youTransactor.uCube.rpc.Constants.TAG_USB_CAPABILITY;
+import static com.youTransactor.uCube.rpc.Constants.TAG_VOLTAGE_PROFILE;
 import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_CONNECTED;
 import static com.youtransactor.sampleapp.MainActivity.State.DEVICE_NOT_CONNECTED;
 import static com.youtransactor.sampleapp.MainActivity.State.NO_DEVICE_SELECTED;
@@ -1184,7 +1185,8 @@ public class MainActivity extends AppCompatActivity implements BatteryLevelListe
                 TAG_FULL_SVPP_IDENTIFICATION,
                 TAG_SVPP_ID_EXTENDED,
                 TAG_INTEGRITY_CHECK_TIME,
-                TAG_NFC_INFOS
+                TAG_NFC_INFOS,
+                TAG_VOLTAGE_PROFILE
         };
         sendGetInfocommand(uCubeInfoTagList);
         UIUtils.showProgress(this, getString(R.string.get_info), false);
