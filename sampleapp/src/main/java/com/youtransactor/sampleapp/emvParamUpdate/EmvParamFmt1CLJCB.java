@@ -87,7 +87,7 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                         clessAIDDsc.dol.add_tlv(new TLV(
                                 "9F06", "A0000000651010", "B_"));
                     }
-                    TLV df00Tag = null;
+                    TLV df00Tag;
                     // Terminal Contactless Transaction Limit
                     if (!clessAIDDsc.dol.is_tlv_present("DF00")) {
                         clessAIDDsc.dol.add_tlv(new TLV(
@@ -252,5 +252,8 @@ public class EmvParamFmt1CLJCB extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClJcbConfigured(),
+                EmvParamYTModel.TypeID.clJCBKrnCloseId,
+                model);
     }
 }

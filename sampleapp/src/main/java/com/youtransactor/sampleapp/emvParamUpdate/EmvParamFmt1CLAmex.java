@@ -251,5 +251,8 @@ public class EmvParamFmt1CLAmex extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClAmexConfigured(),
+                EmvParamYTModel.TypeID.clAMEXKrnCloseId,
+                model);
     }
 }

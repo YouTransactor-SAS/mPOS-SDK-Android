@@ -281,5 +281,8 @@ public class EmvParamFmt1CLInterac extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClInteracConfigured(),
+                EmvParamYTModel.TypeID.clINTERACKrnCloseId,
+                model);
     }
 }

@@ -205,5 +205,8 @@ public class EmvParamFmt1CLCUP extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClCupConfigured(),
+                EmvParamYTModel.TypeID.clCUPKrnCloseId,
+                model);
     }
 }

@@ -183,5 +183,8 @@ public class EmvParamFmt1CLVisa extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClVisaConfigured(),
+                EmvParamYTModel.TypeID.clVISAKrnCloseId,
+                model);
     }
 }

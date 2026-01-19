@@ -274,5 +274,8 @@ public class EmvParamFmt1CLDisc extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClDiscConfigured(),
+                EmvParamYTModel.TypeID.clDISCKrnCloseId,
+                model);
     }
 }

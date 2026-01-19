@@ -247,4 +247,30 @@ public class EmvParamFmt1 {
         model.setClCAPKID(EmvParamFmt1.getClCAPKID(jsonFmt1Common));
         model.setClCAPKDate(EmvParamFmt1.getClCAPKDate(jsonFmt1Common));
     }
+    //! @brief closing the kernel will tell the SP that all AIDs have loaded
+    // for this kernel. The YT-SOMV2 will duplicate profiles for transaction
+    // types missing a mandatory profile
+    protected static void closeLoad(boolean isKrnlOpen,
+                             EmvParamYTModel.TypeID typeID,
+                             EmvParamYTModel model){
+        if(isKrnlOpen){
+            EmvParamYTModel.ClessEltDsc closeKrnlDsc =
+                    new EmvParamYTModel.ClessEltDsc();
+            closeKrnlDsc.type = typeID.getVal();
+            closeKrnlDsc.eltToUpdID =
+                    EmvParamYTModel.EltToUpdID.noId.getVal();
+            closeKrnlDsc.dol = new EmvParamDOL();
+            // when closing the load of AIDs for a given kernel,
+            // profiles for these transaction type
+            // will be automatically created when missing from
+            // the loaded kernel AID profile set.
+            // The profiles are created against profile for purchase transaction
+            // 0x09: purchase cashback
+            // 0x20: refund
+            // 0x30: Inquiry
+            closeKrnlDsc.dol.dol.add(new TLV(
+                    "01", "092030", "_B"));
+            model.add_cless_elt(closeKrnlDsc);
+        }
+    }
 }

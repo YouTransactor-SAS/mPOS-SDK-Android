@@ -252,5 +252,8 @@ public class EmvParamFmt1CLMCL extends EmvParamFmt1{
                 }
             }
         }
+        EmvParamFmt1.closeLoad(model.isClMclConfigured(),
+                EmvParamYTModel.TypeID.clMCLKrnCloseId,
+                model);
     }
 }
