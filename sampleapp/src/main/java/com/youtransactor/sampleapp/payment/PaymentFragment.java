@@ -30,10 +30,13 @@ import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_5A_APPLICA
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_5F20_CARDHOLDER_NAME;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_9F0B_CARDHOLDER_NAME_EXTENDED;
 import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_9F6B_TRACK_2_DATA;
+import static com.youTransactor.uCube.rpc.Constants.EMVTag.TAG_SECURE_DF5A_PAN_CVV_DATA;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -45,7 +48,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -97,7 +102,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class PaymentFragment extends Fragment {
@@ -709,6 +716,9 @@ public class PaymentFragment extends Fragment {
                                     if (triggerNewPayment) {
                                         startPayment();
                                     } else {
+                                        if(context.paymentStatus == PaymentStatus.APPROVED) {
+                                            displaySensitiveData(context);
+                                        }
                                         doPaymentBtn.setVisibility(View.VISIBLE);
                                         cancelPaymentBtn.setVisibility(View.GONE);
                                     }
@@ -780,5 +790,61 @@ public class PaymentFragment extends Fragment {
 
         Log.d(TAG, measurement);
         measurementSection.setVisibility(View.VISIBLE);
+    }
+
+    private TextView addLine(String tagName, String value){
+        TextView lineTv = new TextView(underlyingActivity);
+        lineTv.setText(tagName + " : " + value);
+        lineTv.setTextSize(16f);
+        lineTv.setLineSpacing(0f, 1.2f);
+        lineTv.setTextIsSelectable(true);
+        lineTv.setTypeface(Typeface.MONOSPACE);
+        lineTv.setSingleLine(false);
+        lineTv.setMaxLines(Integer.MAX_VALUE);
+        lineTv.setHorizontallyScrolling(true);
+        return lineTv;
+    }
+    public void displaySensitiveData(@NonNull PaymentContext context) {
+        Map<Integer, String> tagNameMap = new HashMap<>();
+        tagNameMap.put(TAG_SECURE_5A_APPLICATION_PRIMARY_ACCOUNT_NUMBER, "PAN");
+        tagNameMap.put(TAG_SECURE_57_TRACK_2_EQUIVALENT_DATA, "Equ TRACK2(Tag 0x57)");
+        tagNameMap.put(TAG_SECURE_56_TRACK_1_DATA, "TRACK1");
+        tagNameMap.put(TAG_SECURE_9F6B_TRACK_2_DATA, "TRACK2(Tag 9F6B)");
+        tagNameMap.put(TAG_SECURE_DF5A_PAN_CVV_DATA, "PAN:CVV");
+
+        LinearLayout container = new LinearLayout(underlyingActivity);
+        container.setOrientation(LinearLayout.VERTICAL);
+        int padH = 50, padV = 24;
+        container.setPadding(padH, padV, padH, padV);
+        container.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        for (Integer tag : context.finalizationSecuredTagsValues.keySet()) {
+            String tagName = tagNameMap.get(tag);
+            if (tagName == null) continue;
+            String value;
+            if (!Tools.isPrintableAscii(context.finalizationSecuredTagsValues.get(tag))) {
+                value = Tools.bytesToHex(context.finalizationSecuredTagsValues.get(tag));
+            } else {
+                value = Tools.hexToAscii((context.finalizationSecuredTagsValues.get(tag)));
+            }
+            container.addView(addLine(tagName, value));
+        }
+        if (context.onlinePinBlock != null) {
+            container.addView(addLine("PIN Block",
+                    Tools.bytesToHex(context.onlinePinBlock)));
+        }
+        HorizontalScrollView hsv = new HorizontalScrollView(underlyingActivity);
+        hsv.addView(container);
+
+        ScrollView vScroll = new ScrollView(underlyingActivity);
+        vScroll.addView(hsv);
+        new AlertDialog.Builder(underlyingActivity)
+                .setTitle("Information")
+                .setView(vScroll)
+                .setPositiveButton("OK", (d, w) -> d.dismiss())
+                .show();
     }
 }
