@@ -4,11 +4,13 @@ import static com.youTransactor.uCube.rpc.Constants.ICC_READER;
 import static com.youTransactor.uCube.rpc.Constants.MSR_READER;
 import static com.youTransactor.uCube.rpc.Constants.NFC_READER;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,6 +73,13 @@ public class WaitCardFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wait_card, container, false);
 
+        Rect rectangle = new Rect();
+        Window window = getActivity().getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int statusBarHeight = rectangle.top;
+        int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        int titleBarHeight= statusBarHeight - contentViewTop;
+
         paymentService = PaymentService.INSTANCE;
 
         TextView textViewAmount = view.findViewById(R.id.textViewAmount);
@@ -83,6 +92,11 @@ public class WaitCardFragment extends Fragment {
         ImageView imageViewSwipe = view.findViewById(R.id.imageViewSwipe);
         ImageView imageViewInsert = view.findViewById(R.id.imageViewInsert);
         ImageView imageViewNFC = view.findViewById(R.id.imageViewNFC);
+
+        ViewGroup.MarginLayoutParams imageViewNFCLayoutParams = (ViewGroup.MarginLayoutParams)imageViewNFC.getLayoutParams();
+        imageViewNFCLayoutParams.topMargin -= titleBarHeight;
+        imageViewNFC.setLayoutParams(imageViewNFCLayoutParams);
+        imageViewNFC.requestLayout();
 
         imageViewSwipe.setVisibility(View.GONE);
         imageViewInsert.setVisibility(View.GONE);
