@@ -113,6 +113,7 @@ public class PaymentFragment extends Fragment {
     public static final String TAG = PaymentFragment.class.getName();
 
     private SharedPreferences prefs;
+    private View progressOverlay;
     private Button doPaymentBtn;
     private Button cancelPaymentBtn;
     private EditText cardWaitTimeoutFld;
@@ -185,6 +186,8 @@ public class PaymentFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_payment, container, false);
+        progressOverlay = view.findViewById(R.id.progressOverlay);
+        cancelPaymentBtn =  view.findViewById(R.id.cancelPaymentBtn);
         initTabLayout(view);
         return view;
     }
@@ -221,7 +224,6 @@ public class PaymentFragment extends Fragment {
         view.findViewById(R.id.measures_section).setVisibility(measureModeEnabled ? View.VISIBLE : View.GONE);
 
         doPaymentBtn =  view.findViewById(R.id.doPaymentBtn);
-        cancelPaymentBtn =  view.findViewById(R.id.cancelPaymentBtn);
         amountFld =  view.findViewById(R.id.amountFld);
         cashbackAmountFld =  view.findViewById(R.id.cashbackAmountFld);
         currencyChooser =  view.findViewById(R.id.currencyChooser);
@@ -375,6 +377,7 @@ public class PaymentFragment extends Fragment {
     }
 
     private void startPayment() {
+        progressOverlay.setVisibility(View.VISIBLE);
         doPaymentBtn.setVisibility(View.GONE);
         cancelPaymentBtn.setVisibility(View.VISIBLE);
         if (measurementSection != null) {
@@ -719,6 +722,7 @@ public class PaymentFragment extends Fragment {
                                         if(context.paymentStatus == PaymentStatus.APPROVED) {
                                             displaySensitiveData(context);
                                         }
+                                        progressOverlay.setVisibility(View.GONE);
                                         doPaymentBtn.setVisibility(View.VISIBLE);
                                         cancelPaymentBtn.setVisibility(View.GONE);
                                     }
@@ -731,6 +735,7 @@ public class PaymentFragment extends Fragment {
             } catch (Exception e) {
                 Log.w(TAG, "Payment error", e);
                 underlyingActivity.runOnUiThread(() -> {
+                    progressOverlay.setVisibility(View.GONE);
                     doPaymentBtn.setVisibility(View.VISIBLE);
                     cancelPaymentBtn.setVisibility(View.GONE);
                 });
